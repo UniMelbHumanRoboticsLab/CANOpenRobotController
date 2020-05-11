@@ -37,7 +37,7 @@ Clone the project from git repository(CANopenSocket used in robot homing sequenc
 
   > Password: temppwd
 
-  > Transfer executable and initRobot folders.
+  > Transfer executable(build/EXO_ROBOT_2020) and initRobot folder.
 
 ## Run Virtual ExoTestMachine
 
@@ -53,7 +53,7 @@ Clone the project from git repository(CANopenSocket used in robot homing sequenc
 
 ```bash
   cd build
-  sudo ./EXO_APP
+  sudo ./EXO_APP_2020
 ```
 
 - Terminal one should display CAN message output on VCAN from our EXO_APP application output. On startup init PDO messaging should be sent and appear as follows:
