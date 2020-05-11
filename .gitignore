@@ -1,0 +1,11 @@
+
+*.iml
+*.xml
+CANopenSocket/canopend/X2_log.txt
+*.o
+.vs/
+/.devcontainer/Dockerfile
+/.devcontainer/devcontainer.json
+/build/.*
+bbbxc
+EXO_APP_2020
