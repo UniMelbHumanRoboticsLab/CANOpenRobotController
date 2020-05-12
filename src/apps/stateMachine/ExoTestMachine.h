@@ -2,7 +2,7 @@
  * \file ExoTestMachine.h
  * \author William Campbell 
  * \version 0.1
- * \date 2020-09-24
+ * \date 2019-09-24
  * @copyright Copyright (c) 2020
  *
  * /brief The <code>ExoTestMachine</code> class represents an example implementation of an exoskeleton state machine 
