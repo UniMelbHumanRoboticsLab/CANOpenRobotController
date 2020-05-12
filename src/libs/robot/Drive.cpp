@@ -149,7 +149,7 @@ std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> it
 }
 
 std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming) {
-    // TODO: Do a check to make sure that the OD_Entry_t items can be Received.
+    /* \todo Do a check to make sure that the OD_Entry_t items can be Received.*/
 
     // Calculate COB_ID. If TPDO:
     int COB_ID = 0x100 * PDO_Num + NodeID;
