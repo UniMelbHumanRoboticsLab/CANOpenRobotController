@@ -2,6 +2,8 @@
 
 CORC is a free and open source robotic development software stack. The project has been under development at the University of Melbourne in partnership with Fourier Intelligence for use with their X2 exoskeleton hardware. The work itself has been developed to run on a Beaglebone Black connected to the CAN bus of the X2 Exoskeleton, however, the software has been designed to be extensible to any embedded Linux and CANopen enabled Robotic platform.
 
+**Note (12/5/2020):** At this stage, this software has not been tested on physical hardware. 
+
 ## The CANOpen Robot Controller project includes:
 
 - An extensible framework to represent multibody robotic systems.
@@ -10,20 +12,33 @@ CORC is a free and open source robotic development software stack. The project h
 - Documentation
 - Functional application examples.
 
+### Project Overview
+
+The code is structured into 3 levels:
+
+1. CANopen Communications Level
+  - This provides the CAN-level communications, providing the mechanisms for the sending and receiving of PDO and SDO messages
+2. The Robot Level
+  - This defines the components of the Robot to be controlled, including the joints, associated drives, and input devices
+3. The State Machine and Trajectory Generator
+  - This defines the high level logic for the device, and the trajectories to be used. 
+
+Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The CANopen Communications level should not need to be changed, except potentially for advanced reasons (e.g. changes to the Object Dictionary). The Robot level should only change with respect if the robot to be controlled changes. This is somewhat represented by the source code folder structure - the files which should not need modification are placed in the `src/libs` folder, and the remainder are placed in the `src/apps` folder. The code is written in C++, and takes advantage of the object-oriented nature of the language to enable this structure - thus there are base classes in the `libs` folder which are derived in the `apps` folder. 
+
 ## Getting started with CORC
 
 The following instructions detail the building and testing of a simple test state machine (ExoTestMachine.cpp), the source code can be found in the apps folder of the root directory.
 
-The current recommended and tested environmen is Debian jesse 8.11 on a BeagleBone Black [Firmware](http://beagleboard.org/latest-images). Theoretically, we can build on other distros and Linux platforms as well, but they have not been testd.
+The current recommended and tested environmen is Debian Jessie 8.11 on a BeagleBone Black [Firmware](http://beagleboard.org/latest-images). Theoretically, this can be built on other distributions and Linux platforms as well, but they have not yet been tested.
 
-Workbench build environments for most platforms can be found [here](https://embeded.readthedocs.io/en/latest/workbench/)
+Workbench build environments for most platforms can be found [here](https://exoembedded.readthedocs.io/en/latest/workbench/)
 
 ### How to get the Project
 
 ​
 Clone the project from git repository(CANopenSocket used in robot homing sequence):
 ​
-\$ git clone https://github.com/Willcampbellmelb/CANOpenRobotController.git
+\$ git clone https://github.com/UniMelb-Human-Robotics-Lab/CANOpenRobotController
 ​
 
 ### Build ExoTestMachine
