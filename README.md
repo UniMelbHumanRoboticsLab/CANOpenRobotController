@@ -1,18 +1,18 @@
 # CANOpen Robot Controller (CORC) Project
 
-CORC is a free and open source robotic development software stack. The project has been under development at the University of Melbourne in partnership with Fourier Intelligence for use with their X2 exoskeleton. The software has been designed to be extensible to any embedded Linux and CANopen enabled Robotic platform.
+CORC is a free and open source robotic development software stack. The project has been under development at the University of Melbourne in partnership with Fourier Intelligence for use with their X2 exoskeleton hardware. The work itself has been developed to run on a Beaglebone Black connected to the CAN bus of the X2 Exoskeleton, however, the software has been designed to be extensible to any embedded Linux and CANopen enabled Robotic platform.
 
-## The CANOpen Robot Controller project is made up of:
+## The CANOpen Robot Controller project includes:
 
-- Extensible framework to represent most multibody robotic systems.
-- Event driven state machine to develop custom applications for your robot.
-- Implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen configured motor drivers/sensors.
+- An extensible framework to represent multibody robotic systems.
+- Event driven state machine to develop custom applications. 
+- Implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers/sensors.
 - Documentation
-- Fully functional application examples.
+- Functional application examples.
 
 ## Getting started with CORC
 
-We will be running through building and testing a simple test state machine (ExoTestMachine.cpp), the source code can be found in the apps folder of the root directory.
+The following instructions detail the building and testing of a simple test state machine (ExoTestMachine.cpp), the source code can be found in the apps folder of the root directory.
 
 The current recommended and tested environmen is Debian jesse 8.11 on a BeagleBone Black [Firmware](http://beagleboard.org/latest-images). Theoretically, we can build on other distros and Linux platforms as well, but they have not been testd.
 
