@@ -51,7 +51,7 @@ On the host, build the executable:
 
 ```bash
 $ cd <CANOpenRobotController_directory>
-    $ make exe
+$ make exe
 ```
 
 > Note: there are also some additional build rules to build additional tests, which are still to be completed 
