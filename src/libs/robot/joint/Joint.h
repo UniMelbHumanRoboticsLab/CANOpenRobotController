@@ -1,11 +1,12 @@
 /**
- * The <code>Joint</code> class is a abstract class which represents a joint in a
+ * \file Joint.h
+ * \brief The <code>Joint</code> class is a abstract class which represents a joint in a
  * <code>Robot</code> objec. This class can be used to represent all types of joints,
  * including actuated, non-actuated, revolute, prismatic, etc.
- * 
- *
- * Version 0.1
- * Date: 07/04/2020
+ * \version 0.1
+ * \date 2020-04-10
+ * \version 0.1
+ * \copyright Copyright (c) 2020
  */
 
 #ifndef JOINT_H_INCLUDED

@@ -1,10 +1,20 @@
+
 /**
  * 
- 
- * \brief The<code> ExoRobot</ code> class represents an ExoSkeleton Robot in terms of its
+ * \file ExoRobot.h
+ * \author William Campbell 
+ * \version 0.1
+ * \date 2019-09-24
+ * \copyright Copyright (c) 2019
+ * 
+ * \breif  The<code> ExoRobot</ code> class represents an ExoSkeleton Robot in terms of its
  * representation of the Alex exoskeleton hardware whose memory is managed in this class.
  *
-*/
+ *
+ * Version 0.1
+ * Date: 07/04/2020
+ */
+
 #ifndef EXOROBOT_H_INCLUDED
 #define EXOROBOT_H_INCLUDED
 
@@ -78,9 +88,10 @@ class ExoRobot : public Robot {
     void startNewTraj();
 
     /** 
-         * Determine if the currently generated trajectory is complete.
-         */ return bool * /
-        bool isTrajFinished();
+   * Determine if the currently generated trajectory is complete.
+   *\return bool 
+   */
+    bool isTrajFinished();
 
     /**
        * /brief Implementation of Pure Virtual function from <code>Robot</code> Base class.

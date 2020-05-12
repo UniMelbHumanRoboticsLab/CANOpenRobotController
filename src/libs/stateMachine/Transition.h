@@ -2,9 +2,9 @@
  * \file Transition.h
  * \author William Campbell 
  * \version 0.1
- * \date 2020-09-24
+ * \date 2019-09-24
  * For more detail on the architecture and mechanics of the state machine class see: https://embeded.readthedocs.io/en/latest/StaeMachines/.
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2019
  * 
  */
 

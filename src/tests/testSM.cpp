@@ -11,7 +11,6 @@
 #include "CANopen.h"
 #include "ExoRobot.h"
 #include "TestMachine.h"
-//using namespace std;
 
 pthread_mutex_t CO_CAN_VALID_mtx = PTHREAD_MUTEX_INITIALIZER;
 volatile uint32_t CO_timer1ms = 0U;

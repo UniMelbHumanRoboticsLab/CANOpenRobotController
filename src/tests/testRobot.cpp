@@ -1,5 +1,13 @@
-/// Testing ExoRobot new classes
-
+/**
+ * \file testRobot.cpp
+ * \author William Campbell
+ * \brief A script to test the functionality of the ExoRobot class
+ * \version 0.1
+ * \date 2020-04-21
+ * 
+ * \copyright Copyright (c) 2020
+ * 
+ */
 #include "ExoRobot.h"
 //using namespace std;
 

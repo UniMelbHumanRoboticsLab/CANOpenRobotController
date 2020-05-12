@@ -2,9 +2,9 @@
  * \file State.h
  * \author William Campbell 
  * \version 0.1
- * \date 2020-09-24
+ * \date 2019-09-24
  * For more detail on the architecture and mechanics of the state machine class see: https://embeded.readthedocs.io/en/latest/StaeMachines/.
- * @copyright Copyright (c) 2020
+ * \copyright Copyright (c) 2019
  * 
  */
 
@@ -19,10 +19,7 @@ class Transition;
 
 #include "StateMachine.h"
 #include "Transition.h"
-#define MAXARCS 20
-
-/* Forward declarations*/
-
+#define MAXARCS 10 /*<!Define the max number of arcs (transitions) any state can have*/
 /**
  * \brief Abstract class representing a state in a StateMachine
  * 
@@ -32,16 +29,16 @@ class State {
     // A State machine class can access the private and protected members of a state class  */
    public:
     /**
-     * @brief Pointer to the owning state machine
+     * \brief Pointer to the owning state machine
      * 
      */
     StateMachine *owner;
 
     /**
-     * @brief Construct a new State object
+     * \brief Construct a new State object
      * 
-     * @param p Pointer to the owning state machine
-     * @param n Name of the state machine
+     * \param p Pointer to the owning state machine
+     * \param n Name of the state machine
      */
     State(StateMachine *p, const char n[] = NULL) {
         owner = p;
@@ -54,43 +51,43 @@ class State {
     Transition *getActiveArc(void);
 
     /**
-     * @brief Called once when the state is entered. Pure virtual function, must be overwritten by each state
+     * \brief Called once when the state is entered. Pure virtual function, must be overwritten by each state
      * 
      */
     virtual void entry(void) = 0;
 
     /**
-     * @brief Called continuously whilst in that state. Pure virtual function, must be overwritten by each state
+     * \brief Called continuously whilst in that state. Pure virtual function, must be overwritten by each state
      * 
      */
     virtual void during(void) = 0;
 
     /**
-     * @brief Called once when the state exits. Pure virtual function, must be overwritten by each state
+     * \brief Called once when the state exits. Pure virtual function, must be overwritten by each state
      * 
      */
     virtual void exit(void) = 0;
 
     /**
-     * @brief Returns the name of the state - Note that this 
+     * \brief Returns the name of the state - Note that this 
      * 
-     * @return const char* The name of the state
+     * \return const char* The name of the state
      */
     const char *getName(void);
 
     /**
-     * @brief Prints the name of the state
+     * \brief Prints the name of the state
      * 
      */
     void printName(void);
 
    private:
     /**
-    * @brief List of possible transitions
+    * \brief List of possible transitions
     * 
     */
-    Transition *arclist[MAXARCS];
-    const char *name;  // Pointer to the name of this State
+    Transition *arclist[MAXARCS]; /*<!Array of transition objects this state can transition to on exit*/
+    const char *name;             /*<!Pointer to the name of this State*/
     int numarcs;
 };
 

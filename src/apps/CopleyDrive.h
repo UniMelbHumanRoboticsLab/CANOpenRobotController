@@ -1,9 +1,16 @@
+
 /**
-/**
- * \brief An implementation of the Drive Object, specifically for the Copley Drive
+ * \file CopleyDrive.h
+ * \author Justin Fong
+ * \brief  An implementation of the Drive Object, specifically for the Copley Drive
  * 
+ * This class enables low level functions to the system. It does limited error 
+ * checking. 
  * \version 0.1
- * \date 2020-04-09
+ * \date 2020-04-07
+ * \version 0.1
+ * \copyright Copyright (c) 2020
+ * 
  */
 #ifndef COPLEYDRIVE_H_INCLUDED
 #define COPLEYDRIVE_H_INCLUDED
@@ -63,6 +70,27 @@ class CopleyDrive : public Drive {
          * \return false if not
          */
     bool initTorqControl();
+    /**
+          * \brief Overloaded method from Drive, specifically for Copley Drive implementation.
+          *     Generates the list of commands required to configure Position control in CANopen motor drive
+          * 
+          * /param Profile Velocity, value used by position mode motor trajectory generator.
+          *            Units: 0.1 counts/sec
+          *            Range:0 - 500,000,000
+          * /param Profile Acceleration, value position mode motor trajectory generator will attempt to achieve.
+          *            Units: 10 counts/sec^2
+          *            Range:0 - 200,000,000
+          * /param Profile Deceleration, value position mode motor trajectory generator will use at end of trapezoidal profile.
+          *             see programmers manual for other profile types use.
+          *            Units: 10 counts/sec^2
+          *            Range:0 - 200,000,000
+          * 
+          *    NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
+          *           https://www.can-cia.org/can-knowledge/canopen/cia402/
+          * 
+          */
+
+    std::vector<std::string> generatePosControlConfigSDO(motorProfile positionProfile);
 };
 
 #endif
