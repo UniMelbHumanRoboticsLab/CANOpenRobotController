@@ -130,20 +130,17 @@ class Drive {
     std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming);
 
     /**
-       *     /brief  Generates the list of commands required to configure Position control in CANopen motor drive
        * 
-       *     /param Profile Velocity, value used by position mode motor trajectory generator.
-       *            Units: 0.1 counts/sec
-       *            Range:0 - 500,000,000
-       *      /param Profile Acceleration, value position mode motor trajectory generator will attempt to achieve.
-       *            Units: 10 counts/sec^2
-       *            Range:0 - 200,000,000
-       *      /param Profile Deceleration, value position mode motor trajectory generator will use at end of trapezoidal profile.
-       *             see programmers manual for other profile types use.
-       *            Units: 10 counts/sec^2
-       *            Range:0 - 200,000,000
+       * /brief  Generates the list of commands required to configure Position control in CANopen motor drive
        * 
-       *     NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
+       *     
+       * /param Profile Velocity, value used by position mode motor trajectory generator.
+       *     
+       * /param Profile Acceleration, value position mode motor trajectory generator will attempt to achieve.
+       *     
+       * /param Profile Deceleration, value position mode motor trajectory generator will use at end of trapezoidal profile.
+       *     
+       * NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
        *           https://www.can-cia.org/can-knowledge/canopen/cia402/
        */
     std::vector<std::string> generatePosControlConfigSDO(motorProfile positionProfile);

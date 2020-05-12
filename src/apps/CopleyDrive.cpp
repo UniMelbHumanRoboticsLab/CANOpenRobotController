@@ -35,3 +35,6 @@ bool CopleyDrive::initVelControl() {
 bool CopleyDrive::initTorqControl() {
     return true;
 }
+std::vector<std::string> CopleyDrive::generatePosControlConfigSDO(motorProfile positionProfile) {
+    return Drive::generatePosControlConfigSDO(positionProfile); /*<!execute base class function*/
+};

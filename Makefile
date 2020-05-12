@@ -85,13 +85,13 @@ checkdirs: $(BUILD_DIR)
 exe: checkdirs main
 
 #On Windows - Substitute with command at end of file for UNIX-based systems
-$(BUILD_DIR):
-	@mkdir $(subst /,\\,$@)
+# $(BUILD_DIR):
+# 	@mkdir $(subst /,\\,$@)
 
 # #
 clean:
 	@rm -rf $(OBJ_CPP) $(OBJ_C) $(TESTOBJS)$(MAIN) $(MAINEXE) $(BUILD_DIR)
 
 #On UNIX
-#$(BUILD_DIR):
-#	@mkdir -p $@ 
+$(BUILD_DIR):
+	@mkdir -p $@ 
