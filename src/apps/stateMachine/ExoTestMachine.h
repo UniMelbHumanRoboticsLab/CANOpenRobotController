@@ -3,7 +3,7 @@
  * \author William Campbell 
  * \version 0.1
  * \date 2019-09-24
- * @copyright Copyright (c) 2020
+ * \copyright Copyright (c) 2020
  *
  * /brief The <code>ExoTestMachine</code> class represents an example implementation of an exoskeleton state machine 
  * with five states. Initialisation, sitting, standing, standing up and sitting down. The test machine
@@ -73,13 +73,15 @@ class ExoTestMachine : public StateMachine {
     Standing *standing;
 
    protected:
-    // Pointer to the Robot
-    ExoRobot *robot;
+    ExoRobot *robot; /*<!Pointer to the Robot*/
 
    private:
-    // Event Objects defined using Macro defined in StateMachine.h
-    // Defines the Class itself, as well as initialises an object of that class
-    // An events check function are defined in the .cpp file.
+    /**
+     * 
+     * \brief Event Objects defined using Macro defined in StateMachine.h
+     * Defines the Class itself, as well as initialises an object of that class
+     * An events check function are defined in the .cpp file.
+    */
     EventObject(EndTraj) * endTraj;
     EventObject(IsAPressed) * isAPressed;
     EventObject(StartButtonsPressed) * startButtonsPressed;

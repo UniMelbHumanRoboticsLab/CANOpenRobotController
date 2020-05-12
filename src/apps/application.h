@@ -3,7 +3,9 @@
  *
  * /file        application.h
  * /author      William Campbell
- *
+ * /date 2020-04-09
+ * /copyright Copyright (c) 2020
+ * 
  * This file is an adaptation of CANopenSocket, a Linux implementation of CANopen
  * stack with master functionality. Project home page is
  * <https://github.com/CANopenNode/CANopenSocket>. CANopenSocket is based
@@ -48,11 +50,9 @@
 #include "CO_OD_storage.h"
 #include "CO_command.h"
 #include "CO_time.h"
-#include "stdio.h"
-
-/*Non canopenNode + Socket libraries*/
 #include "ExoRobot.h"
 #include "ExoTestMachine.h"
+#include "stdio.h"
 
 #ifndef CO_APPLICATION_H
 #define CO_APPLICATION_H
@@ -64,29 +64,29 @@
 #define INCREMENT_1MS(var) (var++)     /* Increment 1ms variable in taskTmr */
 #define NODEID (100)
 /**
- * Function is called on program startup.
+ * /brief Function is called on program startup.
  */
 void app_programStart(void);
 
 /**
- * Function is called after CANopen communication reset.
+ * /brief Function is called after CANopen communication reset.
  */
 void app_communicationReset(void);
 
 /**
- * Function is called just before program ends.
+ * \brief Function is called just before program ends.
  */
 void app_programEnd(void);
 
 /**
- * Function is called cyclically from main.
+ * \briefFunction is called cyclically from main.
  *
- * @param timer1msDiff Time difference since last call
+ * \param timer1msDiff Time difference since last call
  */
 void app_programAsync(uint16_t timer1msDiff);
 
 /**
- * Function is called cyclically from realtime thread at constant intervals.
+ * \brief Function is called cyclically from Control loop thread at constant intervals.
  *
  * Code inside this function must be executed fast. Take care on race conditions.
  */

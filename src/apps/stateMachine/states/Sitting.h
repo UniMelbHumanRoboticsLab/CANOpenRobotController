@@ -1,4 +1,13 @@
-// Init State Class publically inheriting State
+/**
+ * /file Sitting.h
+ * /author Justin Fong
+ * /version 0.1
+ * /date 2020-05-07
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef SITTING_H_INCLUDED
 #define SITTING_H_INCLUDED
 

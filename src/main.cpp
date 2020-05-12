@@ -1,11 +1,11 @@
 /*
  *
- * @file        main.cpp
- * @author      William Campbell
- * @version 0.1
- * @date 2020-04-09
+ * /file        main.cpp
+ * /author      William Campbell
+ * /version 0.1
+ * /date 2020-04-09
  * 
- * @copyright Copyright (c) 2020
+ * /copyright Copyright (c) 2020
  * 
  *
  * This file is an adaptation of CANopenSocket, a Linux implementation of CANopen

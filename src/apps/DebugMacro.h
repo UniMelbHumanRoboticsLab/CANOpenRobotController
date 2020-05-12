@@ -1,5 +1,5 @@
 /**
- * @brief Defines some macros for debugging output
+ * \brief Defines some macros for debugging output
  * 
  */
 #ifndef DEBUG_H_INCLUDED

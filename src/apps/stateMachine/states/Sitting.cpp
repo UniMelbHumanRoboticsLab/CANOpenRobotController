@@ -11,7 +11,6 @@ void Sitting::entry() {
               << std::endl;
 }
 void Sitting::during() {
-    // OWNER->robot->moveThroughTraj();
 }
 void Sitting::exit() {
     std::cout

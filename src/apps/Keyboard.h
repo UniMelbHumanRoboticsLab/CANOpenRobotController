@@ -1,6 +1,14 @@
 /**
- * The <code>Keyboard</code> class is an implementation of the abstract <class>Input</class>class for a computer keyboard.
- * The device has key states which maintain the current values for a given programs update frame or refresh rate. 
+ * 
+ * \file ExoTestMachine.h
+ * \author William Campbell 
+ * \version 0.1
+ * \date 2019-09-24
+ * \copyright Copyright (c) 2020
+ * 
+ * \breif The <code>Keyboard</code> class is an implementation of the abstract <class>Input</class>class for a computer keyboard.
+ *    The device has key states which maintain the current values for a given programs update frame or refresh rate. 
+ *
  *
  * Version 0.1
  * Date: 07/04/2020
@@ -17,7 +25,7 @@
 #define NB_ENABLE 1
 
 /**
- * @brief Struct listing the Keys which exist on a Keyboard.
+ * \brief Struct listing the Keys which exist on a Keyboard.
  * 
  */
 typedef struct keys {
@@ -30,7 +38,7 @@ typedef struct keys {
 } key_states;
 
 /**
- * @brief Example InputDevice which takes input in from a keyboard. Useful for testing without any other input devices
+ * \brief Example InputDevice which takes input in from a keyboard. Useful for testing without any other input devices
  * 
  */
 class Keyboard : public InputDevice {
@@ -41,7 +49,7 @@ class Keyboard : public InputDevice {
 
    public:
     /**
-         * @brief Construct a new keyboard object
+         * \brief Construct a new keyboard object
          * 
          * * Note: Designer must implement specifc keyboard keys they wish to use.
          *      Add an entry to key_states struct, last and current key State object and edit
@@ -50,85 +58,85 @@ class Keyboard : public InputDevice {
     Keyboard();
     ~Keyboard();
     /**
- * @brief getter method for key_states.
+ * \brief getter method for key_states.
  * 
  */
     key_states getStates();
     /**
- * @brief reads one character from stdin and updates coresponding key state (if one occured)
+ * \brief reads one character from stdin and updates coresponding key state (if one occured)
  * 
  */
     void setKeys();
     /**
- * @brief defintion of <class>Input</class> pure virtual function. Updates the keyboard input devices
+ * \brief defintion of <class>Input</class> pure virtual function. Updates the keyboard input devices
  * memory states from implemented keyboard input from user. E.g. A key has been pressed or not.
  * 
  */
     void updateInput();
     /**
- * @brief clear the current key state variables
+ * \brief clear the current key state variables
  * 
  */
     void clearCurrentStates();
     /**
- * @brief Helper method, prints current keys registered as pressed
+ * \brief Helper method, prints current keys registered as pressed
  * 
  */
     void printPressed();
     // Returns true if the key is pressed.
     /**
- * @brief Getter method for private A key state
+ * \brief Getter method for private A key state
  * 
  */
     bool getA();
     /**
- * @brief Getter method for private S key state
+ * \brief Getter method for private S key state
  * 
  */
     bool getS();
     /**
- * @brief Getter method for private D key state
+ * \brief Getter method for private D key state
  * 
  */
     bool getD();
     /**
- * @brief Getter method for private W key state
+ * \brief Getter method for private W key state
  * 
  */
     bool getW();
     /**
- * @brief Getter method for private X key state
+ * \brief Getter method for private X key state
  * 
  */
     bool getX();
     /**
- * @brief Getter method for private Q key state
+ * \brief Getter method for private Q key state
  * 
  */
     bool getQ();
     /**
- * @brief Termios structs for turning on and off terminal echo
+ * \brief Termios structs for turning on and off terminal echo
  * 
  */
     struct termios original, noecho;
     char ch;
     /**
- * @brief Check if keyboard has been hit - is stdin active.
+ * \brief Check if keyboard has been hit - is stdin active.
  * 
  */
     int kbhit();
     /**
- * @brief Configure stdin to be nonblocking to rest of program
+ * \brief Configure stdin to be nonblocking to rest of program
  * 
  */
     void nonblock(int state);
     /**
- * @brief getter method for keyboard active flag, set by kbhit function.
+ * \brief getter method for keyboard active flag, set by kbhit function.
  * 
  */
     int getKeyboardActive();
     /**
- * @brief setter method for keyboard active flag, set by kbhit function.
+ * \brief setter method for keyboard active flag, set by kbhit function.
  * 
  */
     void setKeyboardActive(int value);

@@ -1,3 +1,13 @@
+/**
+ * /file Standing.h
+ * /author Justin Fong
+ * /version 0.1
+ * /date 2020-05-07
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef STANDING_H_INCLUDED
 #define STANDING_H_INCLUDED
 

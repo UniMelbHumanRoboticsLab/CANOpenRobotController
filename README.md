@@ -1,6 +1,5 @@
 # CANOpen Robot Controller (CORC) Project
 
-![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
 CORC is a free and open source robotic development software stack. The project has been under development at the University of Melbourne in partnership with Fourier Intelligence for use with their X2 exoskeleton. The software has been designed to be extensible to any embedded Linux and CANopen enabled Robotic platform.
 
 ## The CANOpen Robot Controller project is made up of:
