@@ -39,17 +39,21 @@ These instructions have been tested on a number of different host workbench buil
 
 On the host, clone the project from git repository:
 ​
-\$ git clone https://github.com/UniMelb-Human-Robotics-Lab/CANOpenRobotController
-​
+```bash
+$ git clone https://github.com/UniMelb-Human-Robotics-Lab/CANOpenRobotController
+​```
+
 This repository includes all the sources files required for this example. 
 
 ### Building ExoTestMachine
 
 On the host, build the executable:
 
+```bash
 $ cd <CANOpenRobotController_directory>
     $ make exe
-​
+​```
+
 > Note: there are also some additional build rules to build additional tests, which are still to be completed 
 
 The makefile is configured to compile an executable `EXO_ROBOT_2020` using the `arm-linux-gnueabihf-g++` compiler. Note that this requires an appropriately configured workbench environment (see "Before you start").
@@ -72,18 +76,23 @@ On the host, using the FTP client, transfer the build executable in `build/EXO_R
 
 To run the ExoTestMachine, open your preferred terminal window and SSH into the the BeagleBone ([tutorial](https://elinux.org/Beagleboard:Terminal_Shells)). This will provide terminal access to the target, on the host. This can be done using the same username and password, e.g:
 
+```bash
 $ ssh debian@192.168.7.2
+```
 
 At this point, you will need to change the permissions of the executables to executable. You can do this using the the `chmod +x` command on the target. e.g.
 
+```bash
 $ chmod +x EXO_ROBOT_2020
+```
 
 This must be repeated for the `.sh` scripts as well. 
 
 Initialize the Virtual CAN device to set up, bind to and run candump ([candump manpage](https://manpages.debian.org/testing/can-utils/candump.1.en.html)) on the VCAN interface. 
+
 ```bash
-  cd initRobot
-  ./initVCAN
+$  cd initRobot
+$  ./initVCAN
 ```
 
 This initialises a virtual CAN interface, and prints the contents of the bus to the terminal window. 
@@ -93,8 +102,8 @@ This initialises a virtual CAN interface, and prints the contents of the bus to 
 SSH into the BeagleBone in a second terminal window to launch the application:
 
 ```bash
-  cd build
-  sudo ./EXO_APP_2020
+$$  cd build
+$$  sudo ./EXO_APP_2020
 ```
 
 > Note: Superuser privileges (`sudo`) are required due to the use of real time threads in the application. 
