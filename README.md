@@ -41,8 +41,7 @@ On the host, clone the project from git repository:
 ​
 ```bash
 $ git clone https://github.com/UniMelb-Human-Robotics-Lab/CANOpenRobotController 
-
-​```
+```
 
 This repository includes all the sources files required for this example. 
 
@@ -53,7 +52,7 @@ On the host, build the executable:
 ```bash
 $ cd <CANOpenRobotController_directory>
     $ make exe
-​```
+```
 
 > Note: there are also some additional build rules to build additional tests, which are still to be completed 
 
