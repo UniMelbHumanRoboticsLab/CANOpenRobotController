@@ -56,7 +56,9 @@ The recommended method of transferring files to the BeagleBone is FTP.
 
 Using an FTP Client (if you do not have one - or a preferred client, [FileZilla](https://filezilla-project.org/) is reasonable), connect to the BeagleBone. By default, when the BeagleBone is connected to a computer using USB, it is configured to:
   
-> IP: 192.168.7.2 (Windows) or 192.168.6.2 (OSX), Username: debian, Password: temppwd
+- **IP Address:** 192.168.7.2 (Windows) or 192.168.6.2 (OSX)
+- **Username:** debian
+- **Password:** temppwd
 
 Using the client, transfer the built executable in `build/EXO_ROBOT_2020`, along with the contents of the `initRobot` folder, to the BeagleBone.
 
@@ -74,18 +76,17 @@ To run the ExoTestMachine, open your preferred terminal window and SSH into the 
 
 $ ssh debian@192.168.7.2
 
-Initialize Virutal CAN device to bind to and run candump ([candump manpage](https://manpages.debian.org/testing/can-utils/candump.1.en.html)) on the VCAN interface - this initialises a virtual CAN interface, and prints the contents of the bus to the terminal window. 
-
+Initialize Virutal CAN device to bind to and run candump ([candump manpage](https://manpages.debian.org/testing/can-utils/candump.1.en.html)) on the VCAN interface. 
 ```bash
   cd initRobot
   ./initVCAN
-```​
+```
 
+This initialises a virtual CAN interface, and prints the contents of the bus to the terminal window. 
 
 > Note: This can be changed to use a non-virtual CAN interface with some minor modifications to the code.
 
 SSH into the BeagleBone in a second terminal window to launch the application ​
-
 
 ```bash
   cd build
@@ -95,7 +96,6 @@ SSH into the BeagleBone in a second terminal window to launch the application �
 > Note: Superuser privileges (`sudo`) are required due to the use of real time threads in the application. 
 
 The first terminal one should display CAN messages on VCAN from the `EXO_APP_2020` application output. On startup init PDO messaging should be sent and appear as follows:
-
   ​
 ```bash
 vcan0 704 [1] 00
@@ -125,13 +125,9 @@ vcan0  304   [8]  80 60 60 00 00 00 00 00 #
 ```
 
 > Note these TPDO messages are configured in the Object Dictionary, with configuration SDOs to be sent during the Robot Initialisation stage. Details for the default set of PDOs can be found in the drive.h source files.
-​
-
-<!-- ## Run ExoTestMachine on X2
+​<!-- ## Run ExoTestMachine on X2
 ​
 Running on the X2 Robot is very similar to the virutal CAN set up, with one adjustment and -->
-
-​
 
 <!-- ### TODO: Event Driven State machine
 explain me -->
