@@ -2,7 +2,7 @@
 
 CORC is a free and open source robotic development software stack, written in C++.
 
-The project has been under development at the University of Melbourne in partnership with Fourier Intelligence. The project was developed to run on a Beaglebone Black connected to an X2 Exoskeleton, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform.
+The project has been under development at the University of Melbourne in partnership with Fourier Intelligence. The project was developed to run on an X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform.
 
 > Note (12/5/2020): At this stage, this software has not been tested on physical hardware due to lab access limitations due to COVID-19.
 
@@ -29,15 +29,15 @@ Whilst the code can be modified at any level, this structure is designed to prov
 The following instructions detail the building and testing of a simple test state machine for the X2 Exoskeleton (ExoTestMachine.cpp). This state machine simply simulates an exoskeleton which can move between sitting and standing postures, running in position control, triggered by keyboard events. 
 
 ### Before you start
-These instructions assume that you have a suitable test platform, workbench environment. 
+These instructions assume that you have a suitable test platform (i.e. a Target), and a workbench environment (i.e. a Host). 
 
-Specifically, these instructions have been written for (and tested on) a BeagleBone Black running Debian Jessie 8.11 [Firmware](http://beagleboard.org/latest-images). Theoretically, this can be built on other distributions and Linux platforms as well, but they have not yet been tested.
+Specifically, the target that these instructions have been written for (and tested on) is a BeagleBone Black running Debian Jessie 8.11 [Firmware](http://beagleboard.org/latest-images). Theoretically, this can be built on other distributions and Linux platforms as well, but they have not yet been tested.
 
-Workbench build environments for most platforms can be found [here](https://exoembedded.readthedocs.io/en/latest/workbench/)
+These instructions have been tested on a number of different host workbench build environments, but instructions on setting these up can be found [here](https://exoembedded.readthedocs.io/en/latest/workbench/)
 
 ### How to get the Project
 
-Clone the project from git repository:
+On the host, clone the project from git repository:
 ​
 \$ git clone https://github.com/UniMelb-Human-Robotics-Lab/CANOpenRobotController
 ​
@@ -45,38 +45,42 @@ This repository includes all the sources files required for this example.
 
 ### Building ExoTestMachine
 
+On the host, build the executable:
+
 $ cd <CANOpenRobotController_directory>
     $ make exe
 ​
+> Note: there are also some additional build rules to build additional tests, which are still to be completed 
+
 The makefile is configured to compile an executable `EXO_ROBOT_2020` using the `arm-linux-gnueabihf-g++` compiler. Note that this requires an appropriately configured workbench environment (see "Before you start").
 
 ### Transferring files to the Linux platform
 
 The recommended method of transferring files to the BeagleBone is FTP. 
 
-Using an FTP Client (if you do not have one - or a preferred client, [FileZilla](https://filezilla-project.org/) is reasonable), connect to the BeagleBone. By default, when the BeagleBone is connected to a computer using USB, it is configured to:
+Using an FTP Client on the Host (if you do not have one - or a preferred client, [FileZilla](https://filezilla-project.org/) is reasonable), connect to the target (the BeagleBone). By default, when the BeagleBone is connected to a computer using USB, it is configured to:
   
 - **IP Address:** 192.168.7.2 (Windows) or 192.168.6.2 (OSX)
 - **Username:** debian
 - **Password:** temppwd
 
-Using the client, transfer the built executable in `build/EXO_ROBOT_2020`, along with the contents of the `initRobot` folder, to the BeagleBone.
+On the host, using the FTP client, transfer the build executable in `build/EXO_ROBOT_2020`, along with the contents of the `initRobot` folder, to the Beaglebone.
 
 > Note: The `initRobot` folder contains scripts for setting up the CAN interfaces that CORC uses for communication
 
-You will need to change the permissions of the executables to executable. You can do this using the the `chmod +x` command. e.g.
+## Run Virtual ExoTestMachine
+
+To run the ExoTestMachine, open your preferred terminal window and SSH into the the BeagleBone ([tutorial](https://elinux.org/Beagleboard:Terminal_Shells)). This will provide terminal access to the target, on the host. This can be done using the same username and password, e.g:
+
+$ ssh debian@192.168.7.2
+
+At this point, you will need to change the permissions of the executables to executable. You can do this using the the `chmod +x` command on the target. e.g.
 
 $ chmod +x EXO_ROBOT_2020
 
 This must be repeated for the `.sh` scripts as well. 
 
-## Run Virtual ExoTestMachine
-
-To run the ExoTestMachine, open your preferred terminal window and SSH into the the BeagleBone ([tutorial](https://elinux.org/Beagleboard:Terminal_Shells)), using the same username and password, e.g:
-
-$ ssh debian@192.168.7.2
-
-Initialize Virutal CAN device to bind to and run candump ([candump manpage](https://manpages.debian.org/testing/can-utils/candump.1.en.html)) on the VCAN interface. 
+Initialize the Virtual CAN device to set up, bind to and run candump ([candump manpage](https://manpages.debian.org/testing/can-utils/candump.1.en.html)) on the VCAN interface. 
 ```bash
   cd initRobot
   ./initVCAN
@@ -84,9 +88,9 @@ Initialize Virutal CAN device to bind to and run candump ([candump manpage](http
 
 This initialises a virtual CAN interface, and prints the contents of the bus to the terminal window. 
 
-> Note: This can be changed to use a non-virtual CAN interface with some minor modifications to the code.
+> Note: This can be changed to use a non-virtual CAN interface, but this requires some minor changes to the code before compilation, and the use of the `X2_startCAN.sh` script instead. 
 
-SSH into the BeagleBone in a second terminal window to launch the application ​
+SSH into the BeagleBone in a second terminal window to launch the application:
 
 ```bash
   cd build
