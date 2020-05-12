@@ -1,15 +1,17 @@
 # CANOpen Robot Controller (CORC) Project
 
-CORC is a free and open source robotic development software stack, written in C++. The project has been under development at the University of Melbourne in partnership with Fourier Intelligence for use with their X2 exoskeleton hardware. The project was developed to run on a Beaglebone Black connected to an X2 Exoskeleton, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform.
+CORC is a free and open source robotic development software stack, written in C++.
 
-> Note (12/5/2020): At this stage (due to issues associated with COVID-19), this software has not been tested on physical hardware. 
+The project has been under development at the University of Melbourne in partnership with Fourier Intelligence. The project was developed to run on a Beaglebone Black connected to an X2 Exoskeleton, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform.
+
+> Note (12/5/2020): At this stage, this software has not been tested on physical hardware due to lab access limitations due to COVID-19.
 
 ## The CANOpen Robot Controller project includes:
 
 - An extensible framework to represent multibody robotic systems.
-- Event driven state machine to develop custom applications. 
-- Implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers/sensors.
-- Documentation
+- An event driven state machine to develop custom applications. 
+- An implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers/sensors.
+- [Documentation] (https://unimelb-human-robotics-lab.github.io//CANOpenRobotController/index.html)
 - Functional application examples.
 
 ### Project Overview
@@ -46,7 +48,7 @@ This repository includes all the sources files required for this example.
 $ cd <CANOpenRobotController_directory>
     $ make exe
 ​
-The makefile is configured to compile an executable `EXO_ROBOT_2020` using the `arm-linux-gnueabihf-g++` compiler. Note that this requires an appropriately configured workbench environment (see Section "Before you start").
+The makefile is configured to compile an executable `EXO_ROBOT_2020` using the `arm-linux-gnueabihf-g++` compiler. Note that this requires an appropriately configured workbench environment (see "Before you start").
 
 ### Transferring files to the Linux platform
 
@@ -54,11 +56,7 @@ The recommended method of transferring files to the BeagleBone is FTP.
 
 Using an FTP Client (if you do not have one - or a preferred client, [FileZilla](https://filezilla-project.org/) is reasonable), connect to the BeagleBone. By default, when the BeagleBone is connected to a computer using USB, it is configured to:
   
-  > IP: 192.168.7.2 (Windows) or 192.168.6.2 (OSX)
-  >​
-  > Username: debian
-  > ​
-  > Password: temppwd
+> IP: 192.168.7.2 (Windows) or 192.168.6.2 (OSX), Username: debian, Password: temppwd
 
 Using the client, transfer the built executable in `build/EXO_ROBOT_2020`, along with the contents of the `initRobot` folder, to the BeagleBone.
 
@@ -76,24 +74,28 @@ To run the ExoTestMachine, open your preferred terminal window and SSH into the 
 
 $ ssh debian@192.168.7.2
 
-Initialize Virutal CAN device to bind to and run candump([candump manpage](https://manpages.debian.org/testing/can-utils/candump.1.en.html)) on the VCAN interface - this initialises a virtual CAN interface, and prints the contents of the bus to the terminal window. 
+Initialize Virutal CAN device to bind to and run candump ([candump manpage](https://manpages.debian.org/testing/can-utils/candump.1.en.html)) on the VCAN interface - this initialises a virtual CAN interface, and prints the contents of the bus to the terminal window. 
 
 ```bash
   cd initRobot
   ./initVCAN
 ```​
 
+
 > Note: This can be changed to use a non-virtual CAN interface with some minor modifications to the code.
 
 SSH into the BeagleBone in a second terminal window to launch the application ​
+
 
 ```bash
   cd build
   sudo ./EXO_APP_2020
 ```
+
 > Note: Superuser privileges (`sudo`) are required due to the use of real time threads in the application. 
 
 The first terminal one should display CAN messages on VCAN from the `EXO_APP_2020` application output. On startup init PDO messaging should be sent and appear as follows:
+
   ​
 ```bash
 vcan0 704 [1] 00
