@@ -1,4 +1,13 @@
-/// Testing ExoRobot new classes
+/**
+ * @file testSM.cpp
+ * @author William Campbell
+ * @brief Test for the trajectory Generator class
+ * @version 0.1
+ * @date 2020-04-09
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 
 #include "ExoRobot.h"
 //using namespace std;
@@ -21,20 +30,6 @@ void CO_error(const uint32_t info) {
 }
 
 int main(void) {
-    //TODO add keyboard initializer to initiRobot.
-    //INITINPUT
-    /*    // Create Exo object + initialise derived Joints + trajectory Generator
-    cout << ">>> Creating ExoRobot" << endl;
-    ExoRobot exo;
-    // print joint positions
-    cout << ">>> Current Robot Position (expected value: all joints 0) >>>" << endl;
-    exo.printStatus();
-    // Initialise Position Control
-    cout << ">>> Initialsing Position Control >>> \n"
-         << exo.initPositionControl() << endl;
-    exo.setSpecificTrajectory(RobotMode::SITDWN);
-    exo.startNewTraj();*/
-
     cout << ">>> Create ALEXTrajectory Generator >>>" << endl;
 
     ALEXTrajectoryGenerator *trajectoryGenerator = new ALEXTrajectoryGenerator();

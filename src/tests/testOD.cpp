@@ -1,5 +1,14 @@
 
-
+/**
+ * \file testOD.cpp
+ * \author William Campbell
+ * \brief A script to test the functionality of the Object dictionary access
+ * \version 0.1
+ * \date 2020-04-21
+ * 
+ * \copyright Copyright (c) 2020
+ * 
+ */
 #include <iostream>
 
 #include "CANopen.h"

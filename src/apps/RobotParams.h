@@ -1,9 +1,12 @@
 /**
- * \brief pecific paramaters and naming definitions for exoskeleton robot class implementetion.
+ * \file RobotParams.h
+ * \author William Campbell
+ * \brief Specific paramaters and naming definitions for exoskeleton robot class implementetion.
  * 
- * Version 0.1
- * Date: 07/04/2020
- *
+ * \version 0.1
+ * \date 2020-04-09
+ * \version 0.1
+ * \copyright Copyright (c) 2020
  */
 #ifndef ROBOT_PARAMS_H
 #define ROBOT_PARAMS_H

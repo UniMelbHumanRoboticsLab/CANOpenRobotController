@@ -1,11 +1,11 @@
 /**
- * @file testDrives.cpp
- * @author Justin Fong
- * @brief A script to test the functionality of the Drive Objects
- * @version 0.1
- * @date 2020-04-21
+ * \file testDrives.cpp
+ * \author Justin Fong
+ * \brief A script to test the functionality of the Drive Objects
+ * \version 0.1
+ * \date 2020-04-21
  * 
- * @copyright Copyright (c) 2020
+ * \copyright Copyright (c) 2020
  * 
  */
 #include <iostream>

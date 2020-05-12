@@ -1,11 +1,11 @@
 /**
- * @file testJoints.cpp
- * @author Justin Fong
- * @brief Tests for the Joint, ActuatedJoint, ExoJoint and Drive classes 
- * @version 0.1
- * @date 2020-04-09
+ * \file testJoints.cpp
+ * \author Justin Fong
+ * \brief Tests for the Joint, ActuatedJoint, ExoJoint and Drive classes 
+ * \version 0.1
+ * \date 2020-04-09
  * 
- * @copyright Copyright (c) 2020
+ * \copyright Copyright (c) 2020
  * 
  */
 

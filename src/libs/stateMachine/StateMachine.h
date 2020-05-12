@@ -2,22 +2,18 @@
  * \file StateMachine.h
  * \author William Campbell 
  * \version 0.1
- * \date 2020-09-24
+ * \date 2019-09-24
  * For more detail on the architecture and mechanics of the state machine class see: https://embeded.readthedocs.io/en/latest/StaeMachines/.
- * @copyright Copyright (c) 2020
+ * \copyright Copyright (c) 2019
  * 
  */
 
-// Created by William Campbell on 2019-09-24.
 #ifndef EXO_STATEMACHINE_H
 #define EXO_STATEMACHINE_H
-//#include <cstddef>
 
 class State;
 
 #include "State.h"
-/* Forward declarations*/
-
 /**
  * \brief Abstract class representing a state machine. Includes a number of State and Transition objects
  * 
@@ -25,32 +21,32 @@ class State;
 class StateMachine {
    public:
     /**
-     * @brief Construct a new State Machine object
+     * \brief Construct a new State Machine object
      * 
      */
     StateMachine(void);
     /**
-     * @brief Sets the current state. Note: No check made
+     * \brief Sets the current state. Note: No check made
      * 
-     * @param i Pointer to the desired current state. 
+     * \param i Pointer to the desired current state. 
      */
     void initialize(State *i);
 
     /**
-     * @brief Returns a pointer to the current state
+     * \brief Returns a pointer to the current state
      * 
-     * @return State* Pointer to the current state 
+     * \return State* Pointer to the current state 
      */
     State *getCurState(void);
 
     /**
-     * @brief Calls the entry method of the current state
+     * \brief Calls the entry method of the current state
      * 
      */
     void activate(void);
 
     /**
-     * @brief Processes the state machine. For each possible transition, checks if that transition should be made
+     * \brief Processes the state machine. For each possible transition, checks if that transition should be made
      *  If no, calls during() on the current state
      *  If yes, calls exit() on the current state, entry() and then during() on the new state. 
      * 
@@ -59,7 +55,7 @@ class StateMachine {
 
    private:
     /**
-     * @brief Pointer to the current state
+     * \brief Pointer to the current state
      * 
      */
     State *currentState;
