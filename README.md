@@ -16,12 +16,9 @@ CORC is a free and open source robotic development software stack, written in C+
 
 The code is structured into 3 levels:
 
-1. CANopen Communications Level
-Provides the CAN-level communications, providing the mechanisms for the sending and receiving of PDO and SDO messages
-2. The Robot Level
-Defines the components of the Robot to be controlled, including the joints, associated drives, and input devices
-3. The State Machine and Trajectory Generator
-Defines the high level logic for the device, and the trajectories to be used. 
+1. **CANopen Communications Level:** Provides the CAN-level communications, providing the mechanisms for the sending and receiving of PDO and SDO messages
+2. **The Robot Level:** Defines the components of the Robot to be controlled, including the joints, associated drives, and input devices
+3. **The State Machine and Trajectory Generator:** Defines the high level logic for the device, and the trajectories to be used. 
 
 Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The CANopen Communications level should not need to be changed. The Robot level should only change with respect if the robot to be controlled changes. This is loosely enforced by the source code folder structure - the files which should not need modification are placed in the `src/libs` folder, and the remainder are placed in the `src/apps` folder. Due to this, thus there are base classes in the `libs` folder which are derived in the `apps` folder. 
 
