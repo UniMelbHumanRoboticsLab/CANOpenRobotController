@@ -118,21 +118,21 @@ Follow terminal instructions using your keyboard in the second terminal instance
 The first terminal instance (running candump) should display PDO messages corresponding to changes to the commanded motor positions as follows:
 
 ```bash
-vcan0  301   [8]  2F 60 60 00 00 00 00 00 #
-vcan0  302   [8]  80 60 60 00 00 00 00 00 #
-vcan0  303   [8]  2F 60 60 00 00 00 00 00 #
-vcan0  304   [8]  80 60 60 00 00 00 00 00 #
+vcan0  301   [8]  2F 60 60 00 00 00 00 00 
+vcan0  302   [8]  80 60 60 00 00 00 00 00 
+vcan0  303   [8]  2F 60 60 00 00 00 00 00 
+vcan0  304   [8]  80 60 60 00 00 00 00 00 
 ```
-
 > Note these TPDO messages are configured in the Object Dictionary, with configuration SDOs to be sent during the Robot Initialisation stage. Details for the default set of PDOs can be found in the drive.h source files.
+
+As the simulated device is in position control, these messages should print whenever the system moves from sit to stand or stand to sit, with no messages transmitted whilst the device is stationary. CORC has provisions for velocity and torque control, but these are not included in this example for ease of simulation. 
+
 ​<!-- ## Run ExoTestMachine on X2
 ​
 Running on the X2 Robot is very similar to the virutal CAN set up, with one adjustment and -->
 
 <!-- ### TODO: Event Driven State machine
 explain me -->
-
-​
 
 ## Developer Information
 
