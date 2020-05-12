@@ -93,10 +93,10 @@ bool Drive::initPDOs() {
     sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 1));
 
     //DEBUG_OUT("Set up TARGET_POS RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 1, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 3, 0xff));
 
     //DEBUG_OUT("Set up TARGET_VEL RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 2, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 4, 0xff));
 
     return true;
 }

@@ -18,9 +18,6 @@
 #include <sstream>
 #include <vector>
 
-// Constant for a CAN Message
-#define CANMESSAGELENGTH 100
-
 // Constants representing the control mode of the drive
 enum ControlMode {
     UNCONFIGURED = 0,

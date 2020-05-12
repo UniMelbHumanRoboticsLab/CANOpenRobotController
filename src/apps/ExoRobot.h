@@ -118,24 +118,32 @@ class ExoRobot : public Robot {
        * @param int Joint value
        * @return double minDeg 
        */
-    //TODO CHANGE FROM MOTOR COMMANDS TO DEGREES
-    std::map<int, double>
-        jointMinMap = {{LEFT_HIP, 0.0},
-                       {RIGHT_HIP, 0.0},
-                       {LEFT_KNEE, 0.0},
-                       {RIGHT_KNEE, 0.0},
-                       {LEFT_ANKLE, -800000},
-                       {RIGHT_ANKLE, -800000}};
+
+    /**
+    * \todo Move jointMinMap and jointMaxMap to RobotParams.h
+    * 
+    */
     /**
        * @brief Joint Limit Map between Joint value and max Degrees possible
        * @param int Joint value
        * @return int maxDeg 
        */
-    std::map<int, double> jointMaxMap = {{LEFT_HIP, (HIP_MOTOR_POS1 * 1.5)},
-                                         {RIGHT_HIP, (HIP_MOTOR_POS1 * 1.5)},
-                                         {LEFT_KNEE, (KNEE_MOTOR_POS1 * 1.5)},
-                                         {RIGHT_KNEE, (KNEE_MOTOR_POS1 * 1.5)},
-                                         {LEFT_ANKLE, -800000},
-                                         {RIGHT_ANKLE, -800000}};
+    std::map<int, double> jointMinMap = {{LEFT_HIP, 70},
+                                         {RIGHT_HIP, 70},
+                                         {LEFT_KNEE, 0},
+                                         {RIGHT_KNEE, 0},
+                                         {LEFT_ANKLE, 75},
+                                         {RIGHT_ANKLE, 75}};
+    /**
+       * @brief Joint Limit Map between Joint value and max Degrees possible
+       * @param int Joint value
+       * @return int maxDeg 
+       */
+    std::map<int, double> jointMaxMap = {{LEFT_HIP, 210},
+                                         {RIGHT_HIP, 210},
+                                         {LEFT_KNEE, 120},
+                                         {RIGHT_KNEE, 120},
+                                         {LEFT_ANKLE, 105},
+                                         {RIGHT_ANKLE, 105}};
 };
 #endif /*EXOROBOT_H*/

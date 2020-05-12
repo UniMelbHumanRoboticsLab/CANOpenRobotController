@@ -17,7 +17,8 @@
 // Macros
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
-//Node ID for the 6 joints
+
+//Joint Index for the 6 joints (note, NODEID = this + 1)
 enum robotJoints {
     LEFT_HIP = 0,
     LEFT_KNEE = 1,
@@ -40,13 +41,6 @@ enum class RobotMode {
     UNEVEN,
     INITIAL
 };
-
-const double Q_MIN_MAX[12]{deg2rad(70), deg2rad(210),
-                           0, deg2rad(120),
-                           deg2rad(70), deg2rad(210),
-                           0, deg2rad(120),
-                           deg2rad(75), deg2rad(105),
-                           deg2rad(75), deg2rad(105)};
 
 //Params for specific robt
 //Knee motor reading and corresponding angle. Used for mapping between degree and motor values.
