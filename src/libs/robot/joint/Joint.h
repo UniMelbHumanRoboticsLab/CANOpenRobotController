@@ -14,7 +14,8 @@
 #include <iostream>
 
 /**
- * @brief Abstract class representing any joints within a Robot.
+ * @ingroup Robot
+ * \brief Abstract class representing any joints within a Robot.
  * 
  */
 class Joint {

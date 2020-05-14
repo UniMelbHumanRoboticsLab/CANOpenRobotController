@@ -40,6 +40,7 @@ enum setMovementReturnCode_t {
 };
 
 /**
+ * @ingroup Robot
  * \brief Abstract class representing an actuated joint in a Robot Class (extending joint). Requires a Drive object through which commands are sent.
  * 
  */

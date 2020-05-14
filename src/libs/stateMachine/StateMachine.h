@@ -7,7 +7,10 @@
  * \copyright Copyright (c) 2019
  * 
  */
-
+/**
+ *  @defgroup stateMachine State Machine module
+ *  A group of abstract classes, to be used to event-driven state machines.
+ */
 #ifndef EXO_STATEMACHINE_H
 #define EXO_STATEMACHINE_H
 
