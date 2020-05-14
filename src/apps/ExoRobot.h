@@ -72,9 +72,11 @@ class ExoRobot : public Robot {
     bool initPositionControl();
 
     /** 
-      * /brief For each joint, move through(send appropriate commands to joints) the Currently 
-      * generated trajectory of the TrajectoryGenerator object. 
+      * /brief For each joint, move through(send appropriate commands to joints) the currently 
+      * generated trajectory of the TrajectoryGenerator object - this assumes the trajectory and robot is in position control. 
       *
+      * /return true if successful
+      * /return false if not successful (e.g. any joint not in position control.)
       */
     bool moveThroughTraj();
 
