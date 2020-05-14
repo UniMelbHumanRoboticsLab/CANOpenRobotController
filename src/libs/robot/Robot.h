@@ -13,6 +13,10 @@
  * \version 0.1
  * \copyright Copyright (c) 2020
  */
+/**
+ *  @defgroup Robot The Robot module
+ *  This is the Robot module
+ */
 #ifndef ROBOT_H_INCLUDED
 #define ROBOT_H_INCLUDED
 #include <vector>
@@ -23,6 +27,7 @@
 using namespace std;
 
 /**
+ * @ingroup Robot
  * \brief Abstract Class representing a robot. Includes vectors of Joint and InputDevice. 
  * 
  */
