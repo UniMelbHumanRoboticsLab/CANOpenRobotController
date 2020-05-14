@@ -58,7 +58,7 @@ $ make exe
 
 > Note: there are also some additional build rules to build additional tests, which are still to be completed
 
-The makefile is configured to compile an executable `EXO_ROBOT_2020` using the `arm-linux-gnueabihf-g++` compiler. Note that this requires an appropriately configured workbench environment (see "Before you start").
+The makefile is configured to compile an executable `EXO_APP_2020` using the `arm-linux-gnueabihf-g++` compiler. Note that this requires an appropriately configured workbench environment (see "Before you start").
 
 ### Transferring files to the Linux platform
 
@@ -70,7 +70,7 @@ Using an FTP Client on the Host (if you do not have one - or a preferred client,
 - **Username:** debian
 - **Password:** temppwd
 
-On the host, using the FTP client, transfer the build executable in `build/EXO_ROBOT_2020`, along with the contents of the `initRobot` folder, to the Beaglebone.
+On the host, using the FTP client, transfer the build executable in `build/EXO_APP_2020`, along with the contents of the `initRobot` folder, to the Beaglebone.
 
 > Note: The `initRobot` folder contains scripts for setting up the CAN interfaces that CORC uses for communication
 
@@ -85,7 +85,7 @@ $ ssh debian@192.168.7.2
 At this point, you will need to change the permissions of the executables to executable. You can do this using the the `chmod +x` command on the target. e.g.
 
 ```bash
-$ chmod +x EXO_ROBOT_2020
+$ chmod +x EXO_APP_2020
 ```
 
 This must be repeated for the `.sh` scripts as well.
