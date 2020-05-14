@@ -57,6 +57,16 @@ int main() {
     std::cout << "Call a updateValue() defined in Joint: " << normalJoint->updateValue() << "\n";
 
     std::cout << "Read Value of the Joint (Expected Value 1): " << normalJoint->getQ() << "\n";
+    //test velocity control commands
 
+    std::cout << "Set the Joint into Velocity Control Mode: " << normalJoint->setMode(VELOCITY_CONTROL, testProfile) << "\n";
+
+    std::cout << "Set the position of the Joint to 1 (expected result: true): " << normalJoint->setVelocity(100) << "\n";
+
+    std::cout << "Read Value of the Joint (Expected Value 0): " << normalJoint->getQ() << "\n";
+
+    std::cout << "Call a updateValue() defined in Joint: " << normalJoint->updateValue() << "\n";
+
+    std::cout << "Read Value of the Joint (Expected Value 1): " << normalJoint->getQ() << "\n";
     return 0;
 }

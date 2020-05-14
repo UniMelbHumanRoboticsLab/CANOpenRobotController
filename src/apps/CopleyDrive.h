@@ -59,7 +59,7 @@ class CopleyDrive : public Drive {
          * \return true if successful
          * \return false if not
          */
-    bool initVelControl();
+    bool initVelControl(motorProfile velControlMotorProfile);
 
     /**
          * Sets the drive to Torque control with default parameters (through SDO messages)
@@ -91,6 +91,23 @@ class CopleyDrive : public Drive {
           */
 
     std::vector<std::string> generatePosControlConfigSDO(motorProfile positionProfile);
+    /**
+          * \brief Overloaded method from Drive, specifically for Copley Drive implementation.
+          *     Generates the list of commands required to configure Velocity control in CANopen motor drive
+          * 
+          * /param Profile Acceleration, value Velocity mode motor trajectory generator will attempt to achieve.
+          *            Units: 10 counts/sec^2
+          *            Range:0 - 200,000,000
+          * /param Profile Deceleration, value Velocity mode motor trajectory generator will use at end of trapezoidal profile.
+          *             see programmers manual for other profile types use.
+          *            Units: 10 counts/sec^2
+          *            Range:0 - 200,000,000
+          * 
+          *    NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
+          *           https://www.can-cia.org/can-knowledge/canopen/cia402/
+          * 
+          */
+    std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
 };
 
 #endif

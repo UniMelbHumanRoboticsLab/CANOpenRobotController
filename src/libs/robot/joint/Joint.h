@@ -8,13 +8,16 @@
  * \version 0.1
  * \copyright Copyright (c) 2020
  */
-
 #ifndef JOINT_H_INCLUDED
 #define JOINT_H_INCLUDED
 #include <iostream>
-
+/** @defgroup Joint Joint Module
+ *  @ingroup Robot
+ *  A group of abstract joint classes, acting as the software representation of a Joint.
+ */
 /**
- * @brief Abstract class representing any joints within a Robot.
+ * @ingroup Joint
+ * \brief Abstract class representing any joints within a Robot.
  * 
  */
 class Joint {
@@ -28,6 +31,10 @@ class Joint {
      * The current state of the joint (i.e. the value), to be returned in SI units.
      */
     double q;
+    /**
+     * The current state of the change in the joint position(i.e. the value), to be returned in SI units.
+     */
+    double qd;
     /**
      * The allowable limits of the joint. This should represent the theoretical limits
      * of the joint. Should these be exceeded, an error should be thrown. 
@@ -81,6 +88,20 @@ class Joint {
      * @return double The current internal representation of the value of the joint
      */
     double getQ();
+    /**
+     * @brief Returns the internal value of the joint (e.g. del Angle, del length, depending on joint type)
+     * 
+     * NOTES:
+     * - This returns only a single double value. Implementations of this joint may
+     *      choose to include other methods to return other states of the joint. 
+     * - This does not necessarily reflect the actual value of the joint, it will only return
+     *      the last value called by the updateValue() function. This allows for the update and
+     *      use of the value to be updated independently (and potentially at different rates) such
+     *      that the same value can be called multiple times in parallel. 
+     * 
+     * @return double The current internal representation of the value of the joint
+     */
+    double getQd();
     /**
      * @brief prints out the status of the joints current position in degrees
      * 

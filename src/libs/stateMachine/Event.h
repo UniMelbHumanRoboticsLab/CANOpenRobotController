@@ -15,6 +15,7 @@
 #include "StateMachine.h"
 
 /**
+ *  @ingroup stateMachine
  * \brief Abstract class for events used as StateMachine triggers to transition between states.
  * Events must be explicitly tied to a current State and state to transition to once the event has been triggered. 
  * This is done using a <code>Transition</code> object in a designed StateMachine.

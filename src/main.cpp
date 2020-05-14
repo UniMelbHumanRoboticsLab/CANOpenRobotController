@@ -179,7 +179,6 @@ int main(int argc, char *argv[]) {
                     timer1msDiff = CO_timer1ms - tmr1msPrev;
                     tmr1msPrev = CO_timer1ms;
                     /* Execute optional additional alication code */
-                    // Update loop counter -> Can run in Async or RT thread for faster execution.
                     app_programAsync(timer1msDiff);
                 }
 

@@ -22,6 +22,7 @@ DummyActJoint::DummyActJoint(int jointID, double jointMin, double jointMax, Driv
 bool DummyActJoint::updateValue() {
     drive->getPos();
     q = lastQCommand;
+
     return true;
 }
 

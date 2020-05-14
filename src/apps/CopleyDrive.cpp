@@ -28,7 +28,11 @@ bool CopleyDrive::initPosControl(motorProfile posControlMotorProfile) {
     return true;
 }
 
-bool CopleyDrive::initVelControl() {
+bool CopleyDrive::initVelControl(motorProfile velControlMotorProfile) {
+    DEBUG_OUT("NodeID " << NodeID << " Initialising Velocity Control")
+    /*\todo create velControlMOTORPROFILE and test on exo*/
+    /*\todo Tune velocity loop gain index 0x2381 to optimize V control */
+    sendSDOMessages(generateVelControlConfigSDO(velControlMotorProfile));
     return true;
 }
 
@@ -37,4 +41,8 @@ bool CopleyDrive::initTorqControl() {
 }
 std::vector<std::string> CopleyDrive::generatePosControlConfigSDO(motorProfile positionProfile) {
     return Drive::generatePosControlConfigSDO(positionProfile); /*<!execute base class function*/
+};
+
+std::vector<std::string> CopleyDrive::generateVelControlConfigSDO(motorProfile velocityProfile) {
+    return Drive::generateVelControlConfigSDO(velocityProfile); /*<!execute base class function*/
 };

@@ -21,6 +21,7 @@ class Transition;
 #include "Transition.h"
 #define MAXARCS 10 /*<!Define the max number of arcs (transitions) any state can have*/
 /**
+ *  @ingroup stateMachine
  * \brief Abstract class representing a state in a StateMachine
  * 
  */

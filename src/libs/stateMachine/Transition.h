@@ -20,6 +20,7 @@ class State;
 class Event;
 
 /**
+ * @ingroup stateMachine
  * \brief Represents possible transitions linking two State objects with an Event. 
  * 
  */
