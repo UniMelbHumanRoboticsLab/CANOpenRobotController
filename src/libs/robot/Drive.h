@@ -148,7 +148,7 @@ class Drive {
     /**                                                                                                             
         * \brief messages Properly formatted SDO Messages
         * 
-        * / return int number of messages successfully processed(return OK) 
+        * \return int number of messages successfully processed(return OK) 
               */
     int sendSDOMessages(std::vector<std::string> messages);
 
