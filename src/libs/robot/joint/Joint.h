@@ -8,13 +8,16 @@
  * \version 0.1
  * \copyright Copyright (c) 2020
  */
-
+/** @defgroup Joint Joint Module
+ *  @ingroup Robot
+ *  A group of abstract joint classes, acting as the software representation of a Joint.
+ */
 #ifndef JOINT_H_INCLUDED
 #define JOINT_H_INCLUDED
 #include <iostream>
 
 /**
- * @ingroup Robot
+ * @ingroup Joint
  * \brief Abstract class representing any joints within a Robot.
  * 
  */
