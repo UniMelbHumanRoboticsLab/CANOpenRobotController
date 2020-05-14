@@ -26,25 +26,36 @@ bool Drive::setPos(int position) {
 
 bool Drive::setVel(int velocity) {
     DEBUG_OUT("Drive " << NodeID << " Writing " << velocity << " to 0x60FF");
+    *(&CO_OD_RAM.targetMotorVelocities.motor1 + ((this->NodeID - 1))) = velocity;
     return true;
 }
 
 bool Drive::setTorque(int torque) {
+    /*\todo add setTorque to object dictionary*/
     DEBUG_OUT("Drive " << NodeID << " Writing " << torque << " to 0x6071");
     return true;
 }
 
 int Drive::getPos() {
+    /*\todo change to actual motor Position when running on real robot*/
     int q = *(&CO_OD_RAM.targetMotorPositions.motor1 + ((this->NodeID - 1)));
     return q;
 }
 
 int Drive::getVel() {
-    return 0;
+    if (this->NodeID < 5) {
+        return (*(&CO_OD_RAM.actualMotorVelocities.motor1 + ((this->NodeID - 1))));
+    } else {
+        return 0;
+    }
 }
 
 int Drive::getTorque() {
-    return 0;
+    if (this->NodeID < 5) {
+        return (*(&CO_OD_RAM.actualMotorTorques.motor1 + ((this->NodeID - 1))));
+    } else {
+        return 0;
+    }
 }
 
 bool Drive::readyToSwitchOn() {
@@ -221,6 +232,37 @@ std::vector<std::string> Drive::generatePosControlConfigSDO(motorProfile positio
 
     //Set deceleration profile
     sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6084 << " 0 i32 " << positionProfile.profileDeceleration;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    return CANCommands;
+}
+std::vector<std::string> Drive::generateVelControlConfigSDO(motorProfile velocityProfile) {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+    // start drive
+    sstream << "[1] " << NodeID << " start";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+    //enable profile Velocity mode
+    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6060 << " 0 i8 3";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //Set velocity profile
+    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6081 << " 0 i32 " << velocityProfile.profileVelocity;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //Set acceleration profile
+    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6083 << " 0 i32 " << velocityProfile.profileAccelration;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //Set deceleration profile
+    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6084 << " 0 i32 " << velocityProfile.profileDeceleration;
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 

@@ -146,12 +146,29 @@ class Drive {
        */
     std::vector<std::string> generatePosControlConfigSDO(motorProfile positionProfile);
 
+    /**
+       * 
+       * \brief  Generates the list of commands required to configure Velocity control in CANopen motor drive
+       * 
+       *     
+       * \param Profile Velocity, value used by Velocity mode motor trajectory generator.
+       *     
+       * \param Profile Acceleration, value Velocity mode motor trajectory generator will attempt to achieve.
+       *     
+       * \param Profile Deceleration, value Velocity mode motor trajectory generator will use at end of trapezoidal profile.
+       *     
+       * NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
+       *           https://www.can-cia.org/can-knowledge/canopen/cia402/
+       */
+    std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
+
     /**                                                                                                             
         * \brief messages Properly formatted SDO Messages
         * 
         * \return int number of messages successfully processed(return OK) 
               */
-    int sendSDOMessages(std::vector<std::string> messages);
+    int
+    sendSDOMessages(std::vector<std::string> messages);
 
    private:
     /**
@@ -240,7 +257,7 @@ class Drive {
            * \return true if successful
            * \return false if not
            */
-    virtual bool initVelControl() = 0;
+    virtual bool initVelControl(motorProfile velControlMotorProfile) = 0;
 
     /**
            * Sets the drive to Torque control with default parameters (through SDO messages)
@@ -292,14 +309,14 @@ class Drive {
 
     /**
            * Returns the current velocity from the motor drive (0x606C)
-           * 
+           * Returns 0 if NODEID is 5 or 6: ankles. They have no OD entry.
            * \return Velocity from the motor drive
            */
     virtual int getVel();
 
     /**
            * Returns the current torque from the motor drive (0x6077)
-           * 
+           * Returns 0 if NODEID is 5 or 6: ankles. They have no OD entry.
            * \return Torque from the motor drive
            */
     virtual int getTorque();

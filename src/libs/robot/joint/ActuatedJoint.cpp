@@ -24,7 +24,13 @@ ControlMode ActuatedJoint::setMode(ControlMode driveMode_, motorProfile profile)
             return POSITION_CONTROL;
         }
     }
-    // \todo Implement other modes here as well
+    if (driveMode_ == VELOCITY_CONTROL) {
+        if (drive->initVelControl(profile)) {
+            driveMode = driveMode_;
+            return POSITION_CONTROL;
+        }
+    }
+    // \todo Implement Torque
     return ERROR;
 }
 
@@ -50,7 +56,7 @@ setMovementReturnCode_t ActuatedJoint::setVelocity(double velocity) {
 }
 
 setMovementReturnCode_t ActuatedJoint::setTorque(double torque) {
-    // Replace once complete
+    /*\todo Replace once complete*/
     return UNKNOWN_ERROR;
 }
 
