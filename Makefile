@@ -1,8 +1,8 @@
 # Makefile for Tests
 # CXX - defines the compiler. 
 # Currently uses the cross-compiler for the BBB (could be modified to run on Windows PC if desired)
-CXX := arm-linux-gnueabihf-g++
-LD  := arm-linux-gnueabihf-g++
+CXX := g++
+LD  := g++
 
 # CXXFLAGS - flags for the compilation 
 # -std=c++11 - uses C++11 standard
