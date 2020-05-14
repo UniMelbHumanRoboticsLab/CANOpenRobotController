@@ -9,7 +9,7 @@
  */
 /**
  *  @defgroup stateMachine State Machine module
- *  A group of abstract classes, to be used to event-driven state machines.
+ * A group of abstract classes, used to build event-driven state machines.
  */
 #ifndef EXO_STATEMACHINE_H
 #define EXO_STATEMACHINE_H
@@ -18,6 +18,7 @@ class State;
 
 #include "State.h"
 /**
+ * @ingroup stateMachine
  * \brief Abstract class representing a state machine. Includes a number of State and Transition objects
  * 
  */

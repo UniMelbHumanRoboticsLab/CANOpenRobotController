@@ -14,7 +14,7 @@
  * \copyright Copyright (c) 2020
  */
 /**
- *  @defgroup Robot robot module
+ *  @defgroup Robot Robot Module
  *  A group of abstract classes, acting as the software representation of a robot.
  */
 #ifndef ROBOT_H_INCLUDED
