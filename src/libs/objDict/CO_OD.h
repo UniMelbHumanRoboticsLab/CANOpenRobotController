@@ -52,6 +52,8 @@
    DON'T EDIT THIS FILE MANUALLY !!!!
 *******************************************************************************/
 
+#include "CO_driver.h"
+
 #pragma once
 
 /*******************************************************************************
@@ -107,7 +109,7 @@ typedef domain_t CO_DOMAIN;
 /*******************************************************************************
    OBJECT DICTIONARY
 *******************************************************************************/
-#define CO_OD_NoOfElements 253
+#define CO_OD_NoOfElements 254
 
 /*******************************************************************************
    TYPE DEFINITIONS FOR RECORDS
@@ -289,6 +291,14 @@ typedef domain_t CO_DOMAIN;
     INTEGER32 motor5;
     INTEGER32 motor6;
 } OD_targetMotorVelocities_t;
+/*6071    */ typedef struct
+{
+    UNSIGNED8 numberOfMotors;
+    INTEGER32 motor1;
+    INTEGER32 motor2;
+    INTEGER32 motor3;
+    INTEGER32 motor4;
+} OD_targetMotorTorques_t;
 
 /*******************************************************************************
    TYPE DEFINITIONS FOR OBJECT DICTIONARY INDEXES
@@ -3116,6 +3126,15 @@ typedef domain_t CO_DOMAIN;
 #define OD_60ff_5_targetMotorVelocities_motor5 5
 #define OD_60ff_6_targetMotorVelocities_motor6 6
 
+/*6071 */
+#define OD_6071_targetMotorTorques 0x6071
+
+#define OD_6071_0_targetMotorTorques_maxSubIndex 0
+#define OD_6071_1_targetMotorTorques_motor1 1
+#define OD_6071_2_targetMotorTorques_motor2 2
+#define OD_6071_3_targetMotorTorques_motor3 3
+#define OD_6071_4_targetMotorTorques_motor4 4
+
 /*6200 */
 #define OD_6200_writeOutput8Bit 0x6200
 
@@ -3240,6 +3259,7 @@ struct sCO_OD_RAM {
     /*6077      */ OD_actualMotorTorques_t actualMotorTorques;
     /*607a      */ OD_targetMotorPositions_t targetMotorPositions;
     /*60ff      */ OD_targetMotorVelocities_t targetMotorVelocities;
+    /*6071      */ OD_targetMotorTorques_t targetMotorTorques;
     /*6200      */ UNSIGNED8 writeOutput8Bit[8];
     /*6401      */ INTEGER16 readAnalogueInput16Bit[12];
     /*6411      */ INTEGER16 writeAnalogueOutput16Bit[8];
@@ -3496,6 +3516,9 @@ extern struct sCO_OD_EEPROM CO_OD_EEPROM;
 
 /*60ff, Data Type: targetMotorVelocities_t */
 #define OD_targetMotorVelocities CO_OD_RAM.targetMotorVelocities
+
+/*6071, Data Type: targetMotorTorques_t */
+#define OD_targetMotorTorques CO_OD_RAM.targetMotorTorques
 
 /*6200, Data Type: UNSIGNED8, Array[8] */
 #define OD_writeOutput8Bit CO_OD_RAM.writeOutput8Bit

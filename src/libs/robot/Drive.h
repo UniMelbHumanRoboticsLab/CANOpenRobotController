@@ -57,7 +57,8 @@ enum OD_Entry_t {
     ACTUAL_VEL = 2,
     ACTUAL_TOR = 3,
     TARGET_POS = 11,
-    TARGET_VEL = 12
+    TARGET_VEL = 12,
+    TARGET_TOR = 13
 };
 
 /**
@@ -72,7 +73,7 @@ static std::map<OD_Entry_t, int> OD_Addresses = {
     {ACTUAL_TOR, 0x6077},
     {TARGET_POS, 0x607A},
     {TARGET_VEL, 0x60FF},
-};
+    {TARGET_TOR, 0x6071}};
 
 /**
  * \brief Map between the Commonly-used OD entries and their data lengths - used to generate PDO Configurations
@@ -86,7 +87,8 @@ static std::map<OD_Entry_t, int> OD_Data_Size = {
     {ACTUAL_TOR, 0x0010},
     {TARGET_POS, 0x0020},
     {TARGET_VEL, 0x0020},
-};
+    {TARGET_TOR, 0x0010}};
+
 /**
  * \brief struct to hold desired velocity, acceleration and deceleration values for a 
  *     drives motor controller profile.
@@ -229,8 +231,9 @@ class Drive {
            *   TPDO2: COB-ID 280+{NODE-ID}: Actual Position (0x6064), Actual Velocity (0x606C), Sent every SYNC Message
            *   TPDO3: COB-ID 380+{NODE-ID}: Actual Torque (0x607C), Sent every SYNC MEssage
            * 
-           *   RPDO1: COB-ID 300+{NODE-ID}: Target Position (0x607A), Applied immediately when received
-           *   RPDO2: COB-ID 400+{NODE-ID}: Target Velocity (0x60FF), Applied immediately when received
+           *   RPDO3: COB-ID 300+{NODE-ID}: Target Position (0x607A), Applied immediately when received
+           *   RPDO4: COB-ID 400+{NODE-ID}: Target Velocity (0x60FF), Applied immediately when received
+           *   RPDO5: COB-ID 500+{NODE-ID}: Target Torque (0x6071), Applied immediately when received
            * 
            * \return true 
            * \return false 

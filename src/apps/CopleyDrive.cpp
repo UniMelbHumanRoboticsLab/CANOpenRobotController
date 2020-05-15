@@ -24,7 +24,7 @@ bool CopleyDrive::initPosControl(motorProfile posControlMotorProfile) {
 
     sendSDOMessages(generatePosControlConfigSDO(posControlMotorProfile));
 
-    // \Todo set additional parameters (bit 5 in 0x6041 makes updates happen immediately)
+    // \todo set additional parameters (bit 5 in 0x6041 makes updates happen immediately)
     return true;
 }
 
@@ -37,7 +37,11 @@ bool CopleyDrive::initVelControl(motorProfile velControlMotorProfile) {
 }
 
 bool CopleyDrive::initTorqControl() {
-    return true;
+    /**
+     * \todo Implement the torque control initialisation
+     * 
+     */
+    return false;
 }
 std::vector<std::string> CopleyDrive::generatePosControlConfigSDO(motorProfile positionProfile) {
     return Drive::generatePosControlConfigSDO(positionProfile); /*<!execute base class function*/

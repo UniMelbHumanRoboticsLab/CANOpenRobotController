@@ -33,6 +33,7 @@ bool Drive::setVel(int velocity) {
 bool Drive::setTorque(int torque) {
     /*\todo add setTorque to object dictionary*/
     DEBUG_OUT("Drive " << NodeID << " Writing " << torque << " to 0x6071");
+    *(&CO_OD_RAM.targetMotorTorques.motor1 + ((this->NodeID - 1))) = torque;
     return true;
 }
 
@@ -43,14 +44,12 @@ int Drive::getPos() {
 }
 
 int Drive::getVel() {
-    if (this->NodeID < 5) {
-        return (*(&CO_OD_RAM.actualMotorVelocities.motor1 + ((this->NodeID - 1))));
-    } else {
-        return 0;
-    }
+    return (*(&CO_OD_RAM.actualMotorVelocities.motor1 + ((this->NodeID - 1))));
 }
 
 int Drive::getTorque() {
+    /* \todo Remove assumption that only drives 1-4 have access to the motor torques  
+    */
     if (this->NodeID < 5) {
         return (*(&CO_OD_RAM.actualMotorTorques.motor1 + ((this->NodeID - 1))));
     } else {
@@ -109,6 +108,8 @@ bool Drive::initPDOs() {
     //DEBUG_OUT("Set up TARGET_VEL RPDO")
     sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 4, 0xff));
 
+    //DEBUG_OUT("Set up TARGET_TOR RPDO")
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 5, 0xff));
     return true;
 }
 

@@ -15,7 +15,7 @@ CXXFLAGS := -std=c++11  -Wno-psabi  -I eigen
 LINKFLAGS := -static 
 
 #Define header directories 
-MODULES   := libs/CANcomms libs/CANopenNode libs/CANopenNode/stack libs/CANopenNode/stack/socketCAN libs/objDict apps apps/stateMachine apps/stateMachine/states apps/Eigen apps/AlexTrajectoryGenerator libs libs/inputDevice libs/robot libs/robot/joint libs/stateMachine
+MODULES   := libs/CANopenNode libs/CANopenNode/stack libs/CANopenNode/stack/socketCAN libs/CANcomms libs/objDict apps apps/stateMachine apps/stateMachine/states libs libs/inputDevice libs/robot libs/robot/joint libs/stateMachine
 
 # automatically create list of module file paths NOT including executables
 SRC_DIR	  := $(addprefix src/,$(MODULES))
@@ -85,13 +85,13 @@ checkdirs: $(BUILD_DIR)
 exe: checkdirs main
 
 #On Windows - Substitute with command at end of file for UNIX-based systems
-# $(BUILD_DIR):
-# 	@mkdir $(subst /,\\,$@)
+$(BUILD_DIR):
+	@mkdir $(subst /,\\,$@)
 
 # #
 clean:
 	@rm -rf $(OBJ_CPP) $(OBJ_C) $(TESTOBJS)$(MAIN) $(MAINEXE) $(BUILD_DIR)
 
 #On UNIX
-$(BUILD_DIR):
-	@mkdir -p $@ 
+#$(BUILD_DIR):
+#	@mkdir -p $@ 
