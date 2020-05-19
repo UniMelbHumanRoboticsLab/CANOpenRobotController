@@ -54,11 +54,6 @@ class CopleyDrive : public Drive {
          */
     bool initPosControl(motorProfile posControlMotorProfile);
     /**
-     * \todo create velControlMOTORPROFILE and test on exo
-     * \todo Tune velocity loop gain index 0x2381 to optimize V control
-     * 
-    */
-    /**
          * Sets the drive to Velocity control with default parameters (through SDO messages)
          * 
          * Note: Should be overloaded to allow parameters to be set
