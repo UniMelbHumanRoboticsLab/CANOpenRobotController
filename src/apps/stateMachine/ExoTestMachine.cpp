@@ -4,7 +4,7 @@
 #define OWNER ((ExoTestMachine *)owner)
 
 ExoTestMachine::ExoTestMachine() {
-    trajectoryGenerator = new DummyTrajectoryGenerator(6); /*<! \todo Pilot Parameters would be set in constructor here*/
+    trajectoryGenerator = new DummyTrajectoryGenerator(6);
     robot = new ExoRobot(trajectoryGenerator);
 
     // Create PRE-DESIGNED State Machine events and state objects.

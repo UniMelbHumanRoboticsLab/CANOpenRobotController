@@ -29,7 +29,10 @@
  */
 class ExoTestState : public State {
    protected:
-    // \todo Might be good to make these Const
+    /**
+    *  \todo Might be good to make these Const
+    * 
+    */
     ExoRobot *robot;                               /*<!Pointer to state machines robot object*/
     DummyTrajectoryGenerator *trajectoryGenerator; /*<!Pointer to state machines trajectoryGenerator object*/
 

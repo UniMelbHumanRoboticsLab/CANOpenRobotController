@@ -54,6 +54,10 @@
 class ExoTestMachine : public StateMachine {
    public:
     bool running = false;
+    /**
+     *\todo Pilot Parameters would be set in constructor here
+     * 
+     */
     ExoTestMachine();
     void init();
     void activate();
@@ -65,7 +69,10 @@ class ExoTestMachine : public StateMachine {
     bool trajComplete;
     DummyTrajectoryGenerator *trajectoryGenerator;
 
-    // Pointers to the relevant states - initialised in init
+    /**
+     * Pointers to the relevant states - initialised in init 
+     * 
+     */
     InitState *initState;
     SittingDwn *sittingDwn;
     StandingUp *standingUp;
