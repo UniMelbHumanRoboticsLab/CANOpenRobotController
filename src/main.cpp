@@ -249,15 +249,32 @@ static void *rt_thread(void *arg) {
 }
 /* Control thread function ********************************/
 static void *rt_control_thread(void *arg) {
+    // freopen("log.txt", "w", stdout);
+    ofstream logfile;
+    logfile.open("log.csv");
+    /*Testing POSIX timer variables*/
+    struct timespec start, finish;
+    double elapsed;
     struct period_info pinfo;
     periodic_task_init(&pinfo);
     app_programStart();
+    logfile << "Loop_time_sec\n";
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);
     }
     while (CO_endProgram == 0) {
+        /* Measuring WALL CLOCK controlloop execution time*/
+        clock_gettime(CLOCK_MONOTONIC, &start);
         app_programControlLoop();
         wait_rest_of_period(&pinfo);
+        clock_gettime(CLOCK_MONOTONIC, &finish);
+        elapsed = (finish.tv_sec - start.tv_sec);
+        elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+        logfile << elapsed;
+        logfile << "\n";
+    }
+    if (readyToStart && CO_endProgram != 0) {
+        logfile.close();
     }
     return NULL;
 }

@@ -44,6 +44,7 @@
 #include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
+// Simple logging
 
 #include "CANopen.h"
 #include "CO_Linux_tasks.h"
