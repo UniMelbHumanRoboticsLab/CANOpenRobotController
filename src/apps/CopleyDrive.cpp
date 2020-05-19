@@ -42,10 +42,6 @@ bool CopleyDrive::initVelControl(motorProfile velControlMotorProfile) {
 }
 
 bool CopleyDrive::initTorqControl() {
-    /**
-     * \todo Implement the torque control initialisation
-     * 
-     */
     return false;
 }
 std::vector<std::string> CopleyDrive::generatePosControlConfigSDO(motorProfile positionProfile) {
