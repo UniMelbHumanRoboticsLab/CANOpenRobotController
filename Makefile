@@ -15,7 +15,7 @@ CXXFLAGS := -std=c++11  -Wno-psabi  -I eigen
 LINKFLAGS := -static 
 
 #Define header directories 
-MODULES   := libs/CANopenNode libs/CANopenNode/stack libs/CANopenNode/stack/socketCAN libs/CANcomms libs/objDict apps apps/stateMachine apps/stateMachine/states libs libs/inputDevice libs/robot libs/robot/joint libs/stateMachine
+MODULES   := include/CANopen/CANopenNode include/CANopen/CANopenNode/stack include/CANopen/CANopenNode/stack/socketCAN include/CANopen/CANcomms include/CANopen/objDict include/robot  include/robot/InputDevice  include/robot/joint include/application/stateMachine include/application/TrajectoryGenerator apps apps/Application/stateMachine apps/Application/stateMachine/states apps/Application/TrajectoryGenerator apps/Robot apps/Robot/Joint apps/Robot/InputDevice
 
 # automatically create list of module file paths NOT including executables
 SRC_DIR	  := $(addprefix src/,$(MODULES))
@@ -85,13 +85,13 @@ checkdirs: $(BUILD_DIR)
 exe: checkdirs main
 
 #On Windows - Substitute with command at end of file for UNIX-based systems
-$(BUILD_DIR):
-	@mkdir $(subst /,\\,$@)
+# $(BUILD_DIR):
+# 	@mkdir $(subst /,\\,$@)
 
 # #
 clean:
 	@rm -rf $(OBJ_CPP) $(OBJ_C) $(TESTOBJS)$(MAIN) $(MAINEXE) $(BUILD_DIR)
 
 #On UNIX
-#$(BUILD_DIR):
-#	@mkdir -p $@ 
+$(BUILD_DIR):
+	@mkdir -p $@ 

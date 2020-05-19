@@ -64,7 +64,7 @@ setMovementReturnCode_t ActuatedJoint::setTorque(double torque) {
         * \todo A conversion to the drive value for torque
         * 
         */
-        drive->setTorque(torque)
+        drive->setTorque(torque);
     }
     return UNKNOWN_ERROR;
 }
