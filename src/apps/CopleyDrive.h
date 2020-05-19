@@ -70,7 +70,6 @@ class CopleyDrive : public Drive {
          * 
          * \return true if successful
          * \return false if not
-         * \todo Implement the torque control initialisation
          */
     bool initTorqControl();
     /**
