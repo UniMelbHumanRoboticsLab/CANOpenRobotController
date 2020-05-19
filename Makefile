@@ -15,7 +15,11 @@ CXXFLAGS := -std=c++11  -Wno-psabi  -I eigen
 LINKFLAGS := -static 
 
 #Define header directories 
-MODULES   := include/CANopen/CANopenNode include/CANopen/CANopenNode/stack include/CANopen/CANopenNode/stack/socketCAN include/CANopen/CANcomms include/CANopen/objDict include/robot  include/robot/InputDevice  include/robot/joint include/application/stateMachine include/application/TrajectoryGenerator apps apps/Application/stateMachine apps/Application/stateMachine/states apps/Application/TrajectoryGenerator apps/Robot apps/Robot/Joint apps/Robot/InputDevice
+MODULES   := include/CANopen/CANopenNode include/CANopen/CANopenNode/stack include/CANopen/CANopenNode/stack/socketCAN \
+			 include/CANopen/CANcomms include/CANopen/objDict include/robot  include/robot/InputDevice  			   \
+			 include/robot/joint include/application/stateMachine include/application/TrajectoryGenerator			   \
+			 apps apps/Application/stateMachine apps/Application/stateMachine/states apps/Application/TrajectoryGenerator \
+			 apps/Robot apps/Robot/Joint apps/Robot/InputDevice
 
 # automatically create list of module file paths NOT including executables
 SRC_DIR	  := $(addprefix src/,$(MODULES))
