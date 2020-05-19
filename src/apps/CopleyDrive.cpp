@@ -30,8 +30,11 @@ bool CopleyDrive::initPosControl(motorProfile posControlMotorProfile) {
 
 bool CopleyDrive::initVelControl(motorProfile velControlMotorProfile) {
     DEBUG_OUT("NodeID " << NodeID << " Initialising Velocity Control")
-    /*\todo create velControlMOTORPROFILE and test on exo*/
-    /*\todo Tune velocity loop gain index 0x2381 to optimize V control */
+    /**
+     *  \todo create velControlMOTORPROFILE and test on exo
+     * \todo Tune velocity loop gain index 0x2381 to optimize V control
+     * 
+    */
     sendSDOMessages(generateVelControlConfigSDO(velControlMotorProfile));
     return true;
 }
