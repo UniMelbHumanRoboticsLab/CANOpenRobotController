@@ -55,7 +55,7 @@ class ExoTestMachine : public StateMachine {
    public:
     bool running = false;
     /**
-     *\todo Pilot Parameters would be set in constructor here
+     *  \todo Pilot Parameters would be set in constructor here
      * 
      */
     ExoTestMachine();
