@@ -16,4 +16,4 @@ The application loop speed can be altered by the programmer, however, it must ru
 
 # Flowchart of a typical CORC implementation
 
-![Flow Chart](../img/CORC_flow_chart.png)
+![Flow Chart](Docs/CORC_flow_chart.svg)
