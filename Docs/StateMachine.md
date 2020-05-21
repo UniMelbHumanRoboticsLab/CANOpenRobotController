@@ -18,7 +18,9 @@
 CORC provides a structured way to build event driven FSMs. The following explains how to represent states and events and how to put them together into a CORC state machine. It is best practice to start with a state transition diagram and build each component individually. We will use the ExoTestMachine example provided in the CORC library [link](https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController/blob/master/src/apps/stateMachine/ExoTestMachine.cpp) presented bellow.
 
 ![exoTestMachine](exoTestMachine.png)
-#TEST
+
+# TEST
+
 ![exoTestMachine](@ref exoTestMachine.png)
 
 - An Input Device (e.g. keyboard, controller etc) triggers Events. The desired behaviour is to move the exoskeleton between a sitting position and standing position. Using two moving states (sittingDwn and standingUp. We don't care how those motions happen, only the separation of individual State. This both seperates programatically and prevents unwanted behaviours.
