@@ -907,8 +907,7 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS        = */src/libs/CANopenNode*
-EXCLUDE_PATTERNS       += */src/libs/CANopenNode*
+EXCLUDE_PATTERNS        = */src/include/CANopen*
 EXCLUDE_PATTERNS       += */src/libs/objDict*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
