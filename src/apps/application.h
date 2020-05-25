@@ -93,15 +93,4 @@ void app_programAsync(uint16_t timer1msDiff);
  */
 void app_programControlLoop(void);
 
-/**
- * \brief current CPU Ussage stats init reading from proc/stat UNIX file
- * 
- */
-void initCPUinfo();
-
-/**
- * \brief current CPU Ussage 
- * 
- */
-double getCurrentCPUInfo();
 #endif /*APP_H*/

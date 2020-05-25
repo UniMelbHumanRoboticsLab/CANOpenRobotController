@@ -258,9 +258,8 @@ static void *rt_control_thread(void *arg) {
     struct period_info pinfo;
     periodic_task_init(&pinfo);
     app_programStart();
-    initCPUinfo();
     logfile
-        << "Loop_time_sec, CPU_u\n";
+        << "Loop_time_sec\n";
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);
     }
@@ -272,11 +271,8 @@ static void *rt_control_thread(void *arg) {
         clock_gettime(CLOCK_MONOTONIC, &finish);
         elapsed = (finish.tv_sec - start.tv_sec);
         elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
-        cpu_u = getCurrentCPUInfo();
         logfile
             << elapsed
-            << ","
-            << cpu_u
             << "\n";
     }
     if (readyToStart && CO_endProgram != 0) {
