@@ -164,6 +164,15 @@ class Drive {
        */
     std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
 
+    /**
+       *
+       * \brief  Generates the list of commands required to configure Torque control in CANopen motor drive
+       *
+       * NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
+       *           https://www.can-cia.org/can-knowledge/canopen/cia402/
+       */
+    std::vector<std::string> generateTorqueControlConfigSDO();
+
     /**                                                                                                             
         * \brief messages Properly formatted SDO Messages
         * 
@@ -270,7 +279,7 @@ class Drive {
            * \return true if successful
            * \return false if not
            */
-    virtual bool initTorqControl() = 0;
+    virtual bool initTorqueControl() = 0;
 
     /**
            * Updates the internal representation of the state of the drive 

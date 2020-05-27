@@ -71,7 +71,7 @@ class CopleyDrive : public Drive {
          * \return true if successful
          * \return false if not
          */
-    bool initTorqControl();
+    bool initTorqueControl();
     /**
           * \brief Overloaded method from Drive, specifically for Copley Drive implementation.
           *     Generates the list of commands required to configure Position control in CANopen motor drive
@@ -110,6 +110,15 @@ class CopleyDrive : public Drive {
           * 
           */
     std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
+    /**
+          * \brief Overloaded method from Drive, specifically for Copley Drive implementation.
+          *     Generates the list of commands required to configure Torque control in CANopen motor drive
+          *
+          *    NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
+          *           https://www.can-cia.org/can-knowledge/canopen/cia402/
+          *
+          */
+    std::vector<std::string> generateTorqueControlConfigSDO();
 };
 
 #endif

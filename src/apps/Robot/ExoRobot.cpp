@@ -34,6 +34,27 @@ bool ExoRobot::initPositionControl() {
     return returnValue;
 }
 
+bool ExoRobot::initTorqueControl() {
+    DEBUG_OUT("Initialising Torque Control on all joints ")
+    bool returnValue = true;
+    for (auto p : joints) {
+        if (((ActuatedJoint *)p)->setMode(TORQUE_CONTROL) != TORQUE_CONTROL) {
+            // Something back happened if were are here
+            DEBUG_OUT("Something bad happened")
+            returnValue = false;
+        }
+        // Put into ReadyToSwitchOn()
+        ((ActuatedJoint *)p)->readyToSwitchOn();
+    }
+
+    // Pause for a bit to let commands go
+    usleep(2000);
+    for (auto p : joints) {
+        ((ActuatedJoint *)p)->enable();
+    }
+    return returnValue;
+}
+
 void ExoRobot::startNewTraj() {
     DEBUG_OUT("Start New Traj");
 
