@@ -556,7 +556,7 @@ static void command_process(int fd, char *command, size_t commandLength) {
     }
 }
 /******************************************************************************/
-void cancomm_socketFree(char *command, char *ret) {
+void cancomm_socketFree(char *command, char **ret) {
     int err = 0; /* syntax or other error, true or false */
     int emptyLine = 0;
     char *token;
@@ -925,6 +925,7 @@ void cancomm_socketFree(char *command, char *ret) {
     resp[respLen++] = '\r';
     resp[respLen++] = '\n';
     resp[respLen++] = '\0';
-    // print SDO response to terminal.
-    printf("RESPONSE: %s\n", resp);
+    // Modify returnMessage
+    *ret=resp;
+    //printf("RESPONSE: %s\n", resp);
 }

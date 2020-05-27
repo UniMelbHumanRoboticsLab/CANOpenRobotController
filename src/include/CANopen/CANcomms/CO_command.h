@@ -72,7 +72,7 @@ int CO_command_clear(void);
  * @return message recieved on success 
  * @return error on failure
  */
-void cancomm_socketFree(char *command, char *ret);
+void cancomm_socketFree(char *command, char **ret);
 /**
  * Using cancomm_socketFree(const char* command, char* ret)
  * initialize nodes for PDO messaging
