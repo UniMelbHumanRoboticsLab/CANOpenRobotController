@@ -1,16 +1,20 @@
 # Makefile for Tests
 # CXX - defines the compiler. 
-# Currently uses the cross-compiler for the BBB (could be modified to run on Windows PC if desired)
-#CXX := arm-linux-gnueabihf-g++
-#LD  := arm-linux-gnueabihf-g++
-CXX := g++
-LD  := g++
+# Currently uses the cross-compiler for the BBB by default. Use make TARGET=g++ for local compilation or other specifc toolchain
+ifeq ($(TARGET),)
+	CXX := arm-linux-gnueabihf-g++
+	LD  := arm-linux-gnueabihf-g++
+else
+	CXX := $(TARGET)
+	LD := $(TARGET)
+endif
+
 
 # CXXFLAGS - flags for the compilation 
 # -std=c++11 - uses C++11 standard
 # -Wno-psabi - does not print the warnings associated with use of the MAP class. 
 # -Wwrite-strings - removes warnings re conversion of string constants to char*
-CXXFLAGS := -std=c++11  -O3 -Wno-psabi  -I eigen 
+CXXFLAGS := -std=c++11 -Wno-psabi -I eigen 
 
 # LINKFLAGS - flags for linking the objects
 # -static used to include the libraries in the executable (originally added for GLIBCXX strings)
@@ -36,6 +40,7 @@ OBJ_C       := $(patsubst src/%.c,build/%.o,$(SRC_C))
 
 # Objects from the sources, plus the executables
 BUILD_DIR := $(addprefix build/,$(MODULES)) build/tests
+
 
 # List of Test Programs (Executables)
 # TESTS	:= testDrives testJoints testOD testRobot testSM testTraj 
@@ -90,15 +95,15 @@ $(foreach test,$(TESTS),$(eval $(call make-tests,$(test))))
 
 .PHONY: all checkdirs clean
 
-
 #On Windows - Substitute with command at end of file for UNIX-based systems
-# $(BUILD_DIR):
-# 	@mkdir $(subst /,\\,$@)
+$(BUILD_DIR):
+	if [ $(OS) -eq "Windows_NT" ]; then \
+		mkdir $(subst /,\\,$@); \
+	else \
+		mkdir -p $@; \
+	fi
 
 # #
 clean:
 	@rm -rf $(OBJ_CPP) $(OBJ_C) $(TESTOBJS)$(MAIN) $(MAINEXE) $(BUILD_DIR)
 
-#On UNIX
-$(BUILD_DIR):
-	@mkdir -p $@ 
