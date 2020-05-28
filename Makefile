@@ -1,14 +1,16 @@
 # Makefile for Tests
 # CXX - defines the compiler. 
 # Currently uses the cross-compiler for the BBB (could be modified to run on Windows PC if desired)
-CXX := arm-linux-gnueabihf-g++
-LD  := arm-linux-gnueabihf-g++
+#CXX := arm-linux-gnueabihf-g++
+#LD  := arm-linux-gnueabihf-g++
+CXX := g++
+LD  := g++
 
 # CXXFLAGS - flags for the compilation 
 # -std=c++11 - uses C++11 standard
 # -Wno-psabi - does not print the warnings associated with use of the MAP class. 
 # -Wwrite-strings - removes warnings re conversion of string constants to char*
-CXXFLAGS := -std=c++11  -Wno-psabi  -I eigen 
+CXXFLAGS := -std=c++11  -O3 -Wno-psabi  -I eigen 
 
 # LINKFLAGS - flags for linking the objects
 # -static used to include the libraries in the executable (originally added for GLIBCXX strings)
@@ -50,6 +52,12 @@ MAINEXE := build/EXO_APP_2020
 # Tell compiler where to find all source files
 INCLUDES  := $(addprefix -I,$(SRC_DIR))
 
+exe: checkdirs main
+
+tests: checkdirs $(TESTS)
+
+checkdirs: $(BUILD_DIR)
+
 # Define a macro which defines a Make Rule for all files in all Source Directories 
 define make-goal-cpp
 $1: $(subst .o,.cpp,$(subst build,src,$1))
@@ -82,11 +90,6 @@ $(foreach test,$(TESTS),$(eval $(call make-tests,$(test))))
 
 .PHONY: all checkdirs clean
 
-tests: checkdirs $(TESTS)
-
-checkdirs: $(BUILD_DIR)
-
-exe: checkdirs main
 
 #On Windows - Substitute with command at end of file for UNIX-based systems
 # $(BUILD_DIR):
