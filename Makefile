@@ -9,7 +9,6 @@ else
 	LD := $(TARGET)
 endif
 
-
 # CXXFLAGS - flags for the compilation 
 # -std=c++11 - uses C++11 standard
 # -Wno-psabi - does not print the warnings associated with use of the MAP class. 
@@ -97,11 +96,11 @@ $(foreach test,$(TESTS),$(eval $(call make-tests,$(test))))
 
 #On Windows - Substitute with command at end of file for UNIX-based systems
 $(BUILD_DIR):
-	if [ $(OS) -eq "Windows_NT" ]; then \
-		mkdir $(subst /,\\,$@); \
-	else \
-		mkdir -p $@; \
-	fi
+ifeq ($(OS), Windows_NT)
+	mkdir $(subst /,\\,$@)
+else
+	mkdir -p $@
+endif
 
 # #
 clean:
