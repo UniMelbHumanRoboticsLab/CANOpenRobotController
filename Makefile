@@ -43,7 +43,7 @@ TESTOBJS := $(addsuffix .o, $(addprefix build/tests/,$(TESTS)))
 TESTEXE := $(addprefix build/,$(TESTS))
 
 # For main program
-MAIN 	:= build/apps/example/main.o
+MAIN 	:= build/main.o
 MAINEXE := build/EXO_APP_2020
 
 # Tell compiler where to find all source files
