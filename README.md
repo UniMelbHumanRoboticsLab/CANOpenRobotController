@@ -52,8 +52,8 @@ This repository includes all the sources files required for this example.
 On the host, build the executable:
 
 ```bash
-$ cd <CANOpenRobotController_directory>
-$ make exe
+$ cd <CANOpenRobotController_directory/build>
+$ cmake ../
 ```
 
 > Note: there are also some additional build rules to build additional tests, which are still to be completed

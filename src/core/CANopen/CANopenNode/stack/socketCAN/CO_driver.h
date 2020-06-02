@@ -166,7 +166,9 @@ typedef struct {
 #endif
 
 /* Helper function, must be defined externally. */
+#ifdef __cplusplus
 extern "C" {
+#endif
 void CO_errExit(char *msg);
 
 /* Request CAN configuration or normal mode */
@@ -222,6 +224,8 @@ void CO_CANverifyErrors(CO_CANmodule_t *CANmodule);
  * @param CANmodule This object.
  */
 void CO_CANrxWait(CO_CANmodule_t *CANmodule);
+#ifdef __cplusplus
 }
+#endif /*__cplusplus*/
 
 #endif
