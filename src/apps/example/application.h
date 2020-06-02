@@ -47,10 +47,13 @@
 // Simple logging
 
 #include "CANopen.h"
+extern "C" {
 #include "CO_Linux_tasks.h"
+#include "CO_time.h"
+}
 #include "CO_OD_storage.h"
 #include "CO_command.h"
-#include "CO_time.h"
+
 #include "ExoRobot.h"
 #include "ExoTestMachine.h"
 #include "stdio.h"

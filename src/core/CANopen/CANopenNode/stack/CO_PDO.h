@@ -273,7 +273,9 @@ extern "C"
  *
  * @return #CO_ReturnError_t: CO_ERROR_NO or CO_ERROR_ILLEGAL_ARGUMENT.
  */
- extern "C"{
+#ifdef __cplusplus
+extern "C" {
+#endif
     CO_ReturnError_t CO_RPDO_init(
         CO_RPDO_t *RPDO,
         CO_EM_t *em,
@@ -289,7 +291,9 @@ extern "C"
         uint16_t idx_RPDOMapPar,
         CO_CANmodule_t *CANdevRx,
         uint16_t CANdevRxIdx);
- }
+#ifdef __cplusplus
+}
+#endif /*__cplusplus*/
 
     /**
  * Initialize TPDO object.
