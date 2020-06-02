@@ -25,10 +25,10 @@ add_executable(EXO_APP_2020
         ${SOURCES}
         )
 
-target_include_directories(EXO_APP PRIVATE ${INCLUDE_DIRS})
+target_include_directories(EXO_APP_2020 PRIVATE ${INCLUDE_DIRS})
 
 # Set required external packages
 find_package(Threads REQUIRED)
 
 # Link libraries
-target_link_libraries(EXO_APP ${CMAKE_THREAD_LIBS_INIT} -static)
+target_link_libraries(EXO_APP_2020 ${CMAKE_THREAD_LIBS_INIT} -static)
