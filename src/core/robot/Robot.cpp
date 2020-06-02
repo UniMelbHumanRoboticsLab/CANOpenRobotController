@@ -13,14 +13,13 @@
 
 #include "DebugMacro.h"
 
-Robot::Robot(TrajectoryGenerator *tj) {
-    DEBUG_OUT("Robot object created")
-    trajectoryGenerator = tj;
-}
+Robot::Robot(){
+    DEBUG_OUT("Robot object created")}
 
 Robot::~Robot() {
     DEBUG_OUT("Robot object deleted")
 }
+
 bool Robot::initialise() {
     if (initialiseJoints()) {
         if (initialiseNetwork()) {
@@ -37,8 +36,8 @@ bool Robot::initialise() {
 void Robot::updateRobot() {
     for (auto joint : joints)
         joint->updateValue();
-    // for (auto input : inputs)
-    //     input->updateInput();
+    for (auto input : inputs)
+        input->updateInput();
 }
 
 void Robot::printStatus() {
@@ -48,6 +47,6 @@ void Robot::printStatus() {
     std::cout << std::endl;
 }
 
-void Robot::getJointStatus(int J_i) {
+void Robot::printJointStatus(int J_i) {
     joints[J_i]->getStatus();
 }

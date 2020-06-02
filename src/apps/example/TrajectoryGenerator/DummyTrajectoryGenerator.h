@@ -12,9 +12,12 @@
 #ifndef DUMMYTRAJECTORYGENERATOR_H_INCLUDED
 #define DUMMYTRAJECTORYGENERATOR_H_INCLUDED
 
-#include <cmath>
+#include <time.h>
 
-#include "TrajectoryGenerator.h"
+#include <cmath>
+#include <vector>
+
+#include "DebugMacro.h"
 
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
@@ -32,13 +35,17 @@ enum Trajectory {
  * \brief Example Implementation of TrajectoryGenerator. Includes only two trajectories (Sit-to-Stand and Stand-to-sit) for an Exoskeleton
  * 
  */
-class DummyTrajectoryGenerator : public TrajectoryGenerator {
+class DummyTrajectoryGenerator {
    private:
     std::vector<double[2]> endPoints;
     Trajectory currTraj = SIT;
     double trajTime = 2;
     int numJoints = 6;
     double lastProgress = 0;
+
+    /** Parameters associated with Trajectory Progression */
+    double currTrajProgress = 0;
+    timespec prevTime;
 
    public:
     DummyTrajectoryGenerator(int NumOfJoints);

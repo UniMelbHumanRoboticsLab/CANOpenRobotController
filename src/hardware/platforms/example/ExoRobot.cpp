@@ -2,7 +2,7 @@
 
 #include "DebugMacro.h"
 
-ExoRobot::ExoRobot(TrajectoryGenerator *tj) : Robot(tj) {
+ExoRobot::ExoRobot() : Robot() {
 }
 
 ExoRobot::~ExoRobot() {
@@ -55,46 +55,21 @@ bool ExoRobot::initTorqueControl() {
     return returnValue;
 }
 
-void ExoRobot::startNewTraj() {
-    DEBUG_OUT("Start New Traj");
-
-    // Index Resetting
-    currTrajProgress = 0;
-    clock_gettime(CLOCK_MONOTONIC, &prevTime);
-}
-
-bool ExoRobot::moveThroughTraj() {
-    bool returnValue = true;
-
-    timespec currTime;
-    clock_gettime(CLOCK_MONOTONIC, &currTime);
-
-    double elapsedSec = currTime.tv_sec - prevTime.tv_sec + (currTime.tv_nsec - prevTime.tv_nsec) / 1e9;
-    prevTime = currTime;
-
-    // This should check to make sure that the "GO" button is pressed.
-    if (true) {
-        currTrajProgress += elapsedSec;
-        DEBUG_OUT("Elapsed Time: " << currTrajProgress)
-
-        std::vector<double> setPoints = trajectoryGenerator->getSetPoint(currTrajProgress);
-        int i = 0;
-        for (auto p : joints) {
-            setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setPosition(setPoints[i]);
-            if (setPosCode == INCORRECT_MODE) {
-                std::cout << "Joint ID " << p->getId() << ": is not in Position Control " << std::endl;
-                returnValue = false;
-            } else if (setPosCode != SUCCESS) {
-                // Something bad happened
-                std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
-                returnValue = false;
-            }
-            i++;
+setMovementReturnCode_t ExoRobot::setPosition(std::vector<double> positions) {
+    int i = 0;
+    setMovementReturnCode_t returnValue = SUCCESS;
+    for (auto p : joints) {
+        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setPosition(positions[i]);
+        if (setPosCode == INCORRECT_MODE) {
+            std::cout << "Joint ID " << p->getId() << ": is not in Position Control " << std::endl;
+            returnValue = INCORRECT_MODE;
+        } else if (setPosCode != SUCCESS) {
+            // Something bad happened
+            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            returnValue = UNKNOWN_ERROR;
         }
-    } else {
-        DEBUG_OUT("Not moving")
+        i++;
     }
-
     return returnValue;
 }
 
@@ -119,11 +94,10 @@ bool ExoRobot::initialiseNetwork() {
     return true;
 }
 bool ExoRobot::initialiseInputs() {
-    inputs.push_back(new Keyboard());
+    inputs.push_back(&keyboard);
     return true;
 }
 void ExoRobot::freeMemory() {
-    keyboard.~Keyboard();
     for (auto p : joints) {
         DEBUG_OUT("Delete Joint ID: " << p->getId())
         delete p;
@@ -132,8 +106,12 @@ void ExoRobot::freeMemory() {
         DEBUG_OUT("Delete Drive Node: " << p->getNodeID())
         delete p;
     }
+    for (auto p : inputs) {
+        DEBUG_OUT("Deleting Input")
+        delete p;
+    }
+    keyboard.~Keyboard();
 }
 void ExoRobot::updateRobot() {
     Robot::updateRobot();
-    keyboard.updateInput();
 }

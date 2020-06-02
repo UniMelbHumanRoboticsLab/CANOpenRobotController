@@ -32,7 +32,7 @@ bool Drive::setVel(int velocity) {
 
 bool Drive::setTorque(int torque) {
     /**
-    * \todo add setTorque to object dictionary
+    * \todo add setTorque to object dictionary for all drives
     *
     */
     DEBUG_OUT("Drive " << NodeID << " Writing " << torque << " to 0x6071");
@@ -41,12 +41,7 @@ bool Drive::setTorque(int torque) {
 }
 
 int Drive::getPos() {
-    /**
-    * \todo change to actual motor Position when running on real robot
-    *
-    */
-
-    int q = *(&CO_OD_RAM.targetMotorPositions.motor1 + ((this->NodeID - 1)));
+    int q = *(&CO_OD_RAM.actualMotorPositions.motor1 + ((this->NodeID - 1)));
     return q;
 }
 
@@ -302,11 +297,11 @@ std::vector<std::string> Drive::generateTorqueControlConfigSDO() {
 int Drive::sendSDOMessages(std::vector<std::string> messages) {
     char *returnMessage;
 
-    #ifndef NOROBOT
+#ifndef NOROBOT
     int successfulMessages = 0;
-    #else
+#else
     int successfulMessages = 1;
-    #endif
+#endif
     for (auto strCommand : messages) {
         // explicitly cast c++ string to from const char* to char* for use by cancomm function
         char *SDO_Message = (char *)(strCommand.c_str());
@@ -318,12 +313,10 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
         // Because returnMessage includes sequence it is possible value is "[1] OK".
         // Therefore it is checked if return message includes the string "OK".
         // Another option would be erasing the sequence value before returning in cancomm_socketFree
-        if (retMsg.find("OK") != std::string::npos)
-        {
+        if (retMsg.find("OK") != std::string::npos) {
             successfulMessages++;
         }
 #endif
-
     }
     return successfulMessages;
 }

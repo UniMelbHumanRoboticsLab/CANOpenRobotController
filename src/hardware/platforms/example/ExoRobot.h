@@ -18,8 +18,6 @@
 #ifndef EXOROBOT_H_INCLUDED
 #define EXOROBOT_H_INCLUDED
 
-#include <time.h>
-
 #include <map>
 
 #include "CopleyDrive.h"
@@ -38,9 +36,6 @@
  */
 class ExoRobot : public Robot {
    private:
-    /** Parameters associated with Trajectory Progression */
-    double currTrajProgress = 0;
-    timespec prevTime;
     /**
      * \brief motor drive position control profile paramaters, user defined.
      * 
@@ -53,10 +48,10 @@ class ExoRobot : public Robot {
       * Initialize memory for the Exoskelton <code>Joint</code> + sensors. 
       * Load in exoskeleton paramaters to  <code>TrajectoryGenerator.</code>.
       */
-    ExoRobot(TrajectoryGenerator *tj);
+    ExoRobot();
     ~ExoRobot();
     Keyboard keyboard;
-    vector<CopleyDrive *> copleyDrives;
+    std::vector<CopleyDrive *> copleyDrives;
 
     // /**
     //  * \brief Timer Variables for moving through trajectories
@@ -89,14 +84,13 @@ class ExoRobot : public Robot {
       */
     bool moveThroughTraj();
 
-    /** 
-      *  \brief Begin a new trajectory with the currently loaded trajectory paramaters. 
-      * Using the <code>ExoRobot</code> current configuration (read in from joint objects) 
-      * and the trajecotry generator object, generate and save a spline to move from current 
-      * to desired position.
-      * 
-      */
-    void startNewTraj();
+    /**
+    * @brief Set the target positions for each of the joints
+    * 
+    * @param positions a vector of target positions - applicable for each of the actauted joints
+    * @return MovementCode representing success or failure of the application
+    */
+    setMovementReturnCode_t setPosition(std::vector<double> positions);
 
     /** 
    * Determine if the currently generated trajectory is complete.

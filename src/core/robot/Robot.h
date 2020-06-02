@@ -21,10 +21,9 @@
 #define ROBOT_H_INCLUDED
 #include <vector>
 
+#include "ActuatedJoint.h"
 #include "InputDevice.h"
 #include "Joint.h"
-#include "TrajectoryGenerator.h"
-using namespace std;
 
 /**
  * @ingroup Robot
@@ -34,39 +33,40 @@ using namespace std;
 class Robot {
    protected:
     /**
- * \brief Vector of pointers to Abstract <class>Joint<class> Objects, number and type must be specified by 
- * Software design in <class>Robot<class> Implementation.
- * Note: Use pointers to the joint objects here, so that the derived objects are not cast to Joint, truncating
- * any of their explicit implementations.
- * 
- */
-    vector<Joint *> joints;
+    * \brief Vector of pointers to Abstract <class>Joint<class> Objects, number and type must be specified by 
+    * Software design in <class>Robot<class> Implementation.
+    * Note: Use pointers to the joint objects here, so that the derived objects are not cast to Joint, truncating
+    * any of their explicit implementations.
+    * 
+    */
+    std::vector<Joint *> joints;
 
-    vector<InputDevice *> inputs;
-    /**
- * \brief Trajectory Generator  
- * 
- */
-    TrajectoryGenerator *trajectoryGenerator;
+    std::vector<InputDevice *> inputs;
 
    public:
-    //Setup
+    //////////////////////////
+    // Constructors
+    //////////////////////////
     /**
- * \brief Default <code>Robot</code> constructor.
- */
-    Robot(TrajectoryGenerator *tj);
+    * \brief Default <code>Robot</code> constructor.
+    */
+    Robot();
     ~Robot();
+
+    //////////////////////////
+    // Initialisation Functions
+    //////////////////////////
     /**
      * \brief Initialize memory for the designed <code>Robot</code> classes specific
      * <code>Joint</code> objects + sensors (if available) using the pure virtual initialiseJoints()
      * implemented by the robot designer. Based on the given Joints, initNetwork() will configure 
      * these joints for CAN PDO messaging and Load the specififed Controller, by default set to Positio.
      * 
-     * 
-     * \return true 
-     * \return false 
+     * \return true if successful
+     * \return false if unsuccessful
      */
     bool initialise();
+
     /**
      * \brief Pure Virtual function, implemeted by robot designer with specified number of each concrete joint classes
      * for the robot hardware desired.
@@ -77,6 +77,9 @@ class Robot {
      * \brief Pure Virtual function, implemeted by robot designer with specified number of each concrete input classes
      * for the robot hardware desired.
      * 
+     * \return true if successful 
+     * \return flase if unsuccesful
+     * 
      */
     virtual bool initialiseInputs() = 0;
     /**
@@ -84,47 +87,106 @@ class Robot {
      * Individually set up the underlying CANopen PDO messaging to and from 
      * the hardware attached.
      * 
-     * 
-     * \return true 
-     * \return false 
+     * \return true if successful
+     * \return false if unsuccessful
      */
     virtual bool initialiseNetwork() = 0;
 
-    //Robot objects
-
-    //Core  functions
+    //////////////////////////
+    // Core Update and State Functions
+    //////////////////////////
     /**
     * \brief Update all of this <code>Robot<code> software joint positions 
-    * from object dictionary entries.
+    * from object dictionary entries. 
     * 
     */
     virtual void updateRobot();
+
     /**
- * \brief print out status of robot and all of its joints
- * 
- */
+    * \brief print out status of robot and all of its joints
+    * 
+    */
     void printStatus();
     /**
- * \brief print out status of <code>Joint<code> J_i
- * 
- */
-    void getJointStatus(int J_i);
+    * \brief print out status of <code>Joint<code> J_i
+    * 
+    */
+    void printJointStatus(int J_i);
 
-    ////Logging
+    //////////////////////////
+    // Core Control Functions
+    //////////////////////////
+
     /**
- * \brief Initialises Logging to specified file
- * 
- */
+    * @brief Initialises position control on this robot. Default function is to report failure 
+    * 
+    * @return true If successful
+    * @return false If unsuccesful
+    */
+    virtual bool initPositionControl() { return false; };
+
+    /**
+    * @brief Initialises position control on this robot. Default function is to report failure 
+    * 
+    * @return true If successful
+    * @return false If unsuccesful
+    */
+    virtual bool initVelocityControl() { return false; };
+
+    /**
+    * @brief Initialises position control on this robot. Default function is to report failure 
+    * 
+    * @return true If successful
+    * @return false If unsuccesful
+    */
+    virtual bool initTorqueControl() { return false; };
+
+    /**
+    * @brief Set the target positions for each of the joints
+    * 
+    * @param positions a vector of target positions - applicable for each of the actauted joints
+    * @return MovementCode representing success or failure of the application
+    */
+    virtual setMovementReturnCode_t setPosition(std::vector<double> positions) { return INCORRECT_MODE; };
+
+    /**
+    * @brief Set the target velocities for each of the joints
+    * 
+    * @param positions a vector of target velocities - applicable for each of the actauted joints
+    * @return MovementCode representing success or failure of the application
+    */
+    virtual setMovementReturnCode_t setVelocity(std::vector<double> velocities) { return INCORRECT_MODE; };
+
+    /**
+    * @brief Set the target torques for each of the joints
+    * 
+    * @param positions a vector of target torques - applicable for each of the actauted joints
+    * @return MovementCode representing success or failure of the application
+    */
+    virtual setMovementReturnCode_t setTorque(std::vector<double> torques) { return INCORRECT_MODE; };
+
+    //////////////////////////
+    // Logging Functions
+    //////////////////////////
+    /**
+     * /todo The default logging function has not yet been implemented. 
+     * 
+     */
+
+    /**
+    * \brief Initialises Logging to specified file
+    * 
+    */
     void initialiseLog();
     /**
- * \brief Log input data point to currently open log file
- * 
- */
+    * \brief Log input data point to currently open log file
+    * 
+    */
     void logDataPoint(std::string data);
     /**
- * \brief Save and close any currently open logging files
- * 
- */
+    * \brief Save and close any currently open logging files
+    * 
+    */
     bool closeLog();
 };
 

@@ -3,17 +3,32 @@
 ////////////////////////////////////
 #include "SittingDwn.h"
 void SittingDwn::entry(void) {
-    std::cout << "Sitting Down State Entered " << endl
-              << "===================" << endl
-              << " GREEN -> SIT DOWN " << endl
-              << "===================" << endl;
+    std::cout << "Sitting Down State Entered " << std::endl
+              << "===================" << std::endl
+              << " GREEN -> SIT DOWN " << std::endl
+              << "===================" << std::endl;
     trajectoryGenerator->initialiseTrajectory(SIT, 1);
-    robot->startNewTraj();
+    currTrajProgress = 0;
+    clock_gettime(CLOCK_MONOTONIC, &prevTime);
 }
 void SittingDwn::during(void) {
-    robot->moveThroughTraj();
+    timespec currTime;
+    clock_gettime(CLOCK_MONOTONIC, &currTime);
+
+    double elapsedSec = currTime.tv_sec - prevTime.tv_sec + (currTime.tv_nsec - prevTime.tv_nsec) / 1e9;
+    prevTime = currTime;
+
+    /**
+     *  /todo - Check if the GO button on the robot is pressed
+     * 
+     */
+    if (true) {
+        currTrajProgress += elapsedSec;
+        DEBUG_OUT("Elapsed Time: " << currTrajProgress)
+
+        robot->setPosition(trajectoryGenerator->getSetPoint(currTrajProgress));
+    }
 }
 void SittingDwn::exit(void) {
-    std::cout
-        << "Sitting Down State Exited " << endl;
+    std::cout << "Sitting Down State Exited " << std::endl;
 }

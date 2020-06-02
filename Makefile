@@ -16,7 +16,7 @@ LINKFLAGS := -static
 
 #Define header directories 
 MODULES   := core/CANopen/CANopenNode core/CANopen/CANopenNode/stack core/CANopen/CANopenNode/stack/socketCAN \
-			 core core/CANopen/CANcomms core/CANopen/objDict core/robot core/robot/joint core/stateMachine core/TrajectoryGenerator \
+			 core core/CANopen/CANcomms core/CANopen/objDict core/robot core/stateMachine core/TrajectoryGenerator \
 			 hardware/drives hardware/IO hardware/platforms/example \
 			 apps/example apps/example/stateMachine apps/example/stateMachine/states apps/example/TrajectoryGenerator 
 
@@ -88,13 +88,13 @@ checkdirs: $(BUILD_DIR)
 exe: checkdirs main
 
 #On Windows - Substitute with command at end of file for UNIX-based systems
-# $(BUILD_DIR):
-# 	@mkdir $(subst /,\\,$@)
+$(BUILD_DIR):
+	@mkdir $(subst /,\\,$@)
 
 # #
 clean:
 	@rm -rf $(OBJ_CPP) $(OBJ_C) $(TESTOBJS)$(MAIN) $(MAINEXE) $(BUILD_DIR)
 
 #On UNIX
-$(BUILD_DIR):
-	@mkdir -p $@ 
+#$(BUILD_DIR):
+#	@mkdir -p $@ 

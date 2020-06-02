@@ -5,7 +5,7 @@
 
 ExoTestMachine::ExoTestMachine() {
     trajectoryGenerator = new DummyTrajectoryGenerator(6);
-    robot = new ExoRobot(trajectoryGenerator);
+    robot = new ExoRobot();
 
     // Create PRE-DESIGNED State Machine events and state objects.
     isAPressed = new IsAPressed(this);
@@ -46,7 +46,7 @@ void ExoTestMachine::init() {
 }
 
 ////////////////////////////////////////////////////////////////
-// Events ------------------------------------------------------------
+// Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
 /**
      * \brief poll the trajectory Generators flag to see if the currently loaded motion is complete
@@ -69,7 +69,7 @@ bool ExoTestMachine::StartButtonsPressed::check(void) {
 }
 bool ExoTestMachine::StartExo::check(void) {
     if (OWNER->robot->keyboard.getS() == true) {
-        std::cout << "LEAVING INIT and entering Sitting" << endl;
+        std::cout << "LEAVING INIT and entering Sitting" << std::endl;
         return true;
     }
     return false;

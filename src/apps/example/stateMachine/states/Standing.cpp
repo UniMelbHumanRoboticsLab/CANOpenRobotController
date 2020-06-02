@@ -5,10 +5,9 @@
 
 void Standing::entry(void) {
     std::cout
-        << "======================" << endl
-        << " HIT W -> Sit DOWN" << endl
-
-        << "======================" << endl;
+        << "======================" << std::endl
+        << " HIT W -> Sit DOWN" << std::endl
+        << "======================" << std::endl;
 }
 
 void Standing::during(void) {
@@ -16,5 +15,5 @@ void Standing::during(void) {
 
 void Standing::exit(void) {
     std::cout
-        << "Standing State Exited" << endl;
+        << "Standing State Exited" << std::endl;
 }

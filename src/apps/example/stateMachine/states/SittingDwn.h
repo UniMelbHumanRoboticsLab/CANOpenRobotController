@@ -18,15 +18,23 @@
  * Starts the Sitting Down trajectory on entry, executes in during, and exits when trajectory is complete
  */
 class SittingDwn : public ExoTestState {
+   private:
+    /** 
+    * Parameters associated with progression through a trajectory
+    */
+    double currTrajProgress = 0;
+    timespec prevTime;
+
    public:
     /**
     * \brief Prepare Robot and Trajectory Generator objects to tigger a sit motion
     * loads SIT paramaters into the Trajectory Generator object and runs robot startNewTrajectory function.
     * 
     */
-    void entry(void);
+    void
+    entry(void);
     /**
-     * \brief run the robot objectsmoveThroughtrajecoty function using the loaded trajectory
+     * \brief run the robot objectsmoveThroughtrajectory function using the loaded trajectory
      * dictated by the state machines Trajectory Generator object.
      * 
      */

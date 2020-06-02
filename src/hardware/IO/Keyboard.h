@@ -43,7 +43,6 @@ typedef struct keys {
  */
 class Keyboard : public InputDevice {
    private:
-    key_states lastKeyStates = {false, false, false, false, false, false};
     key_states currentKeyStates = {false, false, false, false, false, false};
     int keyboardActive;
 
@@ -68,10 +67,10 @@ class Keyboard : public InputDevice {
  */
     void setKeys();
     /**
- * \brief defintion of <class>Input</class> pure virtual function. Updates the keyboard input devices
- * memory states from implemented keyboard input from user. E.g. A key has been pressed or not.
- * 
- */
+    * \brief defintion of <class>Input</class> pure virtual function. Updates the keyboard input devices
+    * memory states from implemented keyboard input from user. E.g. A key has been pressed or not.
+    * 
+    */
     void updateInput();
     /**
  * \brief clear the current key state variables

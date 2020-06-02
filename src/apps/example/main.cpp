@@ -250,7 +250,7 @@ static void *rt_thread(void *arg) {
 /* Control thread function ********************************/
 static void *rt_control_thread(void *arg) {
     // freopen("log.txt", "w", stdout);
-    ofstream logfile;
+    std::ofstream logfile;
     logfile.open("log.csv");
     /*Testing POSIX timer variables*/
     struct timespec start, finish;

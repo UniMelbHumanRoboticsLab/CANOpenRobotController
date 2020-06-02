@@ -19,6 +19,13 @@
  * Starts the Standing Up trajectory on entry, executes in during, and exits when trajectory is complete
  */
 class StandingUp : public ExoTestState {
+   private:
+    /** 
+    * Parameters associated with progression through a trajectory
+    */
+    double currTrajProgress = 0;
+    timespec prevTime;
+
    public:
     /**
     * \brief Prepare Robot and Trajectory Generator objects to tigger a stand motion

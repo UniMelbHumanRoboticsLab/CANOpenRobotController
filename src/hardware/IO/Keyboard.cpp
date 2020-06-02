@@ -61,9 +61,6 @@ void Keyboard::setKeys() {
         case 'q':
         case 'Q':
             currentKeyStates.q = true;
-            std::cout << std::endl
-                      << "Q PRESSED, EXITING PROGRAM "
-                      << std::endl;
             break;
         default:
             keyboardActive = 0;
