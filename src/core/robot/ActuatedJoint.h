@@ -45,7 +45,7 @@ enum setMovementReturnCode_t {
  * 
  */
 class ActuatedJoint : public Joint {
-   protected:
+    protected:
     /**
          * \brief Contains a Drive object, which is a CANOpen device which is used to control the
          * physical hardware. 
@@ -90,7 +90,7 @@ class ActuatedJoint : public Joint {
          */
     virtual double fromDriveUnits(int driveValue) = 0;
 
-   public:
+    public:
     /**
          * \brief Construct a new Actuated Joint object
          * 
@@ -104,14 +104,14 @@ class ActuatedJoint : public Joint {
          * \brief Set the mode of the device (nominally, position, velocity or torque control)
          * 
          * \param driveMode The mode to be used if possible
-         * \param motorProfile variables for desired mode, e.g. postion: v,a and deceleration.
+         * \param motorProfile variables for desired mode, e.g. postion: v,a and deceleration. Not used in torque control
          * \return ControlMode Configured Drive Mode, -1 if unsuccessful
          */
     virtual ControlMode setMode(ControlMode driveMode_, motorProfile = motorProfile{0,0,0});
 
     /**
          * \brief Set the Position object
-         * 
+         *
          * \param desQ The desired set position
          * \return setMovementReturnCode_t The result of the setting
          */
@@ -119,7 +119,7 @@ class ActuatedJoint : public Joint {
 
     /**
          * \brief Sets a velocity set point (in joint units)
-         * 
+         *
          * \param velocity The desired set position
          * \return setMovementReturnCode_t The result of the setting
          */
@@ -127,11 +127,32 @@ class ActuatedJoint : public Joint {
 
     /**
          * \brief Set the torque set point
-         * 
+         *
          * \param torque The desired set position
          * \return setMovementReturnCode_t The result of the setting
          */
     virtual setMovementReturnCode_t setTorque(double torque);
+
+    /**
+         * \brief get the joint position
+         *
+         * \return int The current joint position [encoder count]
+         */
+    virtual int getPosition();
+
+    /**
+         * \brief get the joint velocity
+         *
+         * \return int The current joint velocity [encoder count/0.1sec]
+         */
+    virtual int getVeloctiy();
+
+    /**
+     * \brief get the joint torque
+     *
+     * \return int The current joint torque [rated torque in Nmm]
+     */
+    virtual int getTorque();
 
     /**
       * \brief Set the joint ready to switch On 
