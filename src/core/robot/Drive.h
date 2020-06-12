@@ -95,7 +95,7 @@ static std::map<OD_Entry_t, int> OD_Data_Size = {
  */
 struct motorProfile {
     int profileVelocity;
-    int profileAccelration;
+    int profileAcceleration;
     int profileDeceleration;
 };
 
