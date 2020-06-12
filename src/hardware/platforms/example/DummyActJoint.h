@@ -20,18 +20,51 @@
  * 
  */
 class DummyActJoint : public ActuatedJoint {
-   private:
+private:
     double lastQCommand = 0;
 
     /**
-     * \brief  These functions are defined here for example
-    *   In this implementation they do essentially nothing 
-    * - it's a straight 1:1 relation between drive and motor units
-    */
-    double fromDriveUnits(int driveValue) { return driveValue / 10000; };
-    int toDriveUnits(double jointValue) { return jointValue * 10000; };
+         * \brief Converts from the joint position[rad] to the equivalent value for the drive [encoder count]
+         * \param jointPosition joint position[rad]
+         * \return int The equivalent drive value for the given joint position
+         */
+    int jointPositionToDriveUnit(double jointPosition) {return jointPosition * 159715.1684916456; };
 
-   public:
+    /**
+         * \brief Converts from the drive value[encoder count] to the equivalent value for the joint position[rad]
+         * \param driveValue The drive value to be converted [encoder count]
+         * \return The equivalent joint position for the given drive value [rad]
+         */
+    double driveUnitToJointPosition(int driveValue) {return driveValue / 159715.1684916456; };
+    /**
+         * \brief Converts from the joint velocity[rad/s] to the equivalent value for the drive [encoder count/0.1sec]
+         * \param jointVelocity joint velocity[rad/s]
+         * \return int The equivalent drive value for the given joint position [encoder count/0.1sec]
+         */
+    int jointVelocityToDriveUnit(double jointVelocity) {return jointVelocity * 1597151.684916456; };
+
+    /**
+         * \brief Converts from the drive value[encoder count/0.1sec] to the equivalent value for the joint velocity[rad/s]
+         * \param driveValue The drive value to be converted [encoder count/0.1sec]
+         * \return The equivalent joint velocity for the given drive value [rad/s]
+         */
+    double driveUnitToJointVelocity(int driveValue) {return driveValue / 1597151.684916456; };
+    /**
+         * \brief Converts from the joint torque[Nm] to the equivalent value for the drive [rated torque in Nmm]
+         * \param jointTorque joint velocity[Nm]
+         * \return int The equivalent drive value for the given joint position [rated torque in Nmm]
+         */
+    int jointTorqueToDriveUnit(double jointTorque) {return jointTorque / 0.0390775; };
+
+    /**
+         * \brief Converts from the drive value[rated torque in Nmm] to the equivalent value for the joint velocity[Nm]
+         * \param driveValue The drive value to be converted [rated torque in Nmm]
+         * \return The equivalent joint velocity for the given drive value [Nm]
+         */
+    double driveUnitToJointTorque(int driveValue) {return driveValue * 0.0390775; };
+
+
+public:
     DummyActJoint(int jointID, double jointMin, double jointMax, Drive *drive);
     bool updateValue();
     setMovementReturnCode_t setPosition(double desQ);

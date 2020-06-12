@@ -34,6 +34,27 @@ bool ExoRobot::initPositionControl() {
     return returnValue;
 }
 
+bool ExoRobot::initVelocityControl() {
+    DEBUG_OUT("Initialising Velocity Control on all joints ")
+    bool returnValue = true;
+    for (auto p : joints) {
+        if (((ActuatedJoint *)p)->setMode(VELOCITY_CONTROL) != VELOCITY_CONTROL) {
+            // Something back happened if were are here
+            DEBUG_OUT("Something bad happened")
+            returnValue = false;
+        }
+        // Put into ReadyToSwitchOn()
+        ((ActuatedJoint *)p)->readyToSwitchOn();
+    }
+
+    // Pause for a bit to let commands go
+    usleep(2000);
+    for (auto p : joints) {
+        ((ActuatedJoint *)p)->enable();
+    }
+    return returnValue;
+}
+
 bool ExoRobot::initTorqueControl() {
     DEBUG_OUT("Initialising Torque Control on all joints ")
     bool returnValue = true;
@@ -71,6 +92,72 @@ setMovementReturnCode_t ExoRobot::setPosition(std::vector<double> positions) {
         i++;
     }
     return returnValue;
+}
+
+setMovementReturnCode_t ExoRobot::setVelocity(std::vector<double> velocities) {
+    int i = 0;
+    setMovementReturnCode_t returnValue = SUCCESS;
+    for (auto p : joints) {
+        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setVelocity(velocities[i]);
+        if (setPosCode == INCORRECT_MODE) {
+            std::cout << "Joint ID " << p->getId() << ": is not in Velocity Control " << std::endl;
+            returnValue = INCORRECT_MODE;
+        } else if (setPosCode != SUCCESS) {
+            // Something bad happened
+            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            returnValue = UNKNOWN_ERROR;
+        }
+        i++;
+    }
+    return returnValue;
+}
+
+setMovementReturnCode_t ExoRobot::setTorque(std::vector<double> torques) {
+    int i = 0;
+    setMovementReturnCode_t returnValue = SUCCESS;
+    for (auto p : joints) {
+        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setTorque(torques[i]);
+        if (setPosCode == INCORRECT_MODE) {
+            std::cout << "Joint ID " << p->getId() << ": is not in Torque Control " << std::endl;
+            returnValue = INCORRECT_MODE;
+        } else if (setPosCode != SUCCESS) {
+            // Something bad happened
+            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            returnValue = UNKNOWN_ERROR;
+        }
+        i++;
+    }
+    return returnValue;
+}
+
+std::vector<double> ExoRobot::getPosition() {
+    int i = 0;
+    std::vector<double> actualJointPositions(joints.size());
+    for (auto p : joints) {
+        actualJointPositions[i] = ((ActuatedJoint *)p)->getPosition();
+        i++;
+    }
+    return actualJointPositions;
+}
+
+std::vector<double> ExoRobot::getVelocity() {
+    int i = 0;
+    std::vector<double> actualJointVelocities(joints.size());
+    for (auto p : joints) {
+        actualJointVelocities[i] = ((ActuatedJoint *)p)->getVeloctiy();
+        i++;
+    }
+    return actualJointVelocities;
+}
+
+std::vector<double> ExoRobot::getTorque() {
+    int i = 0;
+    std::vector<double> actualJointTorques(joints.size());
+    for (auto p : joints) {
+        actualJointTorques[i] = ((ActuatedJoint *)p)->getTorque();
+        i++;
+    }
+    return actualJointTorques;
 }
 
 bool ExoRobot::initialiseJoints() {
