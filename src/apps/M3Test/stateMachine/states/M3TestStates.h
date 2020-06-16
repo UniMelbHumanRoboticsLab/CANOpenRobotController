@@ -41,11 +41,6 @@ class M3State : public State {
     void entry(void){
         clock_gettime(CLOCK_REALTIME, &initTime);
         lastTime = timeval_to_sec(&initTime);
-        std::cout
-        << "==================================" << std::endl
-        << " STARTING  " << getName() << std::endl
-        << "==================================" << std::endl
-        << std::endl;
     };
     void during(void) {
         //Compute some basic time values
@@ -57,9 +52,7 @@ class M3State : public State {
         dt = now - lastTime;
         lastTime = now;
     };
-    void exit(void){
-        std::cout << "Exit "<< getName() << std::endl;
-    };
+    void exit(void){};
     
     
    protected:

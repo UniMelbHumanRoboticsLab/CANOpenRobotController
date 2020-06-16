@@ -7,6 +7,11 @@ double timeval_to_sec(struct timespec *ts)
 
 void M3TestState::entry(void) {
     M3State::entry();
+    std::cout
+        << "==================================" << std::endl
+        << " STARTING  " << getName() << std::endl
+        << "==================================" << std::endl
+        << std::endl;
 }
 
 void M3TestState::during(void) {
@@ -16,6 +21,7 @@ void M3TestState::during(void) {
 
 void M3TestState::exit(void) {
     M3State::exit();
+    std::cout << "Exit "<< getName() << std::endl;
 }
 
 
