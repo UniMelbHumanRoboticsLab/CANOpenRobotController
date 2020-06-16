@@ -49,17 +49,36 @@ This repository includes all the sources files required for this example.
 
 ### Building ExoTestMachine
 
-On the host, build the executable:
+On the host, to build the executable for local test:
 
 ```bash
 $ cd <CANOpenRobotController_directory/build>
 $ cmake ../
 $ make
 ```
-
 > Note: there are also some additional build rules to build additional tests, which are still to be completed
 
-The makefile is configured to compile an executable `EXO_ROBOT_2020` using the `arm-linux-gnueabihf-g++` compiler. Note that this requires an appropriately configured workbench environment (see "Before you start").
+The makefile is configured to compile an executable `ExoTestMachine_APP` using the default C/C++ compilers. 
+
+To cross-compile for a BB target:
+```bash
+$ mkdir build
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+$ make
+```
+or in short:
+```bash
+$ mkdir build && cd build/ && cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+```
+Note that this requires an appropriately configured toolchain (`arm-linux-gnueabihf-` toolchain). See "Before you start" to setup a proper workbench if required.
+
+### Building a custom application with a custom state machine
+
+Derive the StateMachine class to a custom one, named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. Place them in a dedicated subfolder in the apps folder.
+
+Edit CMakeLists.txt and change the entry `set (STATE_MACHINE_NAME "ExoTestMachine")` with `set (STATE_MACHINE_NAME "MyCustomStateMachine")`.
+
+That's it, simply use the same build procedure.
 
 ### Transferring files to the Linux platform
 
