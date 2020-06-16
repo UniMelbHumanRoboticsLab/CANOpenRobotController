@@ -90,7 +90,7 @@ Using an FTP Client on the Host (if you do not have one - or a preferred client,
 - **Username:** debian
 - **Password:** temppwd
 
-On the host, using the FTP client, transfer the build executable in `build/EXO_ROBOT_2020`, along with the contents of the `initRobot` folder, to the Beaglebone.
+On the host, using the FTP client, transfer the build executable in `build/ExoTestMachine_APP`, along with the contents of the `initRobot` folder, to the Beaglebone.
 
 > Note: The `initRobot` folder contains scripts for setting up the CAN interfaces that CORC uses for communication
 
@@ -105,7 +105,7 @@ $ ssh debian@192.168.7.2
 At this point, you will need to change the permissions of the executables to executable. You can do this using the the `chmod +x` command on the target. e.g.
 
 ```bash
-$ chmod +x EXO_ROBOT_2020
+$ chmod +x ExoTestMachine_APP
 ```
 
 This must be repeated for the `.sh` scripts as well.
@@ -125,7 +125,7 @@ SSH into the BeagleBone in a second terminal window to launch the application:
 
 ```bash
 $$  cd build
-$$  sudo ./EXO_APP_2020
+$$  sudo ./ExoTestMachine_APP
 ```
 
 > Note: Superuser privileges (`sudo`) are required due to the use of real time threads in the application.
