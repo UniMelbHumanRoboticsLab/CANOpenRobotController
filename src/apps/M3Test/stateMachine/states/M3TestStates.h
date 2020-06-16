@@ -20,6 +20,8 @@
 #include "RobotM3.h"
 #include "State.h"
 
+using namespace std;
+
 
 double timeval_to_sec(struct timespec *ts);
 
@@ -94,6 +96,10 @@ class M3CalibState : public M3State {
     void entry(void);
     void during(void);
     void exit(void);
+
+   private:
+     vector<double> vel{0.01, 0.01, 0.01};
+     double tau_threshold = 1;
 };
 
 
