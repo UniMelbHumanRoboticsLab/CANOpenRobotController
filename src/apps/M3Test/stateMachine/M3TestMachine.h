@@ -20,11 +20,10 @@
 #include <string>
 
 #include "RobotM3.h"
-#include "M3TestState.h"
 #include "StateMachine.h"
 
 // State Classes
-#include "M3TestState.h"
+#include "M3TestStates.h"
 
 /**
  * @brief Example implementation of a StateMachine for the M3Robot class. States should implemented M3TestState

@@ -1,4 +1,3 @@
-
 #include "M3TestMachine.h"
 
 #define OWNER ((M3TestMachine *)owner)
