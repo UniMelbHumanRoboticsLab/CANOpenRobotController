@@ -20,15 +20,23 @@ foreach (_headerFile ${HEADERS})
 endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
 
-# Executable name: EXO_APP_2020
-add_executable(EXO_APP_2020
+#Select the application by setting the state machine to use
+#(should be the class name and have corresponding header naming)
+#set (STATE_MACHINE_NAME "M3TestMachine")
+set (STATE_MACHINE_NAME "ExoTestMachine")
+
+add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
+add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
+
+# Executable name: {STATEMACHINENAME}_APP
+add_executable(${STATE_MACHINE_NAME}_APP
         ${SOURCES}
         )
 
-target_include_directories(EXO_APP_2020 PRIVATE ${INCLUDE_DIRS})
+target_include_directories(${STATE_MACHINE_NAME}_APP PRIVATE ${INCLUDE_DIRS})
 
 # Set required external packages
 find_package(Threads REQUIRED)
 
 # Link libraries
-target_link_libraries(EXO_APP_2020 ${CMAKE_THREAD_LIBS_INIT} -static)
+target_link_libraries(${STATE_MACHINE_NAME}_APP ${CMAKE_THREAD_LIBS_INIT} -static)
