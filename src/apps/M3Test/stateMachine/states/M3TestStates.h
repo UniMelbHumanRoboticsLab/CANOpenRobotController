@@ -38,7 +38,15 @@ class M3State : public State {
    public:
     M3State(StateMachine *m, RobotM3 *M3, const char *name = NULL): State(m, name), robot(M3){};
    
-    void entry(void){clock_gettime(CLOCK_REALTIME, &initTime);lastTime = timeval_to_sec(&initTime);};
+    void entry(void){
+        clock_gettime(CLOCK_REALTIME, &initTime);
+        lastTime = timeval_to_sec(&initTime);
+        std::cout
+        << "==================================" << std::endl
+        << " STARTING  " << getName() << std::endl
+        << "==================================" << std::endl
+        << std::endl;
+    };
     void during(void) {
         //Compute some basic time values
         struct timespec ts;
@@ -49,7 +57,9 @@ class M3State : public State {
         dt = now - lastTime;
         lastTime = now;
     };
-    void exit(void){};
+    void exit(void){
+        std::cout << "Exit "<< getName() << std::endl;
+    };
     
     
    protected:
@@ -69,11 +79,29 @@ class M3TestState : public M3State {
     RobotM3 *robot;                               /*<!Pointer to state machines robot object*/
 
    public:
-    M3TestState(StateMachine *m, RobotM3 *M3, const char *name = NULL):M3State(m, M3, name){};
+    M3TestState(StateMachine *m, RobotM3 *M3, const char *name = "M3TestState"):M3State(m, M3, name){};
    
     void entry(void);
     void during(void);
     void exit(void);
 };
+
+
+class M3CalibState : public M3State {
+   protected:
+    /**
+    *  \todo Might be good to make these Const
+    * 
+    */
+    RobotM3 *robot;                               /*<!Pointer to state machines robot object*/
+
+   public:
+    M3CalibState(StateMachine *m, RobotM3 *M3, const char *name = "M3CalibState"):M3State(m, M3, name){};
+   
+    void entry(void);
+    void during(void);
+    void exit(void);
+};
+
 
 #endif
