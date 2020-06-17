@@ -54,8 +54,8 @@ extern "C" {
 #include "CO_OD_storage.h"
 #include "CO_command.h"
 
-#include "ExoRobot.h"
-#include "ExoTestMachine.h"
+//Include custom state machine (defined in cmake)
+#include STATE_MACHINE_INCLUDE
 #include "stdio.h"
 
 #ifndef CO_APPLICATION_H

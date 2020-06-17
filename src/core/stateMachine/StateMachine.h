@@ -56,6 +56,12 @@ class StateMachine {
      * 
      */
     virtual void update(void);
+    
+    /**
+     * \brief End the current state
+     * 
+     */
+    void end(void);
 
    private:
     /**

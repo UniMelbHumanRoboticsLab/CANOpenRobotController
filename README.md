@@ -49,17 +49,39 @@ This repository includes all the sources files required for this example.
 
 ### Building ExoTestMachine
 
-On the host, build the executable:
+On the host, to build the executable for local test:
 
 ```bash
 $ cd <CANOpenRobotController_directory/build>
 $ cmake ../
 $ make
 ```
-
 > Note: there are also some additional build rules to build additional tests, which are still to be completed
 
-The makefile is configured to compile an executable `EXO_ROBOT_2020` using the `arm-linux-gnueabihf-g++` compiler. Note that this requires an appropriately configured workbench environment (see "Before you start").
+The makefile is configured to compile an executable `ExoTestMachine_APP` using the default C/C++ compilers. 
+
+To cross-compile for a BB target:
+```bash
+$ mkdir build
+$ cd build
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+$ make
+```
+Note: To run on a Windows machine, you may need to also add the `-G "Unix Makefiles` flag to the `cmake` command (i.e. `cmake -G "Unix Makefiles -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..`). This forces the Unix Makefile format, rather than the default nmake behaviour on Windows. 
+
+or in short:
+```bash
+$ mkdir build && cd build/ && cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+```
+Note that this requires an appropriately configured toolchain (`arm-linux-gnueabihf-` toolchain). See "Before you start" to setup a proper workbench if required.
+
+### Building a custom application with a custom state machine
+
+Derive the StateMachine class to a custom one, named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. Place them in a dedicated subfolder in the apps folder.
+
+Edit CMakeLists.txt and change the entry `set (STATE_MACHINE_NAME "ExoTestMachine")` with `set (STATE_MACHINE_NAME "MyCustomStateMachine")`.
+
+That's it, simply use the same build procedure.
 
 ### Transferring files to the Linux platform
 
@@ -71,7 +93,7 @@ Using an FTP Client on the Host (if you do not have one - or a preferred client,
 - **Username:** debian
 - **Password:** temppwd
 
-On the host, using the FTP client, transfer the build executable in `build/EXO_ROBOT_2020`, along with the contents of the `initRobot` folder, to the Beaglebone.
+On the host, using the FTP client, transfer the build executable in `build/ExoTestMachine_APP`, along with the contents of the `initRobot` folder, to the Beaglebone.
 
 > Note: The `initRobot` folder contains scripts for setting up the CAN interfaces that CORC uses for communication
 
@@ -86,7 +108,7 @@ $ ssh debian@192.168.7.2
 At this point, you will need to change the permissions of the executables to executable. You can do this using the the `chmod +x` command on the target. e.g.
 
 ```bash
-$ chmod +x EXO_ROBOT_2020
+$ chmod +x ExoTestMachine_APP
 ```
 
 This must be repeated for the `.sh` scripts as well.
@@ -106,7 +128,7 @@ SSH into the BeagleBone in a second terminal window to launch the application:
 
 ```bash
 $$  cd build
-$$  sudo ./EXO_APP_2020
+$$  sudo ./ExoTestMachine_APP
 ```
 
 > Note: Superuser privileges (`sudo`) are required due to the use of real time threads in the application.
