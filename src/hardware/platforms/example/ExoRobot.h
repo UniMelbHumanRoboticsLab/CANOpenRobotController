@@ -35,14 +35,14 @@
  *
  */
 class ExoRobot : public Robot {
-private:
+   private:
     /**
      * \brief motor drive position control profile paramaters, user defined.
      *
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
 
-public:
+   public:
     /**
       * \brief Default <code>ExoRobot</code> constructor.
       * Initialize memory for the Exoskelton <code>Joint</code> + sensors.
@@ -84,62 +84,62 @@ public:
     bool initTorqueControl();
 
     /**
-      * /brief For each joint, move through(send appropriate commands to joints) the currently
+      * \brief For each joint, move through(send appropriate commands to joints) the currently
       * generated trajectory of the TrajectoryGenerator object - this assumes the trajectory and robot is in position control.
       *
-      * /return true if successful
-      * /return false if not successful (e.g. any joint not in position control.)
+      * \return true if successful
+      * \return false if not successful (e.g. any joint not in position control.)
       */
     bool moveThroughTraj();
 
     /**
-    * @brief Set the target positions for each of the joints
+    * \brief Set the target positions for each of the joints
     *
-    * @param positions a vector of target positions - applicable for each of the actuated joints
-    * @return MovementCode representing success or failure of the application
+    * \param positions a vector of target positions - applicable for each of the actuated joints
+    * \return MovementCode representing success or failure of the application
     */
     setMovementReturnCode_t setPosition(std::vector<double> positions);
 
     /**
-    * @brief Set the target velocities for each of the joints
+    * \brief Set the target velocities for each of the joints
     *
-    * @param velocities a vector of target velocities - applicable for each of the actuated joints
-    * @return MovementCode representing success or failure of the application
+    * \param velocities a vector of target velocities - applicable for each of the actuated joints
+    * \return MovementCode representing success or failure of the application
     */
     setMovementReturnCode_t setVelocity(std::vector<double> velocities);
 
     /**
-    * @brief Set the target torque for each of the joints
+    * \brief Set the target torque for each of the joints
     *
-    * @param torques a vector of target torques - applicable for each of the actuated joints
-    * @return MovementCode representing success or failure of the application
+    * \param torques a vector of target torques - applicable for each of the actuated joints
+    * \return MovementCode representing success or failure of the application
     */
     setMovementReturnCode_t setTorque(std::vector<double> torques);
 
     /**
-    * @brief Get the actual position of each joint
+    * \brief Get the actual position of each joint
     *
-    * @return Eigen::VectorXd a vector of actual joint positions
+    * \return std::vector<double> a vector of actual joint positions
     */
     std::vector<double> getPosition();
 
     /**
-    * @brief Get the actual velocity of each joint
+    * \brief Get the actual velocity of each joint
     *
-    * @return Eigen::VectorXd a vector of actual joint positions
+    * \return std::vector<double> a vector of actual joint positions
     */
     std::vector<double> getVelocity();
 
     /**
-    * @brief Get the actual torque of each joint
+    * \brief Get the actual torque of each joint
     *
-    * @return Eigen::VectorXd a vector of actual joint positions
+    * \return std::vector<double> a vector of actual joint positions
     */
     std::vector<double> getTorque();
 
     /**
    * Determine if the currently generated trajectory is complete.
-   *\return bool
+   * \return bool
    */
     bool isTrajFinished();
 
