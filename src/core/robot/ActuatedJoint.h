@@ -45,7 +45,7 @@ enum setMovementReturnCode_t {
  * 
  */
 class ActuatedJoint : public Joint {
-   protected:
+protected:
     /**
          * \brief Contains a Drive object, which is a CANOpen device which is used to control the
          * physical hardware. 
@@ -60,40 +60,102 @@ class ActuatedJoint : public Joint {
     ControlMode driveMode = UNCONFIGURED;
 
     /**
-         * \brief Converts from the joint value to the equivalent value for the drive
-         * 
+         * \brief Converts from the joint position value to the equivalent value for the drive
+         *
          * Notes:
          * - The drive value is always an integer (due to the CANOpen specification)
          *      and the joint value is always a double (data type of q)
          * - This may be a linear relationship (e.g. degrees to encoder counts) or a more
-         *      complicated one (e.g. linear actuator position to degrees) depending on the 
+         *      complicated one (e.g. linear actuator position to degrees) depending on the
          *      structure of the device and system.
-         * 
-         * 
+         *
+         *
          * \param jointValue The joint value to be converted
          * \return int The equivalent drive value for the given joint value
          */
-    virtual int toDriveUnits(double jointValue) = 0;
+    virtual int jointPositionToDriveUnit(double jointValue) = 0;
 
     /**
-         * \brief Converts from the drive value to the equivalent value for the joint
-         * 
+         * \brief Converts from the drive value to the equivalent value for the joint position
+         *
          * Notes:
          * - The drive value is always an integer (due to the CANOpen specification)
          *      and the joint value is always a double (data type of q)
          * - This may be a linear relationship (e.g. degrees to encoder counts) or a more
-         *      complicated one (e.g. linear actuator position to degrees) depending on the 
+         *      complicated one (e.g. linear actuator position to degrees) depending on the
          *      structure of the device and system.
-         * 
+         *
          * \param driveValue The drive value to be converted
          * \return The equivalent joint value for the given drive value
          */
-    virtual double fromDriveUnits(int driveValue) = 0;
+    virtual double driveUnitToJointPosition(int driveValue) = 0;
 
-   public:
+    /**
+         * \brief Converts from the joint velocity value to the equivalent value for the drive
+         *
+         * Notes:
+         * - The drive value is always an integer (due to the CANOpen specification)
+         *      and the joint value is always a double (data type of q)
+         * - This may be a linear relationship (e.g. degrees/s to encoder count/s) or a more
+         *      complicated one (e.g. linear actuator velocity to degrees/s) depending on the
+         *      structure of the device and system.
+         *
+         *
+         * \param jointValue The joint value to be converted
+         * \return int The equivalent drive value for the given joint value
+         */
+    virtual int jointVelocityToDriveUnit(double jointValue) = 0;
+
+    /**
+         * \brief Converts from the drive value to the equivalent value for the joint position
+         *
+         * Notes:
+         * - The drive value is always an integer (due to the CANOpen specification)
+         *      and the joint value is always a double (data type of q)
+         * - This may be a linear relationship (e.g. degrees/s to encoder count/s) or a more
+         *      complicated one (e.g. linear actuator velocity to degrees/s) depending on the
+         *      structure of the device and system.
+         *
+         * \param driveValue The drive value to be converted
+         * \return The equivalent joint value for the given drive value
+         */
+    virtual double driveUnitToJointVelocity(int driveValue) = 0;
+
+    /**
+         * \brief Converts from the joint torque value to the equivalent value for the drive
+         *
+         * Notes:
+         * - The drive value is always an integer (due to the CANOpen specification)
+         *      and the joint value is always a double (data type of q)
+         * - This may be a linear relationship (e.g. Nm to rated torque) or a more
+         *      complicated one depending on the
+         *      structure of the device and system.
+         *
+         *
+         * \param jointValue The joint value to be converted
+         * \return int The equivalent drive value for the given joint value
+         */
+    virtual int jointTorqueToDriveUnit(double jointValue) = 0;
+
+    /**
+         * \brief Converts from the drive value to the equivalent value for the joint position
+         *
+         * Notes:
+         * - The drive value is always an integer (due to the CANOpen specification)
+         *      and the joint value is always a double (data type of q)
+         * - This may be a linear relationship (e.g. Nm to rated torque) or a more
+         *      complicated one depending on the
+         *      structure of the device and system.
+         *
+         * \param driveValue The drive value to be converted
+         * \return The equivalent joint value for the given drive value
+         */
+    virtual double driveUnitToJointTorque(int driveValue) = 0;
+
+public:
     /**
          * \brief Construct a new Actuated Joint object
-         * 
+         *
          * \param jointID Unique ID representing the joint (not checked in this class)
          * \param jointMin Minimum allowable value for the joint
          * \param jointMax Maximum allowable value for the joint
@@ -102,16 +164,16 @@ class ActuatedJoint : public Joint {
 
     /**
          * \brief Set the mode of the device (nominally, position, velocity or torque control)
-         * 
+         *
          * \param driveMode The mode to be used if possible
-         * \param motorProfile variables for desired mode, e.g. postion: v,a and deceleration.
+         * \param motorProfile variables for desired mode, e.g. postion: v,a and deceleration. Not used in torque control
          * \return ControlMode Configured Drive Mode, -1 if unsuccessful
          */
     virtual ControlMode setMode(ControlMode driveMode_, motorProfile = motorProfile{0,0,0});
 
     /**
          * \brief Set the Position object
-         * 
+         *
          * \param desQ The desired set position
          * \return setMovementReturnCode_t The result of the setting
          */
@@ -119,7 +181,7 @@ class ActuatedJoint : public Joint {
 
     /**
          * \brief Sets a velocity set point (in joint units)
-         * 
+         *
          * \param velocity The desired set position
          * \return setMovementReturnCode_t The result of the setting
          */
@@ -127,11 +189,32 @@ class ActuatedJoint : public Joint {
 
     /**
          * \brief Set the torque set point
-         * 
+         *
          * \param torque The desired set position
          * \return setMovementReturnCode_t The result of the setting
          */
     virtual setMovementReturnCode_t setTorque(double torque);
+
+    /**
+         * \brief get the joint position
+         *
+         * \return int The current joint position [encoder count]
+         */
+    virtual double getPosition();
+
+    /**
+         * \brief get the joint velocity
+         *
+         * \return int The current joint velocity [encoder count/0.1sec]
+         */
+    virtual double getVeloctiy();
+
+    /**
+     * \brief get the joint torque
+     *
+     * \return int The current joint torque [rated torque in Nmm]
+     */
+    virtual double getTorque();
 
     /**
       * \brief Set the joint ready to switch On 

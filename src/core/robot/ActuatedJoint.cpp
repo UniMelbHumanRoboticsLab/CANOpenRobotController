@@ -30,6 +30,7 @@ ControlMode ActuatedJoint::setMode(ControlMode driveMode_, motorProfile profile)
             return VELOCITY_CONTROL;
         }
     }
+
     else if (driveMode_ == TORQUE_CONTROL) {
         if (drive->initTorqueControl()) {
             driveMode = driveMode_;
@@ -41,7 +42,7 @@ ControlMode ActuatedJoint::setMode(ControlMode driveMode_, motorProfile profile)
 
 setMovementReturnCode_t ActuatedJoint::setPosition(double desQ) {
     if (driveMode == POSITION_CONTROL) {
-        drive->setPos(toDriveUnits(desQ));
+        drive->setPos(jointPositionToDriveUnit(desQ));
         drive->posControlConfirmSP();
         return SUCCESS;
     } else {
@@ -52,7 +53,7 @@ setMovementReturnCode_t ActuatedJoint::setPosition(double desQ) {
 
 setMovementReturnCode_t ActuatedJoint::setVelocity(double velocity) {
     if (driveMode == VELOCITY_CONTROL) {
-        drive->setVel(toDriveUnits(velocity));
+        drive->setVel(jointVelocityToDriveUnit(velocity));
         return SUCCESS;
     } else {
         // Replace once complete
@@ -62,14 +63,22 @@ setMovementReturnCode_t ActuatedJoint::setVelocity(double velocity) {
 
 setMovementReturnCode_t ActuatedJoint::setTorque(double torque) {
     if (driveMode == TORQUE_CONTROL) {
-        /**
-        * \todo A conversion to the drive value for torque
-        * 
-        */
-        drive->setTorque(torque);
+        drive->setTorque(jointTorqueToDriveUnit(torque));
         return SUCCESS;
     }
     return INCORRECT_MODE;
+}
+
+double ActuatedJoint::getPosition() {
+    return driveUnitToJointPosition(drive->getPos());
+}
+
+double ActuatedJoint::getVeloctiy() {
+    return driveUnitToJointVelocity(drive->getVel());
+}
+
+double ActuatedJoint::getTorque() {
+    return driveUnitToJointTorque(drive->getTorque());
 }
 
 void ActuatedJoint::readyToSwitchOn() {
