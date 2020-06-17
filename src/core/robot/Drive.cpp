@@ -130,7 +130,7 @@ std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> it
     std::stringstream sstream;
 
     // Disable PDO
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1800 + PDO_Num - 1 << " 1 u32 0x" << std::hex << 0x800000000 + COB_ID;
+    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1800 + PDO_Num - 1 << " 1 u32 0x" << std::hex << 0x80000000 + COB_ID;
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
@@ -180,7 +180,7 @@ std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> it
 
     std::stringstream sstream;
     // Disable PDO
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1400 + PDO_Num - 1 << " 1 u32 0x" << std::hex << 0x800000000 + COB_ID;
+    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1400 + PDO_Num - 1 << " 1 u32 0x" << std::hex << 0x80000000 + COB_ID;
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
@@ -224,22 +224,23 @@ std::vector<std::string> Drive::generatePosControlConfigSDO(motorProfile positio
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
     //enable profile position mode
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6060 << " 0 i8 1";
+    sstream << "[1] " << NodeID << " write 0x6060 0 i8 1";
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
     //Set velocity profile
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6081 << " 0 i32 " << positionProfile.profileVelocity;
+    sstream << "[1] " << NodeID << " write 0x6081 0 i32 " << std::dec << positionProfile.profileVelocity;
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
     //Set acceleration profile
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6083 << " 0 i32 " << positionProfile.profileAccelration;
+    sstream
+        << "[1] " << NodeID << " write 0x6083 0 i32 " << std::dec << positionProfile.profileAcceleration;
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
     //Set deceleration profile
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6084 << " 0 i32 " << positionProfile.profileDeceleration;
+    sstream << "[1] " << NodeID << " write 0x6084 0 i32 " << std::dec << positionProfile.profileDeceleration;
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
@@ -255,22 +256,17 @@ std::vector<std::string> Drive::generateVelControlConfigSDO(motorProfile velocit
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
     //enable profile Velocity mode
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6060 << " 0 i8 3";
-    CANCommands.push_back(sstream.str());
-    sstream.str(std::string());
-
-    //Set velocity profile
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6081 << " 0 i32 " << velocityProfile.profileVelocity;
+    sstream << "[1] " << NodeID << " write 0x6060 0 i8 3";
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
     //Set acceleration profile
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6083 << " 0 i32 " << velocityProfile.profileAccelration;
+    sstream << "[1] " << NodeID << " write 0x6083 0 i32 " << std::dec << velocityProfile.profileAcceleration;
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
     //Set deceleration profile
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6084 << " 0 i32 " << velocityProfile.profileDeceleration;
+    sstream << "[1] " << NodeID << " write 0x6084 0 i32 " << std::dec << velocityProfile.profileDeceleration;
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
@@ -287,7 +283,7 @@ std::vector<std::string> Drive::generateTorqueControlConfigSDO() {
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
     //enable Torque Control mode
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x6060 << " 0 i8 4";
+    sstream << "[1] " << NodeID << " write 0x6060 0 i8 4";
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
