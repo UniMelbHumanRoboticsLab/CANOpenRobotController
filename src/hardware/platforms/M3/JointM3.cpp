@@ -15,7 +15,7 @@
 #include "DebugMacro.h"
 
 JointM3::JointM3(int jointID, double q_min, double q_max, double dq_min, double dq_max, double tau_min, double tau_max):ActuatedJoint(jointID, qMin, qMax, NULL), dqMin(dq_min), dqMax(dq_max), tauMin(tau_min), tauMax(tau_max) {
-    drive = new KincoDrive(jointID);
+    drive = new KincoDrive(jointID+1);
     
     DEBUG_OUT("MY JOINT ID: " << this->id)
     
@@ -59,6 +59,10 @@ setMovementReturnCode_t JointM3::setTorque(double taud) {
     else {
         return OUTSIDE_LIMITS;
     }
+}
+
+void JointM3::setCurrentOffset() {
+    q0=q;
 }
 
 

@@ -39,6 +39,12 @@ class JointM3 : public ActuatedJoint {
     setMovementReturnCode_t setPosition(double qd);
     setMovementReturnCode_t setVelocity(double dqd);
     setMovementReturnCode_t setTorque(double taud);
+    
+    /**
+     * \brief Set current position as joint position offset (q0)
+     * 
+     */
+    void setCurrentOffset();
     bool initNetwork();
     double getQ();
     double getDq();
