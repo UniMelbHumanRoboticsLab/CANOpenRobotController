@@ -56,7 +56,7 @@ $ cd build
 $ cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
 $ make
 ```
-> Note: To run on a Windows machine, you may need to also add the `-G "Unix Makefiles` flag to the `cmake` command (i.e. `cmake -G "Unix Makefiles -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..`). This forces the Unix Makefile format, rather than the default nmake behaviour on Windows. 
+> Note: To run on a Windows machine, you may need to also add the `-G "Unix Makefiles"` flag to the `cmake` command (i.e. `cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..`). This forces the Unix Makefile format, rather than the default nmake behaviour on Windows. 
 
 or in short:
 ```bash

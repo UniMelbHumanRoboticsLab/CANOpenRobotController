@@ -22,8 +22,16 @@ class JointM3 : public ActuatedJoint {
    private:
     double lastQCommand = 0;
 
-    double fromDriveUnits(int driveValue) { return driveValue / 10000; };
-    int toDriveUnits(double jointValue) { return jointValue * 10000; };
+    double driveUnitToJointPosition(int driveValue) { return driveValue / 10000; };
+    int jointPositionToDriveUnit(double jointValue) { return jointValue * 10000; };
+
+    int jointVelocityToDriveUnit(double jointVelocity) { return 0; }
+
+    double driveUnitToJointVelocity(int driveValue) { return 0; }
+
+    int jointTorqueToDriveUnit(double jointTorque) { return 0; }
+
+    double driveUnitToJointTorque(int driveValue) { return 0; }
 
    public:
     JointM3(int jointID, double jointMin, double jointMax);

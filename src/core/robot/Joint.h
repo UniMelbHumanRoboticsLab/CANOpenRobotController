@@ -65,7 +65,7 @@ class Joint {
      * @brief Destroy the Joint object
      * 
      */
-    ~Joint();
+    virtual ~Joint();
 
     /**
      * @brief Get the Id object

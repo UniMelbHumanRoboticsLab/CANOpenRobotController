@@ -24,6 +24,7 @@ class InputDevice {
    private:
    public:
     InputDevice();
+    virtual ~InputDevice();
     /**
  * @brief pure virtual method to be implemented by specific input devices and used by the virtual robot object to update the
  * current state of the robotic systems input device.
