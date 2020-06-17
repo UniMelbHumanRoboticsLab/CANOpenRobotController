@@ -27,9 +27,9 @@ JointM3::~JointM3() {
 }
     
 bool JointM3::updateValue() {
-    q=qFromDriveUnits(drive->getPos())-q0;
-    dq=dqFromDriveUnits(drive->getVel());
-    tau=tauFromDriveUnits(drive->getTorque());
+    q=jointPositionToDriveUnit(drive->getPos())-q0;
+    dq=jointVelocityToDriveUnit(drive->getVel());
+    tau=jointTorqueToDriveUnit(drive->getTorque());
 
     return true;
 }
@@ -73,7 +73,7 @@ bool JointM3::initNetwork() {
 double JointM3::getQ() {
     return q;
 }
-double JointM3::getdQ() {
+double JointM3::getDq() {
     return dq;
 }
 double JointM3::getTau() {

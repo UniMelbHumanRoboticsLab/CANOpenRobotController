@@ -25,16 +25,12 @@ class JointM3 : public ActuatedJoint {
     double reductionRatio=23.;
     
 
-    double qFromDriveUnits(int driveValue) { return driveValue / 10000 / reductionRatio; };
-    int qToDriveUnits(double jointValue) { return jointValue * 10000 * reductionRatio; };
-    double dqFromDriveUnits(int driveValue) { return driveValue / 10000 / reductionRatio; };
-    int dqToDriveUnits(double jointValue) { return jointValue * 10000 * reductionRatio; };
-    double tauFromDriveUnits(int driveValue) { return driveValue / 10000 * reductionRatio; };
-    int tauToDriveUnits(double jointValue) { return jointValue * 10000 / reductionRatio; };
-    
-    //For compatibility
-    virtual int toDriveUnits(double jointValue){return qToDriveUnits(jointValue);}
-    virtual double fromDriveUnits(int driveValue){return qFromDriveUnits(driveValue);}
+    double driveUnitToJointPosition(int driveValue) { return driveValue / 10000 / reductionRatio; };
+    int jointPositionToDriveUnit(double jointValue) { return jointValue * 10000 * reductionRatio; };
+    double driveUnitToJointVelocity(int driveValue) { return driveValue / 10000 / reductionRatio; };
+    int jointVelocityToDriveUnit(double jointValue) { return jointValue * 10000 * reductionRatio; };
+    double driveUnitToJointTorque(int driveValue) { return driveValue / 10000 * reductionRatio; };
+    int jointTorqueToDriveUnit(double jointValue) { return jointValue * 10000 / reductionRatio; };
 
    public:
     JointM3(int jointID, double q_min, double q_max, double dq_min=0, double dq_max=0, double tau_min=0, double tau_max=0);
@@ -45,7 +41,7 @@ class JointM3 : public ActuatedJoint {
     setMovementReturnCode_t setTorque(double taud);
     bool initNetwork();
     double getQ();
-    double getdQ();
+    double getDq();
     double getTau();
 };
 
