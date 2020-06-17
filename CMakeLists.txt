@@ -19,8 +19,10 @@ foreach (_headerFile ${HEADERS})
     list (APPEND INCLUDE_DIRS ${_dir})
 endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
+## Add libraries
+list (APPEND INCLUDE_DIRS lib/)
 
-#Select the application by setting the state machine to use
+# Select the application by setting the state machine to use
 #(should be the class name and have corresponding header naming)
 set (STATE_MACHINE_NAME "M3TestMachine")
 #set (STATE_MACHINE_NAME "ExoTestMachine")
