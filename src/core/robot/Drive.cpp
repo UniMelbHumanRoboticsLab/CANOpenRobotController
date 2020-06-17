@@ -130,7 +130,7 @@ std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> it
     std::stringstream sstream;
 
     // Disable PDO
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1800 + PDO_Num - 1 << " 1 u32 0x" << std::hex << 0x800000000 + COB_ID;
+    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1800 + PDO_Num - 1 << " 1 u32 0x" << std::hex << 0x80000000 + COB_ID;
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
@@ -180,7 +180,7 @@ std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> it
 
     std::stringstream sstream;
     // Disable PDO
-    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1400 + PDO_Num - 1 << " 1 u32 0x" << std::hex << 0x800000000 + COB_ID;
+    sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1400 + PDO_Num - 1 << " 1 u32 0x" << std::hex << 0x80000000 + COB_ID;
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 

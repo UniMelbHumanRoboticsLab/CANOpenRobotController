@@ -20,9 +20,9 @@ The code is structured into 3 levels:
 
 1. **CANopen Communications Level:** Provides the CAN-level communications, providing the mechanisms for the sending and receiving of PDO and SDO messages
 2. **The Robot Level:** Defines the components of the Robot to be controlled, including the joints, associated drives, and input devices
-3. **The State Machine and Trajectory Generator:** Defines the high level logic for the device, and the trajectories to be used.
+3. **The Application Layer:** Defines the high level logic for the device, based on the implementation of a State Machine.
 
-Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The CANopen Communications level should not need to be changed. The Robot level should only change with respect if the robot to be controlled changes. This is loosely enforced by the source code folder structure - the files which should not need modification are placed in the `src/libs` folder, and the remainder are placed in the `src/apps` folder. Due to this, thus there are base classes in the `libs` folder which are derived in the `apps` folder.
+Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The CANopen Communications level should not need to be changed. The Robot level should only change with respect if the robot to be controlled changes. This is loosely enforced by the source code folder structure - the files which should not need modification are placed in the `src/core` folder, and the remainder are placed in the `src/apps` and `src/hardware` folders. Note that in addition to the CANopen Communication code, the `src/core` folder also includes base classes which are derived from in the `src/apps` and `src/hardware` folders. 
 
 ## Getting started with CORC
 
@@ -49,7 +49,22 @@ This repository includes all the sources files required for this example.
 
 ### Building ExoTestMachine
 
-On the host, to build the executable for local test:
+On the host, generate a cross-compiled executable (suitable for running on a Beaglebone Black) using the following commands:
+```bash
+$ mkdir build
+$ cd build
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+$ make
+```
+> Note: To run on a Windows machine, you may need to also add the `-G "Unix Makefiles` flag to the `cmake` command (i.e. `cmake -G "Unix Makefiles -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..`). This forces the Unix Makefile format, rather than the default nmake behaviour on Windows. 
+
+or in short:
+```bash
+$ mkdir build && cd build/ && cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+```
+> Note that this requires an appropriately configured toolchain (`arm-linux-gnueabihf-` toolchain). See "Before you start" to setup a proper workbench if required.
+
+Alternatively, if your host is a Linux-based machine, you can build the executable for local test as follows:
 
 ```bash
 $ cd <CANOpenRobotController_directory/build>
@@ -60,20 +75,6 @@ $ make
 
 The makefile is configured to compile an executable `ExoTestMachine_APP` using the default C/C++ compilers. 
 
-To cross-compile for a BB target:
-```bash
-$ mkdir build
-$ cd build
-$ cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
-$ make
-```
-Note: To run on a Windows machine, you may need to also add the `-G "Unix Makefiles` flag to the `cmake` command (i.e. `cmake -G "Unix Makefiles -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..`). This forces the Unix Makefile format, rather than the default nmake behaviour on Windows. 
-
-or in short:
-```bash
-$ mkdir build && cd build/ && cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
-```
-Note that this requires an appropriately configured toolchain (`arm-linux-gnueabihf-` toolchain). See "Before you start" to setup a proper workbench if required.
 
 ### Building a custom application with a custom state machine
 
