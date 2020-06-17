@@ -63,9 +63,12 @@ The makefile is configured to compile an executable `ExoTestMachine_APP` using t
 To cross-compile for a BB target:
 ```bash
 $ mkdir build
+$ cd build
 $ cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
 $ make
 ```
+Note: To run on a Windows machine, you may need to also add the `-G "Unix Makefiles` flag to the `cmake` command (i.e. `cmake -G "Unix Makefiles -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..`). This forces the Unix Makefile format, rather than the default nmake behaviour on Windows. 
+
 or in short:
 ```bash
 $ mkdir build && cd build/ && cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
