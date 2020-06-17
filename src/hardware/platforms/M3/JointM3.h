@@ -20,10 +20,20 @@
  */
 class JointM3 : public ActuatedJoint {
    private:
-    double lastQCommand = 0;
+    double q, dq, tau, qd, dqd, tau_d, q0;
+    double reductionRatio=23.;
+    
 
-    double fromDriveUnits(int driveValue) { return driveValue / 10000; };
-    int toDriveUnits(double jointValue) { return jointValue * 10000; };
+    double qFromDriveUnits(int driveValue) { return driveValue / 10000 / reductionRatio; };
+    int qToDriveUnits(double jointValue) { return jointValue * 10000 * reductionRatio; };
+    double dqFromDriveUnits(int driveValue) { return driveValue / 10000 / reductionRatio; };
+    int dqToDriveUnits(double jointValue) { return jointValue * 10000 * reductionRatio; };
+    double tauFromDriveUnits(int driveValue) { return driveValue / 10000 * reductionRatio; };
+    int tauToDriveUnits(double jointValue) { return jointValue * 10000 / reductionRatio; };
+    
+    //For compatibility
+    virtual int toDriveUnits(double jointValue){return qToDriveUnits(jointValue);}
+    virtual double fromDriveUnits(int driveValue){return qFromDriveUnits(driveValue);}
 
    public:
     JointM3(int jointID, double jointMin, double jointMax);

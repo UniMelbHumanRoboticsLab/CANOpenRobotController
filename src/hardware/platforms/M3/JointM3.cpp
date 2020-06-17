@@ -27,15 +27,21 @@ JointM3::~JointM3() {
 }
     
 bool JointM3::updateValue() {
-    drive->getPos();
-    q = lastQCommand;
+    q=qFromDriveUnits(drive->getPos())-q0;
+    dq=dqFromDriveUnits(drive->getVel());
+    tau=tauFromDriveUnits(drive->getTorque());
 
     return true;
 }
 
 setMovementReturnCode_t JointM3::setPosition(double desQ) {
-    lastQCommand = desQ;
-    return ActuatedJoint::setPosition(desQ);
+    if(qd>=qMin && qd<=qMax) {
+        qd=desQ;
+        return ActuatedJoint::setPosition(qd);
+    }
+    else {
+        return OUTSIDE_LIMITS;
+    }
 }
 
 bool JointM3::initNetwork() {

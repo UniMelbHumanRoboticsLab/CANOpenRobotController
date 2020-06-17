@@ -32,7 +32,7 @@ class Joint {
      */
     double q;
     /**
-     * The current state of the change in the joint position(i.e. the value), to be returned in SI units.
+     * The current state of the change in the joint position (i.e. the value), to be returned in SI units.
      */
     double qd;
     /**

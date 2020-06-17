@@ -381,6 +381,13 @@ class Drive {
         * \return DriveState 
         */
     virtual DriveState getDriveState();
+    
+    /**
+        * \brief Get the current control mode of the drive
+        * 
+        * \return controlMode 
+        */
+    virtual ControlMode getControlMode(){return controlMode;};
 
     // CANOpen
     /**
