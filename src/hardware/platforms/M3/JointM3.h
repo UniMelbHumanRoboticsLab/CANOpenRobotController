@@ -20,7 +20,8 @@
  */
 class JointM3 : public ActuatedJoint {
    private:
-    double q, dq, tau, qd, dqd, tau_d, q0;
+    double q, dq, tau, q0;
+    double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
     double reductionRatio=23.;
     
 
@@ -36,12 +37,16 @@ class JointM3 : public ActuatedJoint {
     virtual double fromDriveUnits(int driveValue){return qFromDriveUnits(driveValue);}
 
    public:
-    JointM3(int jointID, double jointMin, double jointMax);
+    JointM3(int jointID, double q_min, double q_max, double dq_min=0, double dq_max=0, double tau_min=0, double tau_max=0);
     ~JointM3();
     bool updateValue();
-    setMovementReturnCode_t setPosition(double desQ);
+    setMovementReturnCode_t setPosition(double qd);
+    setMovementReturnCode_t setVelocity(double dqd);
+    setMovementReturnCode_t setTorque(double taud);
     bool initNetwork();
     double getQ();
+    double getdQ();
+    double getTau();
 };
 
 #endif
