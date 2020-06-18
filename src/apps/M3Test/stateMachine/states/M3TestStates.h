@@ -12,7 +12,6 @@
 #define M3TESTSTATE_H_DEF
 
 #include <time.h>
-#include <time.h>
 
 #include <iostream>
 

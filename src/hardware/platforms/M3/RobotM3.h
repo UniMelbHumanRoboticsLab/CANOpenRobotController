@@ -16,6 +16,7 @@
 
 #include <map>
 #include <math.h>
+#include <Eigen/Dense>
 
 #include "JointM3.h"
 #include "Keyboard.h"
@@ -47,9 +48,8 @@ class RobotM3 : public Robot {
       */
     RobotM3();
     ~RobotM3();
-    Keyboard keyboard;
-//    std::vector<CopleyDrive *> copleyDrives;
 
+    Keyboard keyboard;
 
     /**
        * \brief Initialises all joints to position control mode. 
@@ -96,10 +96,6 @@ class RobotM3 : public Robot {
       */
     bool initialiseInputs();
     /**
-       * \brief Free robot objects vector pointer memory.
-       */
-    void freeMemory();
-    /**
        * \brief update current state of the robot, including input and output devices. 
        * Overloaded Method from the Robot Class. 
        * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
@@ -110,32 +106,6 @@ class RobotM3 : public Robot {
        * \param int Joint value
        * \return double minDeg 
        */
-
-  /**
-    * \todo Move jointMinMap and jointMaxMap to RobotParams.h
-    * 
-    */
-    /**
-       * \brief Joint Limit Map between Joint value and max Degrees possible
-       * \param int Joint value
-       * \return int maxDeg 
-       */
-    /*std::map<int, double> jointMinMap = {{LEFT_HIP, 70},
-                                         {RIGHT_HIP, 70},
-                                         {LEFT_KNEE, 0},
-                                         {RIGHT_KNEE, 0},
-                                         {LEFT_ANKLE, 75},
-                                         {RIGHT_ANKLE, 75}};
-    *//**
-       * \brief Joint Limit Map between Joint value and max Degrees possible
-       * \param int Joint value
-       * \return int maxDeg 
-       */
-    /*std::map<int, double> jointMaxMap = {{LEFT_HIP, 210},
-                                         {RIGHT_HIP, 210},
-                                         {LEFT_KNEE, 120},
-                                         {RIGHT_KNEE, 120},
-                                         {LEFT_ANKLE, 105},
-                                         {RIGHT_ANKLE, 105}};*/
+    
 };
 #endif /*RobotM3_H*/

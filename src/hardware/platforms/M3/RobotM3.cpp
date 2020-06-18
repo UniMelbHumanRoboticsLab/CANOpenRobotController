@@ -2,12 +2,21 @@
 
 #include "DebugMacro.h"
 
+using Eigen::MatrixXd;
+
 RobotM3::RobotM3() : Robot() {
 }
 
 RobotM3::~RobotM3() {
     DEBUG_OUT("Delete RobotM3 object begins")
-    freeMemory();
+    for (auto p : joints) {
+        DEBUG_OUT("Delete Joint ID: " << p->getId())
+        delete p;
+    }
+    for (auto p : inputs) {
+        DEBUG_OUT("Deleting Input")
+        delete p;
+    }
     joints.clear();
     DEBUG_OUT("RobotM3 deleted")
 }
@@ -74,7 +83,7 @@ setMovementReturnCode_t RobotM3::setPosition(std::vector<double> positions) {
 
 bool RobotM3::initialiseJoints() {
     
-    //Define the robot structure: each joint with limits and drive
+    //Define the robot structure: each joint with limits and drive: should be in constructor
     joints.push_back(new JointM3(0, -45/M_PI*180, 45/M_PI*180));
     joints.push_back(new JointM3(1, -45/M_PI*180, 45/M_PI*180));//Todo
     joints.push_back(new JointM3(2, -45/M_PI*180, 45/M_PI*180));//Todo
@@ -98,21 +107,7 @@ bool RobotM3::initialiseInputs() {
     inputs.push_back(&keyboard);
     return true;
 }
-void RobotM3::freeMemory() {
-    for (auto p : joints) {
-        DEBUG_OUT("Delete Joint ID: " << p->getId())
-        delete p;
-    }
-/*    for (auto p : copleyDrives) {
-        DEBUG_OUT("Delete Drive Node: " << p->getNodeID())
-        delete p;
-    }*/
-    for (auto p : inputs) {
-        DEBUG_OUT("Deleting Input")
-        delete p;
-    }
-    keyboard.~Keyboard();
-}
+
 void RobotM3::updateRobot() {
     Robot::updateRobot();
 }
