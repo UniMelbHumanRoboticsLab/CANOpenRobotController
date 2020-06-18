@@ -224,7 +224,12 @@ setMovementReturnCode_t RobotM3::setEndEffPos(Vector3d X) {
     }
     
     Vector3d q = inverseKinematic(X);
-    return setJointPos(q);
+    if(std::isnan(q[0])||std::isnan(q[1])||std::isnan(q[2])) {
+        return OUTSIDE_LIMITS;
+    }
+    else {
+        return setJointPos(q);
+    }
 }
 
 setMovementReturnCode_t RobotM3::setEndEffVel(Vector3d dX) {
