@@ -13,7 +13,7 @@
 
 #include "ActuatedJoint.h"
 
-#define MOTOR_RATED_TORQUE 0.0390775
+#define MOTOR_RATED_TORQUE 0.319
 #define REDUCTION_RATIO 122.5
 
 /**
