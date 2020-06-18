@@ -61,8 +61,8 @@ setMovementReturnCode_t JointM3::setTorque(double taud) {
     }
 }
 
-void JointM3::setCurrentOffset() {
-    q0=q;
+void JointM3::setCurrentOffset(double qcalib) {
+    q0=jointPositionToDriveUnit(drive->getPos())-qcalib;
 }
 
 

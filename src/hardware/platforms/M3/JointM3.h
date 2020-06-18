@@ -42,9 +42,10 @@ class JointM3 : public ActuatedJoint {
     
     /**
      * \brief Set current position as joint position offset (q0)
+     * such that current position is now qcalib
      * 
      */
-    void setCurrentOffset();
+    void setCurrentOffset(double qcalib);
     bool initNetwork();
     double getQ();
     double getDq();

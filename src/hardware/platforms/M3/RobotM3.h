@@ -39,10 +39,10 @@ class RobotM3 : public Robot {
      * 
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
-    float LinkLengths[4]={1.0,1.0,1.0,1.0}; //Todo
-    //float LinkMasses[4]= //Todo
+    float LinkLengths[4]={1.0,1.0,1.0,1.0}; //TODO
+    //float LinkMasses[4]= //TODO
     
-    
+    Eigen::Vector3d qCalibration = {-45/M_PI*180, 0, 0}; //TODO  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
 
    public:
     /**
