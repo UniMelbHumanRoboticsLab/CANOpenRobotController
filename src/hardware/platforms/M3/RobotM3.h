@@ -15,7 +15,7 @@
 #define RobotM3_H_INCLUDED
 
 #include <map>
-#include <math.h>
+#include <cmath>
 #include <Eigen/Dense>
 
 #include "JointM3.h"
@@ -39,6 +39,10 @@ class RobotM3 : public Robot {
      * 
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
+    float LinkLengths[4]={1.0,1.0,1.0,1.0}; //Todo
+    //float LinkMasses[4]= //Todo
+    
+    
 
    public:
     /**
@@ -75,6 +79,7 @@ class RobotM3 : public Robot {
     * @return MovementCode representing success or failure of the application
     */
     setMovementReturnCode_t setPosition(std::vector<double> positions);
+    
 
     /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
@@ -101,11 +106,20 @@ class RobotM3 : public Robot {
        * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
        */
     void updateRobot();
-    /**
-       * \brief Joint Limit Map between Joint value and min Degrees possible
-       * \param int Joint value
-       * \return double minDeg 
-       */
+    
+    
+    Eigen::Matrix3d J();
+    Eigen::Vector3d directKinematic(Eigen::Vector3d q);
+    Eigen::Vector3d inverseKinematic(Eigen::Vector3d X);
+    
+    setMovementReturnCode_t setJointPos(Eigen::Vector3d q);
+    setMovementReturnCode_t setJointVel(Eigen::Vector3d q);
+    setMovementReturnCode_t setJointTorque(Eigen::Vector3d tau);
+    setMovementReturnCode_t setEndEffPos(Eigen::Vector3d X);
+    setMovementReturnCode_t setEndEffVel(Eigen::Vector3d dX);
+    setMovementReturnCode_t setEndEffForce(Eigen::Vector3d F);
+    
+    
     
 };
 #endif /*RobotM3_H*/
