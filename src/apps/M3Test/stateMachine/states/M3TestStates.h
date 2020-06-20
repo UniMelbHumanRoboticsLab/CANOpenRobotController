@@ -38,7 +38,7 @@ class M3TimedState : public State {
 
     M3TimedState(StateMachine *m, RobotM3 *M3, const char *name = NULL): State(m, name), robot(M3){};
    private:
-    void entry(void)final {
+    void entry(void) final {
         std::cout
         << "==================================" << std::endl
         << " STARTING  " << getName() << std::endl
@@ -87,13 +87,7 @@ class M3TimedState : public State {
 
 
 class M3TestState : public M3TimedState {
-   protected:
-    /**
-    *  \todo Might be good to make these Const
-    * 
-    */
-    RobotM3 *robot;                               /*<!Pointer to state machines robot object*/
-
+ 
    public:
     M3TestState(StateMachine *m, RobotM3 *M3, const char *name = "M3TestState"):M3TimedState(m, M3, name){};
    
@@ -104,12 +98,6 @@ class M3TestState : public M3TimedState {
 
 
 class M3CalibState : public M3TimedState {
-   protected:
-    /**
-    *  \todo Might be good to make these Const
-    * 
-    */
-    RobotM3 *robot;                               /*<!Pointer to state machines robot object*/
 
    public:
     M3CalibState(StateMachine *m, RobotM3 *M3, const char *name = "M3CalibState"):M3TimedState(m, M3, name){};

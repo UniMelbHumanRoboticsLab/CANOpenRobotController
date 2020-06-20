@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.3)
-project(EXO_APP C CXX)
+project(CORC C CXX)
 
 ## Compile as C++11
 set(CMAKE_CXX_STANDARD 11)
@@ -19,7 +19,7 @@ foreach (_headerFile ${HEADERS})
     list (APPEND INCLUDE_DIRS ${_dir})
 endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
-## Add libraries
+## Add libraries headers
 list (APPEND INCLUDE_DIRS lib/)
 
 # Select the application by setting the state machine to use

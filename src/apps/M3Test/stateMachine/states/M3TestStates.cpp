@@ -10,10 +10,12 @@ void M3TestState::entryCode(void) {
 
 void M3TestState::duringCode(void) {
     std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
+    robot->printStatus();
+    robot->J();
 }
 
 void M3TestState::exitCode(void) {
-    
+
 }
 
 
@@ -27,7 +29,7 @@ void M3CalibState::entryCode(void) {
         << " STARTING  " << getName() << std::endl
         << "==================================" << std::endl
         << std::endl;
-        
+
         robot->initVelocityControl();
 }
 
@@ -35,15 +37,15 @@ void M3CalibState::duringCode(void) {
     //Move slowly on each joint until max force detected
     robot->setVelocity(vel);
 
-    
+
     std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
 }
 
 void M3CalibState::exitCode(void) {
-    
+
     //Set joint init values
-    
-       
+
+
     std::cout << "Exit "<< getName() << std::endl;
 }
 

@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
     CO_NMT_reset_cmd_t reset = CO_RESET_NOT;
     bool_t firstRun = true;
     bool_t rebootEnable = false; /*!< Configurable by use case */  // TODO: DO WE EVER RESET? OR NEED TO?
-    char CANdevice[10] = "vcan0";                                  /*!< linux CAN device interface for app to bind to: change to can1 for bbb vcan0 for virtual can*/
+    char CANdevice[10] = "can0";                                  /*!< linux CAN device interface for app to bind to: change to can1 for bbb vcan0 for virtual can*/
     int nodeId = NODEID;                                           /*!< CAN Network NODEID */
     /*map linux CAN interface to corresponding int index return zero if no interface exists.*/
     int CANdevice0Index = if_nametoindex(CANdevice);
@@ -93,6 +93,9 @@ int main(int argc, char *argv[]) {
     if (signal(SIGTERM, sigHandler) == SIG_ERR)
         CO_errExit("Program init - SIGTERM handler creation failed");
     printf("starting CANopen device with Node ID %d(0x%02X)", nodeId, nodeId);
+    
+    //Set synch signal period (in ns)
+    CO_OD_RAM.communicationCyclePeriod=500;
 
     while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && CO_endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/
