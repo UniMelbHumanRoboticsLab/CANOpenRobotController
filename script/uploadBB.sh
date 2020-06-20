@@ -9,6 +9,10 @@ BUILD_FOLDER="build/"
 INIT_SCRIPTS="*.sh"
 SCRIPT_FOLDER="script/"
 
+#set in root folder
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+cd "$parent_path"/..
+
 
 echo "---------------------------------------------------"
 echo "Create remote folders (~/CANOpenRobotController/)"
