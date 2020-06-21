@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     int nodeId = NODEID;                                           /*!< CAN Network NODEID */
 
     int can_dev_number=6;
-    char CANdeviceList[can_dev_number][10] = {"vcan0\0", "can0\0", "can1\0", "can2\0", "can3\0", "can4\0"};                   /*!< linux CAN device interface for app to bind to: change to can1 for bbb, can0 for BBAI vcan0 for virtual can*/
+    char CANdeviceList[can_dev_number][10] = {"vcan0\0", "can0\0", "can1\0", "can2\0", "can3\0", "can4\0"};    /*!< linux CAN device interface for app to bind to: change to can1 for bbb, can0 for BBAI vcan0 for virtual can*/
     char CANdevice[10]="";
     int CANdevice0Index;
     //Rotate through list of interfaces and select first one existing and up
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
             if(strcmp(operstate_s, "down")!=0) //Check if not "down" as will be "unknown" if up
             {
                 snprintf(CANdevice, 9, "%s", CANdeviceList[i]);
-                printf("Using: %s\n", CANdeviceList[i]);
+                printf("Using: %s (%d)\n", CANdeviceList[i], CANdevice0Index);
                 break;
             }
             else

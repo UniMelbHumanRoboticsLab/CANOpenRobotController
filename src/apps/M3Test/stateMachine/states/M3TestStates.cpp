@@ -9,9 +9,9 @@ void M3TestState::entryCode(void) {
 }
 
 void M3TestState::duringCode(void) {
-    std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
-    robot->printStatus();
-    robot->J();
+    //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
+    //robot->printStatus();
+    //robot->J();
 }
 
 void M3TestState::exitCode(void) {
