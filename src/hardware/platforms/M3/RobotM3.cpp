@@ -52,15 +52,17 @@ void RobotM3::updateRobot() {
 }
 
 void RobotM3::printStatus() {
+    std::setprecision(3);
+    std::cout << std::fixed;
     std::cout << "q=[ ";
     for (auto joint : joints)
-        std::cout << ((JointM3 *)joint)->getQ() << "; ";
+        std::cout << ((JointM3 *)joint)->getQ() << "\t ";
     std::cout <<"]\tdq=[ ";
     for (auto joint : joints)
-        std::cout << ((JointM3 *)joint)->getDq() << "; ";
+        std::cout << ((JointM3 *)joint)->getDq() << "\t ";
     std::cout <<"]\ttau=[ ";
     for (auto joint : joints)
-        std::cout << ((JointM3 *)joint)->getTau() << "; ";
+        std::cout << ((JointM3 *)joint)->getTau() << "\t ";
     std::cout <<"]" << std::endl;
 }
 

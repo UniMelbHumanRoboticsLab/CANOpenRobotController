@@ -127,8 +127,8 @@ int main(int argc, char *argv[]) {
         CO_errExit("Program init - SIGTERM handler creation failed");
     printf("starting CANopen device with Node ID %d(0x%02X)", nodeId, nodeId);
 
-    //Set synch signal period (in ns)
-    CO_OD_RAM.communicationCyclePeriod=500;
+    //Set synch signal period (in us)
+    CO_OD_RAM.communicationCyclePeriod=1500;
 
     while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && CO_endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/

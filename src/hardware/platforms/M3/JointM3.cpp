@@ -16,10 +16,8 @@
 
 JointM3::JointM3(int jointID, double q_min, double q_max, double dq_min, double dq_max, double tau_min, double tau_max):ActuatedJoint(jointID, qMin, qMax, NULL), dqMin(dq_min), dqMax(dq_max), tauMin(tau_min), tauMax(tau_max) {
     drive = new KincoDrive(jointID+1);
-
+    q0=0;
     DEBUG_OUT("MY JOINT ID: " << this->id)
-
-    // Do nothing else
 }
 
 JointM3::~JointM3() {
@@ -28,10 +26,9 @@ JointM3::~JointM3() {
 
 
 bool JointM3::updateValue() {
-    std::cout<<drive->getPos()<<std::endl;
-    q=jointPositionToDriveUnit(drive->getPos())-q0;
-    dq=jointVelocityToDriveUnit(drive->getVel());
-    tau=jointTorqueToDriveUnit(drive->getTorque());
+    q=driveUnitToJointPosition(drive->getPos())-q0;
+    dq=driveUnitToJointVelocity(drive->getVel());
+    tau=driveUnitToJointTorque(drive->getTorque());
 
     return true;
 }
@@ -48,7 +45,7 @@ setMovementReturnCode_t JointM3::setPosition(double qd) {
 
 setMovementReturnCode_t JointM3::setVelocity(double dqd) {
     if(dqd>=dqMin && dqd<=dqMax) {
-        return ActuatedJoint::setPosition(dqd);
+        return ActuatedJoint::setVelocity(dqd);
     }
     else {
         return OUTSIDE_LIMITS;
@@ -57,7 +54,7 @@ setMovementReturnCode_t JointM3::setVelocity(double dqd) {
 
 setMovementReturnCode_t JointM3::setTorque(double taud) {
     if(taud>=tauMin && taud<=tauMax) {
-        return ActuatedJoint::setPosition(taud);
+        return ActuatedJoint::setTorque(taud);
     }
     else {
         return OUTSIDE_LIMITS;
@@ -65,7 +62,7 @@ setMovementReturnCode_t JointM3::setTorque(double taud) {
 }
 
 void JointM3::setCurrentOffset(double qcalib) {
-    q0=jointPositionToDriveUnit(drive->getPos())-qcalib;
+    q0=driveUnitToJointPosition(drive->getPos())-qcalib;
 }
 
 
