@@ -6,11 +6,14 @@ double timeval_to_sec(struct timespec *ts)
 }
 
 void M3TestState::entryCode(void) {
+    //robot->initPositionControl();
 }
 
 void M3TestState::duringCode(void) {
     //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
     robot->printStatus();
+    Eigen::Vector3d q = robot->getJointPos();
+    robot->setJointPos(q);
     //robot->J();
 }
 

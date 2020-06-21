@@ -56,13 +56,13 @@ void RobotM3::printStatus() {
     std::cout << std::fixed;
     std::cout << "q=[ ";
     for (auto joint : joints)
-        std::cout << ((JointM3 *)joint)->getQ() << "\t ";
+        std::cout << ((JointM3*)joint)->getQ() << "\t ";
     std::cout <<"]\tdq=[ ";
     for (auto joint : joints)
-        std::cout << ((JointM3 *)joint)->getDq() << "\t ";
+        std::cout << ((JointM3*)joint)->getDq() << "\t ";
     std::cout <<"]\ttau=[ ";
     for (auto joint : joints)
-        std::cout << ((JointM3 *)joint)->getTau() << "\t ";
+        std::cout << ((JointM3*)joint)->getTau() << "\t ";
     std::cout <<"]" << std::endl;
 }
 
@@ -218,7 +218,20 @@ Matrix3d RobotM3::J()
 }
 
 
+Vector3d RobotM3::getJointPos() {
+    Vector3d q = {((JointM3*)joints[0])->getQ(), ((JointM3*)joints[1])->getQ(), ((JointM3*)joints[2])->getQ()};
+    return q;
+}
 
+Vector3d RobotM3::getJointVel() {
+    Vector3d q = {((JointM3*)joints[0])->getDq(), ((JointM3*)joints[1])->getDq(), ((JointM3*)joints[2])->getDq()};
+    return q;
+}
+
+Vector3d RobotM3::getJointTor() {
+    Vector3d q = {((JointM3*)joints[0])->getTau(), ((JointM3*)joints[1])->getTau(), ((JointM3*)joints[2])->getTau()};
+    return q;
+}
 
 
 setMovementReturnCode_t RobotM3::setJointPos(Vector3d q) {
@@ -229,7 +242,7 @@ setMovementReturnCode_t RobotM3::setJointPos(Vector3d q) {
 setMovementReturnCode_t RobotM3::setJointVel(Vector3d q) {
 }
 
-setMovementReturnCode_t RobotM3::setJointTorque(Vector3d tau) {
+setMovementReturnCode_t RobotM3::setJointTor(Vector3d tau) {
 }
 
 setMovementReturnCode_t RobotM3::setEndEffPos(Vector3d X) {
@@ -257,13 +270,13 @@ setMovementReturnCode_t RobotM3::setEndEffVel(Vector3d dX) {
     return setJointVel(dq);
 }
 
-setMovementReturnCode_t RobotM3::setEndEffForce(Vector3d F) {
+setMovementReturnCode_t RobotM3::setEndEffFor(Vector3d F) {
     //TODO: add a limit check
     if(!1) {
         return OUTSIDE_LIMITS;
     }
 
     Vector3d tau = J().transpose()*F;
-    return setJointTorque(tau);
+    return setJointTor(tau);
 
 }
