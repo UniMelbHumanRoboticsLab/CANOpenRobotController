@@ -28,6 +28,7 @@ JointM3::~JointM3() {
 
 
 bool JointM3::updateValue() {
+    std::cout<<drive->getPos()<<std::endl;
     q=jointPositionToDriveUnit(drive->getPos())-q0;
     dq=jointVelocityToDriveUnit(drive->getVel());
     tau=jointTorqueToDriveUnit(drive->getTorque());

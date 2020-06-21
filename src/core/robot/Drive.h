@@ -226,7 +226,7 @@ class Drive {
            * \brief Destroy the Drive object
            *
            */
-    virtual ~Drive(){};
+    virtual ~Drive();
 
     /**
            * \brief Initialises the drive (SDO start message)
@@ -240,14 +240,14 @@ class Drive {
        *
        * \return 0 if unsuccesfull
        */
-    int startDrive();
+    int start();
 
     /**
        * \brief Send NMT stop command to the drive node
        *
        * \return 0 if unsuccesfull
        */
-    int stopDrive();
+    int stop();
 
     /**
            * \brief Initialises a standard set of PDOs for the use of the drive. These are:

@@ -18,7 +18,7 @@ KincoDrive::~KincoDrive() {
 bool KincoDrive::Init() {
 
     if(initPDOs()) {
-        startDrive();
+        start();
         return true;
     }
     return false;

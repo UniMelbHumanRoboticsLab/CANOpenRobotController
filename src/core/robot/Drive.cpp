@@ -14,11 +14,16 @@ Drive::Drive(int NodeID) {
     this->NodeID = NodeID;
 }
 
+Drive::~Drive() {
+    stop();
+}
+
+
 int Drive::getNodeID() {
     return NodeID;
 }
 
-int Drive::startDrive() {
+int Drive::start() {
     // start drive (Node)
     std::stringstream sstream;
     std::vector<std::string> CANCommands;
@@ -28,7 +33,7 @@ int Drive::startDrive() {
     return sendSDOMessages(CANCommands);
 }
 
-int Drive::stopDrive() {
+int Drive::stop() {
     // start drive (Node)
     std::stringstream sstream;
     std::vector<std::string> CANCommands;
