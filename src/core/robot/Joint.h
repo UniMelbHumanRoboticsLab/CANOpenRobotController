@@ -32,11 +32,11 @@ class Joint {
      */
     double position;
     /**
-     * The current state of the change in the joint position (i.e. the value), to be returned in SI units.
+     * The current state of the joint velocity (i.e. the value), to be returned in SI units.
      */
     double velocity;
     /**
-     * The current state of the change in the joint position(i.e. the value), to be returned in SI units.
+     * The current state of the joint torque(i.e. the value), to be returned in SI units.
      */
     double torque;
     /**
