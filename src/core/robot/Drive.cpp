@@ -8,10 +8,10 @@ Drive::Drive() {
     this->NodeID = -1;
 }
 
-Drive::Drive(int NodeID) {
+Drive::Drive(int node_id) {
     statusWord = 0;
     error = 0;
-    this->NodeID = NodeID;
+    NodeID = node_id;
 }
 
 Drive::~Drive() {

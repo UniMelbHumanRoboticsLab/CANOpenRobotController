@@ -9,14 +9,15 @@
 #include "DebugMacro.h"
 
 KincoDrive::KincoDrive(int NodeID) : Drive::Drive(NodeID) {
-    this->NodeID = NodeID;
+    //Remap torque reading value
+    OD_Addresses[ACTUAL_TOR] = 0x6078;
 }
+
 KincoDrive::~KincoDrive() {
     DEBUG_OUT(" KincoDrive Deleted ")
 }
 
 bool KincoDrive::Init() {
-
     if(initPDOs()) {
         start();
         return true;

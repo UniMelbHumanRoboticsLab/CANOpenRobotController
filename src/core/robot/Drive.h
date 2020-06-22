@@ -61,35 +61,6 @@ enum OD_Entry_t {
     TARGET_TOR = 13
 };
 
-/**
- * \brief Map between the Commonly-used OD entries and their addresses - used to generate PDO Configurations
- *        NOTE: These are written in hexadecimal
- *
- */
-static std::map<OD_Entry_t, int> OD_Addresses = {
-    {STATUS_WORD, 0x6041},
-    {ACTUAL_POS, 0x6064},
-    {ACTUAL_VEL, 0x606C},
-    //vincent
-    //{ACTUAL_TOR, 0x6077},
-    {ACTUAL_TOR, 0x6078},
-    {TARGET_POS, 0x607A},
-    {TARGET_VEL, 0x60FF},
-    {TARGET_TOR, 0x6071}};
-
-/**
- * \brief Map between the Commonly-used OD entries and their data lengths - used to generate PDO Configurations
- *        NOTE: These are written in hexadecimal
- *
- */
-static std::map<OD_Entry_t, int> OD_Data_Size = {
-    {STATUS_WORD, 0x0010},
-    {ACTUAL_POS, 0x0020},
-    {ACTUAL_VEL, 0x0020},
-    {ACTUAL_TOR, 0x0010},
-    {TARGET_POS, 0x0020},
-    {TARGET_VEL, 0x0020},
-    {TARGET_TOR, 0x0010}};
 
 /**
  * \brief struct to hold desired velocity, acceleration and deceleration values for a
@@ -180,8 +151,35 @@ class Drive {
         *
         * \return int number of messages successfully processed(return OK)
               */
-    int
-    sendSDOMessages(std::vector<std::string> messages);
+    int sendSDOMessages(std::vector<std::string> messages);
+
+    /**
+     * \brief Map between the Commonly-used OD entries and their data lengths - used to generate PDO Configurations
+     *        NOTE: These are written in hexadecimal. They can be altered in derived classes if required.
+     *
+     */
+    std::map<OD_Entry_t, int> OD_Data_Size = {
+        {STATUS_WORD, 0x0010},
+        {ACTUAL_POS, 0x0020},
+        {ACTUAL_VEL, 0x0020},
+        {ACTUAL_TOR, 0x0010},
+        {TARGET_POS, 0x0020},
+        {TARGET_VEL, 0x0020},
+        {TARGET_TOR, 0x0010}};
+
+    /**
+     * \brief Map between the Commonly-used OD entries and their addresses - used to generate PDO Configurations
+     *        NOTE: These are written in hexadecimal. They can be altered in derived classes if required.
+     *
+     */
+    std::map<OD_Entry_t, int> OD_Addresses = {
+        {STATUS_WORD, 0x6041},
+        {ACTUAL_POS, 0x6064},
+        {ACTUAL_VEL, 0x606C},
+        {ACTUAL_TOR, 0x6077},
+        {TARGET_POS, 0x607A},
+        {TARGET_VEL, 0x60FF},
+        {TARGET_TOR, 0x6071}};
 
    private:
     /**
@@ -218,9 +216,9 @@ class Drive {
     /**
            * \brief Construct a new Drive object
            *
-           * \param NodeID the CANopen Node ID of this drive
+           * \param node_id the CANopen Node ID of this drive
            */
-    Drive(int NodeID);
+    Drive(int node_id);
 
     /**
            * \brief Destroy the Drive object
