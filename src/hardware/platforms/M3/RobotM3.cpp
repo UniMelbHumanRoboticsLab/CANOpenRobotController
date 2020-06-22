@@ -66,20 +66,14 @@ void RobotM3::updateRobot() {
 
 
 void RobotM3::printStatus() {
+    std::cout << std::setprecision(1)<< std::fixed;
+    std::cout <<"q=[ " << getJointPos().transpose()*180/M_PI << " ]\t";
+    std::cout <<"dq=[ " << getJointVel().transpose()*180/M_PI << " ]\t";
+    //std::cout <<"tau=[ " << getJointTor().transpose() << " ]\t";
     std::cout << std::setprecision(3) << std::fixed;
-    std::cout << "q=[ ";
-    for (auto joint : joints)
-        std::cout << ((JointM3*)joint)->getQ()*180/M_PI << "\t ";
-    std::cout <<"]\tdq=[ ";
-    for (auto joint : joints)
-        std::cout << ((JointM3*)joint)->getDq()*180/M_PI << "\t ";
-    std::cout <<"]\ttau=[ ";
-    for (auto joint : joints)
-        std::cout << ((JointM3*)joint)->getTau() << "\t ";
-    std::cout <<"]" << std::endl;
+    std::cout <<"X=[ " << getEndEffPos().transpose() << " ]\t";
+    std::cout << std::endl;
 }
-
-
 
 bool RobotM3::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
@@ -244,6 +238,18 @@ Vector3d RobotM3::getJointVel() {
 Vector3d RobotM3::getJointTor() {
     Vector3d q = {((JointM3*)joints[0])->getTau(), ((JointM3*)joints[1])->getTau(), ((JointM3*)joints[2])->getTau()};
     return q;
+}
+
+Vector3d RobotM3::getEndEffPos() {
+     return directKinematic(getJointPos());
+}
+
+Vector3d RobotM3::getEndEffVel() {
+     return J()*getJointVel();
+}
+
+Vector3d RobotM3::getEndEffFor() {
+     return (J().transpose()).inverse()*getJointTor();
 }
 
 
