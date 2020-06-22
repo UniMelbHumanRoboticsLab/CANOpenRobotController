@@ -73,7 +73,7 @@ double ActuatedJoint::getPosition() {
     return driveUnitToJointPosition(drive->getPos());
 }
 
-double ActuatedJoint::getVeloctiy() {
+double ActuatedJoint::getVelocity() {
     return driveUnitToJointVelocity(drive->getVel());
 }
 

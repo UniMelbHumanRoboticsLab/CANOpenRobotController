@@ -20,15 +20,26 @@ DummyActJoint::DummyActJoint(int jointID, double jointMin, double jointMax, Driv
 }
 
 bool DummyActJoint::updateValue() {
-    drive->getPos();
-    q = lastQCommand;
+    position = ActuatedJoint::getPosition();
+    velocity = ActuatedJoint::getVelocity();
+    torque = ActuatedJoint::getTorque();
 
     return true;
 }
 
-setMovementReturnCode_t DummyActJoint::setPosition(double desQ) {
-    lastQCommand = desQ;
-    return ActuatedJoint::setPosition(desQ);
+setMovementReturnCode_t DummyActJoint::setPosition(double desiredPosition) {
+    lastPositionCommand = desiredPosition;
+    return ActuatedJoint::setPosition(desiredPosition);
+}
+
+setMovementReturnCode_t DummyActJoint::setVelocity(double desiredVelocity) {
+    lastVelocityCommand = desiredVelocity;
+    return ActuatedJoint::setVelocity(desiredVelocity);
+}
+
+setMovementReturnCode_t DummyActJoint::setTorque(double desiredTorque) {
+    lastTorqueCommand = desiredTorque;
+    return ActuatedJoint::setTorque(desiredTorque);
 }
 
 bool DummyActJoint::initNetwork() {
@@ -39,6 +50,12 @@ bool DummyActJoint::initNetwork() {
         return false;
     }
 }
-double DummyActJoint::getQ() {
-    return q;
+double DummyActJoint::getPosition() {
+    return position;
+}
+double DummyActJoint::getVelocity() {
+    return velocity;
+}
+double DummyActJoint::getTorque() {
+    return torque;
 }

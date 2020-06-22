@@ -21,7 +21,9 @@
  */
 class DummyActJoint : public ActuatedJoint {
 private:
-    double lastQCommand = 0;
+    double lastPositionCommand = 0;
+    double lastVelocityCommand = 0;
+    double lastTorqueCommand = 0;
 
     /**
          * \brief Converts from the joint position[rad] to the equivalent value for the drive [encoder count]
@@ -67,9 +69,13 @@ private:
 public:
     DummyActJoint(int jointID, double jointMin, double jointMax, Drive *drive);
     bool updateValue();
-    setMovementReturnCode_t setPosition(double desQ);
+    setMovementReturnCode_t setPosition(double desiredPosition);
+    setMovementReturnCode_t setVelocity(double desiredVelocity);
+    setMovementReturnCode_t setTorque(double desiredTorque);
     bool initNetwork();
-    double getQ();
+    double getPosition();
+    double getVelocity();
+    double getTorque();
 };
 
 #endif

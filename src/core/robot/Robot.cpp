@@ -43,7 +43,7 @@ void Robot::updateRobot() {
 void Robot::printStatus() {
     std::cout << "Robot Joint Angles: ";
     for (auto joint : joints)
-        std::cout << joint->getQ() << " ";
+        std::cout << joint->getPosition() << " ";
     std::cout << std::endl;
 }
 
