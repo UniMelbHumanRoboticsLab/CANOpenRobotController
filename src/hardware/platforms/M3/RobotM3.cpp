@@ -226,18 +226,15 @@ Matrix3d RobotM3::J()
 
 
 Vector3d RobotM3::getJointPos() {
-    Vector3d q = {((JointM3*)joints[0])->getQ(), ((JointM3*)joints[1])->getQ(), ((JointM3*)joints[2])->getQ()};
-    return q;
+    return Vector3d({((JointM3*)joints[0])->getQ(), ((JointM3*)joints[1])->getQ(), ((JointM3*)joints[2])->getQ()});
 }
 
 Vector3d RobotM3::getJointVel() {
-    Vector3d q = {((JointM3*)joints[0])->getDq(), ((JointM3*)joints[1])->getDq(), ((JointM3*)joints[2])->getDq()};
-    return q;
+    return Vector3d({((JointM3*)joints[0])->getDq(), ((JointM3*)joints[1])->getDq(), ((JointM3*)joints[2])->getDq()});
 }
 
 Vector3d RobotM3::getJointTor() {
-    Vector3d q = {((JointM3*)joints[0])->getTau(), ((JointM3*)joints[1])->getTau(), ((JointM3*)joints[2])->getTau()};
-    return q;
+    return Vector3d({((JointM3*)joints[0])->getTau(), ((JointM3*)joints[1])->getTau(), ((JointM3*)joints[2])->getTau()});
 }
 
 Vector3d RobotM3::getEndEffPos() {
