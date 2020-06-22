@@ -6,6 +6,8 @@ using namespace Eigen;
 
 RobotM3::RobotM3() : Robot() {
 
+    calibrated = false;
+
     //Define the robot structure: each joint with limits and drive: should be in constructor
     joints.push_back(new JointM3(0, -45/M_PI*180, 45/M_PI*180));
     joints.push_back(new JointM3(1, -45/M_PI*180, 45/M_PI*180));//Todo
@@ -25,6 +27,9 @@ RobotM3::~RobotM3() {
     joints.clear();
     DEBUG_OUT("RobotM3 deleted")
 }
+
+
+
 
 bool RobotM3::initialiseJoints() {
 
@@ -47,19 +52,27 @@ bool RobotM3::initialiseInputs() {
     return true;
 }
 
+
+void RobotM3::applyCalibration() {
+    for (int i=0; i<joints.size(); i++) {
+        ((JointM3*)joints[i])->setCurrentOffset(qCalibration[i]);
+    }
+    calibrated = true;
+}
+
 void RobotM3::updateRobot() {
     Robot::updateRobot();
 }
 
+
 void RobotM3::printStatus() {
-    std::setprecision(3);
-    std::cout << std::fixed;
+    std::cout << std::setprecision(3) << std::fixed;
     std::cout << "q=[ ";
     for (auto joint : joints)
-        std::cout << ((JointM3*)joint)->getQ() << "\t ";
+        std::cout << ((JointM3*)joint)->getQ()*180/M_PI << "\t ";
     std::cout <<"]\tdq=[ ";
     for (auto joint : joints)
-        std::cout << ((JointM3*)joint)->getDq() << "\t ";
+        std::cout << ((JointM3*)joint)->getDq()*180/M_PI << "\t ";
     std::cout <<"]\ttau=[ ";
     for (auto joint : joints)
         std::cout << ((JointM3*)joint)->getTau() << "\t ";

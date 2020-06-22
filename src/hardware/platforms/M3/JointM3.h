@@ -11,6 +11,8 @@
 #ifndef JOINTM3_H_INCLUDED
 #define JOINTM3_H_INCLUDED
 
+#include <cmath>
+
 #include "ActuatedJoint.h"
 #include "KincoDrive.h"
 
@@ -22,15 +24,16 @@ class JointM3 : public ActuatedJoint {
    private:
     double q, dq, tau, q0;
     double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
-    double reductionRatio=23.;
+    int encoderCounts = 10000; //Encoder counts per turn
+    double reductionRatio=22.;
 
 
-    double driveUnitToJointPosition(int driveValue) { return driveValue / 10000. / reductionRatio; };
-    int jointPositionToDriveUnit(double jointValue) { return jointValue * 10000. * reductionRatio; };
-    double driveUnitToJointVelocity(int driveValue) { return driveValue / 10000. / reductionRatio; };
-    int jointVelocityToDriveUnit(double jointValue) { return jointValue * 10000. * reductionRatio; };
-    double driveUnitToJointTorque(int driveValue) { return driveValue / 10000. * reductionRatio; };
-    int jointTorqueToDriveUnit(double jointValue) { return jointValue * 10000. / reductionRatio; };
+    double driveUnitToJointPosition(int driveValue) { return driveValue * 2.*M_PI / (double)encoderCounts / reductionRatio; };
+    int jointPositionToDriveUnit(double jointValue) { return jointValue / 2.*M_PI * (double)encoderCounts * reductionRatio; };
+    double driveUnitToJointVelocity(int driveValue) { return driveValue * 2.*M_PI / (double)encoderCounts / reductionRatio; };
+    int jointVelocityToDriveUnit(double jointValue) { return jointValue / 2.*M_PI * (double)encoderCounts * reductionRatio; };
+    double driveUnitToJointTorque(int driveValue) { return driveValue * 1000. / 24.13 / 32. * reductionRatio; };
+    int jointTorqueToDriveUnit(double jointValue) { return jointValue / 1000. * 24.13 * 32. / reductionRatio; };
 
    public:
     JointM3(int jointID, double q_min, double q_max, double dq_min=0, double dq_max=0, double tau_min=0, double tau_max=0);

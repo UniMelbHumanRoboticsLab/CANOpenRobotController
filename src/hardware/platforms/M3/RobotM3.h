@@ -15,7 +15,6 @@
 #define RobotM3_H_INCLUDED
 
 #include <map>
-#include <cmath>
 #include <Eigen/Dense>
 
 #include "JointM3.h"
@@ -42,7 +41,9 @@ class RobotM3 : public Robot {
     float LinkLengths[4]={1.0,1.0,1.0,1.0}; //TODO
     //float LinkMasses[4]= //TODO
 
-    Eigen::Vector3d qCalibration = {-45/M_PI*180, 0, 0}; //TODO  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
+    Eigen::Vector3d qCalibration = {38*M_PI/180., 70*M_PI/180., -95*M_PI/180.}; /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
+
+    bool calibrated;
 
    public:
     /**
@@ -73,12 +74,19 @@ class RobotM3 : public Robot {
 
 
     /**
-    * @brief Set the target positions for each of the joints
+    * \brief Set the target positions for each of the joints
     *
-    * @param positions a vector of target positions - applicable for each of the actauted joints
-    * @return MovementCode representing success or failure of the application
+    * \param positions a vector of target positions - applicable for each of the actauted joints
+    * \return MovementCode representing success or failure of the application
     */
     setMovementReturnCode_t setPosition(std::vector<double> positions);
+
+
+    /**
+    * \brief Apply current configuration as calibration configuration using qcalibration such that:
+    *  q=qcalibration in current configuration.
+    */
+    void applyCalibration();
 
 
     /**
