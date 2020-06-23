@@ -13,7 +13,7 @@
 #ifndef DEBUG_H_INCLUDED
 #define DEBUG_H_INCLUDED
 #include <iostream>
-#define NOROBOT
+//#define NOROBOT
 #define DEBUG
 #ifdef DEBUG
 #define DEBUG_OUT(x) (std::cout << x << std::endl);

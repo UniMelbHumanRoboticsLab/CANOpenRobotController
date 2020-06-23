@@ -4,9 +4,9 @@
  * /author      William Campbell
  * /version 0.1
  * /date 2020-04-09
- * 
+ *
  * /copyright Copyright (c) 2020
- * 
+ *
  *
  * This file is an adaptation of CANopenSocket, a Linux implementation of CANopen
  * stack with master functionality. Project home page is
@@ -14,9 +14,9 @@
  * on CANopenNode: <https://github.com/CANopenNode/CANopenNode>.
  *
  * The adaptation is specifically designed for use with the RobotCANControl design stack and
- * a multi limbed robot. It has been tested using a Beagle Bone black and the Fourier Intelligence X2 
+ * a multi limbed robot. It has been tested using a Beagle Bone black and the Fourier Intelligence X2
  * exoskelton in a lab testing setting.It can be addapted for use with other CANopen enabled linux based robotic projects.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,8 +32,8 @@
 #include "application.h"
 /* Threads and thread safety variables***********************************************************/
 /**
- * Mutex is locked, when CAN is not valid (configuration state). 
- * May be used from other threads. RT threads may use CO->CANmodule[0]->CANnormal instead. 
+ * Mutex is locked, when CAN is not valid (configuration state).
+ * May be used from other threads. RT threads may use CO->CANmodule[0]->CANnormal instead.
 */
 pthread_mutex_t CO_CAN_VALID_mtx = PTHREAD_MUTEX_INITIALIZER;
 
@@ -80,19 +80,55 @@ int main(int argc, char *argv[]) {
     CO_NMT_reset_cmd_t reset = CO_RESET_NOT;
     bool_t firstRun = true;
     bool_t rebootEnable = false; /*!< Configurable by use case */  // TODO: DO WE EVER RESET? OR NEED TO?
-    char CANdevice[10] = "vcan0";                                  /*!< linux CAN device interface for app to bind to: change to can1 for bbb vcan0 for virtual can*/
     int nodeId = NODEID;                                           /*!< CAN Network NODEID */
-    /*map linux CAN interface to corresponding int index return zero if no interface exists.*/
-    int CANdevice0Index = if_nametoindex(CANdevice);
+
+    int can_dev_number=6;
+    char CANdeviceList[can_dev_number][10] = {"vcan0\0", "can0\0", "can1\0", "can2\0", "can3\0", "can4\0"};    /*!< linux CAN device interface for app to bind to: change to can1 for bbb, can0 for BBAI vcan0 for virtual can*/
+    char CANdevice[10]="";
+    int CANdevice0Index;
+    //Rotate through list of interfaces and select first one existing and up
+    for(unsigned i=0; i<can_dev_number; i++)
+    {
+        printf("%s: ", CANdeviceList[i]);
+        //Check if interface exists
+        CANdevice0Index = if_nametoindex(CANdeviceList[i]);/*map linux CAN interface to corresponding int index return zero if no interface exists.*/
+        if(CANdevice0Index!=0)
+        {
+            char operstate_filename[255], operstate_s[25];
+            snprintf(operstate_filename, 254, "/sys/class/net/%s/operstate", CANdeviceList[i]);
+            //Check if it's up
+            FILE* operstate_f = fopen(operstate_filename, "r");
+            fscanf(operstate_f, "%s", &operstate_s);
+            printf("%s\n", operstate_s);
+            if(strcmp(operstate_s, "down")!=0) //Check if not "down" as will be "unknown" if up
+            {
+                snprintf(CANdevice, 9, "%s", CANdeviceList[i]);
+                printf("Using: %s (%d)\n", CANdeviceList[i], CANdevice0Index);
+                break;
+            }
+            else
+            {
+                CANdevice0Index=0;
+            }
+        }
+        else
+        {
+            printf("-\n");
+        }
+
+    }
     configureCANopen(nodeId, rtPriority, CANdevice0Index, CANdevice);
 
-    /* Set up catch of linux signals SIGINT(ctrl+c) and SIGTERM (terminate program - shell kill command) 
+    /* Set up catch of linux signals SIGINT(ctrl+c) and SIGTERM (terminate program - shell kill command)
         bind to sigHandler -> raise CO_endProgram flag and safely close application threads*/
     if (signal(SIGINT, sigHandler) == SIG_ERR)
         CO_errExit("Program init - SIGINIT handler creation failed");
     if (signal(SIGTERM, sigHandler) == SIG_ERR)
         CO_errExit("Program init - SIGTERM handler creation failed");
     printf("starting CANopen device with Node ID %d(0x%02X)", nodeId, nodeId);
+
+    //Set synch signal period (in us)
+    CO_OD_RAM.communicationCyclePeriod=1500;
 
     while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && CO_endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/
