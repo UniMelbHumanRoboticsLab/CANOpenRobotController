@@ -5,56 +5,51 @@ double timeval_to_sec(struct timespec *ts)
     return (double)(ts->tv_sec + ts->tv_nsec / 1000000000.0);
 }
 
-void M3TestState::entry(void) {
-    M3State::entry();
+void M3TestState::entryCode(void) {
+    robot->applyCalibration();
+    //robot->initPositionControl();
+}
+
+void M3TestState::duringCode(void) {
+    //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
+    robot->printStatus();
+    //Eigen::Vector3d q = robot->getJointPos();
+    //robot->setJointPos(q);
+    //robot->J();
+}
+
+void M3TestState::exitCode(void) {
+
+}
+
+
+
+
+
+
+void M3CalibState::entryCode(void) {
     std::cout
         << "==================================" << std::endl
         << " STARTING  " << getName() << std::endl
         << "==================================" << std::endl
         << std::endl;
-}
 
-void M3TestState::during(void) {
-    M3State::during();
-    std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
-}
-
-void M3TestState::exit(void) {
-    M3State::exit();
-    std::cout << "Exit "<< getName() << std::endl;
-}
-
-
-
-
-
-
-void M3CalibState::entry(void) {
-    M3State::entry();
-    std::cout
-        << "==================================" << std::endl
-        << " STARTING  " << getName() << std::endl
-        << "==================================" << std::endl
-        << std::endl;
-        
         robot->initVelocityControl();
 }
 
-void M3CalibState::during(void) {
-    M3State::during();
+void M3CalibState::duringCode(void) {
     //Move slowly on each joint until max force detected
     robot->setVelocity(vel);
 
-    
+
     std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
 }
 
-void M3CalibState::exit(void) {
-    M3State::exit();
-    
+void M3CalibState::exitCode(void) {
+
     //Set joint init values
-    
-       
+
+
     std::cout << "Exit "<< getName() << std::endl;
 }
 

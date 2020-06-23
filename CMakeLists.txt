@@ -1,12 +1,19 @@
 cmake_minimum_required(VERSION 3.3)
-project(EXO_APP C CXX)
+project(CORC C CXX)
 
-## Compile as C++11
+## Compile as C++11 with pthread
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread" )
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON )
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+
+#Flags (Release is the default)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 ## Get all source and header files
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c")
@@ -19,7 +26,7 @@ foreach (_headerFile ${HEADERS})
     list (APPEND INCLUDE_DIRS ${_dir})
 endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
-## Add libraries
+## Add libraries headers
 list (APPEND INCLUDE_DIRS lib/)
 
 # Select the application by setting the state machine to use
