@@ -14,7 +14,7 @@
 
 #include "DebugMacro.h"
 
-JointM3::JointM3(int jointID, double q_min, double q_max, double dq_min, double dq_max, double tau_min, double tau_max):ActuatedJoint(jointID, qMin, qMax, NULL), dqMin(dq_min), dqMax(dq_max), tauMin(tau_min), tauMax(tau_max) {
+JointM3::JointM3(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max):ActuatedJoint(jointID, qMin, qMax, NULL), sign(sign_), dqMin(dq_min), dqMax(dq_max), tauMin(tau_min), tauMax(tau_max) {
     drive = new KincoDrive(jointID+1);
     q0=0;
     DEBUG_OUT("MY JOINT ID: " << this->id)

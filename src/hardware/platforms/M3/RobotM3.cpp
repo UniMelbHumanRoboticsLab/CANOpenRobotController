@@ -11,7 +11,7 @@ RobotM3::RobotM3() : Robot() {
     //Define the robot structure: each joint with limits and drive: should be in constructor
     joints.push_back(new JointM3(0, -45/M_PI*180, 45/M_PI*180));
     joints.push_back(new JointM3(1, -45/M_PI*180, 45/M_PI*180));//Todo
-    joints.push_back(new JointM3(2, -45/M_PI*180, 45/M_PI*180));//Todo
+    joints.push_back(new JointM3(2, -45/M_PI*180, 45/M_PI*180, -1));//Todo
 }
 
 RobotM3::~RobotM3() {
