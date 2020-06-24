@@ -146,13 +146,13 @@ bool Drive::initPDOs() {
     sendSDOMessages(generateRPDOConfigSDO({CONTROL_WORD}, 1, 0xff));
 
     //DEBUG_OUT("Set up TARGET_POS RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 3, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 2, 0xff));
 
     //DEBUG_OUT("Set up TARGET_VEL RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 4, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 3, 0xff));
 
     //DEBUG_OUT("Set up TARGET_TOR RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 5, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff));
     return true;
 }
 
@@ -209,7 +209,7 @@ std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> it
      */
 
     // Calculate COB_ID. If TPDO:
-    int COB_ID = 0x100 * PDO_Num + NodeID;
+    int COB_ID = 0x100 * (PDO_Num+1) + NodeID;
 
     // Define Vector to be returned as part of this method
     std::vector<std::string> CANCommands;

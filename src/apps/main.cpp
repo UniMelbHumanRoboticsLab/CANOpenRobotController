@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
     printf("starting CANopen device with Node ID %d(0x%02X)", nodeId, nodeId);
 
     //Set synch signal period (in us)
-    CO_OD_RAM.communicationCyclePeriod=2500;
+    CO_OD_RAM.communicationCyclePeriod=2000;
 
     while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && CO_endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/
