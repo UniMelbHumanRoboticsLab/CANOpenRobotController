@@ -134,25 +134,25 @@ bool Drive::posControlConfirmSP() {
 bool Drive::initPDOs() {
     DEBUG_OUT("Drive::initPDOs")
     //DEBUG_OUT("Set up STATUS_WORD TPDO")
-    sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 0, 0xFF));
+    sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF));
 
     //DEBUG_OUT("Set up ACTUAL_POS and ACTUAL_VEL TPDO")
-    sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 1, 1));
+    sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 1));
 
     //DEBUG_OUT("Set up ACTUAL_TOR TPDO")
-    sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 2, 1));
+    sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 1));
 
     //DEBUG_OUT("Set up CONTROL_WORD RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({CONTROL_WORD}, 0, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({CONTROL_WORD}, 1, 0xff));
 
     //DEBUG_OUT("Set up TARGET_POS RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 1, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 2, 0xff));
 
     //DEBUG_OUT("Set up TARGET_VEL RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 2, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 3, 0xff));
 
     //DEBUG_OUT("Set up TARGET_TOR RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 3, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff));
     return true;
 }
 

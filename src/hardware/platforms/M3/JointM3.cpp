@@ -30,7 +30,7 @@ bool JointM3::updateValue() {
     dq=driveUnitToJointVelocity(drive->getVel());
     tau=driveUnitToJointTorque(drive->getTorque());
     //Vincent
-    //std::cout <<"Status: 0x" << std::hex <<  drive->updateDriveStatus() << std::endl;
+    std::cout <<"Status: 0x" << std::hex <<  drive->updateDriveStatus() << "   "<< q << std::endl;
 
     return true;
 }

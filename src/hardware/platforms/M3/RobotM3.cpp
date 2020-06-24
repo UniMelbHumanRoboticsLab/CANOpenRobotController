@@ -11,8 +11,8 @@ RobotM3::RobotM3() : Robot() {
     //Define the robot structure: each joint with limits and drive: should be in constructor
     double max_speed=360/M_PI*180;
     joints.push_back(new JointM3(0, -45/M_PI*180, 45/M_PI*180, 1, -max_speed, max_speed));
-    joints.push_back(new JointM3(1, -45/M_PI*180, 45/M_PI*180, 1, -max_speed, max_speed ));//Todo
-    joints.push_back(new JointM3(2, -45/M_PI*180, 45/M_PI*180, -1, -max_speed, max_speed));//Todo
+    /*joints.push_back(new JointM3(1, -45/M_PI*180, 45/M_PI*180, 1, -max_speed, max_speed ));//Todo
+    joints.push_back(new JointM3(2, -45/M_PI*180, 45/M_PI*180, -1, -max_speed, max_speed));//Todo*/
 }
 
 RobotM3::~RobotM3() {

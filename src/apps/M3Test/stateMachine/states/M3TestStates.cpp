@@ -19,7 +19,7 @@ void M3TestState::duringCode(void) {
     //Eigen::Vector3d q = robot->getJointPos();
     //robot->setJointPos(q);
     r*=-1.000001;
-    //robot->setJointVel(Eigen::Vector3d(r,0,0));
+    robot->setJointVel(Eigen::Vector3d(r,0,0));
     //robot->J();
 }
 
