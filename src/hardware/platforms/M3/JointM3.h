@@ -39,6 +39,7 @@ class JointM3 : public ActuatedJoint {
    public:
     JointM3(int jointID, double q_min, double q_max, short int sign_=1, double dq_min=0, double dq_max=0, double tau_min=0, double tau_max=0);
     ~JointM3();
+
     bool updateValue();
     setMovementReturnCode_t setPosition(double qd);
     setMovementReturnCode_t setVelocity(double dqd);
@@ -49,7 +50,7 @@ class JointM3 : public ActuatedJoint {
      * such that current position is now qcalib
      *
      */
-    void setCurrentOffset(double qcalib);
+    void setPositionOffset(double qcalib);
     bool initNetwork();
     double getQ();
     double getDq();

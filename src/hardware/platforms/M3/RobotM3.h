@@ -50,7 +50,7 @@ class RobotM3 : public Robot {
     float LinkLengths[5] = {0.056, 0.15-0.015, 0.5, 0.465, 0.465+0.15-0.015}; /*!< Link lengths used for kniematic models */
     //float LinkMasses[4]= //TODO
 
-    Eigen::Vector3d qCalibration = {38*M_PI/180., 70*M_PI/180., -95*M_PI/180.}; /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
+    Eigen::Vector3d qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.}; /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
 
     bool calibrated;
 
@@ -74,6 +74,14 @@ class RobotM3 : public Robot {
     bool initPositionControl();
 
     /**
+       * \brief Initialises all joints to velocity control mode.
+       *
+       * \return true If all joints are successfully configured
+       * \return false  If some or all joints fail the configuration
+       */
+    bool initVelocityControl();
+
+    /**
        * \brief Initialises all joints to torque control mode.
        *
        * \return true If all joints are successfully configured
@@ -88,7 +96,15 @@ class RobotM3 : public Robot {
     * \param positions a vector of target positions - applicable for each of the actauted joints
     * \return MovementCode representing success or failure of the application
     */
-    setMovementReturnCode_t setPosition(std::vector<double> positions);
+    setMovementReturnCode_t applyPosition(std::vector<double> positions);
+
+    /**
+    * \brief Set the target velocities for each of the joints
+    *
+    * \param positions a vector of target positions - applicable for each of the actauted joints
+    * \return MovementCode representing success or failure of the application
+    */
+    setMovementReturnCode_t applyVelocity(std::vector<double> velocity);
 
 
     /**

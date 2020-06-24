@@ -18,6 +18,7 @@ KincoDrive::~KincoDrive() {
 }
 
 bool KincoDrive::Init() {
+    preop();//Set preop first to disable PDO during initialisation
     if(initPDOs()) {
         start();
         return true;

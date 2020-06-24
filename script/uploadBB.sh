@@ -10,11 +10,11 @@ SCRIPT_FOLDER="script/"
 
 #use default BB address (dependent on OS used)
 if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then 
-   #Any flavour of Windows (Cygwin, Mingw...)
-   SSH_IP_ADDR="192.168.7.2"
+  #Any flavour of Windows (Cygwin, Mingw...)
+  SSH_IP_ADDR="192.168.7.2"
 else
-   #Any other case (Linux, Unix, OSX...)
-   SSH_IP_ADDR="192.168.6.2"
+  #Any other case (Linux, Unix, OSX...)
+  SSH_IP_ADDR="192.168.6.2"
 fi
 
 #set in root folder

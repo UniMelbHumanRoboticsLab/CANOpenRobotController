@@ -23,6 +23,16 @@ int Drive::getNodeID() {
     return NodeID;
 }
 
+int Drive::preop() {
+    // start drive (Node)
+    std::stringstream sstream;
+    std::vector<std::string> CANCommands;
+    sstream << "[1] " << NodeID << " preop";
+    CANCommands.push_back(sstream.str());
+
+    return sendSDOMessages(CANCommands);
+}
+
 int Drive::start() {
     // start drive (Node)
     std::stringstream sstream;
@@ -124,22 +134,25 @@ bool Drive::posControlConfirmSP() {
 bool Drive::initPDOs() {
     DEBUG_OUT("Drive::initPDOs")
     //DEBUG_OUT("Set up STATUS_WORD TPDO")
-    sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF));
+    sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 0, 0xFF));
 
     //DEBUG_OUT("Set up ACTUAL_POS and ACTUAL_VEL TPDO")
-    sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 1));
+    sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 1, 1));
 
     //DEBUG_OUT("Set up ACTUAL_TOR TPDO")
-    sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 1));
+    sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 2, 1));
+
+    //DEBUG_OUT("Set up CONTROL_WORD RPDO")
+    sendSDOMessages(generateRPDOConfigSDO({CONTROL_WORD}, 0, 0xff));
 
     //DEBUG_OUT("Set up TARGET_POS RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 3, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 1, 0xff));
 
     //DEBUG_OUT("Set up TARGET_VEL RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 4, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 2, 0xff));
 
     //DEBUG_OUT("Set up TARGET_TOR RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 5, 0xff));
+    sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 3, 0xff));
     return true;
 }
 
@@ -323,6 +336,7 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
     int successfulMessages = 1;
 #endif
     for (auto strCommand : messages) {
+            std::cout << strCommand <<std::endl;
         // explicitly cast c++ string to from const char* to char* for use by cancomm function
         char *SDO_Message = (char *)(strCommand.c_str());
 
@@ -336,6 +350,7 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
         if (retMsg.find("OK") != std::string::npos) {
             successfulMessages++;
         }
+        std::cout << "=>" << retMsg << std::endl;
 #endif
     }
     return successfulMessages;

@@ -9,9 +9,10 @@ RobotM3::RobotM3() : Robot() {
     calibrated = false;
 
     //Define the robot structure: each joint with limits and drive: should be in constructor
-    joints.push_back(new JointM3(0, -45/M_PI*180, 45/M_PI*180));
-    joints.push_back(new JointM3(1, -45/M_PI*180, 45/M_PI*180));//Todo
-    joints.push_back(new JointM3(2, -45/M_PI*180, 45/M_PI*180, -1));//Todo
+    double max_speed=360/M_PI*180;
+    joints.push_back(new JointM3(0, -45/M_PI*180, 45/M_PI*180, 1, -max_speed, max_speed));
+    joints.push_back(new JointM3(1, -45/M_PI*180, 45/M_PI*180, 1, -max_speed, max_speed ));//Todo
+    joints.push_back(new JointM3(2, -45/M_PI*180, 45/M_PI*180, -1, -max_speed, max_speed));//Todo
 }
 
 RobotM3::~RobotM3() {
@@ -55,7 +56,7 @@ bool RobotM3::initialiseInputs() {
 
 void RobotM3::applyCalibration() {
     for (int i=0; i<joints.size(); i++) {
-        ((JointM3*)joints[i])->setCurrentOffset(qCalibration[i]);
+        ((JointM3*)joints[i])->setPositionOffset(qCalibration[i]);
     }
     calibrated = true;
 }
@@ -79,19 +80,39 @@ bool RobotM3::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((ActuatedJoint *)p)->setMode(POSITION_CONTROL, posControlMotorProfile) != POSITION_CONTROL) {
+        if (((JointM3 *)p)->setMode(POSITION_CONTROL, posControlMotorProfile) != POSITION_CONTROL) {
             // Something back happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
-        ((ActuatedJoint *)p)->readyToSwitchOn();
+        ((JointM3 *)p)->readyToSwitchOn();
     }
 
     // Pause for a bit to let commands go
     usleep(2000);
     for (auto p : joints) {
-        ((ActuatedJoint *)p)->enable();
+        ((JointM3 *)p)->enable();
+    }
+    return returnValue;
+}
+bool RobotM3::initVelocityControl() {
+    DEBUG_OUT("Initialising Velocity Control on all joints ")
+    bool returnValue = true;
+    for (auto p : joints) {
+        if (((JointM3 *)p)->setMode(VELOCITY_CONTROL, posControlMotorProfile) != VELOCITY_CONTROL) {
+            // Something back happened if were are here
+            DEBUG_OUT("Something bad happened")
+            returnValue = false;
+        }
+        // Put into ReadyToSwitchOn()
+        ((JointM3 *)p)->readyToSwitchOn();
+    }
+
+    // Pause for a bit to let commands go
+    usleep(2000);
+    for (auto p : joints) {
+        ((JointM3 *)p)->enable();
     }
     return returnValue;
 }
@@ -99,30 +120,30 @@ bool RobotM3::initTorqueControl() {
     DEBUG_OUT("Initialising Torque Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((ActuatedJoint *)p)->setMode(TORQUE_CONTROL) != TORQUE_CONTROL) {
+        if (((JointM3 *)p)->setMode(TORQUE_CONTROL) != TORQUE_CONTROL) {
             // Something back happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
-        ((ActuatedJoint *)p)->readyToSwitchOn();
+        ((JointM3 *)p)->readyToSwitchOn();
     }
 
     // Pause for a bit to let commands go
     usleep(2000);
     for (auto p : joints) {
-        ((ActuatedJoint *)p)->enable();
+        ((JointM3 *)p)->enable();
     }
     return returnValue;
 }
 
-setMovementReturnCode_t RobotM3::setPosition(std::vector<double> positions) {
+setMovementReturnCode_t RobotM3::applyPosition(std::vector<double> positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setPosition(positions[i]);
+        setMovementReturnCode_t setPosCode = ((JointM3 *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
-            std::cout << "Joint ID " << p->getId() << ": is not in Position Control " << std::endl;
+            std::cout << "Joint " << p->getId() << ": is not in Position Control " << std::endl;
             returnValue = INCORRECT_MODE;
         } else if (setPosCode != SUCCESS) {
             // Something bad happened
@@ -134,10 +155,26 @@ setMovementReturnCode_t RobotM3::setPosition(std::vector<double> positions) {
     return returnValue;
 }
 
+setMovementReturnCode_t RobotM3::applyVelocity(std::vector<double> velocity) {
+    int i = 0;
+    setMovementReturnCode_t returnValue = SUCCESS;
+    for (auto p : joints) {
+        setMovementReturnCode_t setVelCode = ((JointM3 *)p)->setVelocity(velocity[i]);
+        if (setVelCode == INCORRECT_MODE) {
+            std::cout << "Joint " << p->getId() << ": is not in Velocity Control " << std::endl;
+            returnValue = INCORRECT_MODE;
+        } else if (setVelCode != SUCCESS) {
+            // Something bad happened
+            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            returnValue = UNKNOWN_ERROR;
+        }
+        i++;
+    }
+    return returnValue;
+}
 
 
-Vector3d RobotM3::directKinematic(Vector3d q)
-{
+Vector3d RobotM3::directKinematic(Vector3d q) {
     Vector3d X;
 
 	float *L = LinkLengths;
@@ -151,8 +188,7 @@ Vector3d RobotM3::directKinematic(Vector3d q)
     return X;
 }
 
-Vector3d RobotM3::inverseKinematic(Vector3d X)
-{
+Vector3d RobotM3::inverseKinematic(Vector3d X) {
     Vector3d q;
 
     float *L = LinkLengths;
@@ -193,8 +229,7 @@ Vector3d RobotM3::inverseKinematic(Vector3d X)
     return q;
 }
 
-Matrix3d RobotM3::J()
-{
+Matrix3d RobotM3::J() {
     Matrix3d J;
     Vector3d q;
     for(unsigned int i=0; i<3; i++)
@@ -252,13 +287,16 @@ Vector3d RobotM3::getEndEffFor() {
 
 setMovementReturnCode_t RobotM3::setJointPos(Vector3d q) {
     std::vector<double> pos{q(0), q(1), q(2)};
-    return setPosition(pos);
+    return applyPosition(pos);
 }
 
-setMovementReturnCode_t RobotM3::setJointVel(Vector3d q) {
+setMovementReturnCode_t RobotM3::setJointVel(Vector3d dq) {
+    std::vector<double> vel{dq(0), dq(1), dq(2)};
+    return applyVelocity(vel);
 }
 
 setMovementReturnCode_t RobotM3::setJointTor(Vector3d tau) {
+    //Todo
 }
 
 setMovementReturnCode_t RobotM3::setEndEffPos(Vector3d X) {

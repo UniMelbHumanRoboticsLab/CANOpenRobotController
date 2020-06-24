@@ -56,6 +56,7 @@ enum OD_Entry_t {
     ACTUAL_POS = 1,
     ACTUAL_VEL = 2,
     ACTUAL_TOR = 3,
+    CONTROL_WORD = 10,
     TARGET_POS = 11,
     TARGET_VEL = 12,
     TARGET_TOR = 13
@@ -163,6 +164,7 @@ class Drive {
         {ACTUAL_POS, 0x0020},
         {ACTUAL_VEL, 0x0020},
         {ACTUAL_TOR, 0x0010},
+        {CONTROL_WORD, 0x0010},
         {TARGET_POS, 0x0020},
         {TARGET_VEL, 0x0020},
         {TARGET_TOR, 0x0010}};
@@ -177,6 +179,7 @@ class Drive {
         {ACTUAL_POS, 0x6064},
         {ACTUAL_VEL, 0x606C},
         {ACTUAL_TOR, 0x6077},
+        {CONTROL_WORD, 0x6040},
         {TARGET_POS, 0x607A},
         {TARGET_VEL, 0x60FF},
         {TARGET_TOR, 0x6071}};
@@ -232,6 +235,13 @@ class Drive {
            * \return True if successful, False if not
            */
     virtual bool Init() = 0;
+
+    /**
+       * \brief Send NMT preop command to the drive node
+       *
+       * \return 0 if unsuccesfull
+       */
+    int preop();
 
     /**
        * \brief Send NMT start command to the drive node
