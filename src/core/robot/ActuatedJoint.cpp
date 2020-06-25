@@ -1,9 +1,9 @@
 /**
  * The <code>ActuatedJoint</code> class is a abstract class which represents a joint in a
- * <code>Robot</code> objec. This class implements the Joint class, and specifically 
+ * <code>Robot</code> objec. This class implements the Joint class, and specifically
  * represents a joint which is actuated. This therefore requires a Drive object
- * which will be used to interact with the physical hardware.  
- * 
+ * which will be used to interact with the physical hardware.
+ *
  *
  * Version 0.1
  * Date: 09/04/2020
@@ -86,7 +86,7 @@ void ActuatedJoint::readyToSwitchOn() {
 }
 
 bool ActuatedJoint::enable() {
-    if (drive->getDriveState() == READY_TO_SWITCH_ON) {
+    if (drive->getState() == READY_TO_SWITCH_ON) {
         drive->enable();
         return true;
     }

@@ -18,6 +18,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <csignal> //For raise()
 
 #include "RobotM3.h"
 #include "StateMachine.h"
@@ -27,14 +28,14 @@
 
 /**
  * @brief Example implementation of a StateMachine for the M3Robot class. States should implemented M3TestState
- * 
+ *
  */
 class M3TestMachine : public StateMachine {
    public:
     bool running = false;
     /**
      *  \todo Pilot Parameters would be set in constructor here
-     * 
+     *
      */
     M3TestMachine();
     void init();
@@ -46,8 +47,8 @@ class M3TestMachine : public StateMachine {
     void initRobot(RobotM3 *rb);
 
     /**
-     * Pointers to the relevant states - initialised in init 
-     * 
+     * Pointers to the relevant states - initialised in init
+     *
      */
     M3TestState *testState;
 

@@ -20,11 +20,14 @@ M3TestMachine::M3TestMachine() {
 /**
  * \brief start function for running any designed statemachine specific functions
  * for example initialising robot objects.
- * 
+ *
  */
 void M3TestMachine::init() {
     DEBUG_OUT("M3TestMachine::init()")
-    robot->initialise();
+    if(!robot->initialise()) {
+        std::cerr << "Failed robot initialisation. Exiting..." << std::endl;
+        std::raise(SIGTERM);
+    }
     running = true;
 }
 
@@ -35,7 +38,7 @@ void M3TestMachine::init() {
 /**
  * \brief Statemachine to hardware interface method. Run any hardware update methods
  * that need to run every program loop update cycle.
- * 
+ *
  */
 void M3TestMachine::hwStateUpdate(void) {
     robot->updateRobot();

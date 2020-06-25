@@ -148,9 +148,9 @@ class Drive {
     std::vector<std::string> generateTorqueControlConfigSDO();
 
     /**
-        * \brief messages Properly formatted SDO Messages
+        * \brief Send a list (vector) of properly formatted SDO Messages
         *
-        * \return int number of messages successfully processed(return OK)
+        * \return int -number_of_unsuccesfull messages (0 means OK for all). vcan will always return 0 (no reply check).
               */
     int sendSDOMessages(std::vector<std::string> messages);
 
@@ -310,7 +310,7 @@ class Drive {
            *
            * \return The current value of the status word (0x6041)
            */
-    virtual int updateDriveStatus();
+    virtual int getStatus();
 
     /**
            * Writes the desired position to the Target Position of the motor drive (0x607A)
@@ -404,7 +404,7 @@ class Drive {
         *
         * \return DriveState
         */
-    virtual DriveState getDriveState();
+    virtual DriveState getState();
 
     /**
         * \brief Get the current control mode of the drive
