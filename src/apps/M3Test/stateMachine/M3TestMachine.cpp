@@ -22,11 +22,12 @@ M3TestMachine::M3TestMachine() {
  * for example initialising robot objects.
  *
  */
+
 void M3TestMachine::init() {
     DEBUG_OUT("M3TestMachine::init()")
     if(!robot->initialise()) {
         std::cerr << "Failed robot initialisation. Exiting..." << std::endl;
-        std::raise(SIGTERM);
+        std::raise(SIGTERM); //Clean exit
     }
     running = true;
 }

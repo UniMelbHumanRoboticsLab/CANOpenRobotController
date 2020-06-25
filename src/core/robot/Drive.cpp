@@ -136,43 +136,43 @@ bool Drive::initPDOs() {
 
     //DEBUG_OUT("Set up STATUS_WORD TPDO")
     if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF))<0) {
-        std::cerr << "Set up STATUS_WORD TPDO FAILED" <<std::endl;
+        std::cerr << "Set up STATUS_WORD TPDO FAILED on node" << NodeID  <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up ACTUAL_POS and ACTUAL_VEL TPDO")
-    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 1))<0) {
-        std::cerr << "Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED" <<std::endl;
+    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 0xFF))<0) {
+        std::cerr << "Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up ACTUAL_TOR TPDO")
-    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 1))<0) {
-        std::cerr << "Set up ACTUAL_TOR TPDO FAILED" <<std::endl;
+    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 0xFF))<0) {
+        std::cerr << "Set up ACTUAL_TOR TPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up CONTROL_WORD RPDO")
     if(sendSDOMessages(generateRPDOConfigSDO({CONTROL_WORD}, 1, 0xff))<0) {
-        std::cerr << "Set up CONTROL_WORD RPDO FAILED" <<std::endl;
+        std::cerr << "Set up CONTROL_WORD RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up TARGET_POS RPDO")
     if(sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 2, 0xff))<0) {
-        std::cerr << "Set up TARGET_POS RPDO FAILED" <<std::endl;
+        std::cerr << "Set up TARGET_POS RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up TARGET_VEL RPDO")
     if(sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 3, 0xff))<0) {
-        std::cerr << "Set up ARGET_VEL RPDO FAILED" <<std::endl;
+        std::cerr << "Set up ARGET_VEL RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up TARGET_TOR RPDO")
     if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff))<0) {
-        std::cerr << "Set up TARGET_TOR RPDO FAILED" <<std::endl;
+        std::cerr << "Set up TARGET_TOR RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
@@ -231,7 +231,7 @@ std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> it
      *
      */
 
-    // Calculate COB_ID. If TPDO:
+    // Calculate COB_ID. If RPDO:
     int COB_ID = 0x100 * (PDO_Num+1) + NodeID;
 
     // Define Vector to be returned as part of this method
@@ -367,6 +367,9 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
         // Another option would be erasing the sequence value before returning in cancomm_socketFree
         if (retMsg.find("OK") != std::string::npos) {
             successfulMessages++;
+        }
+        else {
+            std::cerr << "sendSDOMessage: ERROR:" << strCommand << "=>" << retMsg << std::endl;
         }
         DEBUG_OUT(retMsg)
 #else

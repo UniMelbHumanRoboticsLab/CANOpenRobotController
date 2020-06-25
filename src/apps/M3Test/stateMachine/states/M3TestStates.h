@@ -94,8 +94,6 @@ class M3TestState : public M3TimedState {
     void entryCode(void);
     void duringCode(void);
     void exitCode(void);
-
-    double r=-0.1;
 };
 
 

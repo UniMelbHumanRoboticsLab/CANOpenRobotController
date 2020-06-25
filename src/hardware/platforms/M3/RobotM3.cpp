@@ -47,9 +47,9 @@ bool RobotM3::initialiseNetwork() {
     }
     //Give time to drives PDO initialisation
     DEBUG_OUT("...");
-    for(int i=0; i<10; i++) {
+    for(int i=0; i<5; i++) {
         DEBUG_OUT(".");
-        usleep(100000);
+        usleep(10000);
     }
 
     return true;
@@ -76,7 +76,7 @@ void RobotM3::printStatus() {
     std::cout << std::setprecision(1)<< std::fixed;
     std::cout <<"q=[ " << getJointPos().transpose()*180/M_PI << " ]\t";
     std::cout <<"dq=[ " << getJointVel().transpose()*180/M_PI << " ]\t";
-    std::cout <<"tau=[ " << getJointTor().transpose() << " ]\t";
+    //std::cout <<"tau=[ " << getJointTor().transpose() << " ]\t";
     std::cout << "{";
     for (auto joint: joints)
         std::cout << "0x" << std::hex << ((JointM3*)joint)->getDriveStatus() << "; ";

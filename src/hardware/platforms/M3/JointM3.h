@@ -28,13 +28,14 @@ class JointM3 : public ActuatedJoint {
     int encoderCounts = 10000; //Encoder counts per turn
     double reductionRatio=22.;
 
+    double Ipeak= 20.0;//TODO
 
     double driveUnitToJointPosition(int driveValue) { return sign * driveValue * 2.*M_PI / (double)encoderCounts / reductionRatio; };
     int jointPositionToDriveUnit(double jointValue) { return sign * jointValue / 2.*M_PI * (double)encoderCounts * reductionRatio; };
     double driveUnitToJointVelocity(int driveValue) { return sign * driveValue * 2.*M_PI / (double)encoderCounts / reductionRatio; };
     int jointVelocityToDriveUnit(double jointValue) { return sign * jointValue / 2.*M_PI * (double)encoderCounts * reductionRatio; };
-    double driveUnitToJointTorque(int driveValue) { return sign * driveValue * 1000. / 24.13 / 32. * reductionRatio; };
-    int jointTorqueToDriveUnit(double jointValue) { return sign * jointValue / 1000. * 24.13 * 32. / reductionRatio; };
+    double driveUnitToJointTorque(int driveValue) { return sign * driveValue * 2048. / Ipeak / 1.414 * reductionRatio; };
+    int jointTorqueToDriveUnit(double jointValue) { return sign * jointValue / 1000. * 24.13 * 32. / reductionRatio; }; //Todo
 
    public:
     JointM3(int jointID, double q_min, double q_max, short int sign_=1, double dq_min=0, double dq_max=0, double tau_min=0, double tau_max=0);
