@@ -56,7 +56,7 @@ bool RobotM3::initialiseNetwork() {
     return true;
 }
 bool RobotM3::initialiseInputs() {
-    inputs.push_back(&keyboard);
+    //inputs.push_back(&keyboard);
     return true;
 }
 
