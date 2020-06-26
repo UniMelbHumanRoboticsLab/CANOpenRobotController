@@ -20,10 +20,11 @@ void M3TestState::duringCode(void) {
     q(1)=68*M_PI/180.-0.1*elapsedTime;*/
     //std::cout << q.transpose() <<std::endl;
     //robot->setJointPos(q);
-    double v=-sin(2*M_PI*1./10*elapsedTime);
-    //double v=0;
-    robot->setJointVel(Eigen::Vector3d(0,v,v/2));
-    //robot->J();
+    //double v=-sin(2*M_PI*1./10*elapsedTime);
+    //double v=-0.1;
+    //robot->setJointVel(Eigen::Vector3d(0,0,0));
+    Eigen::Vector3d dX(0,0,.1);
+    robot->setEndEffVel(dX);
 }
 
 void M3TestState::exitCode(void) {

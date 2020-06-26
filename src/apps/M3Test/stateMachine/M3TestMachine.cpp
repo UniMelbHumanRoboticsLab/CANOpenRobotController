@@ -25,16 +25,23 @@ M3TestMachine::M3TestMachine() {
 
 void M3TestMachine::init() {
     DEBUG_OUT("M3TestMachine::init()")
-    if(!robot->initialise()) {
+    if(robot->initialise()) {
+        initialised = true;
+    }
+    else {
+        initialised = false;
         std::cerr << "Failed robot initialisation. Exiting..." << std::endl;
         std::raise(SIGTERM); //Clean exit
     }
+
     running = true;
 }
 
 void M3TestMachine::end() {
-    currentState->exit();
-    robot->stop();
+    if(initialised) {
+        currentState->exit();
+        robot->stop();
+    }
 }
 
 ////////////////////////////////////////////////////////////////

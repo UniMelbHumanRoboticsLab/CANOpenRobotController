@@ -69,6 +69,8 @@ class StateMachine {
      *
      */
     State *currentState;
+
+    bool initialised = false;
 };
 
 /**

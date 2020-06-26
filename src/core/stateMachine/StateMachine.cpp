@@ -16,6 +16,7 @@ StateMachine::StateMachine(void) {
 void StateMachine::initialize(State *i) {
     currentState = i;
     DEBUG_OUT("StateMachine::initialize()")
+    initialised = true;
 }
 
 State *StateMachine::getCurState(void) {

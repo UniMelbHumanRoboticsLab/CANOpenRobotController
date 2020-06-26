@@ -222,6 +222,7 @@ int main(int argc, char *argv[]) {
             }
         }
         /* program exit ***************************************************************/
+        endProgram = 1;
         app_programEnd();
         usleep(100000); /*wait for end programm commands to be processed */
         CO_endProgram = 1;
@@ -280,7 +281,6 @@ static void *rt_thread(void *arg) {
             CO_error(0x12200000L);
         }
     }
-
     return NULL;
 }
 /* Control thread function ********************************/

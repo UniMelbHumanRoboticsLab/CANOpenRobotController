@@ -10,9 +10,10 @@ RobotM3::RobotM3() : Robot() {
 
     //Define the robot structure: each joint with limits and drive: should be in constructor
     double max_speed=360*M_PI/180.;
-    joints.push_back(new JointM3(0, -45*M_PI/180., 45*M_PI/180., 1, -max_speed, max_speed));
-    joints.push_back(new JointM3(1, -15*M_PI/180., 70*M_PI/180., 1, -max_speed, max_speed ));//Todo
-    joints.push_back(new JointM3(2, 0*M_PI/180., 90*M_PI/180., -1, -max_speed, max_speed));//Todo
+    double tau_max=1.9*23;
+    joints.push_back(new JointM3(0, -45*M_PI/180., 45*M_PI/180., 1, -max_speed, max_speed, -tau_max, tau_max));
+    joints.push_back(new JointM3(1, -15*M_PI/180., 70*M_PI/180., 1, -max_speed, max_speed, -tau_max, tau_max));//Todo
+    joints.push_back(new JointM3(2, 0*M_PI/180., 90*M_PI/180., -1, -max_speed, max_speed, -tau_max, tau_max));//Todo
 }
 
 RobotM3::~RobotM3() {
@@ -81,15 +82,16 @@ void RobotM3::updateRobot() {
 
 void RobotM3::printStatus() {
     std::cout << std::setprecision(1)<< std::fixed;
-    std::cout <<"q=[ " << getJointPos().transpose()*180/M_PI << " ]\t";
+    /*std::cout <<"q=[ " << getJointPos().transpose()*180/M_PI << " ]\t";
     std::cout <<"dq=[ " << getJointVel().transpose()*180/M_PI << " ]\t";
-    //std::cout <<"tau=[ " << getJointTor().transpose() << " ]\t";
-    std::cout << "{";
+    std::cout <<"tau=[ " << getJointTor().transpose() << " ]\t";*/
+    /*std::cout << "{";
     for (auto joint: joints)
         std::cout << "0x" << std::hex << ((JointM3*)joint)->getDriveStatus() << "; ";
-    std::cout << "}" << std::endl;
+    std::cout << "}" << std::endl;*/
     std::cout << std::setprecision(3) << std::fixed;
     std::cout <<"X=[ " << getEndEffPos().transpose() << " ]\t";
+    std::cout <<"dX=[ " << getEndEffVel().transpose() << " ]\t";
     std::cout << std::endl;
 }
 
@@ -250,7 +252,7 @@ Matrix3d RobotM3::J() {
     Matrix3d J;
     Vector3d q;
     for(unsigned int i=0; i<3; i++)
-        q(i) = joints[i]->getQ();
+        q(i) = ((JointM3 *)joints[i])->getPosition();
 
 	float *L = LinkLengths;
 
