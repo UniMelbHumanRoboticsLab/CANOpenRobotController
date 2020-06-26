@@ -22,7 +22,7 @@
  */
 class JointM3 : public ActuatedJoint {
    private:
-    double q, dq, tau, q0;
+    double q, dq, tau;
     double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
     short int sign;
     int encoderCounts = 10000; //Encoder counts per turn
@@ -30,10 +30,10 @@ class JointM3 : public ActuatedJoint {
 
     double Ipeak= 20.0;//TODO
 
-    double driveUnitToJointPosition(int driveValue) { return sign * driveValue * 2.*M_PI / (double)encoderCounts / reductionRatio; };
-    int jointPositionToDriveUnit(double jointValue) { return sign * jointValue / 2.*M_PI * (double)encoderCounts * reductionRatio; };
-    double driveUnitToJointVelocity(int driveValue) { return sign * driveValue * 2.*M_PI / (double)encoderCounts / reductionRatio; };
-    int jointVelocityToDriveUnit(double jointValue) { return sign * jointValue / 2.*M_PI * (double)encoderCounts * reductionRatio; };
+    double driveUnitToJointPosition(int driveValue) { return sign * driveValue * (2.*M_PI) / (double)encoderCounts / reductionRatio; };
+    int jointPositionToDriveUnit(double jointValue) { return sign * jointValue / (2.*M_PI) * (double)encoderCounts * reductionRatio; };
+    double driveUnitToJointVelocity(int driveValue) { return sign * driveValue * (2.*M_PI) / (double)encoderCounts / reductionRatio; };
+    int jointVelocityToDriveUnit(double jointValue) { return sign * jointValue / (2.*M_PI) * (double)encoderCounts * reductionRatio; };
     double driveUnitToJointTorque(int driveValue) { return sign * driveValue * 2048. / Ipeak / 1.414 * reductionRatio; };
     int jointTorqueToDriveUnit(double jointValue) { return sign * jointValue / 1000. * 24.13 * 32. / reductionRatio; }; //Todo
 
@@ -46,16 +46,7 @@ class JointM3 : public ActuatedJoint {
     setMovementReturnCode_t setVelocity(double dqd);
     setMovementReturnCode_t setTorque(double taud);
 
-    /**
-     * \brief Set current position as joint position offset (q0)
-     * such that current position is now qcalib
-     *
-     */
-    void setPositionOffset(double qcalib);
     bool initNetwork();
-    double getQ();
-    double getDq();
-    double getTau();
 };
 
 #endif

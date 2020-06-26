@@ -9,10 +9,10 @@ RobotM3::RobotM3() : Robot() {
     calibrated = false;
 
     //Define the robot structure: each joint with limits and drive: should be in constructor
-    double max_speed=360/M_PI*180;
-    joints.push_back(new JointM3(0, -45/M_PI*180, 45/M_PI*180, 1, -max_speed, max_speed));
-    joints.push_back(new JointM3(1, -45/M_PI*180, 45/M_PI*180, 1, -max_speed, max_speed ));//Todo
-    joints.push_back(new JointM3(2, -45/M_PI*180, 45/M_PI*180, -1, -max_speed, max_speed));//Todo
+    double max_speed=360*M_PI/180.;
+    joints.push_back(new JointM3(0, -45*M_PI/180., 45*M_PI/180., 1, -max_speed, max_speed));
+    joints.push_back(new JointM3(1, -15*M_PI/180., 70*M_PI/180., 1, -max_speed, max_speed ));//Todo
+    joints.push_back(new JointM3(2, 0*M_PI/180., 90*M_PI/180., -1, -max_speed, max_speed));//Todo
 }
 
 RobotM3::~RobotM3() {
@@ -61,7 +61,7 @@ bool RobotM3::initialiseInputs() {
 
 
 bool RobotM3::stop() {
-    std::cout << "Stoping M3 robot..." << std::endl;
+    std::cout << "Stopping M3 robot..." << std::endl;
      for (auto p : joints) {
         ((JointM3 *)p)->disable();
      }
@@ -278,15 +278,15 @@ Matrix3d RobotM3::J() {
 
 
 Vector3d RobotM3::getJointPos() {
-    return Vector3d({((JointM3*)joints[0])->getQ(), ((JointM3*)joints[1])->getQ(), ((JointM3*)joints[2])->getQ()});
+    return Vector3d({((JointM3*)joints[0])->getPosition(), ((JointM3*)joints[1])->getPosition(), ((JointM3*)joints[2])->getPosition()});
 }
 
 Vector3d RobotM3::getJointVel() {
-    return Vector3d({((JointM3*)joints[0])->getDq(), ((JointM3*)joints[1])->getDq(), ((JointM3*)joints[2])->getDq()});
+    return Vector3d({((JointM3*)joints[0])->getVeloctiy(), ((JointM3*)joints[1])->getVeloctiy(), ((JointM3*)joints[2])->getVeloctiy()});
 }
 
 Vector3d RobotM3::getJointTor() {
-    return Vector3d({((JointM3*)joints[0])->getTau(), ((JointM3*)joints[1])->getTau(), ((JointM3*)joints[2])->getTau()});
+    return Vector3d({((JointM3*)joints[0])->getTorque(), ((JointM3*)joints[1])->getTorque(), ((JointM3*)joints[2])->getTorque()});
 }
 
 Vector3d RobotM3::getEndEffPos() {

@@ -42,7 +42,7 @@ ControlMode ActuatedJoint::setMode(ControlMode driveMode_, motorProfile profile)
 
 setMovementReturnCode_t ActuatedJoint::setPosition(double desQ) {
     if (driveMode == POSITION_CONTROL) {
-        drive->setPos(jointPositionToDriveUnit(desQ));
+        drive->setPos(jointPositionToDriveUnit(desQ+q0));
         drive->posControlConfirmSP();
         return SUCCESS;
     } else {
@@ -69,8 +69,13 @@ setMovementReturnCode_t ActuatedJoint::setTorque(double torque) {
     return INCORRECT_MODE;
 }
 
+void ActuatedJoint::setPositionOffset(double qcalib=0) {
+    q0=driveUnitToJointPosition(drive->getPos())-qcalib;
+}
+
+
 double ActuatedJoint::getPosition() {
-    return driveUnitToJointPosition(drive->getPos());
+    return driveUnitToJointPosition(drive->getPos())-q0;
 }
 
 double ActuatedJoint::getVeloctiy() {

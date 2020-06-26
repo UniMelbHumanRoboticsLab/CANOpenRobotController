@@ -9,18 +9,20 @@ double timeval_to_sec(struct timespec *ts)
 
 void M3TestState::entryCode(void) {
     robot->applyCalibration();
-    //robot->initPositionControl();
-    robot->initVelocityControl();
+    robot->initPositionControl();
+    //robot->initVelocityControl();
 }
 
 void M3TestState::duringCode(void) {
     //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
     robot->printStatus();
-    //Eigen::Vector3d q = robot->getJointPos();
-    //robot->setJointPos(q);
+    Eigen::Vector3d q = robot->getJointPos();
+    q(1)=68*M_PI/180.-0.1*elapsedTime;
+    //std::cout << q.transpose() <<std::endl;
+    robot->setJointPos(q);
     //double v=0.4*sin(2*M_PI*1./1.5*elapsedTime);
     double v=0;
-    robot->setJointVel(Eigen::Vector3d(0,v,0));
+    //robot->setJointVel(Eigen::Vector3d(0,v,0));
     //robot->J();
 }
 
@@ -34,13 +36,7 @@ void M3TestState::exitCode(void) {
 
 
 void M3CalibState::entryCode(void) {
-    std::cout
-        << "==================================" << std::endl
-        << " STARTING  " << getName() << std::endl
-        << "==================================" << std::endl
-        << std::endl;
-
-        robot->initVelocityControl();
+    robot->initVelocityControl();
 }
 
 void M3CalibState::duringCode(void) {

@@ -196,6 +196,13 @@ public:
     virtual setMovementReturnCode_t setTorque(double torque);
 
     /**
+     * \brief Set current position as joint position offset (q0)
+     * such that current position is now qcalib
+     *
+     */
+    void setPositionOffset(double qcalib);
+
+    /**
          * \brief get the joint position
          *
          * \return int The current joint position [encoder count]
