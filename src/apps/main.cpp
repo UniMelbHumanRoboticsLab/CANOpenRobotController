@@ -67,9 +67,10 @@ void configureCANopen(int nodeId, int rtPriority, int CANdevice0Index, char *CAN
 void CO_errExit(char *msg);              /*!< CAN object error code and exit program*/
 void CO_error(const uint32_t info);      /*!< send CANopen generic emergency message */
 volatile uint32_t CO_timer1ms = 0U;      /*!< Global variable increments each millisecond */
-volatile sig_atomic_t CO_endProgram = 0; /*!< Signal handler */
+volatile sig_atomic_t CO_endProgram = 0; /*!< Signal handler: controls the end of CAN processing thread*/
+volatile sig_atomic_t endProgram = 0;   /*!< Signal handler: controls the end of application side (rt thread and main)*/
 static void sigHandler(int sig) {
-    CO_endProgram = 1;
+    endProgram = 1;
 }
 
 /******************************************************************************/
@@ -130,7 +131,7 @@ int main(int argc, char *argv[]) {
     //Set synch signal period (in us)
     CO_OD_RAM.communicationCyclePeriod=10000;
 
-    while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && CO_endProgram == 0) {
+    while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/
         CO_ReturnError_t err;
         /*mutex locking for thread safe OD access*/
@@ -200,7 +201,7 @@ int main(int argc, char *argv[]) {
             /* Execute optional additional application code */
             app_communicationReset();
             readyToStart = true;
-            while (reset == CO_RESET_NOT && CO_endProgram == 0) {
+            while (reset == CO_RESET_NOT && endProgram == 0) {
                 /* loop for normal program execution main epoll reading ******************************************/
                 int ready;
                 int first = 0;
@@ -225,14 +226,17 @@ int main(int argc, char *argv[]) {
             }
         }
         /* program exit ***************************************************************/
+        app_programEnd();
+        usleep(100000); /*wait for end programm commands to be processed */
         CO_endProgram = 1;
+        usleep(100000); /*wait for threads to finish */
         if (pthread_join(rt_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }
         if (pthread_join(rt_control_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }
-        app_programEnd();
+
         /* delete objects from memory */
         CANrx_taskTmr_close();
         taskMain_close();
@@ -299,7 +303,7 @@ static void *rt_control_thread(void *arg) {
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);
     }
-    while (CO_endProgram == 0) {
+    while (endProgram == 0) {
         /* Measuring WALL CLOCK controlloop execution time*/
         clock_gettime(CLOCK_MONOTONIC, &start);
         app_programControlLoop();
@@ -311,7 +315,7 @@ static void *rt_control_thread(void *arg) {
             << elapsed
             << "\n";
     }
-    if (readyToStart && CO_endProgram != 0) {
+    if (readyToStart && endProgram != 0) {
         logfile.close();
     }
     return NULL;
