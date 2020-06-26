@@ -9,7 +9,7 @@ The project has been under development at the University of Melbourne in partner
 ## The CANOpen Robot Controller project includes:
 
 - An extensible framework to represent multibody robotic systems.
-- An event driven state machine to develop custom applications.
+- An event driven state machine to develop custom applications (see [here](doc/StateMachine.md))
 - An implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers/sensors.
 - [Documentation](https://unimelb-human-robotics-lab.github.io//CANOpenRobotController/index.html)
 - Functional application examples.
@@ -78,7 +78,7 @@ The makefile is configured to compile an executable `ExoTestMachine_APP` using t
 
 ### Building a custom application with a custom state machine
 
-Derive the StateMachine class to a custom one, named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. Place them in a dedicated subfolder in the apps folder.
+Derive the StateMachine class to a custom one (see [here for details](doc/StateMachine.md)), named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. Place them in a dedicated subfolder in the apps folder.
 
 Edit CMakeLists.txt and change the entry `set (STATE_MACHINE_NAME "ExoTestMachine")` with `set (STATE_MACHINE_NAME "MyCustomStateMachine")`.
 
@@ -90,11 +90,13 @@ The recommended method of transferring files to the BeagleBone is FTP.
 
 Using an FTP Client on the Host (if you do not have one - or a preferred client, [FileZilla](https://filezilla-project.org/) is reasonable), connect to the target (the BeagleBone). By default, when the BeagleBone is connected to a computer using USB, it is configured to:
 
-- **IP Address:** 192.168.7.2 (Windows) or 192.168.6.2 (OSX)
+- **IP Address:** 192.168.7.2 (Windows) or 192.168.6.2 (OSX and Linux)
 - **Username:** debian
 - **Password:** temppwd
 
 On the host, using the FTP client, transfer the build executable in `build/ExoTestMachine_APP`, along with the contents of the `initRobot` folder, to the Beaglebone.
+
+Alternatively, you can use the [script/uploadBB.sh](script/uploadBB.sh) to automatically upload the content of the script folder and the build/\*APP to the BeagleBone.
 
 > Note: The `initRobot` folder contains scripts for setting up the CAN interfaces that CORC uses for communication
 

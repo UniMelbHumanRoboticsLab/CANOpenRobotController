@@ -12,7 +12,6 @@
 #define M3TESTSTATE_H_DEF
 
 #include <time.h>
-#include <time.h>
 
 #include <iostream>
 
@@ -29,7 +28,7 @@ double timeval_to_sec(struct timespec *ts);
  * \brief Generic state type for used with M3TestMachine
  * 
  */
-class M3State : public State {
+class M3TimedState : public State {
    protected:
     /**
     *  \todo Might be good to make these Const
@@ -37,14 +36,23 @@ class M3State : public State {
     */
     RobotM3 *robot;                               /*<!Pointer to state machines robot object*/
 
-   public:
-    M3State(StateMachine *m, RobotM3 *M3, const char *name = NULL): State(m, name), robot(M3){};
-   
-    void entry(void){
+    M3TimedState(StateMachine *m, RobotM3 *M3, const char *name = NULL): State(m, name), robot(M3){};
+   private:
+    void entry(void) final {
+        std::cout
+        << "==================================" << std::endl
+        << " STARTING  " << getName() << std::endl
+        << "==================================" << std::endl
+        << std::endl;
+        
+        //Timing
         clock_gettime(CLOCK_REALTIME, &initTime);
         lastTime = timeval_to_sec(&initTime);
+        
+        //Actual state entry
+        entryCode();
     };
-    void during(void) {
+    void during(void) final {
         //Compute some basic time values
         struct timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
@@ -53,49 +61,50 @@ class M3State : public State {
         elapsedTime = (now-timeval_to_sec(&initTime));
         dt = now - lastTime;
         lastTime = now;
+        
+        //Actual state during
+        duringCode();
     };
-    void exit(void){};
+    void exit(void) final {
+        exitCode();
+        std::cout << "EXIT "<< getName() << std::endl
+        << "==================================" << std::endl
+        << std::endl;
+    };
+    
+   public:
+    virtual void entryCode(){};
+    virtual void duringCode(){};
+    virtual void exitCode(){};
     
     
    protected:
-    struct timespec initTime; /*<! Time of state init */
-    double lastTime; /*<! Time of last during() call (in seconds since state init())*/
-    double elapsedTime; /*<! Time since state init() in seconds*/
-    double dt; /*<! Time between last two during() calls (in seconds)*/
+    struct timespec initTime;   /*<! Time of state init */
+    double lastTime;            /*<! Time of last during() call (in seconds since state init())*/
+    double elapsedTime;         /*<! Time since state init() in seconds*/
+    double dt;                  /*<! Time between last two during() calls (in seconds)*/
 };
 
 
-class M3TestState : public M3State {
-   protected:
-    /**
-    *  \todo Might be good to make these Const
-    * 
-    */
-    RobotM3 *robot;                               /*<!Pointer to state machines robot object*/
-
+class M3TestState : public M3TimedState {
+ 
    public:
-    M3TestState(StateMachine *m, RobotM3 *M3, const char *name = "M3TestState"):M3State(m, M3, name){};
+    M3TestState(StateMachine *m, RobotM3 *M3, const char *name = "M3TestState"):M3TimedState(m, M3, name){};
    
-    void entry(void);
-    void during(void);
-    void exit(void);
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
 };
 
 
-class M3CalibState : public M3State {
-   protected:
-    /**
-    *  \todo Might be good to make these Const
-    * 
-    */
-    RobotM3 *robot;                               /*<!Pointer to state machines robot object*/
+class M3CalibState : public M3TimedState {
 
    public:
-    M3CalibState(StateMachine *m, RobotM3 *M3, const char *name = "M3CalibState"):M3State(m, M3, name){};
+    M3CalibState(StateMachine *m, RobotM3 *M3, const char *name = "M3CalibState"):M3TimedState(m, M3, name){};
    
-    void entry(void);
-    void during(void);
-    void exit(void);
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
 
    private:
      vector<double> vel{0.01, 0.01, 0.01};

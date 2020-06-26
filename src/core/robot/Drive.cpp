@@ -8,15 +8,41 @@ Drive::Drive() {
     this->NodeID = -1;
 }
 
-Drive::Drive(int NodeID) {
+Drive::Drive(int node_id) {
     statusWord = 0;
     error = 0;
-    this->NodeID = NodeID;
+    NodeID = node_id;
 }
+
+Drive::~Drive() {
+    stop();
+}
+
 
 int Drive::getNodeID() {
     return NodeID;
 }
+
+int Drive::start() {
+    // start drive (Node)
+    std::stringstream sstream;
+    std::vector<std::string> CANCommands;
+    sstream << "[1] " << NodeID << " start";
+    CANCommands.push_back(sstream.str());
+
+    return sendSDOMessages(CANCommands);
+}
+
+int Drive::stop() {
+    // start drive (Node)
+    std::stringstream sstream;
+    std::vector<std::string> CANCommands;
+    sstream << "[1] " << NodeID << " stop";
+    CANCommands.push_back(sstream.str());
+
+    return sendSDOMessages(CANCommands);
+}
+
 
 bool Drive::setPos(int position) {
     DEBUG_OUT("Drive " << this->NodeID << " Writing " << position << " to 0x607A");
@@ -163,7 +189,6 @@ std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> it
 
     return CANCommands;
 }
-
 std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming) {
     /**
      *  \todo Do a check to make sure that the OD_Entry_t items can be Received
@@ -272,7 +297,6 @@ std::vector<std::string> Drive::generateVelControlConfigSDO(motorProfile velocit
 
     return CANCommands;
 }
-
 std::vector<std::string> Drive::generateTorqueControlConfigSDO() {
     // Define Vector to be returned as part of this method
     std::vector<std::string> CANCommands;
