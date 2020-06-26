@@ -88,32 +88,28 @@ int main(int argc, char *argv[]) {
     char CANdevice[10]="";
     int CANdevice0Index;
     //Rotate through list of interfaces and select first one existing and up
-    for(unsigned i=0; i<can_dev_number; i++)
-    {
+    for(unsigned i=0; i<can_dev_number; i++) {
         printf("%s: ", CANdeviceList[i]);
         //Check if interface exists
         CANdevice0Index = if_nametoindex(CANdeviceList[i]);/*map linux CAN interface to corresponding int index return zero if no interface exists.*/
-        if(CANdevice0Index!=0)
-        {
+        if(CANdevice0Index!=0) {
             char operstate_filename[255], operstate_s[25];
             snprintf(operstate_filename, 254, "/sys/class/net/%s/operstate", CANdeviceList[i]);
             //Check if it's up
             FILE* operstate_f = fopen(operstate_filename, "r");
             fscanf(operstate_f, "%s", &operstate_s);
             printf("%s\n", operstate_s);
-            if(strcmp(operstate_s, "down")!=0) //Check if not "down" as will be "unknown" if up
-            {
+            //Check if not "down" as will be "unknown" if up
+            if(strcmp(operstate_s, "down")!=0) {
                 snprintf(CANdevice, 9, "%s", CANdeviceList[i]);
                 printf("Using: %s (%d)\n", CANdeviceList[i], CANdevice0Index);
                 break;
             }
-            else
-            {
+            else {
                 CANdevice0Index=0;
             }
         }
-        else
-        {
+        else {
             printf("-\n");
         }
 
