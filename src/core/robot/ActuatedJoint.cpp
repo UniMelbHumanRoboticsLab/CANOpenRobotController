@@ -13,7 +13,7 @@
 
 #include "DebugMacro.h"
 
-ActuatedJoint::ActuatedJoint(int jointID, double jointMin, double jointMax, Drive *drive) : Joint(jointID, jointMin, jointMax) {
+ActuatedJoint::ActuatedJoint(int jointID, double jointMin, double jointMax, Drive *drive) : Joint(jointID, jointMin, jointMax), calibrated(false) {
     this->drive = drive;
 }
 //TODO: add in check
@@ -71,6 +71,7 @@ setMovementReturnCode_t ActuatedJoint::setTorque(double torque) {
 
 void ActuatedJoint::setPositionOffset(double qcalib=0) {
     q0=driveUnitToJointPosition(drive->getPos())-qcalib;
+    calibrated=true;
 }
 
 

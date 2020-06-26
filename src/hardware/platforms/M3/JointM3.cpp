@@ -34,11 +34,16 @@ bool JointM3::updateValue() {
 
 
 setMovementReturnCode_t JointM3::setPosition(double qd) {
-    if(qd>=qMin && qd<=qMax) {
-        return ActuatedJoint::setPosition(qd);
+    if(calibrated) {
+        if(qd>=qMin && qd<=qMax) {
+            return ActuatedJoint::setPosition(qd);
+        }
+        else {
+            return OUTSIDE_LIMITS;
+        }
     }
     else {
-        return OUTSIDE_LIMITS;
+        return NOT_CALIBRATED;
     }
 }
 

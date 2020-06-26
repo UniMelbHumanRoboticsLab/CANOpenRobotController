@@ -36,6 +36,7 @@ enum setMovementReturnCode_t {
     SUCCESS = 1,
     OUTSIDE_LIMITS = -1,
     INCORRECT_MODE = -2,
+    NOT_CALIBRATED = -3,
     UNKNOWN_ERROR = -100
 };
 
@@ -58,6 +59,7 @@ protected:
          *
          */
     ControlMode driveMode = UNCONFIGURED;
+    bool calibrated;
 
     /**
          * \brief Converts from the joint position value to the equivalent value for the drive
