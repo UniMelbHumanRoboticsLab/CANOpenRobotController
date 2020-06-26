@@ -60,6 +60,13 @@ bool RobotM3::initialiseInputs() {
 }
 
 
+bool RobotM3::stop() {
+    std::cout << "Stoping M3 robot..." << std::endl;
+     for (auto p : joints) {
+        ((JointM3 *)p)->disable();
+     }
+}
+
 void RobotM3::applyCalibration() {
     for (int i=0; i<joints.size(); i++) {
         ((JointM3*)joints[i])->setPositionOffset(qCalibration[i]);

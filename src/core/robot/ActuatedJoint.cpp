@@ -92,3 +92,7 @@ bool ActuatedJoint::enable() {
     }
     return false;
 }
+
+bool ActuatedJoint::disable() {
+    drive->readyToSwitchOn(); //Ready to switch on is also power off state
+}

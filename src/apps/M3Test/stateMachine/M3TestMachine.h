@@ -39,12 +39,9 @@ class M3TestMachine : public StateMachine {
      */
     M3TestMachine();
     void init();
-    void activate();
-    void deactivate();
+    void end();
 
     void hwStateUpdate();
-    State *gettCurState();
-    void initRobot(RobotM3 *rb);
 
     /**
      * Pointers to the relevant states - initialised in init

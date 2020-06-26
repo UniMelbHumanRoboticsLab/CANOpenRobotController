@@ -1,17 +1,17 @@
 /**
  * \file ExoTestMachine.h
- * \author William Campbell 
+ * \author William Campbell
  * \version 0.1
  * \date 2019-09-24
  * \copyright Copyright (c) 2020
  *
- * /brief The <code>ExoTestMachine</code> class represents an example implementation of an exoskeleton state machine 
+ * /brief The <code>ExoTestMachine</code> class represents an example implementation of an exoskeleton state machine
  * with five states. Initialisation, sitting, standing, standing up and sitting down. The test machine
- * is made as example for developers to structure their specific use cases with. 
+ * is made as example for developers to structure their specific use cases with.
  * For more detail on the architecture and mechanics of the state machine class see:https://embeded.readthedocs.io/en/latest/StaeMachines/.
- * 
+ *
  *  State transition Diagram.
- * 
+ *
  *         startExo             startStand
  *  initState +-----> sitting +---------> standingUp
  *                      ^                  +
@@ -20,7 +20,7 @@
  *                      +                  |
  *                 sittingDwn <---------+ standing
  *                              startSit
- * 
+ *
  * Version 0.1
  * Date: 07/04/2020
  *
@@ -49,19 +49,18 @@
 
 /**
  * @brief Example implementation of a StateMachine for the ExoRobot class. States should implemented ExoTestState
- * 
+ *
  */
 class ExoTestMachine : public StateMachine {
    public:
     bool running = false;
     /**
      *  \todo Pilot Parameters would be set in constructor here
-     * 
+     *
      */
     ExoTestMachine();
     void init();
-    void activate();
-    void deactivate();
+    void end() {};
 
     void hwStateUpdate();
     State *gettCurState();
@@ -70,8 +69,8 @@ class ExoTestMachine : public StateMachine {
     DummyTrajectoryGenerator *trajectoryGenerator;
 
     /**
-     * Pointers to the relevant states - initialised in init 
-     * 
+     * Pointers to the relevant states - initialised in init
+     *
      */
     InitState *initState;
     SittingDwn *sittingDwn;
@@ -84,7 +83,7 @@ class ExoTestMachine : public StateMachine {
 
    private:
     /**
-     * 
+     *
      * \brief Event Objects defined using Macro defined in StateMachine.h
      * Defines the Class itself, as well as initialises an object of that class
      * An events check function are defined in the .cpp file.

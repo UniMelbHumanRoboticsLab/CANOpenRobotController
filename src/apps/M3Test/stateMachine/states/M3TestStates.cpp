@@ -18,12 +18,14 @@ void M3TestState::duringCode(void) {
     robot->printStatus();
     //Eigen::Vector3d q = robot->getJointPos();
     //robot->setJointPos(q);
-    double v=sin(2*M_PI*1./1.*elapsedTime);
+    //double v=0.4*sin(2*M_PI*1./1.5*elapsedTime);
+    double v=0;
     robot->setJointVel(Eigen::Vector3d(0,v,0));
     //robot->J();
 }
 
 void M3TestState::exitCode(void) {
+    robot->setJointVel(Eigen::Vector3d(0,0,0));
 }
 
 

@@ -236,6 +236,14 @@ public:
      * \return false if drive is currently not in the correct state to enable
      */
     bool enable();
+
+    /**
+     * \brief Disable the drive
+     *
+     * \return true if succesful
+     * \return false if drive is currently not in the correct state to enable
+     */
+    bool disable();
 };
 
 #endif

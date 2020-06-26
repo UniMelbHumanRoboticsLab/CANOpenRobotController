@@ -36,8 +36,3 @@ void StateMachine::update(void) {
     }
     currentState->during();
 }
-
-void StateMachine::end(void) {
-    DEBUG_OUT("StateMachine::End")
-    currentState->exit();
-}
