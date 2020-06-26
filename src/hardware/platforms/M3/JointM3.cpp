@@ -43,6 +43,14 @@ setMovementReturnCode_t JointM3::setPosition(double qd) {
 }
 
 setMovementReturnCode_t JointM3::setVelocity(double dqd) {
+    //Position protection first
+    if(q<=qMin && dqd<0) {
+        dqd=0;
+    }
+    if(q>=qMax && dqd>0) {
+        dqd=0;
+    }
+    //Caped velocity
     if(dqd>=dqMin && dqd<=dqMax) {
         return ActuatedJoint::setVelocity(dqd);
     }
@@ -52,6 +60,14 @@ setMovementReturnCode_t JointM3::setVelocity(double dqd) {
 }
 
 setMovementReturnCode_t JointM3::setTorque(double taud) {
+    //Position protection first
+    if(q<=qMin && taud<0) {
+        taud=0;
+    }
+    if(q>=qMax && taud>0) {
+        taud=0;
+    }
+    //Caped torque
     if(taud>=tauMin && taud<=tauMax) {
         return ActuatedJoint::setTorque(taud);
     }
