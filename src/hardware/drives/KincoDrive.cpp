@@ -11,6 +11,7 @@
 KincoDrive::KincoDrive(int NodeID) : Drive::Drive(NodeID) {
     //Remap torque reading value
     OD_Addresses[ACTUAL_TOR] = 0x6078;
+    OD_Addresses[TARGET_TOR] = 0x60F6;
 }
 
 KincoDrive::~KincoDrive() {

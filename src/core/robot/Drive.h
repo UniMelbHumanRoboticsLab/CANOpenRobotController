@@ -92,9 +92,10 @@ class Drive {
         * \param items A list of OD_Entry_t items which are to be configured with this TPDO
         * \param PDO_Num The number/index of this PDO
         * \param SyncRate The rate at which this PDO transmits (e.g. number of Sync Messages. 0xFF represents internal trigger event)
+        * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate);
+    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate, int sub_idx=0);
 
     /**
         * \brief Generates the list of commands required to configure RPDOs on the drives
@@ -102,9 +103,10 @@ class Drive {
         * \param items A list of OD_Entry_t items which are to be configured with this RPDO
         * \param PDO_Num The number/index of this PDO
         * \param UpdateTiming 0-240 represents hold until next sync message, 0xFF represents immediate update
+        * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming);
+    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming, int sub_idx=0);
 
     /**
        *
@@ -112,9 +114,7 @@ class Drive {
        *
        *
        * \param Profile Velocity, value used by position mode motor trajectory generator.
-       *
        * \param Profile Acceleration, value position mode motor trajectory generator will attempt to achieve.
-       *
        * \param Profile Deceleration, value position mode motor trajectory generator will use at end of trapezoidal profile.
        *
        * NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:

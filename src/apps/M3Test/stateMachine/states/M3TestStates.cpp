@@ -10,7 +10,7 @@ double timeval_to_sec(struct timespec *ts)
 void M3TestState::entryCode(void) {
     robot->applyCalibration();
     //robot->initPositionControl();
-    //robot->initVelocityControl();
+    robot->initVelocityControl();
 }
 
 void M3TestState::duringCode(void) {
@@ -18,13 +18,12 @@ void M3TestState::duringCode(void) {
     robot->printStatus();
     //Eigen::Vector3d q = robot->getJointPos();
     //robot->setJointPos(q);
-    double v=sin(2*M_PI*1/5.*elapsedTime);
-    //robot->setJointVel(Eigen::Vector3d(v,0,0));
+    double v=sin(2*M_PI*1./1.*elapsedTime);
+    robot->setJointVel(Eigen::Vector3d(0,v,0));
     //robot->J();
 }
 
 void M3TestState::exitCode(void) {
-
 }
 
 

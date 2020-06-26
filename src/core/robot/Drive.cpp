@@ -171,7 +171,7 @@ bool Drive::initPDOs() {
     }
 
     //DEBUG_OUT("Set up TARGET_TOR RPDO")
-    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff))<0) {
+    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x08))<0) {
         std::cerr << "Set up TARGET_TOR RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
@@ -179,7 +179,7 @@ bool Drive::initPDOs() {
     return true;
 }
 
-std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate) {
+std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate, int sub_idx) {
     // TODO: Do a check to make sure that the OD_Entry_t items can be transmitted.
 
     // Calculate COB_ID. If TPDO:
@@ -208,7 +208,7 @@ std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> it
 
     for (int i = 1; i <= items.size(); i++) {
         // Set transmit parameters
-        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1A00 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + OD_Data_Size[items[i - 1]];
+        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1A00 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + sub_idx * 0x100 + OD_Data_Size[items[i - 1]];
         CANCommands.push_back(sstream.str());
         sstream.str(std::string());
     }
@@ -225,7 +225,7 @@ std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> it
 
     return CANCommands;
 }
-std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming) {
+std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming, int sub_idx) {
     /**
      *  \todo Do a check to make sure that the OD_Entry_t items can be Received
      *
@@ -257,7 +257,7 @@ std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> it
 
     for (int i = 1; i <= items.size(); i++) {
         // Set transmit parameters
-        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1600 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + OD_Data_Size[items[i - 1]];
+        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1600 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + sub_idx * 0x100 + OD_Data_Size[items[i - 1]];
         CANCommands.push_back(sstream.str());
         sstream.str(std::string());
     }
