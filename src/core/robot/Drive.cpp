@@ -359,6 +359,7 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
         char *SDO_Message = (char *)(strCommand.c_str());
 
 #ifndef NOROBOT
+
         cancomm_socketFree(SDO_Message, &returnMessage);
         std::string retMsg = returnMessage;
 

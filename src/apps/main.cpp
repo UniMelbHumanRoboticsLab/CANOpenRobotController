@@ -227,12 +227,13 @@ int main(int argc, char *argv[]) {
         usleep(100000); /*wait for end programm commands to be processed */
         CO_endProgram = 1;
         usleep(100000); /*wait for threads to finish */
-        if (pthread_join(rt_thread_id, NULL) != 0) {
-            CO_errExit("Program end - pthread_join failed");
-        }
         if (pthread_join(rt_control_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }
+        if (pthread_join(rt_thread_id, NULL) != 0) {
+            CO_errExit("Program end - pthread_join failed");
+        }
+
 
         /* delete objects from memory */
         CANrx_taskTmr_close();

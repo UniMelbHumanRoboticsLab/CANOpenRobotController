@@ -33,7 +33,6 @@ void M3TestMachine::init() {
         std::cerr << "Failed robot initialisation. Exiting..." << std::endl;
         std::raise(SIGTERM); //Clean exit
     }
-
     running = true;
 }
 

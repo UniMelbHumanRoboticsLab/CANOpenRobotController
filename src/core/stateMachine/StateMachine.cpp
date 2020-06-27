@@ -25,7 +25,9 @@ State *StateMachine::getCurState(void) {
 
 void StateMachine::activate(void) {
     DEBUG_OUT("StateMachine::Activate")
-    currentState->entry();
+    if(initialised) {
+        currentState->entry();
+    }
 }
 
 void StateMachine::update(void) {
