@@ -38,6 +38,7 @@ class M3TestMachine : public StateMachine {
      *
      */
     M3TestMachine();
+    ~M3TestMachine();
     void init();
     void end();
 

@@ -17,6 +17,10 @@ M3TestMachine::M3TestMachine() {
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(testState);
 }
+M3TestMachine::~M3TestMachine() {
+    delete robot;
+}
+
 /**
  * \brief start function for running any designed statemachine specific functions
  * for example initialising robot objects.

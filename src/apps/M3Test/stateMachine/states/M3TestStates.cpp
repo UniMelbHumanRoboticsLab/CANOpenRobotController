@@ -37,7 +37,6 @@ void M3TestState::duringCode(void) {
         robot->setEndEffVel(dX);
     }
     else {
-        std::cout << std::setprecision(5) << ((Xi-robot->getEndEffPos()).norm())/elapsedTime <<std::endl;
         robot->setEndEffVel(Eigen::Vector3d(0,0,0));
     }
 
