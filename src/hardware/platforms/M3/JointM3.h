@@ -32,9 +32,9 @@ class JointM3 : public ActuatedJoint {
 
     double driveUnitToJointPosition(int driveValue) { return sign * driveValue * (2.*M_PI) / (double)encoderCounts / reductionRatio; };
     int jointPositionToDriveUnit(double jointValue) { return sign * jointValue / (2.*M_PI) * (double)encoderCounts * reductionRatio; };
-    double driveUnitToJointVelocity(int driveValue) { return sign * driveValue * (2.*M_PI) / (double)encoderCounts / reductionRatio; };
-    int jointVelocityToDriveUnit(double jointValue) { return sign * jointValue / (2.*M_PI) * (double)encoderCounts * reductionRatio; };
-    double driveUnitToJointTorque(int driveValue) { return sign * driveValue * 2048. / Ipeak / 1.414 * 0.132 * reductionRatio; }; //0.132 is motor (SMC60S-0020) torque constant
+    double driveUnitToJointVelocity(int driveValue) { return sign * driveValue * (2.*M_PI) / 60. / 512. / (double)encoderCounts * 1875 / reductionRatio; };//{ return sign * driveValue * (2.*M_PI) / (double)encoderCounts / reductionRatio; };
+    int jointVelocityToDriveUnit(double jointValue) { return sign * jointValue / (2.*M_PI) * 60. * 512. * (double)encoderCounts / 1875 * reductionRatio; };//{ return sign * jointValue / (2.*M_PI) * (double)encoderCounts * reductionRatio; };
+    double driveUnitToJointTorque(int driveValue) { return sign * driveValue;}// * 2048. / Ipeak / 1.414 * 0.132 * reductionRatio; }; //0.132 is motor (SMC60S-0020) torque constant
     int jointTorqueToDriveUnit(double jointValue) { return sign * jointValue / 2048. * Ipeak * 1.414 / 0.132 / reductionRatio; };
 
    public:

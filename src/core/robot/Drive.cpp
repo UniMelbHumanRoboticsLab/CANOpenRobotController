@@ -103,8 +103,11 @@ bool Drive::readyToSwitchOn() {
 }
 
 bool Drive::enable() {
+    if(NodeID!=1) //Vincent: TO REMOVE
+    {
     *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x0F;
     driveState = ENABLED;
+    }
 }
 
 bool Drive::disable() {
@@ -141,13 +144,13 @@ bool Drive::initPDOs() {
     }
 
     //DEBUG_OUT("Set up ACTUAL_POS and ACTUAL_VEL TPDO")
-    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 0xFF))<0) {
+    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 0x01))<0) {
         std::cerr << "Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up ACTUAL_TOR TPDO")
-    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 0xFF))<0) {
+    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 0x01))<0) {
         std::cerr << "Set up ACTUAL_TOR TPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
@@ -359,7 +362,6 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
         char *SDO_Message = (char *)(strCommand.c_str());
 
 #ifndef NOROBOT
-
         cancomm_socketFree(SDO_Message, &returnMessage);
         std::string retMsg = returnMessage;
 

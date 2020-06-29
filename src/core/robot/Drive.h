@@ -56,6 +56,7 @@ enum OD_Entry_t {
     ACTUAL_POS = 1,
     ACTUAL_VEL = 2,
     ACTUAL_TOR = 3,
+    ERROR_WORD = 4,
     CONTROL_WORD = 10,
     TARGET_POS = 11,
     TARGET_VEL = 12,
@@ -161,6 +162,7 @@ class Drive {
      */
     std::map<OD_Entry_t, int> OD_Data_Size = {
         {STATUS_WORD, 0x0010},
+        {ERROR_WORD, 0x0010},
         {ACTUAL_POS, 0x0020},
         {ACTUAL_VEL, 0x0020},
         {ACTUAL_TOR, 0x0010},
@@ -176,6 +178,7 @@ class Drive {
      */
     std::map<OD_Entry_t, int> OD_Addresses = {
         {STATUS_WORD, 0x6041},
+        {ERROR_WORD, 0x2601},
         {ACTUAL_POS, 0x6064},
         {ACTUAL_VEL, 0x606C},
         {ACTUAL_TOR, 0x6077},

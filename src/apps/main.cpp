@@ -68,7 +68,7 @@ void CO_errExit(char *msg);              /*!< CAN object error code and exit pro
 void CO_error(const uint32_t info);      /*!< send CANopen generic emergency message */
 volatile uint32_t CO_timer1ms = 0U;      /*!< Global variable increments each millisecond */
 volatile sig_atomic_t CO_endProgram = 0; /*!< Signal handler: controls the end of CAN processing thread*/
-volatile sig_atomic_t endProgram = 0;   /*!< Signal handler: controls the end of application side (rt thread and main)*/
+volatile sig_atomic_t endProgram = 0;    /*!< Signal handler: controls the end of application side (rt thread and main)*/
 static void sigHandler(int sig) {
     endProgram = 1;
 }

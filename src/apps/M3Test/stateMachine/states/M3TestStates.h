@@ -21,11 +21,14 @@
 
 using namespace std;
 
-
+/**
+ * \brief Conversion from a timespec structure to seconds (double)
+ *
+ */
 double timeval_to_sec(struct timespec *ts);
 
 /**
- * \brief Generic state type for used with M3TestMachine
+ * \brief Generic state type for used with M3TestMachine, providing running time and iterations number.
  *
  */
 class M3TimedState : public State {
@@ -49,6 +52,8 @@ class M3TimedState : public State {
         clock_gettime(CLOCK_REALTIME, &initTime);
         lastTime = timeval_to_sec(&initTime);
 
+        iterations=0;
+
         //Actual state entry
         entryCode();
     };
@@ -61,6 +66,8 @@ class M3TimedState : public State {
         elapsedTime = (now-timeval_to_sec(&initTime));
         dt = now - lastTime;
         lastTime = now;
+
+        iterations++;
 
         //Actual state during
         duringCode();
@@ -83,6 +90,7 @@ class M3TimedState : public State {
     double lastTime;            /*<! Time of last during() call (in seconds since state init())*/
     double elapsedTime;         /*<! Time since state init() in seconds*/
     double dt;                  /*<! Time between last two during() calls (in seconds)*/
+    long int iterations;
 };
 
 

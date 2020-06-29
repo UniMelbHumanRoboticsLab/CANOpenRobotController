@@ -148,6 +148,7 @@ class RobotM3 : public Robot {
     void updateRobot();
 
     void printStatus();
+    void printJointStatus();
 
 
     Eigen::Matrix3d J();
