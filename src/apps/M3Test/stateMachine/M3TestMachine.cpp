@@ -18,6 +18,7 @@ M3TestMachine::M3TestMachine() {
     StateMachine::initialize(testState);
 }
 M3TestMachine::~M3TestMachine() {
+    delete testState;
     delete robot;
 }
 
