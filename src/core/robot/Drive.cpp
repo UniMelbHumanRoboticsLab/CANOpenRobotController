@@ -71,7 +71,7 @@ bool Drive::setTorque(int torque) {
     * \todo add setTorque to object dictionary for all drives
     *
     */
-    DEBUG_OUT("Drive " << NodeID << " Writing " << torque << " to 0x6071");
+    DEBUG_OUT("Drive " << NodeID << " Writing " << torque << " to 0x" << std::hex << OD_Addresses[TARGET_TOR]);
     *(&CO_OD_RAM.targetMotorTorques.motor1 + ((this->NodeID - 1))) = torque;
     return true;
 }
@@ -174,7 +174,8 @@ bool Drive::initPDOs() {
     }
 
     //DEBUG_OUT("Set up TARGET_TOR RPDO")
-    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x08))<0) {
+    //if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x08))<0) {//VINCENT
+    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x00))<0) {
         std::cerr << "Set up TARGET_TOR RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
@@ -372,7 +373,14 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
             successfulMessages++;
         }
         else {
-            std::cerr << "sendSDOMessage: ERROR:" << strCommand << "=>" << retMsg << std::endl;
+            std::cerr << "sendSDOMessage: ERROR:" << strCommand;
+            if(retMsg.find("0x")!=retMsg.npos) {
+                std::string error_code = retMsg.substr(retMsg.find("0x"), retMsg.npos);
+                std::cerr << " => " <<  SDO_Standard_Error[error_code] << " (" << error_code << ")" << std::endl;
+            }
+            else {
+                std::cerr << " => " << retMsg << std::endl;
+            }
         }
         DEBUG_OUT(retMsg)
 #else
@@ -382,3 +390,5 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
     }
     return successfulMessages-messages.size();
 }
+
+

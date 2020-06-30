@@ -11,7 +11,7 @@
 KincoDrive::KincoDrive(int NodeID) : Drive::Drive(NodeID) {
     //Remap torque reading value
     OD_Addresses[ACTUAL_TOR] = 0x6078;
-    OD_Addresses[TARGET_TOR] = 0x60F6;
+    //OD_Addresses[TARGET_TOR] = 0x60F6;//VINCENT
 }
 
 KincoDrive::~KincoDrive() {
@@ -54,5 +54,5 @@ bool KincoDrive::initTorqueControl() {
     DEBUG_OUT("NodeID " << NodeID << " Initialising Torque Control")
     sendSDOMessages(generateTorqueControlConfigSDO());
 
-    return false;
+    return true;
 }

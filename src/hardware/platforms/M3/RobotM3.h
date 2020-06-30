@@ -108,11 +108,18 @@ class RobotM3 : public Robot {
     /**
     * \brief Set the target velocities for each of the joints
     *
-    * \param positions a vector of target positions - applicable for each of the actauted joints
+    * \param velocities a vector of target velocities - applicable for each of the actuated joints
     * \return MovementCode representing success or failure of the application
     */
-    setMovementReturnCode_t applyVelocity(std::vector<double> velocity);
+    setMovementReturnCode_t applyVelocity(std::vector<double> velocities);
 
+    /**
+    * \brief Set the target torque for each of the joints
+    *
+    * \param torques a vector of target torques - applicable for each of the actuated joints
+    * \return MovementCode representing success or failure of the application
+    */
+    setMovementReturnCode_t applyTorque(std::vector<double> torques);
 
     /**
     * \brief Apply current configuration as calibration configuration using qcalibration such that:

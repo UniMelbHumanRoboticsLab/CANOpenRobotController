@@ -10,14 +10,15 @@ double spd=0;
 
 void M3TestState::entryCode(void) {
     robot->applyCalibration();
-    robot->initPositionControl();
+    //robot->initPositionControl();
     //robot->initVelocityControl();
+    robot->initTorqueControl();
     qi=robot->getJointPos();
     Xi=robot->getEndEffPos();
 }
 
 void M3TestState::duringCode(void) {
-    if(iterations%10==1) {
+    if(iterations%100==1) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
         robot->printJointStatus();
         //robot->printStatus();
@@ -39,12 +40,17 @@ void M3TestState::duringCode(void) {
     else {
         robot->setEndEffVel(Eigen::Vector3d(0,0,0));
     }*/
-    Eigen::Vector3d Dq;
+
+
+    /*Eigen::Vector3d Dq;
     if(elapsedTime<5)
         Dq={0,0.015*elapsedTime,0.015*elapsedTime};
     else
         Dq={0,0.015*5.,0.015*5.};
-    robot->setJointPos(qi-Dq);
+    robot->setJointPos(qi-Dq);*/
+
+    Eigen::Vector3d tau(0,-1.,0);
+    robot->setJointTor(tau);
 }
 
 void M3TestState::exitCode(void) {
