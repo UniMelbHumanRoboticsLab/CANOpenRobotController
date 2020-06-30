@@ -10,9 +10,9 @@ double spd=0;
 
 void M3TestState::entryCode(void) {
     robot->applyCalibration();
-    //robot->initPositionControl();
+    robot->initPositionControl();
     //robot->initVelocityControl();
-    robot->initTorqueControl();
+    //robot->initTorqueControl();
     qi=robot->getJointPos();
     Xi=robot->getEndEffPos();
 }
@@ -26,15 +26,15 @@ void M3TestState::duringCode(void) {
     /*Eigen::Vector3d q = robot->getJointPos();
     q(1)=68*M_PI/180.-0.1*elapsedTime;*/
     //std::cout << q.transpose() <<std::endl;
-    //robot->setJointPos(qi-Eigen::Vector3d(0.1,0.1,0.1));
+    robot->setJointPos(qi-Eigen::Vector3d(0.1,0.1,0.1));
     //double v=-sin(2*M_PI*1./10*elapsedTime);
     //double v=-0.1;
     //robot->setJointVel(Eigen::Vector3d(0,0,0));
 
     //robot->printStatus();
-    //Eigen::Vector3d dX(0,0,0.1);
-    //std::cout << (robot->J().inverse()*dX).transpose() <<std::endl;
-    /*if(robot->getEndEffPos()(2)<0) {
+
+    /*Eigen::Vector3d dX(0.01,0.05,0.1);
+    if(robot->getEndEffPos()(2)<0) {
         robot->setEndEffVel(dX);
     }
     else {
@@ -49,8 +49,8 @@ void M3TestState::duringCode(void) {
         Dq={0,0.015*5.,0.015*5.};
     robot->setJointPos(qi-Dq);*/
 
-    Eigen::Vector3d tau(0,-1.,0);
-    robot->setJointTor(tau);
+    /*Eigen::Vector3d tau(0,-1.,0);
+    robot->setJointTor(tau);*/
 }
 
 void M3TestState::exitCode(void) {

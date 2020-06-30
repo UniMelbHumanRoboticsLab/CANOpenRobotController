@@ -103,11 +103,8 @@ bool Drive::readyToSwitchOn() {
 }
 
 bool Drive::enable() {
-    if(NodeID!=1) //Vincent: TO REMOVE
-    {
     *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x0F;
     driveState = ENABLED;
-    }
 }
 
 bool Drive::disable() {
@@ -174,8 +171,8 @@ bool Drive::initPDOs() {
     }
 
     //DEBUG_OUT("Set up TARGET_TOR RPDO")
-    //if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x08))<0) {//VINCENT
-    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x00))<0) {
+    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x08))<0) {//VINCENT
+    //if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x00))<0) {
         std::cerr << "Set up TARGET_TOR RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
