@@ -10,8 +10,8 @@ double spd=0;
 
 void M3TestState::entryCode(void) {
     robot->applyCalibration();
-    //robot->initPositionControl();
-    robot->initVelocityControl();
+    robot->initPositionControl();
+    //robot->initVelocityControl();
     qi=robot->getJointPos();
     Xi=robot->getEndEffPos();
 }
@@ -31,16 +31,20 @@ void M3TestState::duringCode(void) {
     //robot->setJointVel(Eigen::Vector3d(0,0,0));
 
     //robot->printStatus();
-    Eigen::Vector3d dX(0,0,0.1);
+    //Eigen::Vector3d dX(0,0,0.1);
     //std::cout << (robot->J().inverse()*dX).transpose() <<std::endl;
-    if(robot->getEndEffPos()(2)<0) {
+    /*if(robot->getEndEffPos()(2)<0) {
         robot->setEndEffVel(dX);
     }
     else {
         robot->setEndEffVel(Eigen::Vector3d(0,0,0));
-    }
-
-
+    }*/
+    Eigen::Vector3d Dq;
+    if(elapsedTime<5)
+        Dq={0,0.015*elapsedTime,0.015*elapsedTime};
+    else
+        Dq={0,0.015*5.,0.015*5.};
+    robot->setJointPos(qi-Dq);
 }
 
 void M3TestState::exitCode(void) {

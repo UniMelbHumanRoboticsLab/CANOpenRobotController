@@ -35,8 +35,8 @@ class JointM3 : public ActuatedJoint {
     int jointPositionToDriveUnit(double jointValue) { return sign * jointValue / (2.*M_PI) * (double)encoderCounts * reductionRatio; };
     double driveUnitToJointVelocity(int driveValue) { return sign * driveValue * (2.*M_PI) / 60. / 512. / (double)encoderCounts * 1875 / reductionRatio; };
     int jointVelocityToDriveUnit(double jointValue) { return sign * jointValue / (2.*M_PI) * 60. * 512. * (double)encoderCounts / 1875 * reductionRatio; };
-    double driveUnitToJointTorque(int driveValue) { return sign * driveValue * 2048. / Ipeak / 1.414 * motorTorqueConstant * reductionRatio; };
-    int jointTorqueToDriveUnit(double jointValue) { return sign * jointValue / 2048. * Ipeak * 1.414 / motorTorqueConstant / reductionRatio; };
+    double driveUnitToJointTorque(int driveValue) { return sign * driveValue / Ipeak / 1.414 * motorTorqueConstant * reductionRatio; };
+    int jointTorqueToDriveUnit(double jointValue) { return sign * jointValue * Ipeak * 1.414 / motorTorqueConstant / reductionRatio; };
 
    public:
     JointM3(int jointID, double q_min, double q_max, short int sign_=1, double dq_min=0, double dq_max=0, double tau_min=0, double tau_max=0);
