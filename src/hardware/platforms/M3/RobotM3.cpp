@@ -4,6 +4,8 @@
 
 using namespace Eigen;
 
+short int sign(double val) {return (val>0)?1:((val<0)?-1:0); }
+
 RobotM3::RobotM3() : Robot(), calibrated(false) {
 
     //Define the robot structure: each joint with limits and drive: should be in constructor
@@ -424,7 +426,14 @@ setMovementReturnCode_t RobotM3::setEndEffForWithCompensation(Vector3d F) {
         return OUTSIDE_LIMITS;
     }
     Vector3d tau_g = calculateGravityTorques(); //Gravity compensation torque
-    Vector3d tau_f(0,0,0);// = sign() + ....; //Friction compensation torque
+    Vector3d tau_f; //Friction compensation torque
+    double alpha = 0.7, beta = 0.05, threshold = 0.01;
+    for(unsigned int i=0; i<3; i++) {
+        double dq = ((JointM3 *)joints[i])->getVeloctiy();
+        if(abs(dq)>threshold) {
+            tau_f(i) = alpha*sign(dq) + beta*dq;
+        }
+    }
 
     Vector3d tau = J().transpose()*F + tau_g + tau_f;
     return setJointTor(tau);

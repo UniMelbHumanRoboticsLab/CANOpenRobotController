@@ -51,7 +51,7 @@ void M3TestState::duringCode(void) {
 
     /*Eigen::Vector3d tau(0,-5.0,0);*/
     //robot->setJointTor(robot->calculateGravityTorques());
-    Eigen::Vector3d F(-10,0,0);
+    Eigen::Vector3d F(0,0,0);
     robot->setEndEffForWithCompensation(F);
 }
 
