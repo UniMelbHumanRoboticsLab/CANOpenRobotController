@@ -4,9 +4,7 @@
 
 using namespace Eigen;
 
-RobotM3::RobotM3() : Robot() {
-
-    calibrated = false;
+RobotM3::RobotM3() : Robot(), calibrated(false) {
 
     //Define the robot structure: each joint with limits and drive: should be in constructor
     double max_speed=360*M_PI/180.;
@@ -163,17 +161,21 @@ bool RobotM3::initTorqueControl() {
 setMovementReturnCode_t RobotM3::applyPosition(std::vector<double> positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
-    for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((JointM3 *)p)->setPosition(positions[i]);
-        if (setPosCode == INCORRECT_MODE) {
-            std::cout << "Joint " << p->getId() << ": is not in Position Control " << std::endl;
-            returnValue = INCORRECT_MODE;
-        } else if (setPosCode != SUCCESS) {
-            // Something bad happened
-            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
-            returnValue = UNKNOWN_ERROR;
+    if(!calibrated) {
+        returnValue = NOT_CALIBRATED;
+    } else {
+        for (auto p : joints) {
+            setMovementReturnCode_t setPosCode = ((JointM3 *)p)->setPosition(positions[i]);
+            if (setPosCode == INCORRECT_MODE) {
+                std::cout << "Joint " << p->getId() << ": is not in Position Control " << std::endl;
+                returnValue = INCORRECT_MODE;
+            } else if (setPosCode != SUCCESS) {
+                // Something bad happened
+                std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+                returnValue = UNKNOWN_ERROR;
+            }
+            i++;
         }
-        i++;
     }
     return returnValue;
 }
@@ -342,6 +344,10 @@ setMovementReturnCode_t RobotM3::setJointTor(Vector3d tau) {
 }
 
 setMovementReturnCode_t RobotM3::setEndEffPos(Vector3d X) {
+    if(!calibrated) {
+        return NOT_CALIBRATED;
+    }
+
     //TODO: add a limit check
     if(!1) {
         return OUTSIDE_LIMITS;
@@ -357,6 +363,10 @@ setMovementReturnCode_t RobotM3::setEndEffPos(Vector3d X) {
 }
 
 setMovementReturnCode_t RobotM3::setEndEffVel(Vector3d dX) {
+    if(!calibrated) {
+        return NOT_CALIBRATED;
+    }
+
     //TODO: add a limit check
     if(!1) {
         return OUTSIDE_LIMITS;
@@ -367,6 +377,10 @@ setMovementReturnCode_t RobotM3::setEndEffVel(Vector3d dX) {
 }
 
 setMovementReturnCode_t RobotM3::setEndEffFor(Vector3d F) {
+    if(!calibrated) {
+        return NOT_CALIBRATED;
+    }
+
     //TODO: add a limit check
     if(!1) {
         return OUTSIDE_LIMITS;
