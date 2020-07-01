@@ -49,10 +49,11 @@ void M3TestState::duringCode(void) {
         Dq={0,0.015*5.,0.015*5.};
     robot->setJointPos(qi-Dq);*/
 
-    /*Eigen::Vector3d tau(0,-5.0,0);
-    robot->setJointTor(tau);*/
-    Eigen::Vector3d F(2,0,10);
+    /*Eigen::Vector3d tau(0,-5.0,0);*/
+    robot->setJointTor(robot->calculateGravityTorques());
+    /*Eigen::Vector3d F(2,0,10);
     robot->setEndEffFor(F);
+    std::cout << robot->calculateGravityTorques().transpose() << std::endl;*/
 
 }
 
