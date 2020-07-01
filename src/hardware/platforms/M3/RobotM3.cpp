@@ -413,3 +413,20 @@ setMovementReturnCode_t RobotM3::setEndEffFor(Vector3d F) {
     return setJointTor(tau);
 
 }
+
+setMovementReturnCode_t RobotM3::setEndEffForWithCompensation(Vector3d F) {
+    if(!calibrated) {
+        return NOT_CALIBRATED;
+    }
+
+    //TODO: add a limit check
+    if(!1) {
+        return OUTSIDE_LIMITS;
+    }
+    Vector3d tau_g = calculateGravityTorques(); //Gravity compensation torque
+    Vector3d tau_f(0,0,0);// = sign() + ....; //Friction compensation torque
+
+    Vector3d tau = J().transpose()*F + tau_g + tau_f;
+    return setJointTor(tau);
+
+}

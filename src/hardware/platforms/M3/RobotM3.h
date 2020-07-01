@@ -176,8 +176,6 @@ class RobotM3 : public Robot {
     setMovementReturnCode_t setEndEffPos(Eigen::Vector3d X);
     setMovementReturnCode_t setEndEffVel(Eigen::Vector3d dX);
     setMovementReturnCode_t setEndEffFor(Eigen::Vector3d F);
-
-
-
+    setMovementReturnCode_t setEndEffForWithCompensation(Eigen::Vector3d F);
 };
 #endif /*RobotM3_H*/
