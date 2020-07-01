@@ -8,6 +8,8 @@ double timeval_to_sec(struct timespec *ts)
 static Eigen::Vector3d qi, Xi;
 double spd=0;
 
+
+
 void M3TestState::entryCode(void) {
     robot->applyCalibration();
     //robot->initPositionControl();
@@ -56,12 +58,9 @@ void M3TestState::duringCode(void) {
 }
 
 void M3TestState::exitCode(void) {
-    robot->setJointVel(Eigen::Vector3d(0,0,0));
+    robot->initTorqueControl();
+    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
 }
-
-
-
-
 
 
 //void M3CalibState::entryCode(void) {
@@ -113,6 +112,7 @@ void M3TestState::exitCode(void) {
 //}
 
 void M3CalibState::entryCode(void) {
+    calibDone=false;
     for(unsigned int i=0; i<3; i++) {
         stop_reached_time[i] = .0;
         at_stop[i] = false;
@@ -145,6 +145,7 @@ void M3CalibState::duringCode(void) {
     if(robot->isCalibrated()) {
         robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
         robot->printJointStatus();
+        calibDone=true; //Trigger event
     }
     else {
         //If all joints are calibrated
@@ -160,6 +161,89 @@ void M3CalibState::duringCode(void) {
 }
 
 void M3CalibState::exitCode(void) {
-
+    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
 }
+
+
+
+
+
+void M3MassCompensation::entryCode(void) {
+
+    std::cout << "Press S to decrease mass (-100g), W to increase (+100g)." << mass << std::endl;
+}
+
+void M3MassCompensation::duringCode(void) {
+
+    //Smooth transition in case a mass is set at startup
+    double settling_time = 3.0;
+    double t=elapsedTime>settling_time?1.0:elapsedTime/settling_time;
+
+    //Bound mass to +-5kg
+    if(mass>5.0) {
+        mass = 5;
+    }
+    if(mass<-5) {
+        mass = -5;
+    }
+
+    //Apply corresponding force
+    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,t*mass*9.8));
+
+    //Mass controllable through keyboard inputs
+    if(robot->keyboard.getS()) {
+        mass -=0.1;
+        std::cout << "Mass: " << mass << std::endl;
+    }
+    if(robot->keyboard.getW()) {
+        mass +=0.1;
+        std::cout << "Mass: " << mass << std::endl;
+    }
+}
+
+void M3MassCompensation::exitCode(void) {
+    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+}
+
+
+
+
+
+void M3EndEffDemo::entryCode(void) {
+    robot->initVelocityControl();
+}
+void M3EndEffDemo::duringCode(void) {
+    Eigen::Vector3d dX(0,0,0);
+
+    if(robot->keyboard.getS()) {
+        dX(0)=vel_input;
+    }
+    if(robot->keyboard.getW()) {
+        dX(0)=-vel_input;
+    }
+    if(robot->keyboard.getA()) {
+        dX(1)=vel_input;
+    }
+    if(robot->keyboard.getD()) {
+        dX(1)=-vel_input;
+    }
+    if(robot->keyboard.getQ()) {
+        dX(2)=vel_input;
+    }
+    if(robot->keyboard.getX()) {
+        dX(2)=-vel_input;
+    }
+
+    //Apply
+    robot->setEndEffVel(dX);
+
+    if(iterations%20==1) {
+        robot->printStatus();
+    }
+}
+void M3EndEffDemo::exitCode(void) {
+    robot->setEndEffVel(Eigen::Vector3d(0,0,0));
+}
+
+
 

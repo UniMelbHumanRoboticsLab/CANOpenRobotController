@@ -75,6 +75,7 @@ void RobotM3::applyCalibration() {
 
 void RobotM3::updateRobot() {
     Robot::updateRobot();
+    keyboard.updateInput();
 }
 
 

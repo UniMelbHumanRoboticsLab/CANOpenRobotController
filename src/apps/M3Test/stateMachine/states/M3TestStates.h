@@ -99,7 +99,7 @@ class M3TimedState : public State {
 class M3TestState : public M3TimedState {
 
    public:
-    M3TestState(StateMachine *m, RobotM3 *M3, const char *name = "M3TestState"):M3TimedState(m, M3, name){};
+    M3TestState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Test State"):M3TimedState(m, M3, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -107,20 +107,64 @@ class M3TestState : public M3TimedState {
 };
 
 
+
+/**
+ * \brief Position calibration of M3. Go to the bottom left stops of robot at constant torque for absolute position calibration.
+ *
+ */
 class M3CalibState : public M3TimedState {
 
    public:
-    M3CalibState(StateMachine *m, RobotM3 *M3, const char *name = "M3CalibState"):M3TimedState(m, M3, name){};
+    M3CalibState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Calib State"):M3TimedState(m, M3, name){};
+
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
+
+    bool isCalibDone() {return calibDone;}
+
+   private:
+     Eigen::Vector3d stop_reached_time;
+     bool at_stop[3];
+     bool calibDone=false;
+
+};
+
+
+/**
+ * \brief Provide end-effector mass compensation on M3. Mass is controllable through keyboard inputs.
+ *
+ */
+class M3MassCompensation : public M3TimedState {
+
+   public:
+    M3MassCompensation(StateMachine *m, RobotM3 *M3, const char *name = "M3 Mass Compensation"):M3TimedState(m, M3, name){};
 
     void entryCode(void);
     void duringCode(void);
     void exitCode(void);
 
    private:
-     Eigen::Vector3d stop_reached_time;
-     bool at_stop[3];
-     double tau_threshold = 5;
+     double mass = 0;
 
+};
+
+
+/**
+ * \brief End-effector velocity control through keyboard input.
+ *
+ */
+class M3EndEffDemo : public M3TimedState {
+
+   public:
+    M3EndEffDemo(StateMachine *m, RobotM3 *M3, const char *name = "M3 Velocity Control Demo"):M3TimedState(m, M3, name){};
+
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
+
+   private:
+    double vel_input = 0.1; //in m.s-1
 };
 
 

@@ -48,12 +48,18 @@ class M3TestMachine : public StateMachine {
      * Pointers to the relevant states - initialised in init
      *
      */
-    M3TimedState *testState;
+    /*M3TimedState *calibState, *standbyState, *testState;
+    M3TimedState*/
+    M3CalibState *calibState;
+    M3MassCompensation *standbyState;
+    M3TestState *testState;
+    M3EndEffDemo *endEffDemoState;
 
    protected:
     RobotM3 *robot; /*<!Pointer to the Robot*/
 
    private:
+    EventObject(EndCalib) * endCalib;
 };
 
 #endif /*M3_SM_H*/

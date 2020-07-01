@@ -6,8 +6,11 @@ M3TestMachine::M3TestMachine() {
     robot = new RobotM3();
 
     // Create PRE-DESIGNED State Machine events and state objects.
-    //testState = new M3TestState(this, robot, "M3 Test");
-    testState = new M3CalibState(this, robot, "M3 Calibration");
+    testState = new M3TestState(this, robot);
+    calibState = new M3CalibState(this, robot);
+    standbyState = new M3MassCompensation(this, robot);
+    endEffDemoState = new M3EndEffDemo(this, robot);
+    endCalib = new EndCalib(this);
 
     /**
      * \brief add a tranisition object to the arch list of the first state in the NewTransition MACRO.
@@ -15,8 +18,11 @@ M3TestMachine::M3TestMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
+    //NewTransition(calibState, endCalib, standbyState);
+    NewTransition(calibState, endCalib, endEffDemoState);
+
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
-    StateMachine::initialize(testState);
+    StateMachine::initialize(calibState);
 }
 M3TestMachine::~M3TestMachine() {
     delete testState;
@@ -60,4 +66,13 @@ void M3TestMachine::end() {
  */
 void M3TestMachine::hwStateUpdate(void) {
     robot->updateRobot();
+}
+
+
+
+
+
+
+bool M3TestMachine::EndCalib::check() {
+    return OWNER->calibState->isCalibDone();
 }

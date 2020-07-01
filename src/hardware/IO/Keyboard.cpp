@@ -92,6 +92,10 @@ void Keyboard::printPressed() {
         std::cout
             << "PRESSED X " << std::endl;
     }
+    if (getQ()) {
+        std::cout
+            << "PRESSED Q " << std::endl;
+    }
 }
 void Keyboard::clearCurrentStates() {
     currentKeyStates.a = false;
@@ -99,6 +103,7 @@ void Keyboard::clearCurrentStates() {
     currentKeyStates.d = false;
     currentKeyStates.w = false;
     currentKeyStates.x = false;
+    currentKeyStates.q = false;
 }
 bool Keyboard::getA() {
     return currentKeyStates.a;
