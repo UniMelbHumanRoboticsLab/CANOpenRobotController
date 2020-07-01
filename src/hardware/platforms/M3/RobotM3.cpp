@@ -15,7 +15,6 @@ RobotM3::RobotM3() : Robot(), calibrated(false) {
     joints.push_back(new JointM3(1, -15*M_PI/180., 70*M_PI/180., 1, -max_speed, max_speed, -tau_max, tau_max));//Todo
     joints.push_back(new JointM3(2, 0*M_PI/180., 95*M_PI/180., -1, -max_speed, max_speed, -tau_max, tau_max));//Todo
 }
-
 RobotM3::~RobotM3() {
     DEBUG_OUT("Delete RobotM3 object begins")
     for (auto p : joints) {
@@ -181,7 +180,6 @@ setMovementReturnCode_t RobotM3::applyPosition(std::vector<double> positions) {
     }
     return returnValue;
 }
-
 setMovementReturnCode_t RobotM3::applyVelocity(std::vector<double> velocities) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
@@ -199,7 +197,6 @@ setMovementReturnCode_t RobotM3::applyVelocity(std::vector<double> velocities) {
     }
     return returnValue;
 }
-
 setMovementReturnCode_t RobotM3::applyTorque(std::vector<double> torques) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
@@ -231,7 +228,6 @@ Vector3d RobotM3::directKinematic(Vector3d q) {
 
     return X;
 }
-
 Vector3d RobotM3::inverseKinematic(Vector3d X) {
     Vector3d q;
 
@@ -272,7 +268,6 @@ Vector3d RobotM3::inverseKinematic(Vector3d X) {
 
     return q;
 }
-
 Matrix3d RobotM3::J() {
     Matrix3d J;
     Vector3d q;
@@ -304,7 +299,6 @@ Matrix3d RobotM3::J() {
     return J;
 }
 
-
 Vector3d RobotM3::calculateGravityTorques() {
 	Vector3d tau_g;
 
@@ -328,26 +322,22 @@ Vector3d RobotM3::calculateGravityTorques() {
 	return tau_g;
 }
 
+
 Vector3d RobotM3::getJointPos() {
     return Vector3d({((JointM3*)joints[0])->getPosition(), ((JointM3*)joints[1])->getPosition(), ((JointM3*)joints[2])->getPosition()});
 }
-
 Vector3d RobotM3::getJointVel() {
     return Vector3d({((JointM3*)joints[0])->getVeloctiy(), ((JointM3*)joints[1])->getVeloctiy(), ((JointM3*)joints[2])->getVeloctiy()});
 }
-
 Vector3d RobotM3::getJointTor() {
     return Vector3d({((JointM3*)joints[0])->getTorque(), ((JointM3*)joints[1])->getTorque(), ((JointM3*)joints[2])->getTorque()});
 }
-
 Vector3d RobotM3::getEndEffPos() {
      return directKinematic(getJointPos());
 }
-
 Vector3d RobotM3::getEndEffVel() {
      return J()*getJointVel();
 }
-
 Vector3d RobotM3::getEndEffFor() {
      return (J().transpose()).inverse()*getJointTor();
 }
@@ -357,17 +347,14 @@ setMovementReturnCode_t RobotM3::setJointPos(Vector3d q) {
     std::vector<double> pos{q(0), q(1), q(2)};
     return applyPosition(pos);
 }
-
 setMovementReturnCode_t RobotM3::setJointVel(Vector3d dq) {
     std::vector<double> vel{dq(0), dq(1), dq(2)};
     return applyVelocity(vel);
 }
-
 setMovementReturnCode_t RobotM3::setJointTor(Vector3d tau) {
     std::vector<double> tor{tau(0), tau(1), tau(2)};
     return applyTorque(tor);
 }
-
 setMovementReturnCode_t RobotM3::setEndEffPos(Vector3d X) {
     if(!calibrated) {
         return NOT_CALIBRATED;
@@ -386,7 +373,6 @@ setMovementReturnCode_t RobotM3::setEndEffPos(Vector3d X) {
         return setJointPos(q);
     }
 }
-
 setMovementReturnCode_t RobotM3::setEndEffVel(Vector3d dX) {
     if(!calibrated) {
         return NOT_CALIBRATED;
@@ -400,7 +386,6 @@ setMovementReturnCode_t RobotM3::setEndEffVel(Vector3d dX) {
     Vector3d dq = J().inverse()*dX;
     return setJointVel(dq);
 }
-
 setMovementReturnCode_t RobotM3::setEndEffFor(Vector3d F) {
     if(!calibrated) {
         return NOT_CALIBRATED;
@@ -415,7 +400,6 @@ setMovementReturnCode_t RobotM3::setEndEffFor(Vector3d F) {
     return setJointTor(tau);
 
 }
-
 setMovementReturnCode_t RobotM3::setEndEffForWithCompensation(Vector3d F) {
     if(!calibrated) {
         return NOT_CALIBRATED;
@@ -427,7 +411,7 @@ setMovementReturnCode_t RobotM3::setEndEffForWithCompensation(Vector3d F) {
     }
     Vector3d tau_g = calculateGravityTorques(); //Gravity compensation torque
     Vector3d tau_f; //Friction compensation torque
-    double alpha = 0.7, beta = 0.05, threshold = 0.01;
+    double alpha = 1.0, beta = 0.03, threshold = 0.01;
     for(unsigned int i=0; i<3; i++) {
         double dq = ((JointM3 *)joints[i])->getVeloctiy();
         if(abs(dq)>threshold) {
@@ -437,5 +421,4 @@ setMovementReturnCode_t RobotM3::setEndEffForWithCompensation(Vector3d F) {
 
     Vector3d tau = J().transpose()*F + tau_g + tau_f;
     return setJointTor(tau);
-
 }

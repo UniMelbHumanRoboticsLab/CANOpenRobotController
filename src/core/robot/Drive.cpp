@@ -76,6 +76,7 @@ bool Drive::setTorque(int torque) {
     return true;
 }
 
+
 int Drive::getPos() {
     int q = *(&CO_OD_RAM.actualMotorPositions.motor1 + ((this->NodeID - 1)));
     return q;
@@ -96,6 +97,7 @@ int Drive::getTorque() {
         return 0;
     }
 }
+
 
 bool Drive::readyToSwitchOn() {
     *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x06;
@@ -171,8 +173,7 @@ bool Drive::initPDOs() {
     }
 
     //DEBUG_OUT("Set up TARGET_TOR RPDO")
-    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x08))<0) {//VINCENT
-    //if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x00))<0) {
+    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x00))<0) {
         std::cerr << "Set up TARGET_TOR RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }

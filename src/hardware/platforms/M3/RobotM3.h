@@ -47,10 +47,10 @@ class RobotM3 : public Robot {
      *
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
-    float LinkLengths[5] = {0.056, 0.15-0.015, 0.5, 0.465, 0.465+0.15-0.015}; /*!< Link lengths used for kniematic models (in m)*/
-    float LinkMasses[5] = {0, 0.450, 0.700, 0.200, 0.9}; /*!< Link masses used for gravity compensation (in kg)*/
+    float LinkLengths[5] = {0.056, 0.15-0.015, 0.5, 0.465, 0.465+0.15-0.015};   /*!< Link lengths used for kniematic models (in m)*/
+    float LinkMasses[5] = {0, 0.450, 0.700, 0.200, 0.9};                        /*!< Link masses used for gravity compensation (in kg)*/
 
-    Eigen::Vector3d qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.}; /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
+    Eigen::Vector3d qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
 
     bool calibrated;
 
@@ -134,7 +134,6 @@ class RobotM3 : public Robot {
        * Robot joint vector.
        */
     bool initialiseJoints();
-
     /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
        * Initialize each <code>Drive</code> Objects underlying CANOpen Networking.
