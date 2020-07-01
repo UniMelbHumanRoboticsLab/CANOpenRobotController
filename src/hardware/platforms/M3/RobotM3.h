@@ -127,6 +127,9 @@ class RobotM3 : public Robot {
     */
     void applyCalibration();
 
+    bool isCalibrated() {return calibrated;}
+    void decalibrate() {calibrated = false;}
+
 
     /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.

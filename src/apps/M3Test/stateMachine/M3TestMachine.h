@@ -48,7 +48,7 @@ class M3TestMachine : public StateMachine {
      * Pointers to the relevant states - initialised in init
      *
      */
-    M3TestState *testState;
+    M3TimedState *testState;
 
    protected:
     RobotM3 *robot; /*<!Pointer to the Robot*/

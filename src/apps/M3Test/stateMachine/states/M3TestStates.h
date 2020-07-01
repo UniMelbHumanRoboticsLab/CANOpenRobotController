@@ -74,7 +74,9 @@ class M3TimedState : public State {
     };
     void exit(void) final {
         exitCode();
-        std::cout << "EXIT "<< getName() << std::endl
+        std::cout
+        << "==================================" << std::endl
+        << "EXIT "<< getName() << std::endl
         << "==================================" << std::endl
         << std::endl;
     };
@@ -115,8 +117,10 @@ class M3CalibState : public M3TimedState {
     void exitCode(void);
 
    private:
-     vector<double> vel{0.01, 0.01, 0.01};
-     double tau_threshold = 1;
+     Eigen::Vector3d stop_reached_time;
+     bool at_stop[3];
+     double tau_threshold = 5;
+
 };
 
 

@@ -411,7 +411,7 @@ setMovementReturnCode_t RobotM3::setEndEffForWithCompensation(Vector3d F) {
     }
     Vector3d tau_g = calculateGravityTorques(); //Gravity compensation torque
     Vector3d tau_f; //Friction compensation torque
-    double alpha = 1.0, beta = 0.03, threshold = 0.01;
+    double alpha = 0.5, beta = 0.03, threshold = 0.000000;
     for(unsigned int i=0; i<3; i++) {
         double dq = ((JointM3 *)joints[i])->getVeloctiy();
         if(abs(dq)>threshold) {

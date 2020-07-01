@@ -6,7 +6,8 @@ M3TestMachine::M3TestMachine() {
     robot = new RobotM3();
 
     // Create PRE-DESIGNED State Machine events and state objects.
-    testState = new M3TestState(this, robot, "Test M3");
+    //testState = new M3TestState(this, robot, "M3 Test");
+    testState = new M3CalibState(this, robot, "M3 Calibration");
 
     /**
      * \brief add a tranisition object to the arch list of the first state in the NewTransition MACRO.
