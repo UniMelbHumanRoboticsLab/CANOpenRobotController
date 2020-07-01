@@ -104,6 +104,8 @@ class M3TestState : public M3TimedState {
     void entryCode(void);
     void duringCode(void);
     void exitCode(void);
+
+    Eigen::Vector3d qi, Xi;
 };
 
 
@@ -162,9 +164,6 @@ class M3EndEffDemo : public M3TimedState {
     void entryCode(void);
     void duringCode(void);
     void exitCode(void);
-
-   private:
-    double vel_input = 0.1; //in m.s-1
 };
 
 

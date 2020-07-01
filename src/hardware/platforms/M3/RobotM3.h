@@ -19,6 +19,7 @@
 
 #include "JointM3.h"
 #include "Keyboard.h"
+#include "Joystick.h"
 #include "Robot.h"
 
 
@@ -64,6 +65,7 @@ class RobotM3 : public Robot {
     ~RobotM3();
 
     Keyboard keyboard;
+    Joystick joystick;
 
     /**
        * \brief Initialises all joints to position control mode.

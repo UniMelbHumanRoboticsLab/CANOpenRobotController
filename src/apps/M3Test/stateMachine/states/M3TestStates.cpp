@@ -5,8 +5,13 @@ double timeval_to_sec(struct timespec *ts)
     return (double)(ts->tv_sec + ts->tv_nsec / 1000000000.0);
 }
 
-static Eigen::Vector3d qi, Xi;
-double spd=0;
+
+//minJerk(X0, Xf, T, t, &X, &dX)
+
+Eigen::Vector3d impedance(Eigen::Matrix3d K, Eigen::Matrix3d D, Eigen::Vector3d X0, Eigen::Vector3d X, Eigen::Vector3d dX) {
+    return K*(X-X0) - D*dX;
+}
+
 
 
 
@@ -172,7 +177,6 @@ void M3MassCompensation::entryCode(void) {
 
     std::cout << "Press S to decrease mass (-100g), W to increase (+100g)." << mass << std::endl;
 }
-
 void M3MassCompensation::duringCode(void) {
 
     //Smooth transition in case a mass is set at startup
@@ -200,7 +204,6 @@ void M3MassCompensation::duringCode(void) {
         std::cout << "Mass: " << mass << std::endl;
     }
 }
-
 void M3MassCompensation::exitCode(void) {
     robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
 }
@@ -215,23 +218,8 @@ void M3EndEffDemo::entryCode(void) {
 void M3EndEffDemo::duringCode(void) {
     Eigen::Vector3d dX(0,0,0);
 
-    if(robot->keyboard.getS()) {
-        dX(0)=vel_input;
-    }
-    if(robot->keyboard.getW()) {
-        dX(0)=-vel_input;
-    }
-    if(robot->keyboard.getA()) {
-        dX(1)=vel_input;
-    }
-    if(robot->keyboard.getD()) {
-        dX(1)=-vel_input;
-    }
-    if(robot->keyboard.getQ()) {
-        dX(2)=vel_input;
-    }
-    if(robot->keyboard.getX()) {
-        dX(2)=-vel_input;
+    for(unsigned int i=0; i<3; i++) {
+        dX(i)=robot->joystick.getAxis(i)/2.;
     }
 
     //Apply

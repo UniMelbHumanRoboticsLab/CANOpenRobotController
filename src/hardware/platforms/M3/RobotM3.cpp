@@ -53,7 +53,8 @@ bool RobotM3::initialiseNetwork() {
     return true;
 }
 bool RobotM3::initialiseInputs() {
-    //inputs.push_back(&keyboard);
+    inputs.push_back(&keyboard);
+    inputs.push_back(&joystick);
     return true;
 }
 
@@ -75,7 +76,6 @@ void RobotM3::applyCalibration() {
 
 void RobotM3::updateRobot() {
     Robot::updateRobot();
-    keyboard.updateInput();
 }
 
 
