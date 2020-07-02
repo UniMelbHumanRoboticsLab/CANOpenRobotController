@@ -1,5 +1,5 @@
 /**
- * /file M3TestState.h
+ * /file M3DemoState.h
  * \author Vincent Crocher
  * \version 0.1
  * \date 2020-06-16
@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef M3TESTSTATE_H_DEF
-#define M3TESTSTATE_H_DEF
+#ifndef M3DemoSTATE_H_DEF
+#define M3DemoSTATE_H_DEF
 
 #include <time.h>
 
@@ -28,7 +28,7 @@ using namespace std;
 double timeval_to_sec(struct timespec *ts);
 
 /**
- * \brief Generic state type for used with M3TestMachine, providing running time and iterations number.
+ * \brief Generic state type for used with M3DemoMachine, providing running time and iterations number.
  *
  */
 class M3TimedState : public State {
@@ -96,10 +96,10 @@ class M3TimedState : public State {
 };
 
 
-class M3TestState : public M3TimedState {
+class M3DemoState : public M3TimedState {
 
    public:
-    M3TestState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Test State"):M3TimedState(m, M3, name){};
+    M3DemoState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Test State"):M3TimedState(m, M3, name){};
 
     void entryCode(void);
     void duringCode(void);

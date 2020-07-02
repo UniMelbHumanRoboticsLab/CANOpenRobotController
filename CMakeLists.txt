@@ -31,7 +31,7 @@ list (APPEND INCLUDE_DIRS lib/)
 
 # Select the application by setting the state machine to use
 #(should be the class name and have corresponding header naming)
-set (STATE_MACHINE_NAME "M3TestMachine")
+set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "ExoTestMachine")
 
 add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})

@@ -1,4 +1,4 @@
-#include "M3TestStates.h"
+#include "M3DemoStates.h"
 
 double timeval_to_sec(struct timespec *ts)
 {
@@ -13,7 +13,7 @@ Eigen::Vector3d impedance(Eigen::Matrix3d K, Eigen::Matrix3d D, Eigen::Vector3d 
 }
 
 
-void M3TestState::entryCode(void) {
+void M3DemoState::entryCode(void) {
     //robot->applyCalibration();
     //robot->initPositionControl();
     //robot->initVelocityControl();
@@ -22,7 +22,7 @@ void M3TestState::entryCode(void) {
     Xi=robot->getEndEffPos();
 }
 
-void M3TestState::duringCode(void) {
+void M3DemoState::duringCode(void) {
     if(iterations%100==1) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
         robot->printJointStatus();
@@ -60,7 +60,7 @@ void M3TestState::duringCode(void) {
     robot->setEndEffForWithCompensation(F);*/
 }
 
-void M3TestState::exitCode(void) {
+void M3DemoState::exitCode(void) {
     robot->setJointVel(Eigen::Vector3d::Zero());
     robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
 }

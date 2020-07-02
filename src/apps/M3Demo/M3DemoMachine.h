@@ -1,11 +1,11 @@
 /**
- * \file M3TestMachine.h
+ * \file M3DemoMachine.h
  * \author Vincent Crocher
  * \version 0.1
  * \date 2020-06-16
  * \copyright Copyright (c) 2020
  *
- * /brief The <code>M3TestMachine</code> class represents an example implementation of an M3 state machine.
+ * /brief The <code>M3DemoMachine</code> class represents an example implementation of an M3 state machine.
  *
  */
 #ifndef M3_SM_H
@@ -24,21 +24,21 @@
 #include "StateMachine.h"
 
 // State Classes
-#include "M3TestStates.h"
+#include "M3DemoStates.h"
 
 /**
- * @brief Example implementation of a StateMachine for the M3Robot class. States should implemented M3TestState
+ * @brief Example implementation of a StateMachine for the M3Robot class. States should implemented M3DemoState
  *
  */
-class M3TestMachine : public StateMachine {
+class M3DemoMachine : public StateMachine {
    public:
     bool running = false;
     /**
      *  \todo Pilot Parameters would be set in constructor here
      *
      */
-    M3TestMachine();
-    ~M3TestMachine();
+    M3DemoMachine();
+    ~M3DemoMachine();
     void init();
     void end();
 
@@ -48,11 +48,9 @@ class M3TestMachine : public StateMachine {
      * Pointers to the relevant states - initialised in init
      *
      */
-    /*M3TimedState *calibState, *standbyState, *testState;
-    M3TimedState*/
     M3CalibState *calibState;
     M3MassCompensation *standbyState;
-    M3TestState *testState;
+    M3DemoState *testState;
     M3EndEffDemo *endEffDemoState;
     M3DemoImpedanceState *impedanceState;
 
