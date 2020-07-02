@@ -6,7 +6,10 @@ using namespace Eigen;
 
 short int sign(double val) {return (val>0)?1:((val<0)?-1:0); }
 
-RobotM3::RobotM3() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce(60) {
+RobotM3::RobotM3() : Robot(),
+                    calibrated(false),
+                    maxEndEffVel(2),
+                    maxEndEffForce(60) {
 
     //Define the robot structure: each joint with limits and drive: should be in constructor
     double max_speed=360*M_PI/180.;
@@ -26,6 +29,7 @@ RobotM3::~RobotM3() {
         DEBUG_OUT("Deleting Input")
         delete p;
     }
+    inputs.clear();
     DEBUG_OUT("RobotM3 deleted")
 }
 
@@ -98,7 +102,7 @@ setMovementReturnCode_t RobotM3::safetyCheck() {
     else {
         for(unsigned int i=0; i<3; i++) {
             if(((JointM3*)joints[i])->safetyCheck()!=SUCCESS) {
-                std::cerr << "M3: Joint "<< i << " dafety triggered!" << std::endl;
+                std::cerr << "M3: Joint "<< i << " safety triggered!" << std::endl;
                 return OUTSIDE_LIMITS;
             }
         }
@@ -189,7 +193,7 @@ bool RobotM3::initTorqueControl() {
 
 setMovementReturnCode_t RobotM3::applyPosition(std::vector<double> positions) {
     int i = 0;
-    setMovementReturnCode_t returnValue = SUCCESS;
+    setMovementReturnCode_t returnValue = SUCCESS;//TODO: proper return error code (not only last one)
     if(!calibrated) {
         returnValue = NOT_CALIBRATED;
     } else {
@@ -210,7 +214,7 @@ setMovementReturnCode_t RobotM3::applyPosition(std::vector<double> positions) {
 }
 setMovementReturnCode_t RobotM3::applyVelocity(std::vector<double> velocities) {
     int i = 0;
-    setMovementReturnCode_t returnValue = SUCCESS;
+    setMovementReturnCode_t returnValue = SUCCESS;//TODO: proper return error code (not only last one)
     for (auto p : joints) {
         setMovementReturnCode_t setVelCode = ((JointM3 *)p)->setVelocity(velocities[i]);
         if (setVelCode == INCORRECT_MODE) {
@@ -227,7 +231,7 @@ setMovementReturnCode_t RobotM3::applyVelocity(std::vector<double> velocities) {
 }
 setMovementReturnCode_t RobotM3::applyTorque(std::vector<double> torques) {
     int i = 0;
-    setMovementReturnCode_t returnValue = SUCCESS;
+    setMovementReturnCode_t returnValue = SUCCESS;//TODO: proper return error code (not only last one)
     for (auto p : joints) {
         setMovementReturnCode_t setTorCode = ((JointM3 *)p)->setTorque(torques[i]);
         if (setTorCode == INCORRECT_MODE) {

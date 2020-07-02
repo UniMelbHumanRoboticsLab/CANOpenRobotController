@@ -166,5 +166,24 @@ class M3EndEffDemo : public M3TimedState {
     void exitCode(void);
 };
 
+/**
+ * \brief Basic impedance control on a static point.
+ *
+ */
+class M3DemoImpedanceState : public M3TimedState {
+
+   public:
+    M3DemoImpedanceState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Demo Impedance State"):M3TimedState(m, M3, name){};
+
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
+
+   private:
+    Eigen::Vector3d Xi;
+    double k = 800;
+    double d = 2;
+    bool init=false;
+};
 
 #endif

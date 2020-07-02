@@ -9,17 +9,15 @@ double timeval_to_sec(struct timespec *ts)
 //minJerk(X0, Xf, T, t, &X, &dX)
 
 Eigen::Vector3d impedance(Eigen::Matrix3d K, Eigen::Matrix3d D, Eigen::Vector3d X0, Eigen::Vector3d X, Eigen::Vector3d dX) {
-    return K*(X-X0) - D*dX;
+    return K*(X0-X) - D*dX;
 }
 
 
-
-
 void M3TestState::entryCode(void) {
-    robot->applyCalibration();
+    //robot->applyCalibration();
     //robot->initPositionControl();
     //robot->initVelocityControl();
-    //robot->initTorqueControl();
+    robot->initTorqueControl();
     qi=robot->getJointPos();
     Xi=robot->getEndEffPos();
 }
@@ -63,8 +61,8 @@ void M3TestState::duringCode(void) {
 }
 
 void M3TestState::exitCode(void) {
-    //robot->initTorqueControl();
-    //robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+    robot->setJointVel(Eigen::Vector3d::Zero());
+    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
 }
 
 
@@ -80,7 +78,6 @@ void M3CalibState::entryCode(void) {
     robot->initTorqueControl();
     std::cout << "Calibrating (keep clear)...";
 }
-
 //Move slowly on each joint until max force detected
 void M3CalibState::duringCode(void) {
     Eigen::Vector3d tau(0, 0, 0);
@@ -115,7 +112,6 @@ void M3CalibState::duringCode(void) {
         }
     }
 }
-
 void M3CalibState::exitCode(void) {
     robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
 }
@@ -186,3 +182,52 @@ void M3EndEffDemo::exitCode(void) {
 
 
 
+
+
+
+void M3DemoImpedanceState::entryCode(void) {
+    robot->initTorqueControl();
+    std::cout << "Press Q to select reference point, S/W to tune K gain and A/D for D gain" << std::endl;
+}
+void M3DemoImpedanceState::duringCode(void) {
+
+    //Select start point
+    if(robot->keyboard.getQ()) {
+        Xi=robot->getEndEffPos();
+        init=true;
+    }
+
+    //K tuning
+    if(robot->keyboard.getS()) {
+        k -= 5;
+        std::cout << "K=" << k << " D=" << d<< std::endl;
+    }
+    if(robot->keyboard.getW()) {
+        k += 5;
+        std::cout << "K=" << k << " D=" << d<< std::endl;
+    }
+    Eigen::Matrix3d K = k*Eigen::Matrix3d::Identity();
+
+    //D tuning
+    if(robot->keyboard.getD()) {
+        d -= 1;
+        std::cout << "K=" << k << " D=" << d<< std::endl;
+    }
+    if(robot->keyboard.getA()) {
+        d += 1;
+        std::cout << "K=" << k << " D=" << d<< std::endl;
+    }
+    Eigen::Matrix3d D = d*Eigen::Matrix3d::Identity();
+
+
+    if(init) {
+        std::cout << "K=" << k << " D=" << d << " => F=" << impedance(K, Eigen::Matrix3d::Zero(), Xi, robot->getEndEffPos(), robot->getEndEffVel()).transpose() << " N" <<std::endl;
+        robot->setEndEffForWithCompensation(impedance(K, D, Xi, robot->getEndEffPos(), robot->getEndEffVel()));
+    }
+    else {
+        robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+    }
+}
+void M3DemoImpedanceState::exitCode(void) {
+    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
+}

@@ -1,3 +1,16 @@
+
+/**
+ *
+ * \file Joystick.h
+ * \author Vincent Crocher (Mostly stollen from Jason White (https://gist.github.com/jasonwhite/))
+ * \version 0.1
+ * \date 2020-07-02
+ * \copyright Copyright (c) 2020
+ *
+ * \brief  Joystick as Input device.
+ *
+ */
+
 #ifndef JOYSTICK_H
 #define JOYSTICK_H
 

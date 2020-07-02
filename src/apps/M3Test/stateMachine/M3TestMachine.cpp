@@ -10,6 +10,7 @@ M3TestMachine::M3TestMachine() {
     calibState = new M3CalibState(this, robot);
     standbyState = new M3MassCompensation(this, robot);
     endEffDemoState = new M3EndEffDemo(this, robot);
+    impedanceState = new M3DemoImpedanceState(this, robot);
     endCalib = new EndCalib(this);
 
     /**
@@ -18,7 +19,8 @@ M3TestMachine::M3TestMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    NewTransition(calibState, endCalib, standbyState);
+    NewTransition(calibState, endCalib, impedanceState);
+    //NewTransition(calibState, endCalib, standbyState);
     //NewTransition(calibState, endCalib, endEffDemoState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.

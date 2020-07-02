@@ -54,6 +54,7 @@ class M3TestMachine : public StateMachine {
     M3MassCompensation *standbyState;
     M3TestState *testState;
     M3EndEffDemo *endEffDemoState;
+    M3DemoImpedanceState *impedanceState;
 
    protected:
     RobotM3 *robot; /*<!Pointer to the Robot*/
