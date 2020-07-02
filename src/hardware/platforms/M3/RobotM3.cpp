@@ -12,8 +12,8 @@ RobotM3::RobotM3() : Robot(), calibrated(false) {
     double max_speed=360*M_PI/180.;
     double tau_max=1.9*23;
     joints.push_back(new JointM3(0, -45*M_PI/180., 45*M_PI/180., 1, -max_speed, max_speed, -tau_max, tau_max));
-    joints.push_back(new JointM3(1, -15*M_PI/180., 70*M_PI/180., 1, -max_speed, max_speed, -tau_max, tau_max));//Todo
-    joints.push_back(new JointM3(2, 0*M_PI/180., 95*M_PI/180., -1, -max_speed, max_speed, -tau_max, tau_max));//Todo
+    joints.push_back(new JointM3(1, -15*M_PI/180., 70*M_PI/180., 1, -max_speed, max_speed, -tau_max, tau_max));
+    joints.push_back(new JointM3(2, 0*M_PI/180., 95*M_PI/180., -1, -max_speed, max_speed, -tau_max, tau_max));
 }
 RobotM3::~RobotM3() {
     DEBUG_OUT("Delete RobotM3 object begins")

@@ -71,7 +71,7 @@ bool Drive::setTorque(int torque) {
     * \todo add setTorque to object dictionary for all drives
     *
     */
-    DEBUG_OUT("Drive " << NodeID << " Writing " << torque << " to 0x" << std::hex << OD_Addresses[TARGET_TOR]);
+    DEBUG_OUT("Drive " << NodeID << " Writing " <<  (short int)torque << " to 0x" << std::hex << OD_Addresses[TARGET_TOR]);
     *(&CO_OD_RAM.targetMotorTorques.motor1 + ((this->NodeID - 1))) = torque;
     return true;
 }

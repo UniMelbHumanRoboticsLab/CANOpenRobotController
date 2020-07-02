@@ -18,8 +18,8 @@ M3TestMachine::M3TestMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    //NewTransition(calibState, endCalib, standbyState);
-    NewTransition(calibState, endCalib, endEffDemoState);
+    NewTransition(calibState, endCalib, standbyState);
+    //NewTransition(calibState, endCalib, endEffDemoState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(calibState);

@@ -19,7 +19,7 @@ void M3TestState::entryCode(void) {
     robot->applyCalibration();
     //robot->initPositionControl();
     //robot->initVelocityControl();
-    robot->initTorqueControl();
+    //robot->initTorqueControl();
     qi=robot->getJointPos();
     Xi=robot->getEndEffPos();
 }
@@ -58,63 +58,17 @@ void M3TestState::duringCode(void) {
 
     /*Eigen::Vector3d tau(0,-5.0,0);*/
     //robot->setJointTor(robot->calculateGravityTorques());
-    Eigen::Vector3d F(0,0,0);
-    robot->setEndEffForWithCompensation(F);
+    /*Eigen::Vector3d F(0,0,0);
+    robot->setEndEffForWithCompensation(F);*/
 }
 
 void M3TestState::exitCode(void) {
-    robot->initTorqueControl();
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+    //robot->initTorqueControl();
+    //robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
 }
 
 
-//void M3CalibState::entryCode(void) {
-//    for(unsigned int i=0; i<3; i++) {
-//        stop_reached_time[i] = .0;
-//        at_stop[i] = false;
-//    }
-//    robot->decalibrate();
-//    robot->initVelocityControl();
-//    std::cout << "Calibrating...";
-//}
-//
-////Move slowly on each joint until max force detected
-//void M3CalibState::duringCode(void) {
-//    Eigen::Vector3d vel(0, 0, 0);
-//
-//    //Apply velocity unless stop has been detected for more than 0.5s
-//    for(unsigned int i=0; i<3; i++) {
-//        if(stop_reached_time(i)<0.5) {
-//            vel(i)=0.1;
-//        } else {
-//            vel(i)=0;
-//            at_stop[i]=true;
-//        }
-//
-//        Eigen::Vector3d tau=robot->getJointTor();
-//        if(tau(i)>tau_threshold) {
-//            stop_reached_time(i) += dt;
-//        }
-//    }
-//
-//    //Switch to gravity control when done
-//    if(robot->isCalibrated()) {
-//        robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
-//    }
-//    else {
-//        //If all joints are calibrated
-//        if(at_stop[0] && at_stop[1] && at_stop[2]) {
-//            robot->applyCalibration();
-//            robot->initTorqueControl();
-//            std::cout << "OK." << std::endl;
-//        }
-//        else {
-//            robot->setJointVel(vel);
-//        }
-//    }
-//
-//    //robot->printJointStatus();
-//}
+
 
 void M3CalibState::entryCode(void) {
     calibDone=false;
@@ -131,16 +85,14 @@ void M3CalibState::entryCode(void) {
 void M3CalibState::duringCode(void) {
     Eigen::Vector3d tau(0, 0, 0);
 
-    //Apply constant torque unless stop has been detected for more than 0.5s
+    //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
+    Eigen::Vector3d vel=robot->getJointVel();
+    double b = 3.;
     for(unsigned int i=0; i<3; i++) {
-        if(stop_reached_time(i)<0.5) {
-            tau(i)=2;
-        } else {
-            tau(i)=0;
+        tau(i) = std::min(std::max(2 - b * vel(i), .0), 2.);
+        if(stop_reached_time(i)>0.5) {
             at_stop[i]=true;
         }
-
-        Eigen::Vector3d vel=robot->getJointVel();
         if(vel(i)<0.01) {
             stop_reached_time(i) += dt;
         }
@@ -156,7 +108,6 @@ void M3CalibState::duringCode(void) {
         //If all joints are calibrated
         if(at_stop[0] && at_stop[1] && at_stop[2]) {
             robot->applyCalibration();
-            //robot->initTorqueControl();
             std::cout << "OK." << std::endl;
         }
         else {

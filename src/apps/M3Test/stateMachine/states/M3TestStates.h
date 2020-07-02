@@ -153,7 +153,7 @@ class M3MassCompensation : public M3TimedState {
 
 
 /**
- * \brief End-effector velocity control through keyboard input.
+ * \brief End-effector velocity control through joystick input.
  *
  */
 class M3EndEffDemo : public M3TimedState {
