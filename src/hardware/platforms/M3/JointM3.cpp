@@ -32,6 +32,17 @@ bool JointM3::updateValue() {
     return true;
 }
 
+setMovementReturnCode_t JointM3::safetyCheck() {
+    if(dq>dqMax || dq<dqMin) {
+        return OUTSIDE_LIMITS;
+    }
+    if(tau>tauMax || tau<tauMin) {
+        return OUTSIDE_LIMITS;
+    }
+    return SUCCESS;
+}
+
+
 
 setMovementReturnCode_t JointM3::setPosition(double qd) {
     if(calibrated) {

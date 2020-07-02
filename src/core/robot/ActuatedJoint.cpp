@@ -74,7 +74,6 @@ void ActuatedJoint::setPositionOffset(double qcalib=0) {
     calibrated=true;
 }
 
-
 double ActuatedJoint::getPosition() {
     return driveUnitToJointPosition(drive->getPos())-q0;
 }
@@ -86,6 +85,7 @@ double ActuatedJoint::getVeloctiy() {
 double ActuatedJoint::getTorque() {
     return driveUnitToJointTorque(drive->getTorque());
 }
+
 
 void ActuatedJoint::readyToSwitchOn() {
     drive->readyToSwitchOn();

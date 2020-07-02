@@ -6,7 +6,7 @@ using namespace Eigen;
 
 short int sign(double val) {return (val>0)?1:((val<0)?-1:0); }
 
-RobotM3::RobotM3() : Robot(), calibrated(false) {
+RobotM3::RobotM3() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce(60) {
 
     //Define the robot structure: each joint with limits and drive: should be in constructor
     double max_speed=360*M_PI/180.;
@@ -76,6 +76,34 @@ void RobotM3::applyCalibration() {
 
 void RobotM3::updateRobot() {
     Robot::updateRobot();
+    if(safetyCheck()!=SUCCESS) {
+        stop();
+    }
+}
+
+
+setMovementReturnCode_t RobotM3::safetyCheck() {
+    //End-effector safeties if calibrated
+    if(calibrated) {
+        if(getEndEffVel().norm()>maxEndEffVel) {
+           std::cerr << "M3: Max velocity reached (" << getEndEffVel().norm() << "m.s-1)!" << std::endl;
+           return OUTSIDE_LIMITS;
+        }
+        if(getEndEffFor().norm()>maxEndEffForce) {
+           std::cerr << "M3: Max force reached (" << getEndEffFor().norm() << "N)!" << std::endl;
+           return OUTSIDE_LIMITS;
+        }
+    }
+    //otherwise basic joint safeties
+    else {
+        for(unsigned int i=0; i<3; i++) {
+            if(((JointM3*)joints[i])->safetyCheck()!=SUCCESS) {
+                std::cerr << "M3: Joint "<< i << " dafety triggered!" << std::endl;
+                return OUTSIDE_LIMITS;
+            }
+        }
+    }
+    return SUCCESS;
 }
 
 
@@ -86,7 +114,6 @@ void RobotM3::printStatus() {
     std::cout <<"F=[ " << getEndEffFor().transpose() << " ]\t";
     std::cout << std::endl;
 }
-
 
 void RobotM3::printJointStatus() {
     std::cout << std::setprecision(1)<< std::fixed;

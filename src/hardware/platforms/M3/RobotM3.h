@@ -54,6 +54,8 @@ class RobotM3 : public Robot {
     Eigen::Vector3d qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
 
     bool calibrated;
+    double maxEndEffVel; /*!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.*/
+    double maxEndEffForce; /*!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated. */
 
    public:
     /**
@@ -157,6 +159,14 @@ class RobotM3 : public Robot {
        * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
        */
     void updateRobot();
+
+    /**
+     * \brief Check if current end effector force and velocities are within limits (if calibrated, otherwise
+     *  check that joints velocity and torque are within limits).
+     *
+     * \return OUTSIDE_LIMITS if outside the limits (!), SUCCESS otherwise
+     */
+    setMovementReturnCode_t safetyCheck();
 
     void printStatus();
     void printJointStatus();

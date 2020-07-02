@@ -43,6 +43,14 @@ class JointM3 : public ActuatedJoint {
     ~JointM3();
 
     bool updateValue();
+
+    /**
+     * \brief Cehck if current velocity and torque are within limits.
+     *
+     * \return OUTSIDE_LIMITS if outside the limits (!), SUCCESS otherwise
+     */
+    setMovementReturnCode_t safetyCheck();
+
     setMovementReturnCode_t setPosition(double qd);
     setMovementReturnCode_t setVelocity(double dqd);
     setMovementReturnCode_t setTorque(double taud);
