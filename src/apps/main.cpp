@@ -43,15 +43,18 @@ bool readyToStart = false;    /*!< Flag used by control thread to indicate CAN s
 uint32_t tmr1msPrev = 0;
 
 /*CAN msg processing thread variables*/
-static int rtPriority = 2; /*!< priority of rt CANmsg thread */
+static int rtPriority = 90;             /*!< priority of rt CANmsg thread */
 static void *rt_thread(void *arg);
 static pthread_t rt_thread_id;
-static int rt_thread_epoll_fd; /*!< epoll file descriptor for rt thread */
+static int rt_thread_epoll_fd;          /*!< epoll file descriptor for rt thread */
 /* Application Control loop thread */
-static int rtControlPriority = 80; /*!< priority of application thread */
+static int rtControlPriority = 80;      /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
-static int rt_control_thread_epoll_fd; /*!< epoll file descriptor for control thread */
+static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
+
+const float controlLoopPeriodInms = 1; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 10; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 (or even 10) leads to unstable communication  */
 
 /** @brief Task Timer used for the Control Loop*/
 struct period_info {
@@ -67,9 +70,10 @@ void configureCANopen(int nodeId, int rtPriority, int CANdevice0Index, char *CAN
 void CO_errExit(char *msg);              /*!< CAN object error code and exit program*/
 void CO_error(const uint32_t info);      /*!< send CANopen generic emergency message */
 volatile uint32_t CO_timer1ms = 0U;      /*!< Global variable increments each millisecond */
-volatile sig_atomic_t CO_endProgram = 0; /*!< Signal handler */
+volatile sig_atomic_t CO_endProgram = 0; /*!< Signal handler: controls the end of CAN processing thread*/
+volatile sig_atomic_t endProgram = 0;    /*!< Signal handler: controls the end of application side (rt thread and main)*/
 static void sigHandler(int sig) {
-    CO_endProgram = 1;
+    endProgram = 1;
 }
 
 /******************************************************************************/
@@ -87,32 +91,28 @@ int main(int argc, char *argv[]) {
     char CANdevice[10]="";
     int CANdevice0Index;
     //Rotate through list of interfaces and select first one existing and up
-    for(unsigned i=0; i<can_dev_number; i++)
-    {
+    for(unsigned i=0; i<can_dev_number; i++) {
         printf("%s: ", CANdeviceList[i]);
         //Check if interface exists
         CANdevice0Index = if_nametoindex(CANdeviceList[i]);/*map linux CAN interface to corresponding int index return zero if no interface exists.*/
-        if(CANdevice0Index!=0)
-        {
+        if(CANdevice0Index!=0) {
             char operstate_filename[255], operstate_s[25];
             snprintf(operstate_filename, 254, "/sys/class/net/%s/operstate", CANdeviceList[i]);
             //Check if it's up
             FILE* operstate_f = fopen(operstate_filename, "r");
             fscanf(operstate_f, "%s", &operstate_s);
             printf("%s\n", operstate_s);
-            if(strcmp(operstate_s, "down")!=0) //Check if not "down" as will be "unknown" if up
-            {
+            //Check if not "down" as will be "unknown" if up
+            if(strcmp(operstate_s, "down")!=0) {
                 snprintf(CANdevice, 9, "%s", CANdeviceList[i]);
                 printf("Using: %s (%d)\n", CANdeviceList[i], CANdevice0Index);
                 break;
             }
-            else
-            {
+            else {
                 CANdevice0Index=0;
             }
         }
-        else
-        {
+        else {
             printf("-\n");
         }
 
@@ -128,9 +128,9 @@ int main(int argc, char *argv[]) {
     printf("starting CANopen device with Node ID %d(0x%02X)", nodeId, nodeId);
 
     //Set synch signal period (in us)
-    CO_OD_RAM.communicationCyclePeriod=1500;
+    CO_OD_RAM.communicationCyclePeriod=CANUpdateLoopPeriodInms*1000;
 
-    while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && CO_endProgram == 0) {
+    while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/
         CO_ReturnError_t err;
         /*mutex locking for thread safe OD access*/
@@ -200,7 +200,7 @@ int main(int argc, char *argv[]) {
             /* Execute optional additional application code */
             app_communicationReset();
             readyToStart = true;
-            while (reset == CO_RESET_NOT && CO_endProgram == 0) {
+            while (reset == CO_RESET_NOT && endProgram == 0) {
                 /* loop for normal program execution main epoll reading ******************************************/
                 int ready;
                 int first = 0;
@@ -225,14 +225,20 @@ int main(int argc, char *argv[]) {
             }
         }
         /* program exit ***************************************************************/
-        CO_endProgram = 1;
-        if (pthread_join(rt_thread_id, NULL) != 0) {
-            CO_errExit("Program end - pthread_join failed");
-        }
+        //End application first
+        endProgram = 1;
+        usleep(100000); /*wait for end programm commands to be processed */
         if (pthread_join(rt_control_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }
         app_programEnd();
+        //End CAN communication processing
+        CO_endProgram = 1;
+        usleep(100000); /*wait for threads to finish */
+        if (pthread_join(rt_thread_id, NULL) != 0) {
+            CO_errExit("Program end - pthread_join failed");
+        }
+
         /* delete objects from memory */
         CANrx_taskTmr_close();
         taskMain_close();
@@ -280,7 +286,6 @@ static void *rt_thread(void *arg) {
             CO_error(0x12200000L);
         }
     }
-
     return NULL;
 }
 /* Control thread function ********************************/
@@ -299,7 +304,7 @@ static void *rt_control_thread(void *arg) {
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);
     }
-    while (CO_endProgram == 0) {
+    while (endProgram == 0) {
         /* Measuring WALL CLOCK controlloop execution time*/
         clock_gettime(CLOCK_MONOTONIC, &start);
         app_programControlLoop();
@@ -311,7 +316,7 @@ static void *rt_control_thread(void *arg) {
             << elapsed
             << "\n";
     }
-    if (readyToStart && CO_endProgram != 0) {
+    if (readyToStart && endProgram != 0) {
         logfile.close();
     }
     return NULL;
@@ -328,7 +333,7 @@ static void inc_period(struct period_info *pinfo) {
 }
 static void periodic_task_init(struct period_info *pinfo) {
     /* for simplicity, hardcoding a 1ms period */
-    pinfo->period_ns = 5000000;
+    pinfo->period_ns = controlLoopPeriodInms*1000000;
 
     clock_gettime(CLOCK_MONOTONIC, &(pinfo->next_period));
 }

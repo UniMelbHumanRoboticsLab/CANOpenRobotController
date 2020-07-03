@@ -4,10 +4,18 @@
 #using default IP / users parameters
 
 SSH_USER="debian"
-SSH_IP_ADDR="192.168.6.2"
 BUILD_FOLDER="build/"
 INIT_SCRIPTS="*.sh"
 SCRIPT_FOLDER="script/"
+
+#use default BB address (dependent on OS used)
+if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then 
+  #Any flavour of Windows (Cygwin, Mingw...)
+  SSH_IP_ADDR="192.168.7.2"
+else
+  #Any other case (Linux, Unix, OSX...)
+  SSH_IP_ADDR="192.168.6.2"
+fi
 
 #set in root folder
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )

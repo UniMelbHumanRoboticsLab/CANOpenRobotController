@@ -109,12 +109,10 @@ int sdoClientDownload(
     /* stay here, if CAN is not configured */
     pthread_mutex_lock(&CO_CAN_VALID_mtx);
 
-
     /* Setup client. */
     if(CO_SDOclient_setup(SDOclient, 0, 0, nodeID) != CO_SDOcli_ok_communicationEnd) {
         err = 1;
     }
-
     /* Initiate download. */
     if(err == 0){
         if(CO_SDOclientDownloadInitiate(SDOclient, idx, subidx, dataTx,
@@ -123,7 +121,6 @@ int sdoClientDownload(
             err = 1;
         }
     }
-
     /* Download data. Loop in 5 ms intervals. */
     if(err == 0){
         CO_SDOclient_return_t ret;
@@ -149,7 +146,6 @@ int sdoClientDownload(
         CO_SDOclientClose(SDOclient);
 
     }
-
     pthread_mutex_unlock(&CO_CAN_VALID_mtx);
 
     return err;

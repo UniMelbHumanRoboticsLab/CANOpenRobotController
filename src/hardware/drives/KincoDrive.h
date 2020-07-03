@@ -91,6 +91,12 @@ class KincoDrive : public Drive {
           *           https://www.can-cia.org/can-knowledge/canopen/cia402/
           *
           */
+
+    bool initPDOs();
+
+    std::vector<std::string> generatePosControlConfigSDO(motorProfile positionProfile);
+    std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
+    std::vector<std::string> generateTorqueControlConfigSDO();
 };
 
 #endif

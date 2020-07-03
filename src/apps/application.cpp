@@ -25,7 +25,7 @@ char ret[STRING_BUFFER_SIZE];
 void app_programStart(void) {
     printf("app_Program Start \n");
     testMachine.init();
-    ((StateMachine)testMachine).activate();
+    testMachine.activate();
 }
 /******************************************************************************/
 void app_communicationReset(void) {

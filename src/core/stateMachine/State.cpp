@@ -32,5 +32,4 @@ void State::printName(void) {
 };
 
 State::~State() {
-    std::cout << "State Deleted" << std::endl;
 }

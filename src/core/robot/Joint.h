@@ -41,6 +41,10 @@ class Joint {
      * of the joint. Should these be exceeded, an error should be thrown.
      */
     const double qMin, qMax;
+    /**
+     * The joint offset position in SI units.
+     */
+    double q0;
 
    public:
     /**
@@ -51,16 +55,6 @@ class Joint {
      * @param jointMax The maximum allowable value for this joint (above this will cause an error)
      */
     Joint(int jointID, double jointMin, double jointMax);
-
-    /**
-     * @brief Construct a new Joint object with initial value for the joint
-     *
-     * @param jointID The joint ID for this object
-     * @param jointMin The minimum allowable value for this joint (below this will cause an error)
-     * @param jointMax The maximum allowable value for this joint (above this will cause an error)
-     * @param q0 Initial value of this joint
-     */
-    Joint(int jointID, double jointMin, double jointMax, double q0);
 
     /**
      * @brief Destroy the Joint object

@@ -24,11 +24,43 @@
 #include <sstream>
 #include <vector>
 
+
+/**
+ * Map of standard SDOs return error codes
+ */
+static std::map<std::string, std::string> SDO_Standard_Error = {
+    {"0x05030000", "Toggle bit not changed"},
+    {"0x05040000", "SDO protocol timed out"},
+    {"0x05040001", "Client/server command specifier not valid or unknown"},
+    {"0x05040002", "Invalid block size (block mode only)"},
+    {"0x05040003", "Invalid sequence number (block mode only)"},
+    {"0x05040004", "CRC error (block mode only)"},
+    {"0x05040005", "Out of memory"},
+    {"0x06010000", "Access to this object is not supported"},
+    {"0x06010002", "Attempt to write to a Read_Only parameter"},
+    {"0x06020000", "The object is not found in the object directory"},
+    {"0x06040041", "The object can not be mapped into the PDO"},
+    {"0x06040042", "The number and/or length of mapped objects would exceed the PDO length"},
+    {"0x06040043", "General parameter incompatibility"},
+    {"0x06040047", "General internal error in device"},
+    {"0x06060000", "Access interrupted due to hardware error"},
+    {"0x06070010", "Data type or parameter length do not agree or are unknown"},
+    {"0x06070012", "Data type does not agree, parameter length too great"},
+    {"0x06070013", "Data type does not agree, parameter length too short"},
+    {"0x06090011", "Sub-index not present"},
+    {"0x06090030", "General value range error"},
+    {"0x06090031", "Value range error: parameter value too great"},
+    {"0x06090032", "Value range error: parameter value too small"},
+    {"0x060A0023", "Resource not available"},
+    {"0x08000021", "Access not possible due to local application"},
+    {"0x08000022", "Access not possible due to current device status"}
+};
+
+
 /**
  * An enum type.
  * Constants representing the control mode of the drive
  */
-
 enum ControlMode {
     UNCONFIGURED = 0,
     POSITION_CONTROL = 1,
@@ -46,6 +78,7 @@ enum DriveState {
     ENABLED = 2,
 };
 
+
 /**
  * An enum type
  * Commonly-used entries defined in the Object Dictionary for CiA402 Drives
@@ -56,6 +89,8 @@ enum OD_Entry_t {
     ACTUAL_POS = 1,
     ACTUAL_VEL = 2,
     ACTUAL_TOR = 3,
+    ERROR_WORD = 4,
+    CONTROL_WORD = 10,
     TARGET_POS = 11,
     TARGET_VEL = 12,
     TARGET_TOR = 13
@@ -91,9 +126,10 @@ class Drive {
         * \param items A list of OD_Entry_t items which are to be configured with this TPDO
         * \param PDO_Num The number/index of this PDO
         * \param SyncRate The rate at which this PDO transmits (e.g. number of Sync Messages. 0xFF represents internal trigger event)
+        * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate);
+    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate, int sub_idx=0);
 
     /**
         * \brief Generates the list of commands required to configure RPDOs on the drives
@@ -101,9 +137,10 @@ class Drive {
         * \param items A list of OD_Entry_t items which are to be configured with this RPDO
         * \param PDO_Num The number/index of this PDO
         * \param UpdateTiming 0-240 represents hold until next sync message, 0xFF represents immediate update
+        * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming);
+    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming, int sub_idx=0);
 
     /**
        *
@@ -111,9 +148,7 @@ class Drive {
        *
        *
        * \param Profile Velocity, value used by position mode motor trajectory generator.
-       *
        * \param Profile Acceleration, value position mode motor trajectory generator will attempt to achieve.
-       *
        * \param Profile Deceleration, value position mode motor trajectory generator will use at end of trapezoidal profile.
        *
        * NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
@@ -147,9 +182,9 @@ class Drive {
     std::vector<std::string> generateTorqueControlConfigSDO();
 
     /**
-        * \brief messages Properly formatted SDO Messages
+        * \brief Send a list (vector) of properly formatted SDO Messages
         *
-        * \return int number of messages successfully processed(return OK)
+        * \return int -number_of_unsuccesfull messages (0 means OK for all). vcan will always return 0 (no reply check).
               */
     int sendSDOMessages(std::vector<std::string> messages);
 
@@ -160,9 +195,11 @@ class Drive {
      */
     std::map<OD_Entry_t, int> OD_Data_Size = {
         {STATUS_WORD, 0x0010},
+        {ERROR_WORD, 0x0010},
         {ACTUAL_POS, 0x0020},
         {ACTUAL_VEL, 0x0020},
         {ACTUAL_TOR, 0x0010},
+        {CONTROL_WORD, 0x0010},
         {TARGET_POS, 0x0020},
         {TARGET_VEL, 0x0020},
         {TARGET_TOR, 0x0010}};
@@ -174,9 +211,11 @@ class Drive {
      */
     std::map<OD_Entry_t, int> OD_Addresses = {
         {STATUS_WORD, 0x6041},
+        {ERROR_WORD, 0x2601},
         {ACTUAL_POS, 0x6064},
         {ACTUAL_VEL, 0x606C},
         {ACTUAL_TOR, 0x6077},
+        {CONTROL_WORD, 0x6040},
         {TARGET_POS, 0x607A},
         {TARGET_VEL, 0x60FF},
         {TARGET_TOR, 0x6071}};
@@ -232,6 +271,13 @@ class Drive {
            * \return True if successful, False if not
            */
     virtual bool Init() = 0;
+
+    /**
+       * \brief Send NMT preop command to the drive node
+       *
+       * \return 0 if unsuccesfull
+       */
+    int preop();
 
     /**
        * \brief Send NMT start command to the drive node
@@ -300,7 +346,7 @@ class Drive {
            *
            * \return The current value of the status word (0x6041)
            */
-    virtual int updateDriveStatus();
+    virtual int getStatus();
 
     /**
            * Writes the desired position to the Target Position of the motor drive (0x607A)
@@ -394,7 +440,7 @@ class Drive {
         *
         * \return DriveState
         */
-    virtual DriveState getDriveState();
+    virtual DriveState getState();
 
     /**
         * \brief Get the current control mode of the drive

@@ -5,9 +5,9 @@
  *          with a CAN-based robot device
  * @version 0.1
  * @date 2020-04-17
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 #include "Robot.h"
 
@@ -32,6 +32,11 @@ bool Robot::initialise() {
         }
     } else
         return false;
+}
+
+
+bool Robot::stop() {
+    return true;
 }
 
 void Robot::updateRobot() {
