@@ -1,13 +1,11 @@
 //
 // Created by William Campbell on 2019-09-24.
 //
-#include "StateMachine.h"
-
-#include <stdio.h>
-
 #include <iostream>
 
+#include "StateMachine.h"
 #include "DebugMacro.h"
+
 //State machine constructors
 StateMachine::StateMachine(void) {
     currentState = NULL;

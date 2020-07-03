@@ -54,7 +54,7 @@ static pthread_t rt_control_thread_id;
 static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
 
 const float controlLoopPeriodInms = 1; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 8; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 (or even 10) leads to unstable communication  */
+const float CANUpdateLoopPeriodInms = 10; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 (or even 10) leads to unstable communication  */
 
 /** @brief Task Timer used for the Control Loop*/
 struct period_info {
