@@ -53,6 +53,7 @@ class M3DemoMachine : public StateMachine {
     M3DemoState *testState;
     M3EndEffDemo *endEffDemoState;
     M3DemoImpedanceState *impedanceState;
+    M3SamplingEstimationState *timingState;
 
    protected:
     RobotM3 *robot; /*<!Pointer to the Robot*/

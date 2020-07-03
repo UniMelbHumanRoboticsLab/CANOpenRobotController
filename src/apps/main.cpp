@@ -43,7 +43,7 @@ bool readyToStart = false;    /*!< Flag used by control thread to indicate CAN s
 uint32_t tmr1msPrev = 0;
 
 /*CAN msg processing thread variables*/
-static int rtPriority = 2; /*!< priority of rt CANmsg thread */
+static int rtPriority = 90; /*!< priority of rt CANmsg thread */
 static void *rt_thread(void *arg);
 static pthread_t rt_thread_id;
 static int rt_thread_epoll_fd; /*!< epoll file descriptor for rt thread */
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
     printf("starting CANopen device with Node ID %d(0x%02X)", nodeId, nodeId);
 
     //Set synch signal period (in us)
-    CO_OD_RAM.communicationCyclePeriod=10000;
+    CO_OD_RAM.communicationCyclePeriod=8000;
 
     while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/
@@ -330,7 +330,7 @@ static void inc_period(struct period_info *pinfo) {
 }
 static void periodic_task_init(struct period_info *pinfo) {
     /* for simplicity, hardcoding a 1ms period */
-    pinfo->period_ns = 5000000;
+    pinfo->period_ns = 1000000;
 
     clock_gettime(CLOCK_MONOTONIC, &(pinfo->next_period));
 }

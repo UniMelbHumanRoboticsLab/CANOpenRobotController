@@ -49,7 +49,7 @@ class M3TimedState : public State {
         << std::endl;
 
         //Timing
-        clock_gettime(CLOCK_REALTIME, &initTime);
+        clock_gettime(CLOCK_MONOTONIC, &initTime);
         lastTime = timeval_to_sec(&initTime);
 
         iterations=0;
@@ -60,7 +60,7 @@ class M3TimedState : public State {
     void during(void) final {
         //Compute some basic time values
         struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
+        clock_gettime(CLOCK_MONOTONIC, &ts);
 
         double now = timeval_to_sec(&ts);
         elapsedTime = (now-timeval_to_sec(&initTime));
@@ -184,6 +184,32 @@ class M3DemoImpedanceState : public M3TimedState {
     double k = 800;
     double d = 2;
     bool init=false;
+
+    int nb_samples=10000;
+    double dts[10000];
+    double dX[10000];
+    int new_value;
+};
+
+
+/**
+ * \brief Sampling frequency estimation state.
+ *
+ */
+class M3SamplingEstimationState : public M3TimedState {
+
+   public:
+    M3SamplingEstimationState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Sampling time estimation State"):M3TimedState(m, M3, name){};
+
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
+
+   private:
+    int nb_samples=10000;
+    double dts[10000];
+    double dX[10000];
+    int new_value;
 };
 
 #endif

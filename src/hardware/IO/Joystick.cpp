@@ -68,10 +68,10 @@ size_t get_button_count(int fd) {
  *
  * Returns the axis that the event indicated.
  */
-size_t get_axis_state(struct js_event *event, struct axis_state axes[MAX_STICK]) {
+size_t get_axis_state(struct js_event *event, struct axis_state axes[MAX_NB_STICKS]) {
     size_t axis = event->number / 2;
 
-    if (axis < MAX_STICK)
+    if (axis < MAX_NB_STICKS)
     {
         if (event->number % 2 == 0)
             axes[axis].x = event->value;
@@ -94,6 +94,7 @@ void Joystick::updateInput() {
                 break;
             case JS_EVENT_AXIS:
                 axis = get_axis_state(&event, axes);
+                break;
             default:
                 /* Ignore init events. */
                 break;

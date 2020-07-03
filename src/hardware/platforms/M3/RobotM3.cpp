@@ -93,10 +93,10 @@ setMovementReturnCode_t RobotM3::safetyCheck() {
            std::cerr << "M3: Max velocity reached (" << getEndEffVel().norm() << "m.s-1)!" << std::endl;
            return OUTSIDE_LIMITS;
         }
-        if(getEndEffFor().norm()>maxEndEffForce) {
+        /*if(getEndEffFor().norm()>maxEndEffForce) {
            std::cerr << "M3: Max force reached (" << getEndEffFor().norm() << "N)!" << std::endl;
            return OUTSIDE_LIMITS;
-        }
+        }*/
     }
     //otherwise basic joint safeties
     else {
@@ -266,11 +266,11 @@ Vector3d RobotM3::inverseKinematic(Vector3d X) {
     float *L = LinkLengths;
 
     //Check accessible workspace
-    double normX=sqrt(X[0]*X[0]+X[1]*X[1]+X[2]*X[2]);
+    double normX=X.norm();
     if( (L[4]<L[2] && normX<L[2]-L[4]) || (L[4]>L[2] && normX<sqrt(L[4]*L[4]-L[2]*L[2])) || normX>(L[2]+L[4]+L[0]) || X[0]>0 )
     {
-        DEBUG_OUT("RobotM3::inverseKinematic() error: Point not accessible. NaN returned.");
-        q[0]=q[1]=q[3]=nan("");
+        std::cerr << "RobotM3::inverseKinematic() error: Point not accessible. NaN returned." << std::endl;
+        q[0]=q[1]=q[2]=nan("");
         return q;
     }
 
@@ -279,13 +279,11 @@ Vector3d RobotM3::inverseKinematic(Vector3d X) {
 
     //Project onto parallel mechanism plane
     Vector3d tmpX;
-    if(X[0]>0)
-    {
+    if(X[0]>0) {
         //should never happen as outside of workspace...
         tmpX[0]=sqrt(X[0]*X[0]+X[1]*X[1]);
     }
-    else
-    {
+    else {
         tmpX[0]=-sqrt(X[0]*X[0]+X[1]*X[1]);
     }
     //Remove offset along -x

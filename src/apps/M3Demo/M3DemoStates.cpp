@@ -21,7 +21,6 @@ void M3DemoState::entryCode(void) {
     qi=robot->getJointPos();
     Xi=robot->getEndEffPos();
 }
-
 void M3DemoState::duringCode(void) {
     if(iterations%100==1) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
@@ -59,7 +58,6 @@ void M3DemoState::duringCode(void) {
     /*Eigen::Vector3d F(0,0,0);
     robot->setEndEffForWithCompensation(F);*/
 }
-
 void M3DemoState::exitCode(void) {
     robot->setJointVel(Eigen::Vector3d::Zero());
     robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
@@ -219,7 +217,7 @@ void M3DemoImpedanceState::duringCode(void) {
     }
     Eigen::Matrix3d D = d*Eigen::Matrix3d::Identity();
 
-
+    //Apply impedance control
     if(init) {
         std::cout << "K=" << k << " D=" << d << " => F=" << impedance(K, Eigen::Matrix3d::Zero(), Xi, robot->getEndEffPos(), robot->getEndEffVel()).transpose() << " N" <<std::endl;
         robot->setEndEffForWithCompensation(impedance(K, D, Xi, robot->getEndEffPos(), robot->getEndEffVel()));
@@ -231,3 +229,52 @@ void M3DemoImpedanceState::duringCode(void) {
 void M3DemoImpedanceState::exitCode(void) {
     robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
 }
+
+
+
+
+
+void M3SamplingEstimationState::entryCode(void) {
+    robot->initTorqueControl();
+    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
+    std::cout << "Move robot around while estimating time" << std::endl;
+}
+void M3SamplingEstimationState::duringCode(void) {
+    //Apply gravity compensation
+    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
+
+    //Save dt
+    if(iterations<nb_samples) {
+        //Do some math for fun
+        Eigen::Matrix3d K = 2.36*Eigen::Matrix3d::Identity();
+        Eigen::Matrix3d D = 0.235*Eigen::Matrix3d::Identity();
+        impedance(K, Eigen::Matrix3d::Zero(), Eigen::Vector3d(-0.5, 0.23, 0.65), robot->getEndEffPos(), robot->getEndEffVel()).transpose();
+        robot->J().inverse()*Eigen::Vector3d::Zero()+2*robot->inverseKinematic(Eigen::Vector3d(-0.5, 0, 0));
+
+        //Get time and actual value read from CAN to get sampling rate
+        dts[iterations] = dt;
+        dX[iterations] = robot->getEndEffVel().norm();
+        if(dX[iterations-1]!=dX[iterations]){ //Value has actually been updated
+            new_value++;
+        }
+    }
+    else if(iterations==nb_samples) {
+        std::cout << "Done." <<std::endl;
+        double dt_avg=0;
+        double dt_max=0;
+        double dt_min=50000;
+        for(unsigned int i=0; i<nb_samples; i++) {
+            dt_avg+=dts[i]/(double)nb_samples;
+            if(dts[i]>dt_max)
+                dt_max=dts[i];
+            if(i>1 && dts[i]<dt_min)
+                dt_min=dts[i];
+        }
+        std::cout<< std::dec<<std::setprecision(3) << "Loop time (min, avg, max): " << dt_min*1000 << " < " << dt_avg*1000 << " < " << dt_max*1000 << " (ms). Actual CAN sampling: " << nb_samples*dt_avg / (double) new_value*1000 <<  std::endl;
+    }
+}
+void M3SamplingEstimationState::exitCode(void) {
+    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
+
+}
+

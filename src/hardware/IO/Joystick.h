@@ -30,7 +30,7 @@ struct axis_state {
     short x, y;
 };
 
-#define MAX_STICK 5
+#define MAX_NB_STICKS 5
 #define STICK_MAX_VALUE 65535.0
 
 /**
@@ -39,9 +39,7 @@ struct axis_state {
 class Joystick : public InputDevice
 {
     public:
-        /** Default constructor */
         Joystick();
-        /** Default destructor */
         ~Joystick();
 
         void updateInput();
@@ -62,7 +60,7 @@ class Joystick : public InputDevice
         const char *device;
         int js;
         struct js_event event;
-        struct axis_state axes[MAX_STICK] = {0};
+        struct axis_state axes[MAX_NB_STICKS] = {0};
         size_t axis;
         bool button[100];
 };
