@@ -43,15 +43,18 @@ bool readyToStart = false;    /*!< Flag used by control thread to indicate CAN s
 uint32_t tmr1msPrev = 0;
 
 /*CAN msg processing thread variables*/
-static int rtPriority = 90; /*!< priority of rt CANmsg thread */
+static int rtPriority = 90;             /*!< priority of rt CANmsg thread */
 static void *rt_thread(void *arg);
 static pthread_t rt_thread_id;
-static int rt_thread_epoll_fd; /*!< epoll file descriptor for rt thread */
+static int rt_thread_epoll_fd;          /*!< epoll file descriptor for rt thread */
 /* Application Control loop thread */
-static int rtControlPriority = 80; /*!< priority of application thread */
+static int rtControlPriority = 80;      /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
-static int rt_control_thread_epoll_fd; /*!< epoll file descriptor for control thread */
+static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
+
+const float controlLoopPeriodInms = 1; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 8; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 (or even 10) leads to unstable communication  */
 
 /** @brief Task Timer used for the Control Loop*/
 struct period_info {
@@ -125,7 +128,7 @@ int main(int argc, char *argv[]) {
     printf("starting CANopen device with Node ID %d(0x%02X)", nodeId, nodeId);
 
     //Set synch signal period (in us)
-    CO_OD_RAM.communicationCyclePeriod=8000;
+    CO_OD_RAM.communicationCyclePeriod=CANUpdateLoopPeriodInms*1000;
 
     while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/
@@ -330,7 +333,7 @@ static void inc_period(struct period_info *pinfo) {
 }
 static void periodic_task_init(struct period_info *pinfo) {
     /* for simplicity, hardcoding a 1ms period */
-    pinfo->period_ns = 1000000;
+    pinfo->period_ns = controlLoopPeriodInms*1000000;
 
     clock_gettime(CLOCK_MONOTONIC, &(pinfo->next_period));
 }

@@ -163,8 +163,16 @@ void M3EndEffDemo::entryCode(void) {
 void M3EndEffDemo::duringCode(void) {
     Eigen::Vector3d dX(0,0,0);
 
-    for(unsigned int i=0; i<3; i++) {
-        dX(i)=robot->joystick.getAxis(i)/2.;
+    if(elapsedTime<1.0)
+    {
+        //Go towards the center
+        dX={-0.1,0.1,0.1};
+    }
+    else {
+        //Joystick driven
+        for(unsigned int i=0; i<3; i++) {
+            dX(i)=robot->joystick.getAxis(i)/2.;
+        }
     }
 
     //Apply
