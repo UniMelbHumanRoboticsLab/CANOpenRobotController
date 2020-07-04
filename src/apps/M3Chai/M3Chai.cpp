@@ -2,6 +2,9 @@
 
 #define OWNER ((M3Chai *)owner)
 
+
+#define IP_ADDRESS "192.168.6.2" //Local IP address to use
+
 M3Chai::M3Chai() {
     robot = new RobotM3();
     chaiServer = new server(3, 3);
@@ -40,7 +43,7 @@ void M3Chai::init() {
     DEBUG_OUT("M3Chai::init()")
     if(robot->initialise()) {
         initialised = true;
-        if(chaiServer->Connect("192.168.6.2")!=0) {
+        if(chaiServer->Connect(IP_ADDRESS)!=0) {
             std::cout /*cerr is banned*/ << "M3ChaiCommunication: Unable to initialise socket... Quitting." <<std::endl;
             raise(SIGTERM); //Clean exit
         }
