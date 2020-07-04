@@ -58,34 +58,33 @@ void M3CalibState::exitCode(void) {
 
 
 void M3ChaiCommunication::entryCode(void) {
-
-    if(chaiServer.Connect("192.168.6.2")!=0) {
-        std::cerr << "M3ChaiCommunication: Unable to initialise socket... Quitting." <<std::endl;
-        raise(SIGTERM); //Clean exit
-    }
+    F=Eigen::Vector3d::Zero();
+    robot->setEndEffForWithCompensation(F);
 }
 void M3ChaiCommunication::duringCode(void) {
 
-    //Retrive values from chai client if exist
-    if(chaiServer.IsConnected()) {
-        if(chaiServer.IsReceivedValues()) {
+    //Retrieve values from chai client if exist
+    if(chaiServer->IsConnected()) {
+        if(chaiServer->IsReceivedValues()) {
             double *force = new double[3];
-            force = chaiServer.GetReceivedValues();
+            force = chaiServer->GetReceivedValues();
             lastReceivedTime = elapsedTime;
             F=Eigen::Vector3d(-force[0], -force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
             std::cout << F.transpose() << std::endl;
+
+            F=Eigen::Vector3d::Zero();
         }
 
         //Watchdog: If no fresh values for more than 10ms, fallback
         if(elapsedTime-lastReceivedTime>watchDogTime) {
              F=Eigen::Vector3d::Zero();
-             std::cerr << "M3ChaiCommunication: No new value received from client (in last " << watchDogTime*1000. << "ms): fallback."  << std::endl;
+             std::cout /*cerr is banned*/ << "M3ChaiCommunication: No new value received from client (in last " << watchDogTime*1000. << "ms): fallback."  << std::endl;
         }
 
         //Anyway send values
         X=robot->getEndEffPos();
         double *x = new double[3]{-X(0),-X(1),X(2)}; //Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
-        chaiServer.Send(x);
+        chaiServer->Send(x);
     }
     else {
         F=Eigen::Vector3d::Zero();

@@ -4,10 +4,11 @@
 
 M3Chai::M3Chai() {
     robot = new RobotM3();
+    chaiServer = new server(3, 3);
 
     // Create PRE-DESIGNED State Machine events and state objects.
     calibState = new M3CalibState(this, robot);
-    communicationState = new M3ChaiCommunication(this, robot);
+    communicationState = new M3ChaiCommunication(this, robot, chaiServer);
     endCalib = new EndCalib(this);
 
     /**
@@ -22,6 +23,7 @@ M3Chai::M3Chai() {
     StateMachine::initialize(calibState);
 }
 M3Chai::~M3Chai() {
+    delete chaiServer;
     delete calibState;
     delete communicationState;
     delete endCalib;
@@ -38,10 +40,14 @@ void M3Chai::init() {
     DEBUG_OUT("M3Chai::init()")
     if(robot->initialise()) {
         initialised = true;
+        if(chaiServer->Connect("192.168.6.2")!=0) {
+            std::cout /*cerr is banned*/ << "M3ChaiCommunication: Unable to initialise socket... Quitting." <<std::endl;
+            raise(SIGTERM); //Clean exit
+        }
     }
     else {
         initialised = false;
-        std::cerr << "Failed robot initialisation. Exiting..." << std::endl;
+        std::cout /*cerr is banned*/ << "Failed robot initialisation. Exiting..." << std::endl;
         std::raise(SIGTERM); //Clean exit
     }
     running = true;
@@ -66,9 +72,6 @@ void M3Chai::end() {
 void M3Chai::hwStateUpdate(void) {
     robot->updateRobot();
 }
-
-
-
 
 
 

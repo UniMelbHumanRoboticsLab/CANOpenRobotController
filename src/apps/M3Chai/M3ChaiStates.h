@@ -125,14 +125,14 @@ class M3CalibState : public M3TimedState {
 class M3ChaiCommunication : public M3TimedState {
 
    public:
-    M3ChaiCommunication(StateMachine *m, RobotM3 *M3, const char *name = "M3 Chai 3D communication"):M3TimedState(m, M3, name), chaiServer(3, 3) {};
+    M3ChaiCommunication(StateMachine *m, RobotM3 *M3, server *s, const char *name = "M3 Chai 3D communication"):M3TimedState(m, M3, name), chaiServer(s){};
 
     void entryCode(void);
     void duringCode(void);
     void exitCode(void);
 
    private:
-     server chaiServer;
+     server *chaiServer;
      double watchDogTime = 0.010; //Watchdog time in s
      double lastReceivedTime;
      Eigen::Vector3d F, X;

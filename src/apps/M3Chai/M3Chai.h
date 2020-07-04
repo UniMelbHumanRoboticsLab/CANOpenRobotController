@@ -53,6 +53,7 @@ class M3Chai : public StateMachine {
 
    protected:
     RobotM3 *robot; /*<!Pointer to the Robot*/
+    server *chaiServer; /*<! Pointer to communication server for Chai*/
 
    private:
     EventObject(EndCalib) * endCalib;

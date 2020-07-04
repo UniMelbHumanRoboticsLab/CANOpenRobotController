@@ -90,19 +90,19 @@ setMovementReturnCode_t RobotM3::safetyCheck() {
     //End-effector safeties if calibrated
     if(calibrated) {
         if(getEndEffVel().norm()>maxEndEffVel) {
-           std::cerr << "M3: Max velocity reached (" << getEndEffVel().norm() << "m.s-1)!" << std::endl;
+           std::cout /*cerr is banned*/ << "M3: Max velocity reached (" << getEndEffVel().norm() << "m.s-1)!" << std::endl;
            return OUTSIDE_LIMITS;
         }
-        /*if(getEndEffFor().norm()>maxEndEffForce) {
-           std::cerr << "M3: Max force reached (" << getEndEffFor().norm() << "N)!" << std::endl;
-           return OUTSIDE_LIMITS;
-        }*/
+        //if(getEndEffFor().norm()>maxEndEffForce) {
+        //   std::cout /*cerr is banned*/ << "M3: Max force reached (" << getEndEffFor().norm() << "N)!" << std::endl;
+        //   return OUTSIDE_LIMITS;
+        //}
     }
     //otherwise basic joint safeties
     else {
         for(unsigned int i=0; i<3; i++) {
             if(((JointM3*)joints[i])->safetyCheck()!=SUCCESS) {
-                std::cerr << "M3: Joint "<< i << " safety triggered!" << std::endl;
+                std::cout /*cerr is banned*/ << "M3: Joint "<< i << " safety triggered!" << std::endl;
                 return OUTSIDE_LIMITS;
             }
         }
@@ -269,7 +269,7 @@ Vector3d RobotM3::inverseKinematic(Vector3d X) {
     double normX=X.norm();
     if( (L[4]<L[2] && normX<L[2]-L[4]) || (L[4]>L[2] && normX<sqrt(L[4]*L[4]-L[2]*L[2])) || normX>(L[2]+L[4]+L[0]) || X[0]>0 )
     {
-        std::cerr << "RobotM3::inverseKinematic() error: Point not accessible. NaN returned." << std::endl;
+        std::cout /*cerr is banned*/ << "RobotM3::inverseKinematic() error: Point not accessible. NaN returned." << std::endl;
         q[0]=q[1]=q[2]=nan("");
         return q;
     }

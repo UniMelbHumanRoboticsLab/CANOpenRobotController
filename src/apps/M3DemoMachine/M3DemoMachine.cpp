@@ -45,7 +45,7 @@ void M3DemoMachine::init() {
     }
     else {
         initialised = false;
-        std::cerr << "Failed robot initialisation. Exiting..." << std::endl;
+        std::cout /*cerr is banned*/ << "Failed robot initialisation. Exiting..." << std::endl;
         std::raise(SIGTERM); //Clean exit
     }
     running = true;
