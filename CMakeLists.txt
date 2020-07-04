@@ -15,9 +15,19 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-## Get all source and header files
-file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c")
-file(GLOB_RECURSE HEADERS "src/*.h")
+
+# Select the application by setting the state machine to use
+#(should be the class name and have corresponding header naming in a corresponding folder)
+set (STATE_MACHINE_NAME "M3DemoMachine")
+#set (STATE_MACHINE_NAME "ExoTestMachine")
+
+add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
+add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
+
+
+## Get all source and header files (only the target app folder is included)
+file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "src/apps/${STATE_MACHINE_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.cpp")
+file(GLOB_RECURSE HEADERS "src/core/*.h" "src/hardware/*.h" "src/apps/${STATE_MACHINE_NAME}/*.h")
 
 ## Set every folder containing .h file as include directory
 set (INCLUDE_DIRS "")
@@ -29,13 +39,8 @@ list(REMOVE_DUPLICATES INCLUDE_DIRS)
 ## Add libraries headers
 list (APPEND INCLUDE_DIRS lib/)
 
-# Select the application by setting the state machine to use
-#(should be the class name and have corresponding header naming)
-#set (STATE_MACHINE_NAME "M3DemoMachine")
-set (STATE_MACHINE_NAME "ExoTestMachine")
 
-add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
-add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
+
 
 # Executable name: {STATEMACHINENAME}_APP
 add_executable(${STATE_MACHINE_NAME}_APP

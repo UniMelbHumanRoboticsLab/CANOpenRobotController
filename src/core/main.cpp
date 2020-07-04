@@ -77,7 +77,7 @@ static void sigHandler(int sig) {
 }
 
 /******************************************************************************/
-/** Mainline and threads                                                   **/
+/** Mainline and threads                                                     **/
 /******************************************************************************/
 int main(int argc, char *argv[]) {
     /* TODO : MOVE bellow definitionsTO SOME KIND OF CANobject, struct or the like*/
