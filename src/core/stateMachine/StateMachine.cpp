@@ -1,13 +1,11 @@
 //
 // Created by William Campbell on 2019-09-24.
 //
-#include "StateMachine.h"
-
-#include <stdio.h>
-
 #include <iostream>
 
+#include "StateMachine.h"
 #include "DebugMacro.h"
+
 //State machine constructors
 StateMachine::StateMachine(void) {
     currentState = NULL;
@@ -16,6 +14,7 @@ StateMachine::StateMachine(void) {
 void StateMachine::initialize(State *i) {
     currentState = i;
     DEBUG_OUT("StateMachine::initialize()")
+    initialised = true;
 }
 
 State *StateMachine::getCurState(void) {
@@ -24,7 +23,9 @@ State *StateMachine::getCurState(void) {
 
 void StateMachine::activate(void) {
     DEBUG_OUT("StateMachine::Activate")
-    currentState->entry();
+    if(initialised) {
+        currentState->entry();
+    }
 }
 
 void StateMachine::update(void) {
@@ -35,9 +36,4 @@ void StateMachine::update(void) {
         currentState->entry();
     }
     currentState->during();
-}
-
-void StateMachine::end(void) {
-    DEBUG_OUT("StateMachine::End")
-    currentState->exit();
 }

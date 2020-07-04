@@ -23,6 +23,16 @@ int Drive::getNodeID() {
     return NodeID;
 }
 
+int Drive::preop() {
+    // start drive (Node)
+    std::stringstream sstream;
+    std::vector<std::string> CANCommands;
+    sstream << "[1] " << NodeID << " preop";
+    CANCommands.push_back(sstream.str());
+
+    return sendSDOMessages(CANCommands);
+}
+
 int Drive::start() {
     // start drive (Node)
     std::stringstream sstream;
@@ -61,10 +71,11 @@ bool Drive::setTorque(int torque) {
     * \todo add setTorque to object dictionary for all drives
     *
     */
-    DEBUG_OUT("Drive " << NodeID << " Writing " << torque << " to 0x6071");
+    DEBUG_OUT("Drive " << NodeID << " Writing " <<  (short int)torque << " to 0x" << std::hex << OD_Addresses[TARGET_TOR]);
     *(&CO_OD_RAM.targetMotorTorques.motor1 + ((this->NodeID - 1))) = torque;
     return true;
 }
+
 
 int Drive::getPos() {
     int q = *(&CO_OD_RAM.actualMotorPositions.motor1 + ((this->NodeID - 1)));
@@ -87,6 +98,7 @@ int Drive::getTorque() {
     }
 }
 
+
 bool Drive::readyToSwitchOn() {
     *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x06;
     driveState = READY_TO_SWITCH_ON;
@@ -102,11 +114,11 @@ bool Drive::disable() {
     driveState = DISABLED;
 }
 
-DriveState Drive::getDriveState() {
+DriveState Drive::getState() {
     return driveState;
 }
 
-int Drive::updateDriveStatus() {
+int Drive::getStatus() {
     statusWord = *(&CO_OD_RAM.statusWords.motor1 + ((this->NodeID - 1)));
     return statusWord;
 }
@@ -123,27 +135,53 @@ bool Drive::posControlConfirmSP() {
 
 bool Drive::initPDOs() {
     DEBUG_OUT("Drive::initPDOs")
+
     //DEBUG_OUT("Set up STATUS_WORD TPDO")
-    sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF));
+    if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF))<0) {
+        std::cerr << "Set up STATUS_WORD TPDO FAILED on node" << NodeID  <<std::endl;
+        return false;
+    }
 
     //DEBUG_OUT("Set up ACTUAL_POS and ACTUAL_VEL TPDO")
-    sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 1));
+    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 0x01))<0) {
+        std::cerr << "Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node" << NodeID <<std::endl;
+        return false;
+    }
 
     //DEBUG_OUT("Set up ACTUAL_TOR TPDO")
-    sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 1));
+    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 0x01))<0) {
+        std::cerr << "Set up ACTUAL_TOR TPDO FAILED on node" << NodeID <<std::endl;
+        return false;
+    }
+
+    //DEBUG_OUT("Set up CONTROL_WORD RPDO")
+    if(sendSDOMessages(generateRPDOConfigSDO({CONTROL_WORD}, 1, 0xff))<0) {
+        std::cerr << "Set up CONTROL_WORD RPDO FAILED on node" << NodeID <<std::endl;
+        return false;
+    }
 
     //DEBUG_OUT("Set up TARGET_POS RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 3, 0xff));
+    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 2, 0xff))<0) {
+        std::cerr << "Set up TARGET_POS RPDO FAILED on node" << NodeID <<std::endl;
+        return false;
+    }
 
     //DEBUG_OUT("Set up TARGET_VEL RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 4, 0xff));
+    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 3, 0xff))<0) {
+        std::cerr << "Set up ARGET_VEL RPDO FAILED on node" << NodeID <<std::endl;
+        return false;
+    }
 
     //DEBUG_OUT("Set up TARGET_TOR RPDO")
-    sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 5, 0xff));
+    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x00))<0) {
+        std::cerr << "Set up TARGET_TOR RPDO FAILED on node" << NodeID <<std::endl;
+        return false;
+    }
+
     return true;
 }
 
-std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate) {
+std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate, int sub_idx) {
     // TODO: Do a check to make sure that the OD_Entry_t items can be transmitted.
 
     // Calculate COB_ID. If TPDO:
@@ -172,7 +210,7 @@ std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> it
 
     for (int i = 1; i <= items.size(); i++) {
         // Set transmit parameters
-        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1A00 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + OD_Data_Size[items[i - 1]];
+        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1A00 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + sub_idx * 0x100 + OD_Data_Size[items[i - 1]];
         CANCommands.push_back(sstream.str());
         sstream.str(std::string());
     }
@@ -189,14 +227,14 @@ std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> it
 
     return CANCommands;
 }
-std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming) {
+std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming, int sub_idx) {
     /**
      *  \todo Do a check to make sure that the OD_Entry_t items can be Received
      *
      */
 
-    // Calculate COB_ID. If TPDO:
-    int COB_ID = 0x100 * PDO_Num + NodeID;
+    // Calculate COB_ID. If RPDO:
+    int COB_ID = 0x100 * (PDO_Num+1) + NodeID;
 
     // Define Vector to be returned as part of this method
     std::vector<std::string> CANCommands;
@@ -221,7 +259,7 @@ std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> it
 
     for (int i = 1; i <= items.size(); i++) {
         // Set transmit parameters
-        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1600 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + OD_Data_Size[items[i - 1]];
+        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1600 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + sub_idx * 0x100 + OD_Data_Size[items[i - 1]];
         CANCommands.push_back(sstream.str());
         sstream.str(std::string());
     }
@@ -259,8 +297,7 @@ std::vector<std::string> Drive::generatePosControlConfigSDO(motorProfile positio
     sstream.str(std::string());
 
     //Set acceleration profile
-    sstream
-        << "[1] " << NodeID << " write 0x6083 0 i32 " << std::dec << positionProfile.profileAcceleration;
+    sstream << "[1] " << NodeID << " write 0x6083 0 i32 " << std::dec << positionProfile.profileAcceleration;
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
@@ -317,12 +354,9 @@ std::vector<std::string> Drive::generateTorqueControlConfigSDO() {
 int Drive::sendSDOMessages(std::vector<std::string> messages) {
     char *returnMessage;
 
-#ifndef NOROBOT
     int successfulMessages = 0;
-#else
-    int successfulMessages = 1;
-#endif
     for (auto strCommand : messages) {
+        DEBUG_OUT(strCommand)
         // explicitly cast c++ string to from const char* to char* for use by cancomm function
         char *SDO_Message = (char *)(strCommand.c_str());
 
@@ -336,7 +370,23 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
         if (retMsg.find("OK") != std::string::npos) {
             successfulMessages++;
         }
+        else {
+            std::cerr << "sendSDOMessage: ERROR:" << strCommand;
+            if(retMsg.find("0x")!=retMsg.npos) {
+                std::string error_code = retMsg.substr(retMsg.find("0x"), retMsg.npos);
+                std::cerr << " => " <<  SDO_Standard_Error[error_code] << " (" << error_code << ")" << std::endl;
+            }
+            else {
+                std::cerr << " => " << retMsg << std::endl;
+            }
+        }
+        DEBUG_OUT(retMsg)
+#else
+        DEBUG_OUT("VCAN OK no reply.")
+        successfulMessages++;
 #endif
     }
-    return successfulMessages;
+    return successfulMessages-messages.size();
 }
+
+

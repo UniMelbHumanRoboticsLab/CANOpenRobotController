@@ -22,7 +22,7 @@
  */
 class JointM3 : public ActuatedJoint {
    private:
-    double q, dq, tau, q0;
+    double q, dq, tau;
     double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
     int encoderCounts = 10000;  //Encoder counts per turn
     double reductionRatio = 22.;
@@ -37,21 +37,21 @@ class JointM3 : public ActuatedJoint {
    public:
     JointM3(int jointID, double q_min, double q_max, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0);
     ~JointM3();
+
     bool updateValue();
+
+    /**
+     * \brief Cehck if current velocity and torque are within limits.
+     *
+     * \return OUTSIDE_LIMITS if outside the limits (!), SUCCESS otherwise
+     */
+    setMovementReturnCode_t safetyCheck();
+
     setMovementReturnCode_t setPosition(double qd);
     setMovementReturnCode_t setVelocity(double dqd);
     setMovementReturnCode_t setTorque(double taud);
 
-    /**
-     * \brief Set current position as joint position offset (q0)
-     * such that current position is now qcalib
-     *
-     */
-    void setCurrentOffset(double qcalib);
     bool initNetwork();
-    double getQ();
-    double getDq();
-    double getTau();
 };
 
 #endif
