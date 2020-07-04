@@ -59,34 +59,40 @@ void M3CalibState::exitCode(void) {
 
 void M3ChaiCommunication::entryCode(void) {
 
-    std::cout << "Press S to decrease mass (-100g), W to increase (+100g)." << mass << std::endl;
+    if(chaiServer.Connect("192.168.6.2")!=0) {
+        std::cerr << "M3ChaiCommunication: Unable to initialise socket... Quitting." <<std::endl;
+        raise(SIGTERM); //Clean exit
+    }
 }
 void M3ChaiCommunication::duringCode(void) {
 
-    //Smooth transition in case a mass is set at startup
-    double settling_time = 3.0;
-    double t=elapsedTime>settling_time?1.0:elapsedTime/settling_time;
+    //Retrive values from chai client if exist
+    if(chaiServer.IsConnected()) {
+        if(chaiServer.IsReceivedValues()) {
+            double *force = new double[3];
+            force = chaiServer.GetReceivedValues();
+            lastReceivedTime = elapsedTime;
+            F=Eigen::Vector3d(-force[0], -force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
+            std::cout << F.transpose() << std::endl;
+        }
 
-    //Bound mass to +-5kg
-    if(mass>5.0) {
-        mass = 5;
+        //Watchdog: If no fresh values for more than 10ms, fallback
+        if(elapsedTime-lastReceivedTime>watchDogTime) {
+             F=Eigen::Vector3d::Zero();
+             std::cerr << "M3ChaiCommunication: No new value received from client (in last " << watchDogTime*1000. << "ms): fallback."  << std::endl;
+        }
+
+        //Anyway send values
+        X=robot->getEndEffPos();
+        double *x = new double[3]{-X(0),-X(1),X(2)}; //Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
+        chaiServer.Send(x);
     }
-    if(mass<-5) {
-        mass = -5;
+    else {
+        F=Eigen::Vector3d::Zero();
     }
 
-    //Apply corresponding force
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,t*mass*9.8));
-
-    //Mass controllable through keyboard inputs
-    if(robot->keyboard.getS()) {
-        mass -=0.1;
-        std::cout << "Mass: " << mass << std::endl;
-    }
-    if(robot->keyboard.getW()) {
-        mass +=0.1;
-        std::cout << "Mass: " << mass << std::endl;
-    }
+    //Apply requested force on top of device gravity compensation
+    robot->setEndEffForWithCompensation(F);
 }
 void M3ChaiCommunication::exitCode(void) {
     robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));

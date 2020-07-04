@@ -12,14 +12,13 @@
 #define M3CHAISTATE_H_DEF
 
 #include <time.h>
-
 #include <iostream>
+#include <csignal> //For raise()
 
 #include "DebugMacro.h"
 #include "RobotM3.h"
 #include "State.h"
-
-using namespace std;
+#include "server.h"
 
 /**
  * \brief Conversion from a timespec structure to seconds (double)
@@ -126,14 +125,17 @@ class M3CalibState : public M3TimedState {
 class M3ChaiCommunication : public M3TimedState {
 
    public:
-    M3ChaiCommunication(StateMachine *m, RobotM3 *M3, const char *name = "M3 Chai 3D communication"):M3TimedState(m, M3, name){};
+    M3ChaiCommunication(StateMachine *m, RobotM3 *M3, const char *name = "M3 Chai 3D communication"):M3TimedState(m, M3, name), chaiServer(3, 3) {};
 
     void entryCode(void);
     void duringCode(void);
     void exitCode(void);
 
    private:
-     double mass = 0;
+     server chaiServer;
+     double watchDogTime = 0.010; //Watchdog time in s
+     double lastReceivedTime;
+     Eigen::Vector3d F, X;
 
 };
 

@@ -18,11 +18,13 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 # Select the application by setting the state machine to use
 #(should be the class name and have corresponding header naming in a corresponding folder)
-set (STATE_MACHINE_NAME "M3DemoMachine")
+#set (STATE_MACHINE_NAME "M3DemoMachine")
+set (STATE_MACHINE_NAME "M3Chai")
 #set (STATE_MACHINE_NAME "ExoTestMachine")
 
 add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
 add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
+
 
 
 ## Get all source and header files (only the target app folder is included)
@@ -38,7 +40,6 @@ endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
 ## Add libraries headers
 list (APPEND INCLUDE_DIRS lib/)
-
 
 
 
