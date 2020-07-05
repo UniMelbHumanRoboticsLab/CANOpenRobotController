@@ -39,6 +39,16 @@ enum setMovementReturnCode_t {
     NOT_CALIBRATED = -3,
     UNKNOWN_ERROR = -100
 };
+/**
+ * setMovementReturnCode_t explicit description
+ */
+static std::map<setMovementReturnCode_t, std::string> setMovementReturnCodeString = {
+    {SUCCESS, "Ok."},
+    {OUTSIDE_LIMITS, "Outside of limits."},
+    {INCORRECT_MODE, "Incorrect drive mode"},
+    {NOT_CALIBRATED, "Not calibrated."},
+    {UNKNOWN_ERROR, "Unknown error."}
+};
 
 /**
  * @ingroup Joint

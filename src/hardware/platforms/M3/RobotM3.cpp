@@ -204,7 +204,7 @@ setMovementReturnCode_t RobotM3::applyPosition(std::vector<double> positions) {
                 returnValue = INCORRECT_MODE;
             } else if (setPosCode != SUCCESS) {
                 // Something bad happened
-                std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+                std::cout /*cerr banned*/ << "Joint " << p->getId() << " error : " << setMovementReturnCodeString[setPosCode] << std::endl;
                 returnValue = UNKNOWN_ERROR;
             }
             i++;
@@ -222,7 +222,7 @@ setMovementReturnCode_t RobotM3::applyVelocity(std::vector<double> velocities) {
             returnValue = INCORRECT_MODE;
         } else if (setVelCode != SUCCESS) {
             // Something bad happened
-            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            std::cout /*cerr banned*/ << "Joint " << p->getId() << " error : " << setMovementReturnCodeString[setVelCode] << std::endl;
             returnValue = UNKNOWN_ERROR;
         }
         i++;
@@ -235,11 +235,11 @@ setMovementReturnCode_t RobotM3::applyTorque(std::vector<double> torques) {
     for (auto p : joints) {
         setMovementReturnCode_t setTorCode = ((JointM3 *)p)->setTorque(torques[i]);
         if (setTorCode == INCORRECT_MODE) {
-            std::cout << "Joint " << p->getId() << ": is not in Torque Control " << std::endl;
+            std::cout /*cerr banned*/ << "Joint " << p->getId() << ": is not in Torque Control " << std::endl;
             returnValue = INCORRECT_MODE;
         } else if (setTorCode != SUCCESS) {
             // Something bad happened
-            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            std::cout /*cerr banned*/ << "Joint " << p->getId() << " error : " << setMovementReturnCodeString[setTorCode] << std::endl;
             returnValue = UNKNOWN_ERROR;
         }
         i++;
@@ -441,14 +441,15 @@ setMovementReturnCode_t RobotM3::setEndEffForWithCompensation(Vector3d F) {
     }
     Vector3d tau_g = calculateGravityTorques(); //Gravity compensation torque
     Vector3d tau_f; //Friction compensation torque
-    double alpha = 0.5, beta = 0.03, threshold = 0.000000;
+    double alpha = 0.5, beta = 0.2, threshold = 0.000000;
     for(unsigned int i=0; i<3; i++) {
         double dq = ((JointM3 *)joints[i])->getVeloctiy();
         if(abs(dq)>threshold) {
             tau_f(i) = alpha*sign(dq) + beta*dq;
+        } else {
+            tau_f(i) = .0;
         }
     }
 
-    Vector3d tau = J().transpose()*F + tau_g + tau_f;
-    return setJointTor(tau);
+    return setJointTor(J().transpose()*F + tau_g + tau_f);
 }

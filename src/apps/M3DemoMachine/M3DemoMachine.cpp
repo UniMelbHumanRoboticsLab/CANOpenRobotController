@@ -20,9 +20,10 @@ M3DemoMachine::M3DemoMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    NewTransition(calibState, endCalib, timingState);
+    //NewTransition(calibState, endCalib, timingState);
     //NewTransition(calibState, endCalib, standbyState);
-    //NewTransition(calibState, endCalib, endEffDemoState);
+    NewTransition(calibState, endCalib, endEffDemoState);
+    //NewTransition(calibState, endCalib, impedanceState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(calibState);

@@ -66,6 +66,7 @@ void M3DemoState::exitCode(void) {
 
 
 
+
 void M3CalibState::entryCode(void) {
     calibDone=false;
     for(unsigned int i=0; i<3; i++) {
@@ -185,7 +186,6 @@ void M3EndEffDemo::duringCode(void) {
 void M3EndEffDemo::exitCode(void) {
     robot->setEndEffVel(Eigen::Vector3d(0,0,0));
 }
-
 
 
 

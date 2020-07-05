@@ -85,7 +85,7 @@ class server
             int Send(double * values);
         //@}
 
-        //!@name Reciving methods
+        //!@name Receiving methods
         //@{
             bool IsReceivedValues();
             double * GetReceivedValues();
