@@ -2,8 +2,8 @@
  * \file server.cpp
  * \brief Network server class implementation
  * \author Vincent Crocher
- * \version 0.5
- * \date March 2010
+ * \version 0.6
+ * \date July 2020
  *
  *
  */
@@ -134,8 +134,6 @@ void * Accepting(void * c)
         local_server->Connected=false;
     }
 
-    pthread_exit(NULL);
-
     return NULL;
 }
 
@@ -219,14 +217,15 @@ void * ServerReceiving(void * c)
             #ifdef WINDOWS
                 printf("WSA Error code : %d\t", WSAGetLastError());
             #endif
-            perror("server::Error reciving\n");
-
+            perror("server::Error receiving");
+        } else if(ret==0)
+        {
+            //Connection has been reseted
+            local_server->Connected=false;
         }
     }
 
     printf("server::Disconnected.\n");
-
-    pthread_exit(NULL);
 
     return NULL;
 }

@@ -69,9 +69,7 @@ void M3ChaiCommunication::duringCode(void) {
             double *force = new double[3];
             force = chaiServer->GetReceivedValues();
             lastReceivedTime = elapsedTime;
-            F=Eigen::Vector3d(-force[0], -force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
-
-            F=Eigen::Vector3d::Zero();
+            F=Eigen::Vector3d(-force[0], force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
         } else if(elapsedTime-lastReceivedTime>watchDogTime) {
             //Watchdog: If no fresh values for more than 10ms, fallback
              F=Eigen::Vector3d::Zero();
@@ -80,18 +78,18 @@ void M3ChaiCommunication::duringCode(void) {
 
         //Anyway send values
         X=robot->getEndEffPos();
-        double x[3]={-X(0),-X(1),X(2)}; //Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
-        chaiServer->Send(x);
+        double x[3]={-X(0),X(1),X(2)}; //Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
     }
     else {
+        //Simply transparent mode while not connected
         F=Eigen::Vector3d::Zero();
     }
-    //std::cout << F.transpose() <<std::endl;
 
     //Apply requested force on top of device gravity compensation
     if(robot->setEndEffForWithCompensation(F)!=SUCCESS) {
-        robot->printJointStatus();
-
+         std::cout /*cerr is banned*/ << "M3ChaiCommunication: Error applying force (";
+         robot->printJointStatus();
+         std::cout /*cerr is banned*/  << ")" << std::endl;
     }
 }
 void M3ChaiCommunication::exitCode(void) {

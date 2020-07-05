@@ -226,15 +226,15 @@ int main(int argc, char *argv[]) {
         }
         /* program exit ***************************************************************/
         //End application first
-        endProgram = 1;
         usleep(100000); /*wait for end programm commands to be processed */
+        endProgram = 1;
         if (pthread_join(rt_control_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }
         app_programEnd();
+        usleep(100000); /*wait for threads to finish */
         //End CAN communication processing
         CO_endProgram = 1;
-        usleep(100000); /*wait for threads to finish */
         if (pthread_join(rt_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }

@@ -21,8 +21,8 @@
  * \file server.hpp
  * \brief Network server class declaration
  * \author Vincent Crocher
- * \version 0.5
- * \date March 2010
+ * \version 0.6
+ * \date July 2020
  *
  *
  */
