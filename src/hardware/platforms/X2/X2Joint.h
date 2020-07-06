@@ -85,7 +85,7 @@ class X2Joint : public ActuatedJoint {
     bool updateValue();
     setMovementReturnCode_t setPosition(double desQ);
     bool initNetwork();
-    double getQ();
+    double getPosition();
 };
 
 #endif

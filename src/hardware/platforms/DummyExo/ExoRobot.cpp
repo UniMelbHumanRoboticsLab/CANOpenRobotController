@@ -8,8 +8,9 @@ ExoRobot::ExoRobot() : Robot() {
 ExoRobot::~ExoRobot() {
     DEBUG_OUT("Delete ExoRobot object begins")
     freeMemory();
-    joints.clear();
-    copleyDrives.clear();
+
+    //    joints.clear();
+    //    copleyDrives.clear();
     DEBUG_OUT("ExoRobot deleted")
 }
 
@@ -181,23 +182,22 @@ bool ExoRobot::initialiseNetwork() {
     return true;
 }
 bool ExoRobot::initialiseInputs() {
-    inputs.push_back(&keyboard);
+    inputs.push_back(keyboard = new Keyboard());
     return true;
 }
 void ExoRobot::freeMemory() {
-    for (auto p : joints) {
-        DEBUG_OUT("Delete Joint ID: " << p->getId())
-        delete p;
-    }
     for (auto p : copleyDrives) {
         DEBUG_OUT("Delete Drive Node: " << p->getNodeID())
+        delete p;
+    }
+    for (auto p : joints) {
+        DEBUG_OUT("Delete Joint ID: " << p->getId())
         delete p;
     }
     for (auto p : inputs) {
         DEBUG_OUT("Deleting Input")
         delete p;
     }
-    keyboard.~Keyboard();
 }
 void ExoRobot::updateRobot() {
     Robot::updateRobot();

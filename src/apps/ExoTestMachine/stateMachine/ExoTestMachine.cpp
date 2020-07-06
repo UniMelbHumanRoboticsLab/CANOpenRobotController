@@ -45,6 +45,11 @@ void ExoTestMachine::init() {
     running = true;
 }
 
+void ExoTestMachine::end() {
+    DEBUG_OUT("Ending ExoTestMachine")
+    robot->~ExoRobot();
+}
+
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
@@ -56,33 +61,33 @@ bool ExoTestMachine::EndTraj::check() {
     return OWNER->trajectoryGenerator->isTrajectoryFinished();
 }
 bool ExoTestMachine::IsAPressed::check(void) {
-    if (OWNER->robot->keyboard.getA() == true) {
+    if (OWNER->robot->keyboard->getA() == true) {
         return true;
     }
     return false;
 }
 bool ExoTestMachine::StartButtonsPressed::check(void) {
-    if (OWNER->robot->keyboard.getW() == true) {
+    if (OWNER->robot->keyboard->getW() == true) {
         return true;
     }
     return false;
 }
 bool ExoTestMachine::StartExo::check(void) {
-    if (OWNER->robot->keyboard.getS() == true) {
+    if (OWNER->robot->keyboard->getS() == true) {
         std::cout << "LEAVING INIT and entering Sitting" << std::endl;
         return true;
     }
     return false;
 }
 bool ExoTestMachine::StartStand::check(void) {
-    if (OWNER->robot->keyboard.getW() == true) {
+    if (OWNER->robot->keyboard->getW() == true) {
         return true;
     }
     return false;
 }
 
 bool ExoTestMachine::StartSit::check(void) {
-    if (OWNER->robot->keyboard.getW()) {
+    if (OWNER->robot->keyboard->getW()) {
         return true;
     }
     return false;

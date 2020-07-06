@@ -48,7 +48,7 @@ class ExoRobot : public Robot {
       */
     ExoRobot();
     ~ExoRobot();
-    Keyboard keyboard;
+    Keyboard *keyboard;
     std::vector<CopleyDrive *> copleyDrives;
 
     // /**

@@ -62,6 +62,6 @@ bool X2Joint::initNetwork() {
         return false;
     }
 }
-double X2Joint::getQ() {
-    return q;
+double X2Joint::getPosition() {
+    return position;
 }

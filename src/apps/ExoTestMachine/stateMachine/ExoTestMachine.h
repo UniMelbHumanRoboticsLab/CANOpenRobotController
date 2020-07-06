@@ -60,7 +60,7 @@ class ExoTestMachine : public StateMachine {
      */
     ExoTestMachine();
     void init();
-    void end() {};
+    void end();
 
     void hwStateUpdate();
     State *gettCurState();

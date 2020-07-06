@@ -141,7 +141,7 @@ std::vector<double> X2Robot::getVelocity() {
     int i = 0;
     std::vector<double> actualJointVelocities(joints.size());
     for (auto p : joints) {
-        actualJointVelocities[i] = ((ActuatedJoint *)p)->getVeloctiy();
+        actualJointVelocities[i] = ((ActuatedJoint *)p)->getVelocity();
         i++;
     }
     return actualJointVelocities;

@@ -10,8 +10,8 @@
  */
 #ifndef JOINT_H_INCLUDED
 #define JOINT_H_INCLUDED
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 /** @defgroup Joint Joint Module
  *  @ingroup Robot
  *  A group of abstract joint classes, acting as the software representation of a Joint.
@@ -60,6 +60,15 @@ class Joint {
      */
     Joint(int jointID, double jointMin, double jointMax);
 
+    /**
+     * @brief Construct a new Joint object
+     *
+     * @param jointID The joint ID for this object
+     * @param jointMin The minimum allowable value for this joint (below this will cause an error)
+     * @param jointMax The maximum allowable value for this joint (above this will cause an error)
+     * @param q0 Initial value for the position
+     */
+    Joint(int jointID, double jointMin, double jointMax, double q0);
     /**
      * @brief Destroy the Joint object
      *
