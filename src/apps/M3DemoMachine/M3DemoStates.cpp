@@ -140,11 +140,11 @@ void M3MassCompensation::duringCode(void) {
     robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,t*mass*9.8));
 
     //Mass controllable through keyboard inputs
-    if(robot->keyboard.getS()) {
+    if(robot->keyboard->getS()) {
         mass -=0.1;
         std::cout << "Mass: " << mass << std::endl;
     }
-    if(robot->keyboard.getW()) {
+    if(robot->keyboard->getW()) {
         mass +=0.1;
         std::cout << "Mass: " << mass << std::endl;
     }
@@ -171,7 +171,7 @@ void M3EndEffDemo::duringCode(void) {
     else {
         //Joystick driven
         for(unsigned int i=0; i<3; i++) {
-            dX(i)=robot->joystick.getAxis(i)/2.;
+            dX(i)=robot->joystick->getAxis(i)/2.;
         }
     }
 
@@ -198,28 +198,28 @@ void M3DemoImpedanceState::entryCode(void) {
 void M3DemoImpedanceState::duringCode(void) {
 
     //Select start point
-    if(robot->keyboard.getQ()) {
+    if(robot->keyboard->getQ()) {
         Xi=robot->getEndEffPos();
         init=true;
     }
 
     //K tuning
-    if(robot->keyboard.getS()) {
+    if(robot->keyboard->getS()) {
         k -= 5;
         std::cout << "K=" << k << " D=" << d<< std::endl;
     }
-    if(robot->keyboard.getW()) {
+    if(robot->keyboard->getW()) {
         k += 5;
         std::cout << "K=" << k << " D=" << d<< std::endl;
     }
     Eigen::Matrix3d K = k*Eigen::Matrix3d::Identity();
 
     //D tuning
-    if(robot->keyboard.getD()) {
+    if(robot->keyboard->getD()) {
         d -= 1;
         std::cout << "K=" << k << " D=" << d<< std::endl;
     }
-    if(robot->keyboard.getA()) {
+    if(robot->keyboard->getA()) {
         d += 1;
         std::cout << "K=" << k << " D=" << d<< std::endl;
     }

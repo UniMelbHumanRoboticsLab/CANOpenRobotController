@@ -77,7 +77,7 @@ static void sigHandler(int sig) {
 }
 
 /******************************************************************************/
-/** Mainline and threads                                                   **/
+/** Mainline and threads                                                     **/
 /******************************************************************************/
 int main(int argc, char *argv[]) {
     /* TODO : MOVE bellow definitionsTO SOME KIND OF CANobject, struct or the like*/
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
         CO_errExit("Program init - SIGINIT handler creation failed");
     if (signal(SIGTERM, sigHandler) == SIG_ERR)
         CO_errExit("Program init - SIGTERM handler creation failed");
-    printf("starting CANopen device with Node ID %d(0x%02X)", nodeId, nodeId);
+    printf("starting CANopen device with Node ID %d(0x%02X)\n", nodeId, nodeId);
 
     //Set synch signal period (in us)
     CO_OD_RAM.communicationCyclePeriod=CANUpdateLoopPeriodInms*1000;

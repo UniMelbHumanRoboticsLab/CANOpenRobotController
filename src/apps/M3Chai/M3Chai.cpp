@@ -1,17 +1,17 @@
-#include "M3DemoMachine.h"
+#include "M3Chai.h"
 
-#define OWNER ((M3DemoMachine *)owner)
+#define OWNER ((M3Chai *)owner)
 
-M3DemoMachine::M3DemoMachine() {
+
+#define IP_ADDRESS "192.168.6.2" //Local IP address to use
+
+M3Chai::M3Chai() {
     robot = new RobotM3();
+    chaiServer = new server(3, 3);
 
     // Create PRE-DESIGNED State Machine events and state objects.
-    testState = new M3DemoState(this, robot);
     calibState = new M3CalibState(this, robot);
-    standbyState = new M3MassCompensation(this, robot);
-    endEffDemoState = new M3EndEffDemo(this, robot);
-    impedanceState = new M3DemoImpedanceState(this, robot);
-    timingState = new M3SamplingEstimationState(this, robot);
+    communicationState = new M3ChaiCommunication(this, robot, chaiServer);
     endCalib = new EndCalib(this);
 
     /**
@@ -20,15 +20,16 @@ M3DemoMachine::M3DemoMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    NewTransition(calibState, endCalib, timingState);
-    //NewTransition(calibState, endCalib, standbyState);
-    //NewTransition(calibState, endCalib, endEffDemoState);
+    NewTransition(calibState, endCalib, communicationState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(calibState);
 }
-M3DemoMachine::~M3DemoMachine() {
-    delete testState;
+M3Chai::~M3Chai() {
+    delete chaiServer;
+    delete calibState;
+    delete communicationState;
+    delete endCalib;
     delete robot;
 }
 
@@ -38,20 +39,24 @@ M3DemoMachine::~M3DemoMachine() {
  *
  */
 
-void M3DemoMachine::init() {
-    DEBUG_OUT("M3DemoMachine::init()")
+void M3Chai::init() {
+    DEBUG_OUT("M3Chai::init()")
     if(robot->initialise()) {
         initialised = true;
+        if(chaiServer->Connect(IP_ADDRESS)!=0) {
+            std::cout /*cerr is banned*/ << "M3ChaiCommunication: Unable to initialise socket... Quitting." <<std::endl;
+            raise(SIGTERM); //Clean exit
+        }
     }
     else {
         initialised = false;
-        std::cerr << "Failed robot initialisation. Exiting..." << std::endl;
+        std::cout /*cerr is banned*/ << "Failed robot initialisation. Exiting..." << std::endl;
         std::raise(SIGTERM); //Clean exit
     }
     running = true;
 }
 
-void M3DemoMachine::end() {
+void M3Chai::end() {
     if(initialised) {
         currentState->exit();
         robot->stop();
@@ -67,15 +72,12 @@ void M3DemoMachine::end() {
  * that need to run every program loop update cycle.
  *
  */
-void M3DemoMachine::hwStateUpdate(void) {
+void M3Chai::hwStateUpdate(void) {
     robot->updateRobot();
 }
 
 
 
-
-
-
-bool M3DemoMachine::EndCalib::check() {
+bool M3Chai::EndCalib::check() {
     return OWNER->calibState->isCalibDone();
 }

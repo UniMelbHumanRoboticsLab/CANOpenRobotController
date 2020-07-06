@@ -61,43 +61,43 @@ bool KincoDrive::initPDOs() {
 
     //DEBUG_OUT("Set up STATUS_WORD TPDO")
     if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF))<0) {
-        std::cerr << "Set up STATUS_WORD TPDO FAILED on node" << NodeID  <<std::endl;
+        std::cout /*cerr is banned*/ << "Set up STATUS_WORD TPDO FAILED on node" << NodeID  <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up ACTUAL_POS and ACTUAL_VEL TPDO")
     if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 0x01))<0) {
-        std::cerr << "Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node" << NodeID <<std::endl;
+        std::cout /*cerr is banned*/ << "Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up ACTUAL_TOR TPDO")
     if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 0x01))<0) {
-        std::cerr << "Set up ACTUAL_TOR TPDO FAILED on node" << NodeID <<std::endl;
+        std::cout /*cerr is banned*/ << "Set up ACTUAL_TOR TPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up CONTROL_WORD RPDO")
     if(sendSDOMessages(generateRPDOConfigSDO({CONTROL_WORD}, 1, 0xff))<0) {
-        std::cerr << "Set up CONTROL_WORD RPDO FAILED on node" << NodeID <<std::endl;
+        std::cout /*cerr is banned*/ << "Set up CONTROL_WORD RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up TARGET_POS RPDO")
     if(sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 2, 0xff))<0) {
-        std::cerr << "Set up TARGET_POS RPDO FAILED on node" << NodeID <<std::endl;
+        std::cout /*cerr is banned*/ << "Set up TARGET_POS RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up TARGET_VEL RPDO")
     if(sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 3, 0xff))<0) {
-        std::cerr << "Set up ARGET_VEL RPDO FAILED on node" << NodeID <<std::endl;
+        std::cout /*cerr is banned*/ << "Set up ARGET_VEL RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 
     //DEBUG_OUT("Set up TARGET_TOR RPDO")
     if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x08))<0) { //Kinco has a specific word for this with a dedicated subindex
-        std::cerr << "Set up TARGET_TOR RPDO FAILED on node" << NodeID <<std::endl;
+        std::cout /*cerr is banned*/ << "Set up TARGET_TOR RPDO FAILED on node" << NodeID <<std::endl;
         return false;
     }
 

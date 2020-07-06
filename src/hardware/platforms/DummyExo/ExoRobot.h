@@ -1,12 +1,11 @@
-
 /**
- * 
+ *
  * \file ExoRobot.h
- * \author William Campbell 
+ * \author William Campbell
  * \version 0.1
  * \date 2019-09-24
  * \copyright Copyright (c) 2019
- * 
+ *
  * \breif  The<code> ExoRobot</ code> class represents an ExoSkeleton Robot in terms of its
  * representation of the Alex exoskeleton hardware whose memory is managed in this class.
  *
@@ -22,7 +21,6 @@
 
 #include "CopleyDrive.h"
 #include "DummyActJoint.h"
-#include "DummyTrajectoryGenerator.h"
 #include "Keyboard.h"
 #include "Robot.h"
 #include "RobotParams.h"
@@ -167,25 +165,25 @@ class ExoRobot : public Robot {
        */
     void freeMemory();
     /**
-       * \brief update current state of the robot, including input and output devices. 
-       * Overloaded Method from the Robot Class. 
+       * \brief update current state of the robot, including input and output devices.
+       * Overloaded Method from the Robot Class.
        * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
        */
     void updateRobot();
     /**
        * \brief Joint Limit Map between Joint value and min Degrees possible
        * \param int Joint value
-       * \return double minDeg 
+       * \return double minDeg
        */
 
     /**
     * \todo Move jointMinMap and jointMaxMap to RobotParams.h
-    * 
+    *
     */
     /**
        * \brief Joint Limit Map between Joint value and max Degrees possible
        * \param int Joint value
-       * \return int maxDeg 
+       * \return int maxDeg
        */
     std::map<int, double> jointMinMap = {{LEFT_HIP, 70},
                                          {RIGHT_HIP, 70},
@@ -196,7 +194,7 @@ class ExoRobot : public Robot {
     /**
        * \brief Joint Limit Map between Joint value and max Degrees possible
        * \param int Joint value
-       * \return int maxDeg 
+       * \return int maxDeg
        */
     std::map<int, double> jointMaxMap = {{LEFT_HIP, 210},
                                          {RIGHT_HIP, 210},

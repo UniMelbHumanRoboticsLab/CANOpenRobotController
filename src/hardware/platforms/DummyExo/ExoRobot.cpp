@@ -80,7 +80,7 @@ setMovementReturnCode_t ExoRobot::setPosition(std::vector<double> positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setPosition(positions[i]);
+        setMovementReturnCode_t setPosCode = ((DummyActJoint *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
             std::cout << "Joint ID " << p->getId() << ": is not in Position Control " << std::endl;
             returnValue = INCORRECT_MODE;
@@ -98,7 +98,7 @@ setMovementReturnCode_t ExoRobot::setVelocity(std::vector<double> velocities) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setVelocity(velocities[i]);
+        setMovementReturnCode_t setPosCode = ((DummyActJoint *)p)->setVelocity(velocities[i]);
         if (setPosCode == INCORRECT_MODE) {
             std::cout << "Joint ID " << p->getId() << ": is not in Velocity Control " << std::endl;
             returnValue = INCORRECT_MODE;
@@ -116,7 +116,7 @@ setMovementReturnCode_t ExoRobot::setTorque(std::vector<double> torques) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setTorque(torques[i]);
+        setMovementReturnCode_t setPosCode = ((DummyActJoint *)p)->setTorque(torques[i]);
         if (setPosCode == INCORRECT_MODE) {
             std::cout << "Joint ID " << p->getId() << ": is not in Torque Control " << std::endl;
             returnValue = INCORRECT_MODE;
@@ -134,7 +134,7 @@ std::vector<double> ExoRobot::getPosition() {
     int i = 0;
     std::vector<double> actualJointPositions(joints.size());
     for (auto p : joints) {
-        actualJointPositions[i] = ((ActuatedJoint *)p)->getPosition();
+        actualJointPositions[i] = ((DummyActJoint *)p)->getPosition();
         i++;
     }
     return actualJointPositions;
@@ -144,7 +144,7 @@ std::vector<double> ExoRobot::getVelocity() {
     int i = 0;
     std::vector<double> actualJointVelocities(joints.size());
     for (auto p : joints) {
-        actualJointVelocities[i] = ((ActuatedJoint *)p)->getVeloctiy();
+        actualJointVelocities[i] = ((DummyActJoint *)p)->getVelocity();
         i++;
     }
     return actualJointVelocities;
@@ -154,7 +154,7 @@ std::vector<double> ExoRobot::getTorque() {
     int i = 0;
     std::vector<double> actualJointTorques(joints.size());
     for (auto p : joints) {
-        actualJointTorques[i] = ((ActuatedJoint *)p)->getTorque();
+        actualJointTorques[i] = ((DummyActJoint *)p)->getTorque();
         i++;
     }
     return actualJointTorques;
