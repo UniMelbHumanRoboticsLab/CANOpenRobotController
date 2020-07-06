@@ -28,6 +28,8 @@
  * limitations under the License.
  */
 
+#define USEROS
+
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/reboot.h>
@@ -54,6 +56,10 @@ extern "C" {
 #include "CO_OD_storage.h"
 #include "CO_command.h"
 
+#ifdef USEROS
+#include "ros/ros.h"
+#endif
+
 //Include custom state machine (defined in cmake)
 #include STATE_MACHINE_INCLUDE
 #include "stdio.h"
@@ -71,6 +77,13 @@ extern "C" {
  * /brief Function is called on program startup.
  */
 void app_programStart(void);
+
+#ifdef USEROS
+/**
+ * /brief Function is called on ROS startup.
+ */
+void app_ROSStart(int argc, char *argv[]);
+#endif
 
 /**
  * /brief Function is called after CANopen communication reset.
@@ -95,5 +108,14 @@ void app_programAsync(uint16_t timer1msDiff);
  * Code inside this function must be executed fast. Take care on race conditions.
  */
 void app_programControlLoop(void);
+
+#ifdef USEROS
+/**
+ * \brief Function is called cyclically from ROS thread at constant intervals.
+ *
+ * Code inside this function must be executed fast. Take care on race conditions.
+ */
+void app_ROSLoop(void);
+#endif
 
 #endif /*APP_H*/

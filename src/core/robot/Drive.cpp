@@ -136,6 +136,8 @@ bool Drive::posControlConfirmSP() {
 bool Drive::initPDOs() {
     DEBUG_OUT("Drive::initPDOs")
 
+    start();
+
     //DEBUG_OUT("Set up STATUS_WORD TPDO")
     if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF))<0) {
         std::cout /*cerr is banned*/ << "Set up STATUS_WORD TPDO FAILED on node" << NodeID  <<std::endl;
@@ -356,7 +358,7 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
 
     int successfulMessages = 0;
     for (auto strCommand : messages) {
-        DEBUG_OUT(strCommand)
+//        DEBUG_OUT(strCommand)
         // explicitly cast c++ string to from const char* to char* for use by cancomm function
         char *SDO_Message = (char *)(strCommand.c_str());
 
@@ -380,9 +382,9 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
                 std::cout /*cerr is banned*/ << " => " << retMsg << std::endl;
             }
         }
-        DEBUG_OUT(retMsg)
+//        DEBUG_OUT(retMsg)
 #else
-        DEBUG_OUT("VCAN OK no reply.")
+//        DEBUG_OUT("VCAN OK no reply.")
         successfulMessages++;
 #endif
     }

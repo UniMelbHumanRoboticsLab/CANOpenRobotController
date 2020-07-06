@@ -26,6 +26,16 @@ void app_programStart(void) {
     testMachine.init();
     testMachine.activate();
 }
+
+#ifdef USEROS
+void app_ROSStart(int argc, char *argv[]) {
+    ros::init(argc, argv, "x2_node", ros::init_options::NoSigintHandler);
+    ros::NodeHandle nodeHandle;
+//    testMachineRos = new ExoTestMachineROS(testMachine.robot);
+//    testMachineRos->initialize(nodeHandle);
+
+}
+#endif
 /******************************************************************************/
 void app_communicationReset(void) {
 }
@@ -44,3 +54,11 @@ void app_programControlLoop(void) {
         testMachine.hwStateUpdate();
     }
 }
+
+#ifdef USEROS
+void app_ROSLoop(void) {
+//    testMachineRos->publishJointStates();
+    ros::spinOnce();
+
+}
+#endif
