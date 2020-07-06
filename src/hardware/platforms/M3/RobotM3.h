@@ -66,8 +66,8 @@ class RobotM3 : public Robot {
     RobotM3();
     ~RobotM3();
 
-    Keyboard keyboard;
-    Joystick joystick;
+    Keyboard *keyboard;
+    Joystick *joystick;
 
     /**
        * \brief Initialises all joints to position control mode.

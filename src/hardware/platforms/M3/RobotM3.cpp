@@ -17,6 +17,9 @@ RobotM3::RobotM3() : Robot(),
     joints.push_back(new JointM3(0, -45*M_PI/180., 45*M_PI/180., 1, -max_speed, max_speed, -tau_max, tau_max));
     joints.push_back(new JointM3(1, -15*M_PI/180., 70*M_PI/180., 1, -max_speed, max_speed, -tau_max, tau_max));
     joints.push_back(new JointM3(2, 0*M_PI/180., 95*M_PI/180., -1, -max_speed, max_speed, -tau_max, tau_max));
+
+    inputs.push_back(keyboard = new Keyboard());
+    inputs.push_back(joystick = new Joystick());
 }
 RobotM3::~RobotM3() {
     DEBUG_OUT("Delete RobotM3 object begins")
@@ -25,11 +28,9 @@ RobotM3::~RobotM3() {
         delete p;
     }
     joints.clear();
-    for (auto p : inputs) {
-        DEBUG_OUT("Deleting Input")
-        delete p;
-    }
     inputs.clear();
+    delete keyboard;
+    delete joystick;
     DEBUG_OUT("RobotM3 deleted")
 }
 
@@ -57,8 +58,7 @@ bool RobotM3::initialiseNetwork() {
     return true;
 }
 bool RobotM3::initialiseInputs() {
-    inputs.push_back(&keyboard);
-    inputs.push_back(&joystick);
+    /*nothing to do*/
     return true;
 }
 
@@ -90,19 +90,19 @@ setMovementReturnCode_t RobotM3::safetyCheck() {
     //End-effector safeties if calibrated
     if(calibrated) {
         if(getEndEffVel().norm()>maxEndEffVel) {
-           std::cerr << "M3: Max velocity reached (" << getEndEffVel().norm() << "m.s-1)!" << std::endl;
+           std::cout /*cerr is banned*/ << "M3: Max velocity reached (" << getEndEffVel().norm() << "m.s-1)!" << std::endl;
            return OUTSIDE_LIMITS;
         }
-        /*if(getEndEffFor().norm()>maxEndEffForce) {
-           std::cerr << "M3: Max force reached (" << getEndEffFor().norm() << "N)!" << std::endl;
-           return OUTSIDE_LIMITS;
-        }*/
+        //if(getEndEffFor().norm()>maxEndEffForce) {
+        //   std::cout /*cerr is banned*/ << "M3: Max force reached (" << getEndEffFor().norm() << "N)!" << std::endl;
+        //   return OUTSIDE_LIMITS;
+        //}
     }
     //otherwise basic joint safeties
     else {
         for(unsigned int i=0; i<3; i++) {
             if(((JointM3*)joints[i])->safetyCheck()!=SUCCESS) {
-                std::cerr << "M3: Joint "<< i << " safety triggered!" << std::endl;
+                std::cout /*cerr is banned*/ << "M3: Joint "<< i << " safety triggered!" << std::endl;
                 return OUTSIDE_LIMITS;
             }
         }
@@ -269,7 +269,7 @@ Vector3d RobotM3::inverseKinematic(Vector3d X) {
     double normX=X.norm();
     if( (L[4]<L[2] && normX<L[2]-L[4]) || (L[4]>L[2] && normX<sqrt(L[4]*L[4]-L[2]*L[2])) || normX>(L[2]+L[4]+L[0]) || X[0]>0 )
     {
-        std::cerr << "RobotM3::inverseKinematic() error: Point not accessible. NaN returned." << std::endl;
+        std::cout /*cerr is banned*/ << "RobotM3::inverseKinematic() error: Point not accessible. NaN returned." << std::endl;
         q[0]=q[1]=q[2]=nan("");
         return q;
     }
