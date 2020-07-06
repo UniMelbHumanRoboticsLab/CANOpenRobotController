@@ -66,7 +66,7 @@ protected:
          *
          * Notes:
          * - The drive value is always an integer (due to the CANOpen specification)
-         *      and the joint value is always a double (data type of q)
+         *      and the joint value is always a double (data type of position)
          * - This may be a linear relationship (e.g. degrees to encoder counts) or a more
          *      complicated one (e.g. linear actuator position to degrees) depending on the
          *      structure of the device and system.
@@ -82,7 +82,7 @@ protected:
          *
          * Notes:
          * - The drive value is always an integer (due to the CANOpen specification)
-         *      and the joint value is always a double (data type of q)
+         *      and the joint value is always a double (data type of position)
          * - This may be a linear relationship (e.g. degrees to encoder counts) or a more
          *      complicated one (e.g. linear actuator position to degrees) depending on the
          *      structure of the device and system.
@@ -97,7 +97,7 @@ protected:
          *
          * Notes:
          * - The drive value is always an integer (due to the CANOpen specification)
-         *      and the joint value is always a double (data type of q)
+         *      and the joint value is always a double (data type of position)
          * - This may be a linear relationship (e.g. degrees/s to encoder count/s) or a more
          *      complicated one (e.g. linear actuator velocity to degrees/s) depending on the
          *      structure of the device and system.
@@ -113,7 +113,7 @@ protected:
          *
          * Notes:
          * - The drive value is always an integer (due to the CANOpen specification)
-         *      and the joint value is always a double (data type of q)
+         *      and the joint value is always a double (data type of position)
          * - This may be a linear relationship (e.g. degrees/s to encoder count/s) or a more
          *      complicated one (e.g. linear actuator velocity to degrees/s) depending on the
          *      structure of the device and system.
@@ -128,7 +128,7 @@ protected:
          *
          * Notes:
          * - The drive value is always an integer (due to the CANOpen specification)
-         *      and the joint value is always a double (data type of q)
+         *      and the joint value is always a double (data type of position)
          * - This may be a linear relationship (e.g. Nm to rated torque) or a more
          *      complicated one depending on the
          *      structure of the device and system.
@@ -144,7 +144,7 @@ protected:
          *
          * Notes:
          * - The drive value is always an integer (due to the CANOpen specification)
-         *      and the joint value is always a double (data type of q)
+         *      and the joint value is always a double (data type of position)
          * - This may be a linear relationship (e.g. Nm to rated torque) or a more
          *      complicated one depending on the
          *      structure of the device and system.
@@ -216,7 +216,7 @@ public:
          *
          * \return int The current joint velocity [encoder count/0.1sec]
          */
-    virtual double getVeloctiy();
+    virtual double getVelocity();
 
     /**
      * \brief get the joint torque
