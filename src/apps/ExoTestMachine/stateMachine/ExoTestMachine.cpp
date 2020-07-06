@@ -37,11 +37,11 @@ ExoTestMachine::ExoTestMachine() {
 /**
  * \brief start function for running any designed statemachine specific functions
  * for example initialising robot objects.
- * 
+ *
  */
 void ExoTestMachine::init() {
     DEBUG_OUT("ExoTestMachine::init()")
-    robot->initialise();
+    initialised = robot->initialise();
     running = true;
 }
 
@@ -90,7 +90,7 @@ bool ExoTestMachine::StartSit::check(void) {
 /**
  * \brief Statemachine to hardware interface method. Run any hardware update methods
  * that need to run every program loop update cycle.
- * 
+ *
  */
 void ExoTestMachine::hwStateUpdate(void) {
     robot->updateRobot();

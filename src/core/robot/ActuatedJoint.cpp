@@ -1,9 +1,9 @@
 /**
  * The <code>ActuatedJoint</code> class is a abstract class which represents a joint in a
- * <code>Robot</code> objec. This class implements the Joint class, and specifically 
+ * <code>Robot</code> objec. This class implements the Joint class, and specifically
  * represents a joint which is actuated. This therefore requires a Drive object
- * which will be used to interact with the physical hardware.  
- * 
+ * which will be used to interact with the physical hardware.
+ *
  *
  * Version 0.1
  * Date: 09/04/2020
@@ -13,7 +13,7 @@
 
 #include "DebugMacro.h"
 
-ActuatedJoint::ActuatedJoint(int jointID, double jointMin, double jointMax, Drive *drive) : Joint(jointID, jointMin, jointMax) {
+ActuatedJoint::ActuatedJoint(int jointID, double jointMin, double jointMax, Drive *drive) : Joint(jointID, jointMin, jointMax), calibrated(false) {
     this->drive = drive;
 }
 //TODO: add in check
@@ -42,7 +42,7 @@ ControlMode ActuatedJoint::setMode(ControlMode driveMode_, motorProfile profile)
 
 setMovementReturnCode_t ActuatedJoint::setPosition(double desQ) {
     if (driveMode == POSITION_CONTROL) {
-        drive->setPos(jointPositionToDriveUnit(desQ));
+        drive->setPos(jointPositionToDriveUnit(desQ+q0));
         drive->posControlConfirmSP();
         return SUCCESS;
     } else {
@@ -69,8 +69,13 @@ setMovementReturnCode_t ActuatedJoint::setTorque(double torque) {
     return INCORRECT_MODE;
 }
 
+void ActuatedJoint::setPositionOffset(double qcalib=0) {
+    q0=driveUnitToJointPosition(drive->getPos())-qcalib;
+    calibrated=true;
+}
+
 double ActuatedJoint::getPosition() {
-    return driveUnitToJointPosition(drive->getPos());
+    return driveUnitToJointPosition(drive->getPos())-q0;
 }
 
 double ActuatedJoint::getVelocity() {
@@ -81,14 +86,19 @@ double ActuatedJoint::getTorque() {
     return driveUnitToJointTorque(drive->getTorque());
 }
 
+
 void ActuatedJoint::readyToSwitchOn() {
     drive->readyToSwitchOn();
 }
 
 bool ActuatedJoint::enable() {
-    if (drive->getDriveState() == READY_TO_SWITCH_ON) {
+    if (drive->getState() == READY_TO_SWITCH_ON) {
         drive->enable();
         return true;
     }
     return false;
+}
+
+bool ActuatedJoint::disable() {
+    drive->readyToSwitchOn(); //Ready to switch on is also power off state
 }

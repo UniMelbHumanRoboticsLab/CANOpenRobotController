@@ -2,22 +2,22 @@
  * \file ActuatedJoint.h
  * \author Justin Fong
  * \brief The <code>ActuatedJoint</code> class is a abstract class which represents a joint in a
- * <code>Robot</code> objec. This class implements the Joint class, and specifically 
+ * <code>Robot</code> objec. This class implements the Joint class, and specifically
  * represents a joint which is actuated. This therefore requires a Drive object
- * which will be used to interact with the physical hardware.  
+ * which will be used to interact with the physical hardware.
  * \version 0.1
  * \date 2020-04-09
  * \version 0.1
  * \copyright Copyright (c) 2020
- * 
+ *
  */
 
 /**
  * The <code>ActuatedJoint</code> class is a abstract class which represents a joint in a
- * <code>Robot</code> objec. This class implements the Joint class, and specifically 
+ * <code>Robot</code> objec. This class implements the Joint class, and specifically
  * represents a joint which is actuated. This therefore requires a Drive object
- * which will be used to interact with the physical hardware.  
- * 
+ * which will be used to interact with the physical hardware.
+ *
  *
  * Version 0.1
  * Date: 07/04/2020
@@ -30,34 +30,36 @@
 
 /**
  * The <code>setMovementReturnCode_t<code> is used to determine whether the movement was a
- * success, or whether an error occurred in its application. 
+ * success, or whether an error occurred in its application.
  */
 enum setMovementReturnCode_t {
     SUCCESS = 1,
     OUTSIDE_LIMITS = -1,
     INCORRECT_MODE = -2,
+    NOT_CALIBRATED = -3,
     UNKNOWN_ERROR = -100
 };
 
 /**
  * @ingroup Joint
  * \brief Abstract class representing an actuated joint in a Robot Class (extending joint). Requires a Drive object through which commands are sent.
- * 
+ *
  */
 class ActuatedJoint : public Joint {
 protected:
     /**
          * \brief Contains a Drive object, which is a CANOpen device which is used to control the
-         * physical hardware. 
-         * 
+         * physical hardware.
+         *
          */
     Drive *drive;
 
     /**
          * \brief The current mode of the drive
-         * 
+         *
          */
     ControlMode driveMode = UNCONFIGURED;
+    bool calibrated;
 
     /**
          * \brief Converts from the joint position value to the equivalent value for the drive
@@ -196,6 +198,13 @@ public:
     virtual setMovementReturnCode_t setTorque(double torque);
 
     /**
+     * \brief Set current position as joint position offset (q0)
+     * such that current position is now qcalib
+     *
+     */
+    void setPositionOffset(double qcalib);
+
+    /**
          * \brief get the joint position
          *
          * \return int The current joint position [encoder count]
@@ -217,18 +226,33 @@ public:
     virtual double getTorque();
 
     /**
-      * \brief Set the joint ready to switch On 
-      * 
+     * \brief get the drive status word value
+     *
+     * \return int The current status word of the drive
+     */
+    int getDriveStatus() {return drive->getStatus(); }
+
+    /**
+      * \brief Set the joint ready to switch On
+      *
       */
     virtual void readyToSwitchOn();
 
     /**
      * \brief Enable the joint
-     * 
+     *
      * \return true if succesful
      * \return false if drive is currently not in the correct state to enable
      */
     bool enable();
+
+    /**
+     * \brief Disable the drive
+     *
+     * \return true if succesful
+     * \return false if drive is currently not in the correct state to enable
+     */
+    bool disable();
 };
 
 #endif
