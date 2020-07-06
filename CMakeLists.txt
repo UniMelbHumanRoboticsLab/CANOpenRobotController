@@ -75,4 +75,9 @@ target_include_directories(${STATE_MACHINE_NAME}_APP PRIVATE ${INCLUDE_DIRS})
 find_package(Threads REQUIRED)
 
 # Link non-ROS libraries
-target_link_libraries(${STATE_MACHINE_NAME}_APP ${CMAKE_THREAD_LIBS_INIT} -static)
+target_link_libraries(${STATE_MACHINE_NAME}_APP ${CMAKE_THREAD_LIBS_INIT})
+
+# Link ROS libraries
+if(USE_ROS)
+    target_link_libraries(${STATE_MACHINE_NAME}_APP ${catkin_LIBRARIES})
+endif()
