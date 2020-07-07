@@ -24,7 +24,7 @@
 #include "Keyboard.h"
 #include "Robot.h"
 #include "RobotParams.h"
-#include <Eigen/Dense>
+
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      *

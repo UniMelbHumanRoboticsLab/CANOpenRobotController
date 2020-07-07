@@ -44,7 +44,7 @@ int Drive::start() {
 }
 
 int Drive::stop() {
-    // start drive (Node)
+    // stop drive (Node)
     std::stringstream sstream;
     std::vector<std::string> CANCommands;
     sstream << "[1] " << NodeID << " stop";
@@ -358,7 +358,7 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
 
     int successfulMessages = 0;
     for (auto strCommand : messages) {
-//        DEBUG_OUT(strCommand)
+        DEBUG_OUT(strCommand)
         // explicitly cast c++ string to from const char* to char* for use by cancomm function
         char *SDO_Message = (char *)(strCommand.c_str());
 
@@ -382,9 +382,9 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
                 std::cout /*cerr is banned*/ << " => " << retMsg << std::endl;
             }
         }
-//        DEBUG_OUT(retMsg)
+        DEBUG_OUT(retMsg)
 #else
-//        DEBUG_OUT("VCAN OK no reply.")
+        DEBUG_OUT("VCAN OK no reply.")
         successfulMessages++;
 #endif
     }

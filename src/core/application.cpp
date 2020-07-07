@@ -17,7 +17,7 @@ STATE_MACHINE_TYPE testMachine;
 
 #ifdef USEROS
     #ifndef STATE_MACHINE_TYPE_ROS
-    #define STATE_MACHINE_TYPE_ROS* X2DemoMachineROS
+    #define STATE_MACHINE_TYPE_ROS X2DemoMachineROS
     #endif
     STATE_MACHINE_TYPE_ROS* testMachineROS;
 #endif

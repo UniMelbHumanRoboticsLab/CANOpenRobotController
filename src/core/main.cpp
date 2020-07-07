@@ -29,7 +29,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <iostream>
 #include "application.h"
 /* Threads and thread safety variables***********************************************************/
 /**
@@ -274,7 +273,6 @@ int main(int argc, char *argv[]) {
 #ifdef USEROS
         if (pthread_join(rt_ROS_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
-            std::cout<<"ROS THREAD END!!!!!!!!!!!!!!"<<std::endl;
         }
 #endif
         app_programEnd();
@@ -336,7 +334,6 @@ static void *rt_thread(void *arg) {
 }
 /* Control thread function ********************************/
 static void *rt_control_thread(void *arg) {
-    std::cout<<"IN rt_control_thread THREAD"<<std::endl;
     // freopen("log.txt", "w", stdout);
     std::ofstream logfile;
     logfile.open("log.csv");
