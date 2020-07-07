@@ -24,7 +24,6 @@
 #include "Keyboard.h"
 #include "Robot.h"
 #include "RobotParams.h"
-
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      *
