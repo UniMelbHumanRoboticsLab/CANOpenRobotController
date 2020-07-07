@@ -1,7 +1,7 @@
 /**
  * /file X2DemoState.h
  * /author Emek Baris Kucuktabak
- * /brief Concrete implementation of IdleState
+ * /brief Concrete implementation of DemoState
  * /version 0.1
  * /date 2020-07-06
  *

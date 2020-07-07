@@ -97,7 +97,7 @@ class ExoRobot : public Robot {
     * \param positions a vector of target positions - applicable for each of the actuated joints
     * \return MovementCode representing success or failure of the application
     */
-    setMovementReturnCode_t setPosition(Eigen::VectorXd positions);
+    setMovementReturnCode_t setPosition(std::vector<double> positions);
 
     /**
     * \brief Set the target velocities for each of the joints
@@ -105,7 +105,7 @@ class ExoRobot : public Robot {
     * \param velocities a vector of target velocities - applicable for each of the actuated joints
     * \return MovementCode representing success or failure of the application
     */
-    setMovementReturnCode_t setVelocity(Eigen::VectorXd velocities);
+    setMovementReturnCode_t setVelocity(std::vector<double> velocities);
 
     /**
     * \brief Set the target torque for each of the joints
@@ -113,28 +113,28 @@ class ExoRobot : public Robot {
     * \param torques a vector of target torques - applicable for each of the actuated joints
     * \return MovementCode representing success or failure of the application
     */
-    setMovementReturnCode_t setTorque(Eigen::VectorXd torques);
+    setMovementReturnCode_t setTorque(std::vector<double> torques);
 
     /**
     * \brief Get the actual position of each joint
     *
     * \return std::vector<double> a vector of actual joint positions
     */
-    Eigen::VectorXd getPosition();
+    std::vector<double> getPosition();
 
     /**
     * \brief Get the actual velocity of each joint
     *
     * \return std::vector<double> a vector of actual joint positions
     */
-    Eigen::VectorXd getVelocity();
+    std::vector<double> getVelocity();
 
     /**
     * \brief Get the actual torque of each joint
     *
     * \return std::vector<double> a vector of actual joint positions
     */
-    Eigen::VectorXd getTorque();
+    std::vector<double> getTorque();
 
     /**
    * Determine if the currently generated trajectory is complete.
