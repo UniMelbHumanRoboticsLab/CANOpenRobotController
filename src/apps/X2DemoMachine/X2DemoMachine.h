@@ -26,8 +26,8 @@
 #include "StateMachine.h"
 
 // State Classes
-#include "IdleState.h"
-#include "X2DemoState.h"
+#include "states/IdleState.h"
+#include "states/X2DemoState.h"
 
 class X2DemoMachine : public StateMachine {
 
