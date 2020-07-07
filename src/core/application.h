@@ -28,8 +28,6 @@
  * limitations under the License.
  */
 
-#define USEROS
-
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/reboot.h>
@@ -58,6 +56,7 @@ extern "C" {
 
 #ifdef USEROS
 #include "ros/ros.h"
+#include STATE_MACHINE_ROS_INCLUDE
 #endif
 
 //Include custom state machine (defined in cmake)
