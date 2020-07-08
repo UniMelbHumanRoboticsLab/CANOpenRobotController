@@ -136,8 +136,6 @@ bool Drive::posControlConfirmSP() {
 bool Drive::initPDOs() {
     DEBUG_OUT("Drive::initPDOs")
 
-    start();
-
     //DEBUG_OUT("Set up STATUS_WORD TPDO")
     if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF))<0) {
         std::cout /*cerr is banned*/ << "Set up STATUS_WORD TPDO FAILED on node" << NodeID  <<std::endl;

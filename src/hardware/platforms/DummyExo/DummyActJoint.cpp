@@ -44,6 +44,7 @@ setMovementReturnCode_t DummyActJoint::setTorque(double desiredTorque) {
 
 bool DummyActJoint::initNetwork() {
     DEBUG_OUT("Joint::initNetwork()")
+    drive->start();
     if (drive->initPDOs()) {
         return true;
     } else {
