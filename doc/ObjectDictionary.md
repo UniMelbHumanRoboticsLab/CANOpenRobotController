@@ -4,17 +4,18 @@ The CORC implementation uses the CANOpenNode Stack, and their implementation of 
 
 The CORC implementation of PDOs is currently quite poor - although functions exist to set up PDOs on CAN Nodes, the local object dictionary (which must also be configured to mirror these PDOs) is hard coded in. Thus if new devices/PDOs are added, modifications to the Object Dictionary must be made. These are in the files `CO_OD.c` and `CO_OD.h` in `src\core\CANopen\objDict`. 
 
-The goal of this file is to provide some information about how to do this. Note that this does not present a completion picture. 
+The goal of this file is to provide some information about how to do this. Note that this does not present a complete picture. 
 
 There are 2 main changes that must be made:
 
 1. Creating an entry in the Object Dictionary (allowing it to be accessed by the CANOpenNode Stack)
 2. Configuring the RPDO or TPDO parameters
 
+This is done through the already-implemented example of statusword for the motor drives. 
 
-## 1. Creating the variable to store local data
+## 1. Creating an entry in the Object Dictionary
 
-### 1.1 Allocation of memory
+### 1.1 Data Structures and Allocation of Memory
 
 The following is how we have defined the status word datatype in `CO_OD.h`:
 ```C++
@@ -30,9 +31,9 @@ The following is how we have defined the status word datatype in `CO_OD.h`:
 } OD_statusWords_t;
 ```
 
-Note that we have chosen to put this at OD Address 6041 to mirror its location on the Motor Drives, however, this again is a choice. Note also that we can include more motors than we intend to use - these variables will simply not be accessed. 
+Note that we have chosen to put this at OD Address 6041 to mirror its location on the motor drives, however, this is arbitrary. Note also that we can include more motors than we intend to use - these variables will simply not be accessed. 
 
-The typedef for the datatype is then used within the structure of the object dictionary (again in `CO_OD.h`). 
+The typedef for the datatype is then used within the struct used for the object dictionary (again in `CO_OD.h`). 
 ```C++
 /***** Structure for RAM variables ********************************************/
 struct sCO_OD_RAM {
@@ -52,7 +53,7 @@ struct sCO_OD_RAM {
 };
 ```
 
-The CO_OD_RAM is then defined in `CO_OD.c` using the above structure:
+The CO_OD_RAM is then instantiated in `CO_OD.c` using the above `sCO_OD_RAM` struct:
 ```C++
 struct sCO_OD_RAM CO_OD_RAM = {
     CO_OD_FIRST_LAST_WORD,
@@ -73,7 +74,7 @@ struct sCO_OD_RAM CO_OD_RAM = {
 Note that the order of the definitions are important, and the data initialised in the RAM needs to be of the correct size. 
 
 ### 1.2 Creating methods to access the memory on the CORC-side Code
-In `CO_OD.c`, the following allows the data to be accessed by the CANopenNode methods - the items are a pointer to the location in memory of the item in the OD, an attribute for the item (this allows it to be mapped to a PDO, among other things - see `CO_SDO_OD_attributes_t` for details), and the length of the data. 
+In `CO_OD.c`, the following allows the data to be accessed by the CANopenNode methods - the items are a pointer to the location in memory of the item in the OD, an attribute for the item (this allows it to be mapped to a PDO, among other things - see `CO_SDO_OD_attributes_t` for details), and the length of the data in bytes. 
 ```C++
 /*0x6041*/ const CO_OD_entryRecord_t OD_record6041[7] = {
     {(void *)&CO_OD_RAM.statusWords.numberOfMotors, 0x06, 0x1},
@@ -107,7 +108,6 @@ Items in each line (structure) are the index, the maximum subIndex, the attribut
 ## 2. Configuring the PDOs
 
 The configurations are done in the instantiation of the Object Dictionary in `CO_OD.c`. Particularly, RPDOs are configured using address `0x14nn` and `0x16nn` (`nn` representing PDO number), and TPDOs are configured using `0x18nn` and `0x1ann`. The OD is set up to allow up to 16 RPDOs an 16 TPDOs (I am not sure if more are permitted).  
-
 
 ## RPDO Configuration
 
