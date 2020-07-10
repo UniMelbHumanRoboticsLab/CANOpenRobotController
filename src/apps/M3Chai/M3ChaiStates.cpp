@@ -70,6 +70,8 @@ void M3ChaiCommunication::duringCode(void) {
             force = chaiServer->GetReceivedValues();
             lastReceivedTime = elapsedTime;
             F=Eigen::Vector3d(-force[0], force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
+            std::cout << F.transpose() << std::endl;
+            F=Eigen::Vector3d::Zero();
         } else if(elapsedTime-lastReceivedTime>watchDogTime) {
             //Watchdog: If no fresh values for more than 10ms, fallback
              F=Eigen::Vector3d::Zero();
@@ -79,6 +81,7 @@ void M3ChaiCommunication::duringCode(void) {
         //Anyway send values
         X=robot->getEndEffPos();
         double x[3]={-X(0),X(1),X(2)}; //Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
+        chaiServer->Send(x);
     }
     else {
         //Simply transparent mode while not connected
