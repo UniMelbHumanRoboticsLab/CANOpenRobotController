@@ -115,7 +115,7 @@ void StateMachine::update()
 
 ## Designing your own stateMachine
 
-Following the ExoTestMachine example [link](https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController/blob/master/src/apps/stateMachine/ExoTestMachine.cpp) , the following steps should yield a functional state machine.
+Following the ExoTestMachine example [link](../src/apps/example/stateMachine/ExoTestMachine.cpp), the following steps should yield a functional state machine.
 
 1. Design a state diagram with states, events and transitions (states may have more than one possible transition)
 2. Create each state classes three virtual functions following the above SittingDwn.cpp as example

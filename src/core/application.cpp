@@ -10,11 +10,10 @@
 
 //Select state machine to use for this application (can be set in cmake)
 #ifndef STATE_MACHINE_TYPE
-	#define STATE_MACHINE_TYPE ExoTestMachine
+#define STATE_MACHINE_TYPE ExoTestMachine
 #endif
 
 STATE_MACHINE_TYPE testMachine;
-
 
 /*For master-> node SDO message sending*/
 #define CO_COMMAND_SDO_BUFFER_SIZE 100000

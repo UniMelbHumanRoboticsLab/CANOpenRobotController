@@ -13,8 +13,17 @@
 #include <iostream>
 
 #include "DebugMacro.h"
-Joint::Joint(int jointID, double jointMin, double jointMax) : id(jointID), qMin(jointMin), qMax(jointMax), q0(0) {
-    q = 0;
+
+Joint::Joint(int jointID, double jointMin, double jointMax) : id(jointID), qMin(jointMin), qMax(jointMax) {
+    position = 0;
+    velocity = 0;
+    torque = 0;
+}
+
+Joint::Joint(int jointID, double jointMin, double jointMax, double q0) : id(jointID), qMin(jointMin), qMax(jointMax) {
+    position = q0;
+    velocity = 0;
+    torque = 0;
 }
 
 Joint::~Joint() {
@@ -24,10 +33,17 @@ int Joint::getId() {
     return id;
 }
 
-double Joint::getQ() {
-    return q-q0;
+double Joint::getPosition() {
+    return position;
+}
+double Joint::getVelocity() {
+    return velocity;
+}
+double Joint::getTorque() {
+    return torque;
 }
 
 void Joint::getStatus() {
-    std::cout << "Joint ID " << id << " @ pos " << getQ() << " deg" << std::endl;
+    std::cout << "Joint ID " << id << " @ pos " << getPosition() << " deg" << std::endl;
 }
+

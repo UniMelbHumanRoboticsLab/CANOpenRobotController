@@ -1,19 +1,16 @@
-#include "ExoRobot.h"
+#include "X2Robot.h"
 
 #include "DebugMacro.h"
 
-ExoRobot::ExoRobot() : Robot() {
+X2Robot::X2Robot() : Robot() {
 }
 
-ExoRobot::~ExoRobot() {
-    DEBUG_OUT("Delete ExoRobot object begins")
+X2Robot::~X2Robot() {
     freeMemory();
-    joints.clear();
-    copleyDrives.clear();
-    DEBUG_OUT("ExoRobot deleted")
+    DEBUG_OUT("X2Robot deleted")
 }
 
-bool ExoRobot::initPositionControl() {
+bool X2Robot::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
@@ -34,7 +31,7 @@ bool ExoRobot::initPositionControl() {
     return returnValue;
 }
 
-bool ExoRobot::initVelocityControl() {
+bool X2Robot::initVelocityControl() {
     DEBUG_OUT("Initialising Velocity Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
@@ -55,7 +52,7 @@ bool ExoRobot::initVelocityControl() {
     return returnValue;
 }
 
-bool ExoRobot::initTorqueControl() {
+bool X2Robot::initTorqueControl() {
     DEBUG_OUT("Initialising Torque Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
@@ -76,7 +73,7 @@ bool ExoRobot::initTorqueControl() {
     return returnValue;
 }
 
-setMovementReturnCode_t ExoRobot::setPosition(std::vector<double> positions) {
+setMovementReturnCode_t X2Robot::setPosition(std::vector<double> positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
@@ -94,7 +91,7 @@ setMovementReturnCode_t ExoRobot::setPosition(std::vector<double> positions) {
     return returnValue;
 }
 
-setMovementReturnCode_t ExoRobot::setVelocity(std::vector<double> velocities) {
+setMovementReturnCode_t X2Robot::setVelocity(std::vector<double> velocities) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
@@ -112,7 +109,7 @@ setMovementReturnCode_t ExoRobot::setVelocity(std::vector<double> velocities) {
     return returnValue;
 }
 
-setMovementReturnCode_t ExoRobot::setTorque(std::vector<double> torques) {
+setMovementReturnCode_t X2Robot::setTorque(std::vector<double> torques) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
@@ -130,7 +127,7 @@ setMovementReturnCode_t ExoRobot::setTorque(std::vector<double> torques) {
     return returnValue;
 }
 
-std::vector<double> ExoRobot::getPosition() {
+std::vector<double> X2Robot::getPosition() {
     int i = 0;
     std::vector<double> actualJointPositions(joints.size());
     for (auto p : joints) {
@@ -140,17 +137,17 @@ std::vector<double> ExoRobot::getPosition() {
     return actualJointPositions;
 }
 
-std::vector<double> ExoRobot::getVelocity() {
+std::vector<double> X2Robot::getVelocity() {
     int i = 0;
     std::vector<double> actualJointVelocities(joints.size());
     for (auto p : joints) {
-        actualJointVelocities[i] = ((ActuatedJoint *)p)->getVeloctiy();
+        actualJointVelocities[i] = ((ActuatedJoint *)p)->getVelocity();
         i++;
     }
     return actualJointVelocities;
 }
 
-std::vector<double> ExoRobot::getTorque() {
+std::vector<double> X2Robot::getTorque() {
     int i = 0;
     std::vector<double> actualJointTorques(joints.size());
     for (auto p : joints) {
@@ -160,16 +157,22 @@ std::vector<double> ExoRobot::getTorque() {
     return actualJointTorques;
 }
 
-bool ExoRobot::initialiseJoints() {
-    for (int id = 0; id < NUM_JOINTS; id++) {
-        copleyDrives.push_back(new CopleyDrive(id + 1));
-        joints.push_back(new DummyActJoint(id, jointMinMap[id], jointMaxMap[id], copleyDrives[id]));
+bool X2Robot::initialiseJoints() {
+    for (int id = 0; id < X2_NUM_JOINTS; id++) {
+        motorDrives.push_back(new CopleyDrive(id + 1));
+        // The X2 has 2 Hips and 2 Knees, by default configured as 2 hips, then 2 legs int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive
+        if (id == X2_LEFT_HIP || id == X2_RIGHT_HIP) {
+            joints.push_back(new X2Joint(id, X2JointLimits.hipMin, X2JointLimits.hipMax, hipJDP, motorDrives[id]));
+        } else if (id == X2_LEFT_KNEE || id == X2_RIGHT_KNEE) {
+            joints.push_back(new X2Joint(id, X2JointLimits.kneeMin, X2JointLimits.kneeMax, kneeJDP, motorDrives[id]));
+        }
     }
+
     return true;
 }
 
-bool ExoRobot::initialiseNetwork() {
-    DEBUG_OUT("ExoRobot::initialiseNetwork()");
+bool X2Robot::initialiseNetwork() {
+    DEBUG_OUT("X2Robot::initialiseNetwork()");
 
     bool status;
     for (auto joint : joints) {
@@ -180,16 +183,16 @@ bool ExoRobot::initialiseNetwork() {
 
     return true;
 }
-bool ExoRobot::initialiseInputs() {
+bool X2Robot::initialiseInputs() {
     inputs.push_back(&keyboard);
     return true;
 }
-void ExoRobot::freeMemory() {
+void X2Robot::freeMemory() {
     for (auto p : joints) {
         DEBUG_OUT("Delete Joint ID: " << p->getId())
         delete p;
     }
-    for (auto p : copleyDrives) {
+    for (auto p : motorDrives) {
         DEBUG_OUT("Delete Drive Node: " << p->getNodeID())
         delete p;
     }
@@ -199,6 +202,6 @@ void ExoRobot::freeMemory() {
     }
     keyboard.~Keyboard();
 }
-void ExoRobot::updateRobot() {
+void X2Robot::updateRobot() {
     Robot::updateRobot();
 }
