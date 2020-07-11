@@ -76,6 +76,7 @@ class server
         //!@name Connecting and disconnecting methods
         //@{
             int Connect(char * addr);
+            int Reconnect();
             int Disconnect();
             bool IsConnected();
         //@}
@@ -96,6 +97,7 @@ class server
         int ClientSocket;           //!< Distant client socket
         struct sockaddr_in sin;     //!< Socket parameters structure
         bool Connected;             //!< TRUE if server as client connected, FALSE otherwise
+        bool Waiting;               //!< TRUE if server is currently waiting for incoming client, FALSE otherwise
         int NbValuesToSend;         //!< Number of double values the server send to the client
         int NbValuesToReceive;      //!< Number of double values the server receive from the client
         double * ReceivedValues;    //!< Tab of the last received value from the client

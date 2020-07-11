@@ -29,6 +29,7 @@ server::server(int nb_values_to_send, int nb_values_to_receive)
     //Initialise and allocates privates
     IsValues=false;
     Connected=false;
+    Waiting=false;
     ReceivedValues=new double[NbValuesToReceive];
 
     #ifdef WINDOWS
@@ -77,6 +78,7 @@ int server::Connect(char * addr)
     sin.sin_addr.s_addr = inet_addr(addr);
 
     //Initialise
+    Waiting=false;
     if(bind(Socket, (struct sockaddr*)&sin, sizeof(sin))==-1)
     {
         #ifdef WINDOWS
@@ -88,19 +90,33 @@ int server::Connect(char * addr)
     }
     else
     {
-        //Ecoute d'une seulle connexion
-        listen(Socket, 1);
-
-        //Creation d'un thread d'attente de connexion du client
-        if(pthread_create(&AcceptingThread, NULL, Accepting, (void*)this)!=0)
-        {
-            printf("server::Connect() : Error creating accepting thread\n");
-            return -2;
-        }
-
-        //OK
-        return 0;
+       return Reconnect();
     }
+}
+
+//! Wait for a client launching an Accepting thread. Can be called if socket initialised but disconnected
+//! \return 0 if OK
+//! \return -1 if already connected or already waiting
+//! \return -2 if error creating the accepting thread
+int server::Reconnect()
+{
+    if(IsConnected() || Waiting)
+    {
+        return -1;
+    }
+
+    //Ecoute d'une seule connexion
+    listen(Socket, 1);
+
+    //Creation d'un thread d'attente de connexion du client
+    if(pthread_create(&AcceptingThread, NULL, Accepting, (void*)this)!=0)
+    {
+        printf("server::Connect() : Error creating accepting thread\n");
+        return -2;
+    }
+
+    //OK
+    return 0;
 }
 
 //! Thread function waiting for a client connection
@@ -110,6 +126,8 @@ void * Accepting(void * c)
 {
     server * local_server;
     local_server=(server*)c;
+
+    local_server->Waiting=true;
 
     #ifdef WINDOWS
         int taille = sizeof(SOCKADDR_IN);
@@ -122,16 +140,17 @@ void * Accepting(void * c)
         local_server->ClientSocket = accept(local_server->Socket, (struct sockaddr*)&local_server->ClientSocket, &taille);
     #endif
 
-
     //Connection OK
     printf("server::Connected.\n");
     local_server->Connected=true;
+    local_server->Waiting=false;
 
     //Create a receiving thread
     if(pthread_create(&local_server->ReceivingThread, NULL, ServerReceiving, (void*)local_server)!=0)
     {
         printf("server::Connect() : Error creating receiving thread\n");
         local_server->Connected=false;
+        local_server->Waiting=false;
     }
 
     return NULL;
