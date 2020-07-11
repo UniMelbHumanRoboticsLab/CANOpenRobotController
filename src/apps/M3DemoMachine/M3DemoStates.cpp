@@ -18,8 +18,8 @@ void M3DemoState::entryCode(void) {
     //robot->initPositionControl();
     //robot->initVelocityControl();
     robot->initTorqueControl();
-    qi=robot->getJointPos();
-    Xi=robot->getEndEffPos();
+    qi=robot->getJointPosition();
+    Xi=robot->getEndEffPosition();
 }
 void M3DemoState::duringCode(void) {
     if(iterations%100==1) {
@@ -38,7 +38,7 @@ void M3DemoState::duringCode(void) {
     //robot->printStatus();
 
     /*Eigen::Vector3d dX(-0.02,0.05,0.1);
-    if(robot->getEndEffPos()(2)<0) {
+    if(robot->getEndEffPosition()(2)<0) {
         robot->setEndEffVel(dX);
     }
     else {
@@ -56,11 +56,11 @@ void M3DemoState::duringCode(void) {
     /*Eigen::Vector3d tau(0,-5.0,0);*/
     //robot->setJointTor(robot->calculateGravityTorques());
     /*Eigen::Vector3d F(0,0,0);
-    robot->setEndEffForWithCompensation(F);*/
+    robot->setEndEffForceWithCompensation(F);*/
 }
 void M3DemoState::exitCode(void) {
-    robot->setJointVel(Eigen::Vector3d::Zero());
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+    robot->setJointVelocity(Eigen::Vector3d::Zero());
+    robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
 }
 
 
@@ -82,7 +82,7 @@ void M3CalibState::duringCode(void) {
     Eigen::Vector3d tau(0, 0, 0);
 
     //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
-    Eigen::Vector3d vel=robot->getJointVel();
+    Eigen::Vector3d vel=robot->getJointVelocity();
     double b = 3.;
     for(unsigned int i=0; i<3; i++) {
         tau(i) = std::min(std::max(2 - b * vel(i), .0), 2.);
@@ -96,7 +96,7 @@ void M3CalibState::duringCode(void) {
 
     //Switch to gravity control when done
     if(robot->isCalibrated()) {
-        robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+        robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
         robot->printJointStatus();
         calibDone=true; //Trigger event
     }
@@ -107,12 +107,12 @@ void M3CalibState::duringCode(void) {
             std::cout << "OK." << std::endl;
         }
         else {
-            robot->setJointTor(tau);
+            robot->setJointTorque(tau);
         }
     }
 }
 void M3CalibState::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+    robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
 }
 
 
@@ -138,7 +138,7 @@ void M3MassCompensation::duringCode(void) {
     }
 
     //Apply corresponding force
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,t*mass*9.8));
+    robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,t*mass*9.8));
 
     //Mass controllable through keyboard inputs
     if(robot->keyboard->getS()) {
@@ -151,7 +151,7 @@ void M3MassCompensation::duringCode(void) {
     }
 }
 void M3MassCompensation::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+    robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
 }
 
 
@@ -177,14 +177,14 @@ void M3EndEffDemo::duringCode(void) {
     }
 
     //Apply
-    robot->setEndEffVel(dX);
+    robot->setEndEffVelocity(dX);
 
     if(iterations%20==1) {
         robot->printStatus();
     }
 }
 void M3EndEffDemo::exitCode(void) {
-    robot->setEndEffVel(Eigen::Vector3d(0,0,0));
+    robot->setEndEffVelocity(Eigen::Vector3d(0,0,0));
 }
 
 
@@ -199,7 +199,7 @@ void M3DemoImpedanceState::duringCode(void) {
 
     //Select start point
     if(robot->keyboard->getQ()) {
-        Xi=robot->getEndEffPos();
+        Xi=robot->getEndEffPosition();
         init=true;
     }
 
@@ -227,15 +227,15 @@ void M3DemoImpedanceState::duringCode(void) {
 
     //Apply impedance control
     if(init) {
-        std::cout << "K=" << k << " D=" << d << " => F=" << impedance(K, Eigen::Matrix3d::Zero(), Xi, robot->getEndEffPos(), robot->getEndEffVel()).transpose() << " N" <<std::endl;
-        robot->setEndEffForWithCompensation(impedance(K, D, Xi, robot->getEndEffPos(), robot->getEndEffVel()));
+        std::cout << "K=" << k << " D=" << d << " => F=" << impedance(K, Eigen::Matrix3d::Zero(), Xi, robot->getEndEffPosition(), robot->getEndEffVelocity()).transpose() << " N" <<std::endl;
+        robot->setEndEffForceWithCompensation(impedance(K, D, Xi, robot->getEndEffPosition(), robot->getEndEffVelocity()));
     }
     else {
-        robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+        robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
     }
 }
 void M3DemoImpedanceState::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
+    robot->setEndEffForceWithCompensation(Eigen::Vector3d::Zero());
 }
 
 
@@ -244,24 +244,24 @@ void M3DemoImpedanceState::exitCode(void) {
 
 void M3SamplingEstimationState::entryCode(void) {
     robot->initTorqueControl();
-    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
+    robot->setEndEffForceWithCompensation(Eigen::Vector3d::Zero());
     std::cout << "Move robot around while estimating time" << std::endl;
 }
 void M3SamplingEstimationState::duringCode(void) {
     //Apply gravity compensation
-    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
+    robot->setEndEffForceWithCompensation(Eigen::Vector3d::Zero());
 
     //Save dt
     if(iterations<nb_samples) {
         //Do some math for fun
         Eigen::Matrix3d K = 2.36*Eigen::Matrix3d::Identity();
         Eigen::Matrix3d D = 0.235*Eigen::Matrix3d::Identity();
-        impedance(K, Eigen::Matrix3d::Zero(), Eigen::Vector3d(-0.5, 0.23, 0.65), robot->getEndEffPos(), robot->getEndEffVel()).transpose();
+        impedance(K, Eigen::Matrix3d::Zero(), Eigen::Vector3d(-0.5, 0.23, 0.65), robot->getEndEffPosition(), robot->getEndEffVelocity()).transpose();
         robot->J().inverse()*Eigen::Vector3d::Zero()+2*robot->inverseKinematic(Eigen::Vector3d(-0.5, 0, 0));
 
         //Get time and actual value read from CAN to get sampling rate
         dts[iterations] = dt;
-        dX[iterations] = robot->getEndEffVel().norm();
+        dX[iterations] = robot->getEndEffVelocity().norm();
         if(dX[iterations-1]!=dX[iterations]){ //Value has actually been updated
             new_value++;
         }
@@ -282,7 +282,7 @@ void M3SamplingEstimationState::duringCode(void) {
     }
 }
 void M3SamplingEstimationState::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
+    robot->setEndEffForceWithCompensation(Eigen::Vector3d::Zero());
 
 }
 

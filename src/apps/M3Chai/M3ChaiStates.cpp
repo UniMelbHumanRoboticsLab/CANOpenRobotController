@@ -20,7 +20,7 @@ void M3CalibState::duringCode(void) {
     Eigen::Vector3d tau(0, 0, 0);
 
     //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
-    Eigen::Vector3d vel=robot->getJointVel();
+    Eigen::Vector3d vel=robot->getJointVelocity();
     double b = 3.;
     for(unsigned int i=0; i<3; i++) {
         tau(i) = std::min(std::max(2 - b * vel(i), .0), 2.);
@@ -34,7 +34,7 @@ void M3CalibState::duringCode(void) {
 
     //Switch to gravity control when done
     if(robot->isCalibrated()) {
-        robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+        robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
         robot->printJointStatus();
         calibDone=true; //Trigger event
     }
@@ -45,12 +45,12 @@ void M3CalibState::duringCode(void) {
             std::cout << "OK." << std::endl;
         }
         else {
-            robot->setJointTor(tau);
+            robot->setJointTorque(tau);
         }
     }
 }
 void M3CalibState::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+    robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
 }
 
 
@@ -59,7 +59,7 @@ void M3CalibState::exitCode(void) {
 
 void M3ChaiCommunication::entryCode(void) {
     F=Eigen::Vector3d::Zero();
-    robot->setEndEffForWithCompensation(F);
+    robot->setEndEffForceWithCompensation(F);
 }
 void M3ChaiCommunication::duringCode(void) {
 
@@ -79,7 +79,7 @@ void M3ChaiCommunication::duringCode(void) {
         }
 
         //Anyway send values
-        X=robot->getEndEffPos();
+        X=robot->getEndEffPosition();
         double x[3]={-X(0),X(1),X(2)}; //Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
         chaiServer->Send(x);
     }
@@ -89,12 +89,12 @@ void M3ChaiCommunication::duringCode(void) {
     }
 
     //Apply requested force on top of device gravity compensation
-    if(robot->setEndEffForWithCompensation(F)!=SUCCESS) {
+    if(robot->setEndEffForceWithCompensation(F)!=SUCCESS) {
          std::cout /*cerr is banned*/ << "M3ChaiCommunication: Error applying force (";
          robot->printJointStatus();
          std::cout /*cerr is banned*/  << ")" << std::endl;
     }
 }
 void M3ChaiCommunication::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+    robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
 }

@@ -177,19 +177,19 @@ class RobotM3 : public Robot {
     Eigen::Vector3d inverseKinematic(Eigen::Vector3d X);
     Eigen::Vector3d calculateGravityTorques();
 
-    Eigen::Vector3d getJointPos();
-    Eigen::Vector3d getJointVel();
-    Eigen::Vector3d getJointTor();
-    Eigen::Vector3d getEndEffPos();
-    Eigen::Vector3d getEndEffVel();
-    Eigen::Vector3d getEndEffFor();
+    Eigen::Vector3d getJointPosition();
+    Eigen::Vector3d getJointVelocity();
+    Eigen::Vector3d getJointTorque();
+    Eigen::Vector3d getEndEffPosition();
+    Eigen::Vector3d getEndEffVelocity();
+    Eigen::Vector3d getEndEffForce();
 
-    setMovementReturnCode_t setJointPos(Eigen::Vector3d q);
-    setMovementReturnCode_t setJointVel(Eigen::Vector3d q);
-    setMovementReturnCode_t setJointTor(Eigen::Vector3d tau);
-    setMovementReturnCode_t setEndEffPos(Eigen::Vector3d X);
-    setMovementReturnCode_t setEndEffVel(Eigen::Vector3d dX);
-    setMovementReturnCode_t setEndEffFor(Eigen::Vector3d F);
-    setMovementReturnCode_t setEndEffForWithCompensation(Eigen::Vector3d F);
+    setMovementReturnCode_t setJointPosition(Eigen::Vector3d q);
+    setMovementReturnCode_t setJointVelocity(Eigen::Vector3d q);
+    setMovementReturnCode_t setJointTorque(Eigen::Vector3d tau);
+    setMovementReturnCode_t setEndEffPosition(Eigen::Vector3d X);
+    setMovementReturnCode_t setEndEffVelocity(Eigen::Vector3d dX);
+    setMovementReturnCode_t setEndEffForce(Eigen::Vector3d F);
+    setMovementReturnCode_t setEndEffForceWithCompensation(Eigen::Vector3d F);
 };
 #endif /*RobotM3_H*/
