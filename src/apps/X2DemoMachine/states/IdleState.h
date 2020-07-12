@@ -12,7 +12,7 @@
 #define INITSTATE_H_INCLUDED
 
 #include "State.h"
-#include "ExoRobot.h"
+#include "X2Robot.h"
 
 /**
  * \brief Idle State for the X2DemoMachine
@@ -22,13 +22,13 @@
  *
  */
 class IdleState : public State {
-    ExoRobot *robot;
+    X2Robot *robot;
 
 public:
     void entry(void);
     void during(void);
     void exit(void);
-    IdleState(StateMachine *m, ExoRobot *exo, const char *name = NULL) : State(m, name), robot(exo){};
+    IdleState(StateMachine *m, X2Robot *exo, const char *name = NULL) : State(m, name), robot(exo){};
 };
 
 #endif

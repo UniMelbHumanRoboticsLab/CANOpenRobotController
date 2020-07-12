@@ -83,9 +83,13 @@ class X2Joint : public ActuatedJoint {
     X2Joint(int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive);
     ~X2Joint(){};
     bool updateValue();
-    setMovementReturnCode_t setPosition(double desQ);
+    setMovementReturnCode_t setPosition(double desiredPosition);
+    setMovementReturnCode_t setVelocity(double desiredVelocity);
+    setMovementReturnCode_t setTorque(double desiredTorque);
     bool initNetwork();
     double getPosition();
+    double getVelocity();
+    double getTorque();
 };
 
 #endif

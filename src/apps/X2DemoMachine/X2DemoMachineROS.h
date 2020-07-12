@@ -21,7 +21,7 @@
 class X2DemoMachineROS {
 
 public:
-    X2DemoMachineROS(ExoRobot *robot);
+    X2DemoMachineROS(X2Robot *robot);
     void publishJointStates(void);
     void initialize(ros::NodeHandle nodeHandle);
 
@@ -29,7 +29,7 @@ private:
     ros::NodeHandle nodeHandle_;
     ros::Publisher jointStatePublisher_;
     sensor_msgs::JointState jointStateMsg_;
-    ExoRobot *robot_;
+    X2Robot *robot_;
 
 };
 

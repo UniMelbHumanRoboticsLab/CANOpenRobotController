@@ -12,7 +12,7 @@
 #define SRC_X2DEMOSTATE_H
 
 #include "State.h"
-#include "ExoRobot.h"
+#include "X2Robot.h"
 #include <ctime>
 #include <sstream>
 #include <iostream>
@@ -26,13 +26,13 @@
  *
  */
 class X2DemoState : public State {
-    ExoRobot *robot;
+    X2Robot *robot;
 
 public:
     void entry(void);
     void during(void);
     void exit(void);
-    X2DemoState(StateMachine *m, ExoRobot *exo, const char *name = NULL) : State(m, name), robot(exo){};
+    X2DemoState(StateMachine *m, X2Robot *exo, const char *name = NULL) : State(m, name), robot(exo){};
 
 private:
     std::chrono::steady_clock::time_point time0;

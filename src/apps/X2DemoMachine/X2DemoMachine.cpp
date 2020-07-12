@@ -3,7 +3,7 @@
 #define OWNER ((X2DemoMachine *)owner)
 
 X2DemoMachine::X2DemoMachine() {
-    robot = new ExoRobot();
+    robot = new X2Robot();
     // Create PRE-DESIGNED State Machine events and state objects.
     startExo = new StartExo(this);
     /**f
@@ -33,7 +33,7 @@ void X2DemoMachine::init() {
 void X2DemoMachine::end() {
     if(initialised) {
         currentState->exit();
-        robot->~ExoRobot();
+        robot->~X2Robot();
     }
 }
 
@@ -41,7 +41,7 @@ void X2DemoMachine::end() {
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
 bool X2DemoMachine::StartExo::check(void) {
-    if (OWNER->robot->keyboard->getS() == true) {
+    if (OWNER->robot->keyboard.getS() == true) {
         std::cout << "Pressed S!" << std::endl;
         return true;
     }

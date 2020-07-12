@@ -20,7 +20,7 @@
 #include "CopleyDrive.h"
 #include "Keyboard.h"
 #include "Robot.h"
-#include "RobotParams.h"
+//#include "RobotParams.h"
 #include "X2Joint.h"
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
@@ -35,37 +35,8 @@
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
 
 /**
- * An enum type.
- * Joint Index for the 4 joints (note, CANopen NODEID = this + 1)
- */
-enum X2Joints {
-    X2_LEFT_HIP = 0,   /**< Left Hip*/
-    X2_LEFT_KNEE = 1,  /**< Left Knee*/
-    X2_RIGHT_HIP = 2,  /**< Right Hip*/
-    X2_RIGHT_KNEE = 3, /**< Right Knee*/
-};
-/**
- * Paramater definitions: Hip motor reading and corresponding angle. Used for mapping between degree and motor values.
- */
-JointDrivePairs hipJDP{
-    250880,       // drivePosA
-    0,            // drivePosB
-    deg2rad(90),  //jointPosA
-    deg2rad(180)  //jointPosB
-};
-/**
- * Paramater definitions: Knee motor reading and corresponding angle. Used for mapping between degree and motor values.
- */
-JointDrivePairs kneeJDP{
-    250880,       // drivePosA
-    0,            //drivePosB
-    deg2rad(90),  //jointPosA
-    deg2rad(0)    //jointPosB
-};
-
-/**
- * Defines the Joint Limits of the X2 Exoskeleton
- * 
+ * Structure which is used for joint limits. Defines minimum and maximum limits of the each joint
+ *
  */
 struct ExoJointLimits {
     double hipMax;
@@ -73,7 +44,6 @@ struct ExoJointLimits {
     double kneeMax;
     double kneeMin;
 };
-ExoJointLimits X2JointLimits = {deg2rad(210), deg2rad(70), deg2rad(120), deg2rad(0)};
 
 /**
  * \brief Example implementation of the Robot class, representing an X2 Exoskeleton.

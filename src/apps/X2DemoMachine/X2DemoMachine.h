@@ -22,7 +22,7 @@
 
 #include "DebugMacro.h"
 
-#include "ExoRobot.h"
+#include "X2Robot.h"
 #include "StateMachine.h"
 
 // State Classes
@@ -42,7 +42,7 @@ public:
     void end();
 
     void hwStateUpdate();
-    void initRobot(ExoRobot *rb);
+    void initRobot(X2Robot *rb);
 
     /**
      * Pointers to the relevant states - initialised in init
@@ -51,7 +51,7 @@ public:
     IdleState *idleState;
     X2DemoState *x2DemoState;
 
-    ExoRobot *robot; /*<!Pointer to the Robot*/
+    X2Robot *robot; /*<!Pointer to the Robot*/
 
 private:
     /**

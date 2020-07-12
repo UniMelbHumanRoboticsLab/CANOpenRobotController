@@ -10,6 +10,41 @@ X2Robot::~X2Robot() {
     DEBUG_OUT("X2Robot deleted")
 }
 
+/**
+ * An enum type.
+ * Joint Index for the 4 joints (note, CANopen NODEID = this + 1)
+ */
+enum X2Joints {
+    X2_LEFT_HIP = 0,   /**< Left Hip*/
+    X2_LEFT_KNEE = 1,  /**< Left Knee*/
+    X2_RIGHT_HIP = 2,  /**< Right Hip*/
+    X2_RIGHT_KNEE = 3, /**< Right Knee*/
+};
+/**
+ * Paramater definitions: Hip motor reading and corresponding angle. Used for mapping between degree and motor values.
+ */
+JointDrivePairs hipJDP{
+        250880,       // drivePosA
+        0,            // drivePosB
+        deg2rad(90),  //jointPosA
+        deg2rad(0)  //jointPosB
+};
+/**
+ * Paramater definitions: Knee motor reading and corresponding angle. Used for mapping between degree and motor values.
+ */
+JointDrivePairs kneeJDP{
+        250880,       // drivePosA
+        0,            //drivePosB
+        deg2rad(90),  //jointPosA
+        deg2rad(0)    //jointPosB
+};
+
+/**
+ * Defines the Joint Limits of the X2 Exoskeleton
+ *
+ */
+ExoJointLimits X2JointLimits = {deg2rad(210), deg2rad(70), deg2rad(120), deg2rad(0)};
+
 bool X2Robot::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
     bool returnValue = true;
@@ -77,7 +112,7 @@ setMovementReturnCode_t X2Robot::setPosition(std::vector<double> positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setPosition(positions[i]);
+        setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
             std::cout << "Joint ID " << p->getId() << ": is not in Position Control " << std::endl;
             returnValue = INCORRECT_MODE;
@@ -95,7 +130,7 @@ setMovementReturnCode_t X2Robot::setVelocity(std::vector<double> velocities) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setVelocity(velocities[i]);
+        setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setVelocity(velocities[i]);
         if (setPosCode == INCORRECT_MODE) {
             std::cout << "Joint ID " << p->getId() << ": is not in Velocity Control " << std::endl;
             returnValue = INCORRECT_MODE;
@@ -113,7 +148,7 @@ setMovementReturnCode_t X2Robot::setTorque(std::vector<double> torques) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setTorque(torques[i]);
+        setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setTorque(torques[i]);
         if (setPosCode == INCORRECT_MODE) {
             std::cout << "Joint ID " << p->getId() << ": is not in Torque Control " << std::endl;
             returnValue = INCORRECT_MODE;
@@ -131,7 +166,7 @@ std::vector<double> X2Robot::getPosition() {
     int i = 0;
     std::vector<double> actualJointPositions(joints.size());
     for (auto p : joints) {
-        actualJointPositions[i] = ((ActuatedJoint *)p)->getPosition();
+        actualJointPositions[i] = ((X2Joint *)p)->getPosition();
         i++;
     }
     return actualJointPositions;
@@ -141,7 +176,7 @@ std::vector<double> X2Robot::getVelocity() {
     int i = 0;
     std::vector<double> actualJointVelocities(joints.size());
     for (auto p : joints) {
-        actualJointVelocities[i] = ((ActuatedJoint *)p)->getVelocity();
+        actualJointVelocities[i] = ((X2Joint *)p)->getVelocity();
         i++;
     }
     return actualJointVelocities;
@@ -151,7 +186,7 @@ std::vector<double> X2Robot::getTorque() {
     int i = 0;
     std::vector<double> actualJointTorques(joints.size());
     for (auto p : joints) {
-        actualJointTorques[i] = ((ActuatedJoint *)p)->getTorque();
+        actualJointTorques[i] = ((X2Joint *)p)->getTorque();
         i++;
     }
     return actualJointTorques;

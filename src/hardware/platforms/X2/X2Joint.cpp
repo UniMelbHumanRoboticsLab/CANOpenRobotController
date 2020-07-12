@@ -30,11 +30,11 @@ double X2Joint::driveUnitToJointPosition(int driveValue) {
 }
 
 int X2Joint::jointVelocityToDriveUnit(double jointVelocity) {
-    return (JDSlope * jointVelocity + JDIntercept) * 10;
+    return (JDSlope * jointVelocity) * 10;
 }
 
 double X2Joint::driveUnitToJointVelocity(int driveValue) {
-    return ((driveValue - JDIntercept) / (JDSlope * 10));
+    return ((driveValue) / (JDSlope * 10));
 }
 
 int X2Joint::jointTorqueToDriveUnit(double jointTorque) {
@@ -46,16 +46,28 @@ double X2Joint::driveUnitToJointTorque(int driveValue) {
 }
 
 bool X2Joint::updateValue() {
-    drive->getPos();
+    position = ActuatedJoint::getPosition();
+    velocity = ActuatedJoint::getVelocity();
+    torque = ActuatedJoint::getTorque();
+
     return true;
 }
 
-setMovementReturnCode_t X2Joint::setPosition(double desQ) {
-    return ActuatedJoint::setPosition(desQ);
+setMovementReturnCode_t X2Joint::setPosition(double desiredPosition) {
+    return ActuatedJoint::setPosition(desiredPosition);
+}
+
+setMovementReturnCode_t X2Joint::setVelocity(double desiredVelocity) {
+    return ActuatedJoint::setVelocity(desiredVelocity);
+}
+
+setMovementReturnCode_t X2Joint::setTorque(double desiredTorque) {
+    return ActuatedJoint::setTorque(desiredTorque);
 }
 
 bool X2Joint::initNetwork() {
     DEBUG_OUT("Joint::initNetwork()")
+    drive->start();
     if (drive->initPDOs()) {
         return true;
     } else {
@@ -64,4 +76,10 @@ bool X2Joint::initNetwork() {
 }
 double X2Joint::getPosition() {
     return position;
+}
+double X2Joint::getVelocity() {
+    return velocity;
+}
+double X2Joint::getTorque() {
+    return torque;
 }

@@ -1,6 +1,6 @@
 #include "X2DemoMachineROS.h"
 
-X2DemoMachineROS::X2DemoMachineROS(ExoRobot *robot) {
+X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot) {
 
     robot_ = robot;
 }
@@ -18,10 +18,10 @@ void X2DemoMachineROS::publishJointStates() {
     std::vector<double> jointTorques = robot_->getTorque();
 
     jointStateMsg_.header.stamp = ros::Time::now();
-    jointStateMsg_.name.resize(NUM_JOINTS);
-    jointStateMsg_.position.resize(NUM_JOINTS);
-    jointStateMsg_.velocity.resize(NUM_JOINTS);
-    jointStateMsg_.effort.resize(NUM_JOINTS);
+    jointStateMsg_.name.resize(X2_NUM_JOINTS);
+    jointStateMsg_.position.resize(X2_NUM_JOINTS);
+    jointStateMsg_.velocity.resize(X2_NUM_JOINTS);
+    jointStateMsg_.effort.resize(X2_NUM_JOINTS);
     jointStateMsg_.name[0] = "left_hip";
     jointStateMsg_.name[1] = "left_knee";
     jointStateMsg_.name[2] = "right_hip";
