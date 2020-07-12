@@ -2,66 +2,13 @@
  * \file server.cpp
  * \brief Network server class implementation
  * \author Vincent Crocher
- * \version 0.6
+ * \version 0.8
  * \date July 2020
  *
  *
  */
 
-#include "server.h"
-
-/*-----------------------------------------------------------------------------------------------------------------*/
-/*#########################################   CONSTRUCTOR AND DESTRUCTOR   ########################################*/
-/*-----------------------------------------------------------------------------------------------------------------*/
-//! Constructor initializing data and creating a socket
-//! \param nb_values_to_send : Number of double values the server send to the client
-//! \param nb_values_to_receive : Number of double values the server receive from the client
-server::server(int nb_values_to_send, int nb_values_to_receive)
-{
-    //Copy values
-    NbValuesToSend=nb_values_to_send;
-    NbValuesToReceive=nb_values_to_receive;
-
-    //Initialise sin
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(2048);
-
-    //Initialise and allocates privates
-    IsValues=false;
-    Connected=false;
-    Waiting=false;
-    ReceivedValues=new double[NbValuesToReceive];
-
-    #ifdef WINDOWS
-        WSADATA WSAData;
-        WSAStartup(MAKEWORD(2,0), &WSAData);
-    #endif
-
-    //Initialise socket
-    Socket = socket(AF_INET, SOCK_STREAM, 0);
-}
-
-//! Destructor releasing memory and closing the socket
-server::~server()
-{
-    Connected=false;
-
-    if(close(Socket)==0)
-    {
-        printf("server::Connection closed.\n");
-        #ifdef WINDOWS
-            WSACleanup();
-        #endif
-    }
-    else
-    {
-        printf("server::Error closing connection.\n");
-    }
-
-    delete[] ReceivedValues;
-}
-/*#################################################################################################################*/
-
+#include "FLNL.h"
 
 
 /*-----------------------------------------------------------------------------------------------------------------*/
@@ -84,7 +31,7 @@ int server::Connect(char * addr)
         #ifdef WINDOWS
             printf("WSA Error code : %d\t", WSAGetLastError());
         #endif
-        perror("server::bind() :");
+        perror("FLNL::server::bind() :");
         close(Socket);
         return -1;
     }
@@ -109,9 +56,9 @@ int server::Reconnect()
     listen(Socket, 1);
 
     //Creation d'un thread d'attente de connexion du client
-    if(pthread_create(&AcceptingThread, NULL, Accepting, (void*)this)!=0)
+    if(pthread_create(&AcceptingThread, NULL, accepting, (void*)this)!=0)
     {
-        printf("server::Connect() : Error creating accepting thread\n");
+        printf("FLNL::server::Connect() : Error creating accepting thread\n");
         return -2;
     }
 
@@ -122,129 +69,34 @@ int server::Reconnect()
 //! Thread function waiting for a client connection
 //! \param c : A pointer on server object
 //! \return NULL
-void * Accepting(void * c)
+void * accepting(void * c)
 {
-    server * local_server;
-    local_server=(server*)c;
+    server * local_server = (server*)c;
 
     local_server->Waiting=true;
 
     #ifdef WINDOWS
         int taille = sizeof(SOCKADDR_IN);
-        local_server->ClientSocket=-1;
+        local_server->Socket=-1;
         SOCKADDR_IN csin;
-        while(local_server->ClientSocket==INVALID_SOCKET)
-            local_server->ClientSocket = accept(local_server->Socket, (struct sockaddr*)&csin, &taille);
+        while(local_server->Socket==INVALID_SOCKET)
+            local_server->Socket = accept(local_server->Socket, (struct sockaddr*)&csin, &taille);
     #else
-        socklen_t taille = sizeof(local_server->ClientSocket);
-        local_server->ClientSocket = accept(local_server->Socket, (struct sockaddr*)&local_server->ClientSocket, &taille);
+        socklen_t taille = sizeof(local_server->Socket);
+        local_server->Socket = accept(local_server->Socket, (struct sockaddr*)&local_server->Socket, &taille);
     #endif
 
     //Connection OK
-    printf("server::Connected.\n");
+    printf("FLNL::server::Connected.\n");
     local_server->Connected=true;
-    local_server->Waiting=false;
 
     //Create a receiving thread
-    if(pthread_create(&local_server->ReceivingThread, NULL, ServerReceiving, (void*)local_server)!=0)
+    if(pthread_create(&local_server->ReceivingThread, NULL, receiving, (void*)local_server)!=0)
     {
-        printf("server::Connect() : Error creating receiving thread\n");
+        printf("FLNL::server::Connect() : Error creating receiving thread\n");
         local_server->Connected=false;
-        local_server->Waiting=false;
     }
-
-    return NULL;
-}
-
-//! Disconnect from the client and so close the socket
-//! \return the close(Socket) return value
-int server::Disconnect()
-{
-    Connected=false;
-
-    return close(Socket);
-}
-
-//! Tell if a client is connected
-//! \return TRUE if the server have a client connected to, FALSE otherwise
-bool server::IsConnected()
-{
-    return Connected;
-}
-/*#################################################################################################################*/
-
-
-
-/*-----------------------------------------------------------------------------------------------------------------*/
-/*###############################################   SENDING METHODS   #############################################*/
-/*-----------------------------------------------------------------------------------------------------------------*/
-//! Send double values to the client
-//! \param values : A pointer on a tab of doubles of NbValuesToSend elements
-//! \return the send() return value
-int server::Send(double * values)
-{
-    //Convert double values in char tab
-	unsigned char values_in_char[NbValuesToSend*sizeof(double)];
-	//ATTENTION, PEUT ETRE ENLEVER LE UNSIGNED POUR WINDOWS
-    memcpy(values_in_char, values, NbValuesToSend*sizeof(double));
-    //Send the char tab
-    return send(ClientSocket, values_in_char, NbValuesToSend*sizeof(double), 0);
-}
-/*#################################################################################################################*/
-
-
-
-/*-----------------------------------------------------------------------------------------------------------------*/
-/*############################################  RECIVING METHODS  #################################################*/
-/*-----------------------------------------------------------------------------------------------------------------*/
-//! Tell if values have been received since last GetReceivedValues()
-//! \return TRUE if values have been received from the client, FALSE otherwise
-bool server::IsReceivedValues()
-{
-    return IsValues;
-}
-
-//! Return the last received values from the client
-//! \return A tab of doubles of NbValuesToReceive elements, received from the client
-double * server::GetReceivedValues()
-{
-    IsValues=false;
-    return ReceivedValues;
-}
-
-//! Thread function waiting for data from the client
-//! \param c : A pointer on the server object
-//! \return NULL
-void * ServerReceiving(void * c)
-{
-    server * local_server;
-    local_server=(server*)c;
-
-    unsigned char values_in_char[local_server->NbValuesToReceive*sizeof(double)];
-
-    while(local_server->Connected)
-    {
-        int ret=recv(local_server->ClientSocket, values_in_char, local_server->NbValuesToReceive*sizeof(double), 0);
-        if(ret>0)
-        {
-            //Recopie des valeurs recues s'il y en a
-            memcpy(local_server->ReceivedValues, values_in_char, local_server->NbValuesToReceive*sizeof(double));
-            local_server->IsValues=true;
-        }
-        else if(ret<0)
-        {
-            #ifdef WINDOWS
-                printf("WSA Error code : %d\t", WSAGetLastError());
-            #endif
-            perror("server::Error receiving");
-        } else if(ret==0)
-        {
-            //Connection has been reseted
-            local_server->Connected=false;
-        }
-    }
-
-    printf("server::Disconnected.\n");
+    local_server->Waiting=false;
 
     return NULL;
 }

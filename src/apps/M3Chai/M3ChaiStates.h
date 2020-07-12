@@ -18,7 +18,7 @@
 #include "DebugMacro.h"
 #include "RobotM3.h"
 #include "State.h"
-#include "server.h"
+#include "FLNL.h"
 
 /**
  * \brief Conversion from a timespec structure to seconds (double)
