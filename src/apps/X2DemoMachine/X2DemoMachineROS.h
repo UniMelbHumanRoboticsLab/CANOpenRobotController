@@ -9,7 +9,7 @@
  *
  */
 
-#include "X2DemoMachine.h"
+#include "X2Robot.h"
 
 #include "ros/ros.h" // This state machine requires ROS
 #include <std_msgs/String.h>
