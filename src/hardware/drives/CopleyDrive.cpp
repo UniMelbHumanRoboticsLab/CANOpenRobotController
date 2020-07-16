@@ -45,7 +45,7 @@ bool CopleyDrive::initTorqueControl() {
     DEBUG_OUT("NodeID " << NodeID << " Initialising Torque Control")
     sendSDOMessages(generateTorqueControlConfigSDO());
 
-    return false;
+    return true;
 }
 std::vector<std::string> CopleyDrive::generatePosControlConfigSDO(motorProfile positionProfile) {
     return Drive::generatePosControlConfigSDO(positionProfile); /*<!execute base class function*/
