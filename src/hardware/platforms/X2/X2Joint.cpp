@@ -38,11 +38,11 @@ double X2Joint::driveUnitToJointVelocity(int driveValue) {
 }
 
 int X2Joint::jointTorqueToDriveUnit(double jointTorque) {
-    return jointTorque / (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000);
+    return jointTorque / (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000.0);
 }
 
 double X2Joint::driveUnitToJointTorque(int driveValue) {
-    return MOTOR_RATED_TORQUE * (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000);
+    return driveValue * (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000.0);
 }
 
 bool X2Joint::updateValue() {
