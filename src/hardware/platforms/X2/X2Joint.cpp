@@ -15,7 +15,7 @@
 #include "DebugMacro.h"
 
 X2Joint::X2Joint(int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive) : ActuatedJoint(jointID, jointMin, jointMax, drive) {
-    DEBUG_OUT("Hip Joint Created, JOINT ID: " << this->id)
+    DEBUG_OUT("Joint Created, JOINT ID: " << this->id)
     // Do nothing else
     JDSlope = (jdp.drivePosB - jdp.drivePosA) / (jdp.jointPosB - jdp.jointPosA);
     JDIntercept = jdp.drivePosA - JDSlope * jdp.jointPosA;
@@ -38,11 +38,11 @@ double X2Joint::driveUnitToJointVelocity(int driveValue) {
 }
 
 int X2Joint::jointTorqueToDriveUnit(double jointTorque) {
-    return jointTorque / (MOTOR_RATED_TORQUE * REDUCTION_RATIO * 1000);
+    return jointTorque / (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000);
 }
 
 double X2Joint::driveUnitToJointTorque(int driveValue) {
-    return MOTOR_RATED_TORQUE * REDUCTION_RATIO * 1000 * driveValue;
+    return MOTOR_RATED_TORQUE * (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000);
 }
 
 bool X2Joint::updateValue() {
