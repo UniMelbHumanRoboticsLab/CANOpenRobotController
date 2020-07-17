@@ -54,11 +54,6 @@ extern "C" {
 #include "CO_OD_storage.h"
 #include "CO_command.h"
 
-#ifdef USEROS
-#include "ros/ros.h"
-#include STATE_MACHINE_ROS_INCLUDE
-#endif
-
 //Include custom state machine (defined in cmake)
 #include STATE_MACHINE_INCLUDE
 #include "stdio.h"
@@ -75,7 +70,7 @@ extern "C" {
 /**
  * /brief Function is called on program startup.
  */
-void app_programStart(void);
+void app_programStart(int argc = 0, char *argv[] = {});
 
 #ifdef USEROS
 /**

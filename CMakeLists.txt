@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.3)
 project(CORC C CXX)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
-set(USE_ROS OFF)
+set(USE_ROS ON)
 
 if(USE_ROS)
     add_definitions(-DUSEROS)
@@ -27,16 +27,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #(should be the class name and have corresponding header naming in a corresponding folder)
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "M3Chai")
-set (STATE_MACHINE_NAME "ExoTestMachine")
-#set (STATE_MACHINE_NAME "X2DemoMachine")
+#set (STATE_MACHINE_NAME "ExoTestMachine")
+set (STATE_MACHINE_NAME "X2DemoMachine")
 
 add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
 add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
-
-if(USE_ROS)
-    add_definitions(-DSTATE_MACHINE_TYPE_ROS=${STATE_MACHINE_NAME}ROS)
-    add_definitions(-DSTATE_MACHINE_ROS_INCLUDE="${STATE_MACHINE_NAME}ROS.h")
-endif()
 
 if(USE_ROS)
 # Required ROS packages

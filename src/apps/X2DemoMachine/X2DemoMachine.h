@@ -29,6 +29,8 @@
 #include "states/IdleState.h"
 #include "states/X2DemoState.h"
 
+#include "X2DemoMachineROS.h"
+
 class X2DemoMachine : public StateMachine {
 
 public:
@@ -38,10 +40,11 @@ public:
      *
      */
     X2DemoMachine();
-    void init();
+    void init(int argc, char *argv[]);
     void end();
 
     void hwStateUpdate();
+    void rosUpdate();
     void initRobot(X2Robot *rb);
 
     /**
@@ -52,6 +55,8 @@ public:
     X2DemoState *x2DemoState;
 
     X2Robot *robot; /*<!Pointer to the Robot*/
+
+    X2DemoMachineROS *x2DemoMachineRos_;
 
 private:
     /**

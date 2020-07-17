@@ -18,21 +18,26 @@ X2DemoMachine::X2DemoMachine() {
     NewTransition(idleState, startExo, x2DemoState);
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(idleState);
+
+    // Create ros object
+    x2DemoMachineRos_ = new X2DemoMachineROS(robot);
 }
 /**
  * \brief start function for running any designed statemachine specific functions
  * for example initialising robot objects.
  *
  */
-void X2DemoMachine::init() {
-    DEBUG_OUT("ExoTestMachine::init()")
-    robot->initialise();
+void X2DemoMachine::init(int argc, char *argv[]) {
+    DEBUG_OUT("X2DemoMachine::init()")
+    initialised = robot->initialise();
+    x2DemoMachineRos_->initialize(argc, argv);
     running = true;
 }
 
 void X2DemoMachine::end() {
     if(initialised) {
         currentState->exit();
+        x2DemoMachineRos_->~X2DemoMachineROS();
         robot->~X2Robot();
     }
 }
@@ -54,4 +59,8 @@ bool X2DemoMachine::StartExo::check(void) {
  */
 void X2DemoMachine::hwStateUpdate(void) {
     robot->updateRobot();
+}
+
+void X2DemoMachine::rosUpdate() {
+    x2DemoMachineRos_->update();
 }

@@ -5,10 +5,23 @@ X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot) {
     robot_ = robot;
 }
 
-void X2DemoMachineROS::initialize(ros::NodeHandle nodeHandle) {
+X2DemoMachineROS::~X2DemoMachineROS() {
 
-    nodeHandle_ = nodeHandle;
-    jointStatePublisher_ = nodeHandle_.advertise<sensor_msgs::JointState>("joint_states", 10);
+    ros::shutdown();
+}
+
+void X2DemoMachineROS::initialize(int argc, char *argv[]) {
+
+    ros::init(argc, argv, "x2_node", ros::init_options::NoSigintHandler);
+    ros::NodeHandle nodeHandle;
+
+    jointStatePublisher_ = nodeHandle.advertise<sensor_msgs::JointState>("joint_states", 10);
+}
+
+void X2DemoMachineROS::update() {
+
+    publishJointStates();
+    ros::spinOnce();
 }
 
 void X2DemoMachineROS::publishJointStates() {
@@ -42,3 +55,4 @@ void X2DemoMachineROS::publishJointStates() {
     jointStatePublisher_.publish(jointStateMsg_);
 
 }
+
