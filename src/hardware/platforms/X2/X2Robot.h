@@ -22,12 +22,18 @@
 #include "Robot.h"
 //#include "RobotParams.h"
 #include "X2Joint.h"
+#include "X2ForceSensor.h"
+#include <Eigen/Dense>
+
+#include <chrono>
+#include <thread>
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      *
      */
 
 #define X2_NUM_JOINTS 4
+#define X2_NUM_FORCE_SENSORS 4
 
 // Macros
 #define M_PI 3.14159265358979323846264338327950288
@@ -67,6 +73,7 @@ class X2Robot : public Robot {
     ~X2Robot();
     Keyboard keyboard;
     std::vector<Drive *> motorDrives;
+    std::vector<X2ForceSensor *> forceSensors;
 
     // /**
     //  * \brief Timer Variables for moving through trajectories
@@ -151,6 +158,20 @@ class X2Robot : public Robot {
     * \return std::vector<double> a vector of actual joint positions
     */
     std::vector<double> getTorque();
+
+    /**
+    * \brief Get the interaction force from each force sensor
+    *
+    * \return Eigen::VectorXd a vector of interaction forces
+    */
+    Eigen::VectorXd getInteractionForce();
+
+    /**
+    * \brief Calibrate force sensors
+    *
+    * \return bool success of calibration
+    */
+    bool calibrateForceSensors();
 
     /**
    * Determine if the currently generated trajectory is complete.

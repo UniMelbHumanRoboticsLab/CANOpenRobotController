@@ -192,6 +192,28 @@ std::vector<double> X2Robot::getTorque() {
     return actualJointTorques;
 }
 
+Eigen::VectorXd X2Robot::getInteractionForce() {
+    Eigen::VectorXd actualInteractionForces(X2_NUM_FORCE_SENSORS);
+    for (int i = 0; i< X2_NUM_FORCE_SENSORS; i++) {
+        actualInteractionForces[i] = forceSensors[i]->getForce();
+    }
+    return actualInteractionForces;
+}
+
+bool X2Robot::calibrateForceSensors() {
+    int numberOfSuccess = 0;
+    for (int i = 0; i< X2_NUM_FORCE_SENSORS; i++) {
+        if(forceSensors[i]->calibrate()) numberOfSuccess++;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
+    if (numberOfSuccess == X2_NUM_FORCE_SENSORS){
+        DEBUG_OUT("[X2Robot::calibrateForceSensors]: Zeroing of force sensors are successfully completed.")
+    } else{
+        DEBUG_OUT("[X2Robot::calibrateForceSensors]: Zeroing failed.")
+    }
+}
+
 bool X2Robot::initialiseJoints() {
     for (int id = 0; id < X2_NUM_JOINTS; id++) {
         motorDrives.push_back(new CopleyDrive(id + 1));
@@ -220,6 +242,12 @@ bool X2Robot::initialiseNetwork() {
 }
 bool X2Robot::initialiseInputs() {
     inputs.push_back(&keyboard);
+
+    for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
+        forceSensors.push_back(new X2ForceSensor(id));
+        inputs.push_back(forceSensors[id]);
+    }
+
     return true;
 }
 void X2Robot::freeMemory() {
