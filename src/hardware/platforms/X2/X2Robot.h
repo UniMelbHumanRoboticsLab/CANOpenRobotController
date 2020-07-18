@@ -174,6 +174,19 @@ class X2Robot : public Robot {
     bool calibrateForceSensors();
 
     /**
+    * \brief Homing procedure of joint
+    *
+    * \param homingDirection a vector of int whose sign indicate homing direction. If 0 skips that joint
+    * \param thresholdTorque torque to understand [Nm]
+    * \param delayTime time required for the actual torque being larger than thresholdTorque to identify hardstops [s]
+    * \param homingSpeed velocity used during homing [rad/s]
+    * \param maxTime maximum time to complete the homing [s]
+    * \return bool success of homing
+    */
+    bool homing(std::vector<int> homingDirection = std::vector<int>(X2_NUM_JOINTS, 1), float thresholdTorque = 45.0,
+                float delayTime = 0.2, float homingSpeed = 5*M_PI/180.0, float maxTime = 30.0);
+
+    /**
    * Determine if the currently generated trajectory is complete.
    * \return bool
    */
