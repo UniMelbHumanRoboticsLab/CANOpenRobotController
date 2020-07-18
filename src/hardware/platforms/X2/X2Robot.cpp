@@ -108,7 +108,7 @@ bool X2Robot::initTorqueControl() {
     return returnValue;
 }
 
-setMovementReturnCode_t X2Robot::setPosition(std::vector<double> positions) {
+setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
@@ -126,7 +126,7 @@ setMovementReturnCode_t X2Robot::setPosition(std::vector<double> positions) {
     return returnValue;
 }
 
-setMovementReturnCode_t X2Robot::setVelocity(std::vector<double> velocities) {
+setMovementReturnCode_t X2Robot::setVelocity(Eigen::VectorXd velocities) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
@@ -144,7 +144,7 @@ setMovementReturnCode_t X2Robot::setVelocity(std::vector<double> velocities) {
     return returnValue;
 }
 
-setMovementReturnCode_t X2Robot::setTorque(std::vector<double> torques) {
+setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
@@ -162,9 +162,9 @@ setMovementReturnCode_t X2Robot::setTorque(std::vector<double> torques) {
     return returnValue;
 }
 
-std::vector<double> X2Robot::getPosition() {
+Eigen::VectorXd X2Robot::getPosition() {
     int i = 0;
-    std::vector<double> actualJointPositions(joints.size());
+    Eigen::VectorXd actualJointPositions(joints.size());
     for (auto p : joints) {
         actualJointPositions[i] = ((X2Joint *)p)->getPosition();
         i++;
@@ -172,9 +172,9 @@ std::vector<double> X2Robot::getPosition() {
     return actualJointPositions;
 }
 
-std::vector<double> X2Robot::getVelocity() {
+Eigen::VectorXd X2Robot::getVelocity() {
     int i = 0;
-    std::vector<double> actualJointVelocities(joints.size());
+    Eigen::VectorXd actualJointVelocities(joints.size());
     for (auto p : joints) {
         actualJointVelocities[i] = ((X2Joint *)p)->getVelocity();
         i++;
@@ -182,9 +182,9 @@ std::vector<double> X2Robot::getVelocity() {
     return actualJointVelocities;
 }
 
-std::vector<double> X2Robot::getTorque() {
+Eigen::VectorXd X2Robot::getTorque() {
     int i = 0;
-    std::vector<double> actualJointTorques(joints.size());
+    Eigen::VectorXd actualJointTorques(joints.size());
     for (auto p : joints) {
         actualJointTorques[i] = ((X2Joint *)p)->getTorque();
         i++;

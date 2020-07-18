@@ -120,7 +120,7 @@ class X2Robot : public Robot {
     * \param positions a vector of target positions - applicable for each of the actuated joints
     * \return MovementCode representing success or failure of the application
     */
-    setMovementReturnCode_t setPosition(std::vector<double> positions);
+    setMovementReturnCode_t setPosition(Eigen::VectorXd positions);
 
     /**
     * \brief Set the target velocities for each of the joints
@@ -128,7 +128,7 @@ class X2Robot : public Robot {
     * \param velocities a vector of target velocities - applicable for each of the actuated joints
     * \return MovementCode representing success or failure of the application
     */
-    setMovementReturnCode_t setVelocity(std::vector<double> velocities);
+    setMovementReturnCode_t setVelocity(Eigen::VectorXd velocities);
 
     /**
     * \brief Set the target torque for each of the joints
@@ -136,28 +136,28 @@ class X2Robot : public Robot {
     * \param torques a vector of target torques - applicable for each of the actuated joints
     * \return MovementCode representing success or failure of the application
     */
-    setMovementReturnCode_t setTorque(std::vector<double> torques);
+    setMovementReturnCode_t setTorque(Eigen::VectorXd torques);
 
     /**
     * \brief Get the actual position of each joint
     *
-    * \return std::vector<double> a vector of actual joint positions
+    * \return Eigen::VectorXd a vector of actual joint positions
     */
-    std::vector<double> getPosition();
+    Eigen::VectorXd getPosition();
 
     /**
     * \brief Get the actual velocity of each joint
     *
-    * \return std::vector<double> a vector of actual joint positions
+    * \return Eigen::VectorXd a vector of actual joint positions
     */
-    std::vector<double> getVelocity();
+    Eigen::VectorXd getVelocity();
 
     /**
     * \brief Get the actual torque of each joint
     *
-    * \return std::vector<double> a vector of actual joint positions
+    * \return Eigen::VectorXd a vector of actual joint positions
     */
-    std::vector<double> getTorque();
+    Eigen::VectorXd getTorque();
 
     /**
     * \brief Get the interaction force from each force sensor
