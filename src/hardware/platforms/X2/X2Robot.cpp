@@ -35,7 +35,7 @@ JointDrivePairs kneeJDP{
  * Defines the Joint Limits of the X2 Exoskeleton
  *
  */
-ExoJointLimits X2JointLimits = {deg2rad(90), deg2rad(-60), deg2rad(120), deg2rad(0)};
+ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
 X2Robot::X2Robot() : Robot() {
 }
