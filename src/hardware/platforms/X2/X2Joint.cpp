@@ -83,3 +83,8 @@ double X2Joint::getVelocity() {
 double X2Joint::getTorque() {
     return torque;
 }
+
+void X2Joint::setPositionOffset(double offset) {
+    ((CopleyDrive*)drive)->setPositionOffset(jointPositionToDriveUnit(-offset));
+
+}
