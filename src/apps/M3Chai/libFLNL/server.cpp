@@ -24,19 +24,20 @@ int server::Connect(char * addr)
     //Initialise server address
     sin.sin_addr.s_addr = inet_addr(addr);
 
+    //Initialise server socket
+    ServerSocket = socket(AF_INET, SOCK_STREAM, 0);
+
     //Initialise
     Waiting=false;
-    if(bind(Socket, (struct sockaddr*)&sin, sizeof(sin))==-1)
-    {
+    if(bind(ServerSocket, (struct sockaddr*)&sin, sizeof(sin))==-1) {
         #ifdef WINDOWS
             printf("WSA Error code : %d\t", WSAGetLastError());
         #endif
         perror("FLNL::server::bind() :");
-        close(Socket);
+        close(ServerSocket);
         return -1;
     }
-    else
-    {
+    else {
        return Reconnect();
     }
 }
@@ -47,23 +48,46 @@ int server::Connect(char * addr)
 //! \return -2 if error creating the accepting thread
 int server::Reconnect()
 {
-    if(IsConnected() || Waiting)
-    {
+    if(IsConnected() || Waiting) {
         return -1;
     }
 
     //Ecoute d'une seule connexion
-    listen(Socket, 1);
+    listen(ServerSocket, 1);
 
     //Creation d'un thread d'attente de connexion du client
-    if(pthread_create(&AcceptingThread, NULL, accepting, (void*)this)!=0)
-    {
+    Waiting=true;
+    if(pthread_create(&AcceptingThread, NULL, accepting, (void*)this)!=0) {
+        Waiting=false;
         printf("FLNL::server::Connect() : Error creating accepting thread\n");
         return -2;
     }
 
     //OK
     return 0;
+}
+
+//! Disconnect and close the socket
+//! \return the close(Socket) return value
+int server::Disconnect()
+{
+    Connected=false;
+    Waiting=false;
+    pthread_join(ReceivingThread, NULL);
+    pthread_join(AcceptingThread, NULL);
+
+    int ret=close(Socket);
+    if(ret==0) {
+        printf("FLNL::Disconnected.\n");
+        #ifdef WINDOWS
+            WSACleanup();
+        #endif
+    }
+    else {
+        printf("FLNL::Error closing connection.\n");
+    }
+
+    return ret;
 }
 
 //! Thread function waiting for a client connection
@@ -73,26 +97,19 @@ void * accepting(void * c)
 {
     server * local_server = (server*)c;
 
-    local_server->Waiting=true;
-
-    #ifdef WINDOWS
-        int taille = sizeof(SOCKADDR_IN);
-        local_server->Socket=-1;
-        SOCKADDR_IN csin;
-        while(local_server->Socket==INVALID_SOCKET)
-            local_server->Socket = accept(local_server->Socket, (struct sockaddr*)&csin, &taille);
-    #else
-        socklen_t taille = sizeof(local_server->Socket);
-        local_server->Socket = accept(local_server->Socket, (struct sockaddr*)&local_server->Socket, &taille);
-    #endif
+    //Ensure client socket is closed
+    close(local_server->Socket);
+    local_server->Socket=-1;
+    //Wait for new incoming connection
+    while(local_server->Socket<0 && local_server->Waiting)
+        local_server->Socket = accept(local_server->ServerSocket, NULL, NULL);
 
     //Connection OK
-    printf("FLNL::server::Connected.\n");
     local_server->Connected=true;
+    printf("FLNL::server::Connected.\n");
 
     //Create a receiving thread
-    if(pthread_create(&local_server->ReceivingThread, NULL, receiving, (void*)local_server)!=0)
-    {
+    if(pthread_create(&local_server->ReceivingThread, NULL, receiving, (void*)local_server)!=0) {
         printf("FLNL::server::Connect() : Error creating receiving thread\n");
         local_server->Connected=false;
     }

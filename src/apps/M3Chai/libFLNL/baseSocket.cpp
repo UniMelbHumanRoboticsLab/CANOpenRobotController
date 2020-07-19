@@ -34,28 +34,12 @@ baseSocket::baseSocket(unsigned char nb_values_to_send, unsigned char nb_values_
         WSADATA WSAData;
         WSAStartup(MAKEWORD(2,0), &WSAData);
     #endif
-
-    //Initialise socket
-    Socket = socket(AF_INET, SOCK_STREAM, 0);
 }
 
 //! Destructor releasing memory and closing the socket
 baseSocket::~baseSocket()
 {
-    Connected=false;
-
-    if(close(Socket)==0)
-    {
-        printf("FLNL::Connection closed.\n");
-        #ifdef WINDOWS
-            WSACleanup();
-        #endif
-    }
-    else
-    {
-        printf("FLNL::Error closing connection.\n");
-    }
-
+    Disconnect();
     delete[] ReceivedValues;
 }
 /*#################################################################################################################*/
@@ -71,8 +55,20 @@ baseSocket::~baseSocket()
 int baseSocket::Disconnect()
 {
     Connected=false;
-    return close(Socket);
-    printf("FLNL::Disconnected.\n");
+    pthread_join(ReceivingThread, NULL);
+
+    int ret=close(Socket);
+    if(ret==0) {
+        printf("FLNL::Disconnected.\n");
+        #ifdef WINDOWS
+            WSACleanup();
+        #endif
+    }
+    else {
+        printf("FLNL::Error closing connection.\n");
+    }
+
+    return ret;
 }
 
 //! Tell if connected
@@ -139,25 +135,67 @@ void * receiving(void * c)
 {
     baseSocket * local=(baseSocket*)c;
 
-    unsigned char buffer[local->NbValuesToReceive*sizeof(double)+3];
+
+    short int msg_length=local->NbValuesToReceive*sizeof(double)+3;
+    unsigned char rcvchars[msg_length];
+    unsigned char toprocess[msg_length];
+    unsigned char remainingtoprocess[msg_length];
+    short int remainingtoprocess_n=0;
 
     while(local->Connected) {
-        int ret=recv(local->Socket, buffer, local->NbValuesToReceive*sizeof(double)+3, 0);
+        int ret=recv(local->Socket, rcvchars, msg_length, 0);
         if(ret>0) {
-            unsigned int start_pos=0;
-            //for(start_pos=0; start_pos<ret-1; start_pos++)
+            //If just recv mssg looks ok (first characters)
+            if(rcvchars[0]==local->InitCode && rcvchars[1]==local->NbValuesToReceive) {
+                //then use it as it is
+                memcpy(toprocess, rcvchars, msg_length);
+            }
+            else {
+                //Use stored init part of message in buffer if any
+                memcpy(toprocess, remainingtoprocess, remainingtoprocess_n);
+                //concatenate with the begining of received sequence and use that
+                memcpy(&toprocess[remainingtoprocess_n], rcvchars, msg_length-remainingtoprocess_n);
+
+                /*printf("Pre:");
+                for(int k=0; k<remainingtoprocess_n; k++)
+                    printf("%02X", remainingtoprocess[k]);
+                printf(" + ");
+                for(int k=0; k<ret; k++)
+                    printf("%02X", rcvchars[k]);
+                printf(" = \nPre:");
+                for(int k=0; k<msg_length; k++)
+                    printf("%02X", toprocess[k]);
+                printf(" (%d+%d=?%d)\n", remainingtoprocess_n, ret, msg_length);*/
+
+                //Store end of message for later use in buffer
+                unsigned int i;
+                for(i=msg_length-1; i>=0; i--) {
+                    remainingtoprocess_n=msg_length-i;
+                    if(rcvchars[i]==local->InitCode)
+                        break;
+                }
+                memcpy(remainingtoprocess, &rcvchars[i], remainingtoprocess_n);
+
+                /*for(int k=0; k<remainingtoprocess_n; k++)
+                    printf("%02X", remainingtoprocess[k]);
+                printf(" = \n");
+                for(int k=0; k<remainingtoprocess_n; k++)
+                    printf("%02X", rcvchars[i+k]);
+                printf(" (%d)\n\n", remainingtoprocess_n);*/
+            }
+
             //Check init code and number of values are matching
-            if(buffer[start_pos]==local->InitCode && buffer[start_pos+1]==local->NbValuesToReceive) {
+            if(toprocess[0]==local->InitCode && toprocess[1]==local->NbValuesToReceive) {
                 //Compute and check hash
                 unsigned char command_hash = 0;
                 unsigned int i;
-                for(i=start_pos+2; i<ret-1; i++) {
-                    command_hash ^= buffer[i];
+                for(i=2; i<ret-1; i++) {
+                    command_hash ^= toprocess[i];
                 }
 
-                if(command_hash==buffer[i]) {
+                if(command_hash==toprocess[i]) {
                     //Recopie des valeurs recues s'il y en a
-                    memcpy(local->ReceivedValues, &buffer[start_pos+2], local->NbValuesToReceive*sizeof(double));
+                    memcpy(local->ReceivedValues, &toprocess[2], msg_length);
                     local->IsValues=true;
                 }
                 else {

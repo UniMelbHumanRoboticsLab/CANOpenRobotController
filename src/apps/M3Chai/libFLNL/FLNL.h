@@ -73,7 +73,7 @@ class baseSocket
         //@{
             virtual int Connect(char * addr) = 0;
             virtual int Reconnect() {return 0;};
-            int Disconnect();
+            virtual int Disconnect();
             bool IsConnected();
         //@}
 
@@ -113,7 +113,6 @@ class client: public baseSocket
         //!@name Connecting and disconnecting methods
         //@{
             int Connect(char * addr);
-            int Disconnect();
         //@}
 };
 
@@ -137,10 +136,12 @@ class server: public baseSocket
         //!@name Connecting and disconnecting methods
         //@{
             int Connect(char * addr);
+            int Disconnect();
             int Reconnect();
         //@}
 
     private:
+        int ServerSocket;                         //!< Server (accepting) socket
         bool Waiting;                       //!< TRUE if server is currently waiting for incoming client, FALSE otherwise
         pthread_t AcceptingThread;          //!< Accepting connection (from client) pthread
 };
