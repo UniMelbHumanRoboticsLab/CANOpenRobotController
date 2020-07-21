@@ -66,8 +66,8 @@ void M3ChaiCommunication::duringCode(void) {
     //Retrieve values from chai client if exist
     if(chaiServer->IsConnected()) {
         if(chaiServer->IsReceivedValues()) {
-            double *force = new double[3];
-            force = chaiServer->GetReceivedValues();
+            double force[3];
+            chaiServer->GetReceivedValues(force);
             lastReceivedTime = elapsedTime;
             F=Eigen::Vector3d(-force[0], force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
             std::cout << F.transpose() << std::endl;

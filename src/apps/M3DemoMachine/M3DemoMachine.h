@@ -60,6 +60,10 @@ class M3DemoMachine : public StateMachine {
 
    private:
     EventObject(EndCalib) * endCalib;
+    EventObject(GoToState1) * goToState1;
+    EventObject(GoToState2) * goToState2;
+    EventObject(GoToState3) * goToState3;
+    EventObject(GoToState4) * goToState4;
 };
 
 #endif /*M3_SM_H*/

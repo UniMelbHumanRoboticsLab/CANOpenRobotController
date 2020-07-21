@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <signal.h>
 #include <errno.h>
 #include <string.h>
 
@@ -85,7 +86,7 @@ class baseSocket
         //!@name Receiving methods
         //@{
             bool IsReceivedValues();
-            double * GetReceivedValues();
+            void GetReceivedValues(double val[]);
         //@}
 
     protected:
@@ -96,6 +97,8 @@ class baseSocket
         unsigned char NbValuesToReceive;    //!< Number of double values the client receive from the server
         const unsigned char InitCode = 'V';
         double * ReceivedValues;            //!< Tab of the last received value from the server
+        double * ReceivedValuesCpy;         //!< Returned copy of the ReceivedValue
+        pthread_mutex_t received_mutex;     //!< Mutex protecting read/writes to received values
         bool IsValues;                      //!< TRUE if last values are received (since last GetReceivedValues()), FALSE otherwise
         pthread_t ReceivingThread;          //!< Receiving pthread
 };

@@ -104,6 +104,9 @@ void * accepting(void * c)
     while(local_server->Socket<0 && local_server->Waiting)
         local_server->Socket = accept(local_server->ServerSocket, NULL, NULL);
 
+    if(!local_server->Waiting)
+        return NULL;
+
     //Connection OK
     local_server->Connected=true;
     printf("FLNL::server::Connected.\n");

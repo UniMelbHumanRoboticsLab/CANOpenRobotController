@@ -30,6 +30,8 @@ baseSocket::baseSocket(unsigned char nb_values_to_send, unsigned char nb_values_
     Connected=false;
     ReceivedValues=new double[NbValuesToReceive];
 
+    pthread_mutex_init(&received_mutex, NULL);
+
     #ifdef WINDOWS
         WSADATA WSAData;
         WSAStartup(MAKEWORD(2,0), &WSAData);
@@ -40,6 +42,7 @@ baseSocket::baseSocket(unsigned char nb_values_to_send, unsigned char nb_values_
 baseSocket::~baseSocket()
 {
     Disconnect();
+    pthread_mutex_destroy(&received_mutex);
     delete[] ReceivedValues;
 }
 /*#################################################################################################################*/
@@ -121,11 +124,14 @@ bool baseSocket::IsReceivedValues()
 }
 
 //! Return the last received values from the server
-//! \return A tab of doubles of NbValuesToReceive elements, received from the server
-double * baseSocket::GetReceivedValues()
+//! \param An array (allocated) of doubles of NbValuesToReceive elements
+void baseSocket::GetReceivedValues(double val[])
 {
+    pthread_mutex_lock(&received_mutex);
+    for(unsigned int i=0; i<NbValuesToReceive; i++)
+        val[i]=ReceivedValues[i];
+    pthread_mutex_unlock(&received_mutex);
     IsValues=false;
-    return ReceivedValues;
 }
 
 //! Thread function waiting for data from remote side
@@ -134,7 +140,6 @@ double * baseSocket::GetReceivedValues()
 void * receiving(void * c)
 {
     baseSocket * local=(baseSocket*)c;
-
 
     short int msg_length=local->NbValuesToReceive*sizeof(double)+3;
     unsigned char rcvchars[msg_length];
@@ -194,8 +199,10 @@ void * receiving(void * c)
                 }
 
                 if(command_hash==toprocess[i]) {
-                    //Recopie des valeurs recues s'il y en a
+                    //Copy received values
+                    pthread_mutex_lock(&local->received_mutex);
                     memcpy(local->ReceivedValues, &toprocess[2], msg_length);
+                    pthread_mutex_unlock(&local->received_mutex);
                     local->IsValues=true;
                 }
                 else {
