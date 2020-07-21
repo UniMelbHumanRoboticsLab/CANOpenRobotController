@@ -6,26 +6,39 @@ double timeval_to_sec(struct timespec *ts)
 }
 
 
-//minJerk(X0, Xf, T, t, &X, &dX)
 
-Eigen::Vector3d impedance(Eigen::Matrix3d K, Eigen::Matrix3d D, Eigen::Vector3d X0, Eigen::Vector3d X, Eigen::Vector3d dX) {
-    return K*(X0-X) - D*dX;
+
+Eigen::Vector3d impedance(Eigen::Matrix3d K, Eigen::Matrix3d D, Eigen::Vector3d X0, Eigen::Vector3d X, Eigen::Vector3d dX, Eigen::Vector3d dXd=Eigen::Vector3d::Zero()) {
+    return K*(X0-X) + D*(dXd-dX);
+}
+
+//minJerk(X0, Xf, T, t, &X, &dX)
+double JerkIt(Eigen::Vector3d X0, Eigen::Vector3d Xf, double T, double t, Eigen::Vector3d &Xd, Eigen::Vector3d &dXd) {
+    t = std::max(std::min(t, T), .0); //Bound time
+    double tn=std::max(std::min(t/T, 1.0), .0);//Normalised time bounded 0-1
+    double tn3=pow(tn,3.);
+    double tn4=tn*tn3;
+    double tn5=tn*tn4;
+    Xd = X0 + ( (X0-Xf) * (15.*tn4-6.*tn5-10.*tn3) );
+    dXd = (X0-Xf) * (4.*15.*tn4-5.*6.*tn5-10.*3*tn3)/t;
+    return tn;
 }
 
 
 void M3DemoState::entryCode(void) {
     //robot->applyCalibration();
     //robot->initPositionControl();
-    //robot->initVelocityControl();
-    robot->initTorqueControl();
+    robot->initVelocityControl();
+    //robot->initTorqueControl();
     qi=robot->getJointPosition();
     Xi=robot->getEndEffPosition();
+    robot->setJointVelocity(Eigen::Vector3d::Zero());
 }
 void M3DemoState::duringCode(void) {
     if(iterations%100==1) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
-        robot->printJointStatus();
-        //robot->printStatus();
+        //robot->printJointStatus();
+        robot->printStatus();
     }
     /*Eigen::Vector3d q = robot->getJointPos();
     q(1)=68*M_PI/180.-0.1*elapsedTime;*/
@@ -55,8 +68,17 @@ void M3DemoState::duringCode(void) {
 
     /*Eigen::Vector3d tau(0,-5.0,0);*/
     //robot->setJointTor(robot->calculateGravityTorques());
-    /*Eigen::Vector3d F(0,0,0);
-    robot->setEndEffForceWithCompensation(F);*/
+
+    /*float b=1.;
+    Eigen::Vector3d F(0,0,robot->getEndEffVelocity()[2]);
+    robot->setEndEffForceWithCompensation(b*F);*/
+
+    float k=5.;
+    Eigen::Vector3d Xf(-0.5, 0, 0);
+    Eigen::Vector3d Xd, dXd;
+    JerkIt(Xi, Xf, 5., elapsedTime, Xd, dXd);
+    robot->setEndEffVelocity(dXd);
+    std::cout << Xd.transpose() << "  " << dXd.transpose() << std::endl;
 }
 void M3DemoState::exitCode(void) {
     robot->setJointVelocity(Eigen::Vector3d::Zero());
@@ -120,7 +142,7 @@ void M3CalibState::exitCode(void) {
 
 
 void M3MassCompensation::entryCode(void) {
-
+    robot->initTorqueControl();
     std::cout << "Press S to decrease mass (-100g), W to increase (+100g)." << mass << std::endl;
 }
 void M3MassCompensation::duringCode(void) {
