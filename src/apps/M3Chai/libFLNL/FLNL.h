@@ -12,7 +12,7 @@
  * <BR>
  *
  *  \section contact Contact
- *  vincent.crocher@isir.upmc.fr
+ *  vincent.crocher@unimelb.edu.au
  *  <BR><BR>
  *
  */
@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <assert.h>
 #include <signal.h>
 #include <errno.h>
 #include <string.h>
@@ -55,6 +56,9 @@
     #include <pthread.h>
 #endif
 
+
+#define EXPECTED_DOUBLE_SIZE 8 //Size expected for the doubles: will be checked at startup and should be same on server and client size
+//#define VERBOSE //Talkative ? (connection, every missed message...)
 
 void * receiving(void *c);
 
@@ -129,11 +133,7 @@ class server: public baseSocket
     public:
         //!@name Constructor and destructor
         //@{
-            server(unsigned char nb_values_to_send, unsigned char nb_values_to_receive): baseSocket(nb_values_to_send, nb_values_to_receive) {
-                //Initialise and allocates privates
-                Waiting=false;
-                ReceivedValues=new double[NbValuesToReceive];
-            }
+            server(unsigned char nb_values_to_send, unsigned char nb_values_to_receive): baseSocket(nb_values_to_send, nb_values_to_receive), Waiting(false) { };
         //@}
 
         //!@name Connecting and disconnecting methods

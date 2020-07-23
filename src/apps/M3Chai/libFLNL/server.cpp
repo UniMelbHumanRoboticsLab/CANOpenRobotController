@@ -78,7 +78,9 @@ int server::Disconnect()
 
     int ret=close(Socket);
     if(ret==0) {
+        #ifdef VERBOSE
         printf("FLNL::Disconnected.\n");
+        #endif
         #ifdef WINDOWS
             WSACleanup();
         #endif
@@ -98,7 +100,8 @@ void * accepting(void * c)
     server * local_server = (server*)c;
 
     //Ensure client socket is closed
-    close(local_server->Socket);
+    if(local_server->Socket!=-1)
+        close(local_server->Socket);
     local_server->Socket=-1;
     //Wait for new incoming connection
     while(local_server->Socket<0 && local_server->Waiting)
@@ -109,7 +112,9 @@ void * accepting(void * c)
 
     //Connection OK
     local_server->Connected=true;
+    #ifdef VERBOSE
     printf("FLNL::server::Connected.\n");
+    #endif
 
     //Create a receiving thread
     if(pthread_create(&local_server->ReceivingThread, NULL, receiving, (void*)local_server)!=0) {

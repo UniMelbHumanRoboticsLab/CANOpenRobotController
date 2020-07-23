@@ -10,7 +10,6 @@
 
 #include "FLNL.h"
 
-
 /*-----------------------------------------------------------------------------------------------------------------*/
 /*#########################################   CONSTRUCTOR AND DESTRUCTOR   ########################################*/
 /*-----------------------------------------------------------------------------------------------------------------*/
@@ -21,11 +20,15 @@ baseSocket::baseSocket(unsigned char nb_values_to_send, unsigned char nb_values_
                         NbValuesToSend(nb_values_to_send),
                         NbValuesToReceive(nb_values_to_receive)
 {
+    //Ensure standard size of double
+    assert(sizeof(double) == EXPECTED_DOUBLE_SIZE);
+
     //Initialise sin
     sin.sin_family = AF_INET;
     sin.sin_port = htons(2048);
 
     //Initialise and allocates privates
+    Socket=-1;
     IsValues=false;
     Connected=false;
     ReceivedValues=new double[NbValuesToReceive];
@@ -105,8 +108,8 @@ int baseSocket::Send(double * values)
         command_hash ^= values_in_char[i];
     }
     full_command[2+size_of_values_in_char]=command_hash;
-    //Send the char array
-    return send(Socket, full_command, size_of_values_in_char+3, 0);
+    //Send the char array (MSG_NOSIGNAL required to avoid SIGPIPE signal which will break server on lost connection)
+    return send(Socket, full_command, size_of_values_in_char+3, MSG_NOSIGNAL);
 }
 /*#################################################################################################################*/
 
@@ -149,11 +152,13 @@ void * receiving(void * c)
 
     while(local->Connected) {
         int ret=recv(local->Socket, rcvchars, msg_length, 0);
-        if(ret>0) {
+        if(ret==msg_length) {
             //If just recv mssg looks ok (first characters)
             if(rcvchars[0]==local->InitCode && rcvchars[1]==local->NbValuesToReceive) {
                 //then use it as it is
                 memcpy(toprocess, rcvchars, msg_length);
+                //discard any remaining data
+                remainingtoprocess_n=0;
             }
             else {
                 //Use stored init part of message in buffer if any
@@ -201,18 +206,22 @@ void * receiving(void * c)
                 if(command_hash==toprocess[i]) {
                     //Copy received values
                     pthread_mutex_lock(&local->received_mutex);
-                    memcpy(local->ReceivedValues, &toprocess[2], msg_length);
+                    memcpy(local->ReceivedValues, &toprocess[2], local->NbValuesToReceive*sizeof(double));
                     pthread_mutex_unlock(&local->received_mutex);
                     local->IsValues=true;
                 }
                 else {
                     //Incorrect values
+                    #ifdef VERBOSE
                     printf("FLNL::Error receiving (wrong hash).\n");
+                    #endif
                 }
             }
             else {
                 //Incorrect values
+                #ifdef VERBOSE
                 printf("FLNL::Error receiving (wrong data format).\n");
+                #endif
             }
 
         }

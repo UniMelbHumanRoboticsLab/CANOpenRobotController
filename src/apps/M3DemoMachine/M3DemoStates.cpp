@@ -73,12 +73,12 @@ void M3DemoState::duringCode(void) {
     Eigen::Vector3d F(0,0,robot->getEndEffVelocity()[2]);
     robot->setEndEffForceWithCompensation(b*F);*/
 
-    float k=5.;
-    Eigen::Vector3d Xf(-0.5, 0, 0);
+    float k_i=0.1;
+    Eigen::Vector3d Xf(-0.4, 0, 0);
     Eigen::Vector3d Xd, dXd;
     JerkIt(Xi, Xf, 5., elapsedTime, Xd, dXd);
-    robot->setEndEffVelocity(dXd);
-    std::cout << Xd.transpose() << "  " << dXd.transpose() << std::endl;
+    robot->setEndEffVelocity(dXd+k_i*(Xd-robot->getEndEffPosition()));
+    std::cout << (Xd-robot->getEndEffPosition()).transpose() << std::endl;
 }
 void M3DemoState::exitCode(void) {
     robot->setJointVelocity(Eigen::Vector3d::Zero());

@@ -68,6 +68,7 @@ void Keyboard::setKeys() {
     //Number keys
     if(ch>=48 && ch<48+10){
         currentKeyStates.Nb[ch-48] = true;
+        keyboardActive = 1;
     }
 }
 
