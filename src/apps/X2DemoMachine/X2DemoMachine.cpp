@@ -61,6 +61,9 @@ void X2DemoMachine::hwStateUpdate(void) {
     robot->updateRobot();
 }
 
-void X2DemoMachine::rosUpdate() {
+void X2DemoMachine::update() {
+
+    StateMachine::update();
     x2DemoMachineRos_->update();
+
 }

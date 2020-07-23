@@ -47,8 +47,5 @@ void app_programControlLoop(void) {
     if (testMachine.running) {
         testMachine.update();
         testMachine.hwStateUpdate();
-#ifdef USEROS
-        testMachine.rosUpdate();
-#endif
     }
 }

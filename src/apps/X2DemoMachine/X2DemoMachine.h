@@ -43,8 +43,8 @@ public:
     void init(int argc, char *argv[]);
     void end();
 
+    void update();
     void hwStateUpdate();
-    void rosUpdate();
     void initRobot(X2Robot *rb);
 
     /**
