@@ -26,9 +26,9 @@ void X2DemoMachineROS::update() {
 
 void X2DemoMachineROS::publishJointStates() {
 
-    std::vector<double> jointPositions = robot_->getPosition();
-    std::vector<double> jointVelocities = robot_->getVelocity();
-    std::vector<double> jointTorques = robot_->getTorque();
+    Eigen::VectorXd jointPositions = robot_->getPosition();
+    Eigen::VectorXd jointVelocities = robot_->getVelocity();
+    Eigen::VectorXd jointTorques = robot_->getTorque();
 
     jointStateMsg_.header.stamp = ros::Time::now();
     jointStateMsg_.name.resize(X2_NUM_JOINTS);
