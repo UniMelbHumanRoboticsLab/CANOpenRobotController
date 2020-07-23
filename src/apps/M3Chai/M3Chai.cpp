@@ -7,7 +7,7 @@
 
 M3Chai::M3Chai() {
     robot = new RobotM3();
-    chaiServer = new server(3, 3);
+    chaiServer = new server(6, 3);
 
     // Create PRE-DESIGNED State Machine events and state objects.
     calibState = new M3CalibState(this, robot);

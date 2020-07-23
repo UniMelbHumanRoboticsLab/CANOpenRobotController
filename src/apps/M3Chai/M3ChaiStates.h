@@ -135,7 +135,7 @@ class M3ChaiCommunication : public M3TimedState {
      server *chaiServer;
      double watchDogTime = 0.010; //Watchdog time in s
      double lastReceivedTime;
-     Eigen::Vector3d F, X;
+     Eigen::Vector3d F, X, dX;
 
 };
 
