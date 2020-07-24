@@ -8,12 +8,15 @@
  */
 #include "application.h"
 
+#include "LoopTiming.h"
+
 //Select state machine to use for this application (can be set in cmake)
 #ifndef STATE_MACHINE_TYPE
 #define STATE_MACHINE_TYPE ExoTestMachine
 #endif
 
 STATE_MACHINE_TYPE testMachine;
+LoopTiming loopTimer;
 
 /*For master-> node SDO message sending*/
 #define CO_COMMAND_SDO_BUFFER_SIZE 100000
@@ -22,6 +25,7 @@ char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
+    loopTimer.init();
     printf("app_Program Start \n");
 #ifndef USEROS
     testMachine.init();
@@ -37,6 +41,7 @@ void app_communicationReset(void) {
 /******************************************************************************/
 void app_programEnd(void) {
     testMachine.end();
+    loopTimer.end();
     printf("app_programEnd \n");
 }
 /******************************************************************************/
@@ -48,4 +53,5 @@ void app_programControlLoop(void) {
         testMachine.update();
         testMachine.hwStateUpdate();
     }
+    loopTimer.tick();
 }
