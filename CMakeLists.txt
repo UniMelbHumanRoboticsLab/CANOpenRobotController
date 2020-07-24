@@ -40,12 +40,18 @@ find_package(catkin REQUIRED COMPONENTS
         rospy
         std_msgs
         sensor_msgs
+        signal_logger
         )
 
 catkin_package(
-        #  INCLUDE_DIRS include
-        #  LIBRARIES x2
-        #  CATKIN_DEPENDS roscpp rospy std_msgs
+#          INCLUDE_DIRS include
+#          LIBRARIES ${PROJECT_NAME}
+          CATKIN_DEPENDS
+            roscpp
+            rospy
+            std_msgs
+            sensor_msgs
+            signal_logger
         #  DEPENDS system_lib
 )
 

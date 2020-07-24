@@ -61,7 +61,7 @@ bool Drive::setPos(int position) {
 }
 
 bool Drive::setVel(int velocity) {
-    DEBUG_OUT("Drive " << NodeID << " Writing " << velocity << " to 0x60FF");
+//    DEBUG_OUT("Drive " << NodeID << " Writing " << velocity << " to 0x60FF");
     *(&CO_OD_RAM.targetMotorVelocities.motor1 + ((this->NodeID - 1))) = velocity;
     return true;
 }
@@ -71,7 +71,7 @@ bool Drive::setTorque(int torque) {
     * \todo add setTorque to object dictionary for all drives
     *
     */
-    DEBUG_OUT("Drive " << NodeID << " Writing " <<  (short int)torque << " to 0x" << std::hex << OD_Addresses[TARGET_TOR]);
+//    DEBUG_OUT("Drive " << NodeID << " Writing " <<  (short int)torque << " to 0x" << std::hex << OD_Addresses[TARGET_TOR]);
     *(&CO_OD_RAM.targetMotorTorques.motor1 + ((this->NodeID - 1))) = torque;
     return true;
 }
@@ -322,15 +322,15 @@ std::vector<std::string> Drive::generateVelControlConfigSDO(motorProfile velocit
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
-    //Set acceleration profile
-    sstream << "[1] " << NodeID << " write 0x6083 0 i32 " << std::dec << velocityProfile.profileAcceleration;
-    CANCommands.push_back(sstream.str());
-    sstream.str(std::string());
-
-    //Set deceleration profile
-    sstream << "[1] " << NodeID << " write 0x6084 0 i32 " << std::dec << velocityProfile.profileDeceleration;
-    CANCommands.push_back(sstream.str());
-    sstream.str(std::string());
+//    //Set acceleration profile
+//    sstream << "[1] " << NodeID << " write 0x6083 0 i32 " << std::dec << velocityProfile.profileAcceleration;
+//    CANCommands.push_back(sstream.str());
+//    sstream.str(std::string());
+//
+//    //Set deceleration profile
+//    sstream << "[1] " << NodeID << " write 0x6084 0 i32 " << std::dec << velocityProfile.profileDeceleration;
+//    CANCommands.push_back(sstream.str());
+//    sstream.str(std::string());
 
     return CANCommands;
 }
@@ -386,7 +386,7 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
         successfulMessages++;
 #endif
     }
-    return successfulMessages-messages.size();
+    return successfulMessages-messages.size(); // todo change the return to bool
 }
 
 

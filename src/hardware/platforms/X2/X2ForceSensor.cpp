@@ -42,7 +42,7 @@ double X2ForceSensor::getForce() {
 
 double X2ForceSensor::sensorValueToNewton(int sensorValue) {
 
-    return (sensorValue-1500.0)*4.0; // /4.0 todo: change after sensor experimentation
+    return -(sensorValue-1500.0)*0.1606; //
 
 }
 

@@ -19,6 +19,9 @@
 #include <iomanip>
 #include <chrono>
 #include <math.h>
+#include <fstream>
+
+#include "signal_logger/signal_logger.hpp"
 
 /**
  * \brief Demo State for the X2DemoMachine
@@ -36,6 +39,39 @@ public:
 
 private:
     std::chrono::steady_clock::time_point time0;
+    std::ofstream logJoint, logTime;
+    void log();
+    void initializeLogger(int bufferSize);
+    void updateLogElements();
+
+    int controller_type = 3;
+
+    double inputHistory_[2] = {0,0};
+    double outputHistory_[2] = {0,0};
+    double t_step = 0.025;
+
+    double mass = 100;
+    double b = 5;
+
+    Eigen::VectorXd jointPositions_;
+    Eigen::VectorXd jointVelocities_;
+    Eigen::VectorXd jointTorques_;
+    Eigen::VectorXd desiredjointVelocities_;
+    Eigen::VectorXd desiredjointTorques_;
+    double time;
+
+    bool move = false;
+    double timeStop;
+
+    double static_fric;
+    double vel_theresh;
+    double J;
+    double virtMassRatio;
+    double feedForwardTorque;
+    double feedBackTorque;
+    double M;
+    double c0;
+
 };
 
 #endif
