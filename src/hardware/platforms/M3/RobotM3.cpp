@@ -52,7 +52,9 @@ bool RobotM3::initialiseNetwork() {
         DEBUG_OUT(".");
         usleep(10000);
     }
-
+    for (auto joint : joints) {
+        ((JointM3 *)joint)->start();
+    }
     return true;
 }
 bool RobotM3::initialiseInputs() {

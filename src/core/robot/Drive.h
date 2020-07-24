@@ -270,7 +270,7 @@ class Drive {
            *
            * \return True if successful, False if not
            */
-    virtual bool Init() = 0;
+    virtual bool init() = 0;
 
     /**
        * \brief Send NMT preop command to the drive node

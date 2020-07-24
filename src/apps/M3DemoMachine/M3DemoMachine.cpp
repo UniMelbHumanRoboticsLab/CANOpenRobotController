@@ -32,10 +32,10 @@ M3DemoMachine::M3DemoMachine() {
      NewTransition(standbyState, goToState2, timingState);
      NewTransition(timingState, goToState3, endEffDemoState);
      NewTransition(endEffDemoState, goToState4, impedanceState);
+     NewTransition(impedanceState, goToState1, minJerkState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(calibState);
-    //StateMachine::initialize(timingState);
 }
 M3DemoMachine::~M3DemoMachine() {
     delete testState;

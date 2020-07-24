@@ -101,7 +101,7 @@ setMovementReturnCode_t JointM3::setTorque(double taud) {
 
 bool JointM3::initNetwork() {
     DEBUG_OUT("JointM3::initNetwork()")
-    if (drive->Init()) {
+    if (drive->init()) {
         return true;
     } else {
         return false;

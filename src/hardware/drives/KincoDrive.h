@@ -39,7 +39,7 @@ class KincoDrive : public Drive {
          *
          * \return True if successful, False if not
          */
-    bool Init();
+    bool init();
     /**
      * \todo Move jointMinMap and jointMaxMap to set additional parameters (bit 5 in 0x6041 makes updates happen immediately)
      *

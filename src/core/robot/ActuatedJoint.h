@@ -175,6 +175,13 @@ public:
     ActuatedJoint(int jointID, double jointMin, double jointMax, Drive *drive);
 
     /**
+         * \brief Start the associated drive CAN node (will start produce PDOs)
+         *
+         * \return Return value of drive->start();
+         */
+    bool start();
+
+    /**
          * \brief Set the mode of the device (nominally, position, velocity or torque control)
          *
          * \param driveMode The mode to be used if possible
