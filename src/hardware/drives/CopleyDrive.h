@@ -119,6 +119,25 @@ class CopleyDrive : public Drive {
           *
           */
     std::vector<std::string> generateTorqueControlConfigSDO();
+
+    /**
+          * \brief Generates the SDO commands to set the current position as offset
+          *
+          * /param offset, joint position value to be at the homing position [encoder count]
+          *
+          *
+          */
+    std::vector<std::string> generatePositionOffsetSDO(int offset);
+
+    /**
+          * \brief Set the current position as offset
+          *
+          * /param offset, joint position value to be at the homing position [encoder count]
+          *
+         * \return true if successful
+         * \return false if not
+         */
+    bool setPositionOffset(int offset);
 };
 
 #endif

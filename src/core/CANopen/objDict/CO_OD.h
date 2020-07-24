@@ -109,7 +109,7 @@ typedef domain_t CO_DOMAIN;
 /*******************************************************************************
    OBJECT DICTIONARY
 *******************************************************************************/
-#define CO_OD_NoOfElements 254
+#define CO_OD_NoOfElements 255
 
 /*******************************************************************************
    TYPE DEFINITIONS FOR RECORDS
@@ -299,6 +299,16 @@ typedef domain_t CO_DOMAIN;
     INTEGER16 motor3;
     INTEGER16 motor4;
 } OD_targetMotorTorques_t;
+/*7001    */ typedef struct
+{
+    UNSIGNED8 numberOfSensors;
+    INTEGER32 sensor1;
+    INTEGER32 sensor2;
+    INTEGER32 sensor3;
+    INTEGER32 sensor4;
+//    INTEGER16 sensor5;
+//    INTEGER16 sensor6;
+} OD_actualSensorForces_t;
 
 /*******************************************************************************
    TYPE DEFINITIONS FOR OBJECT DICTIONARY INDEXES
@@ -3260,6 +3270,7 @@ struct sCO_OD_RAM {
     /*607a      */ OD_targetMotorPositions_t targetMotorPositions;
     /*60ff      */ OD_targetMotorVelocities_t targetMotorVelocities;
     /*6071      */ OD_targetMotorTorques_t targetMotorTorques;
+    /*7001      */ OD_actualSensorForces_t actualSensorForces;
     /*6200      */ UNSIGNED8 writeOutput8Bit[8];
     /*6401      */ INTEGER16 readAnalogueInput16Bit[12];
     /*6411      */ INTEGER16 writeAnalogueOutput16Bit[8];

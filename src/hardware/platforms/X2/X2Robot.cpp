@@ -2,6 +2,41 @@
 
 #include "DebugMacro.h"
 
+/**
+ * An enum type.
+ * Joint Index for the 4 joints (note, CANopen NODEID = this + 1)
+ */
+enum X2Joints {
+    X2_LEFT_HIP = 0,   /**< Left Hip*/
+    X2_LEFT_KNEE = 1,  /**< Left Knee*/
+    X2_RIGHT_HIP = 2,  /**< Right Hip*/
+    X2_RIGHT_KNEE = 3, /**< Right Knee*/
+};
+/**
+ * Paramater definitions: Hip motor reading and corresponding angle. Used for mapping between degree and motor values.
+ */
+JointDrivePairs hipJDP{
+        250880,       // drivePosA
+        0,            // drivePosB
+        deg2rad(90),  //jointPosA
+        deg2rad(0)  //jointPosB
+};
+/**
+ * Paramater definitions: Knee motor reading and corresponding angle. Used for mapping between degree and motor values.
+ */
+JointDrivePairs kneeJDP{
+        250880,       // drivePosA
+        0,            //drivePosB
+        deg2rad(90),  //jointPosA
+        deg2rad(0)    //jointPosB
+};
+
+/**
+ * Defines the Joint Limits of the X2 Exoskeleton
+ *
+ */
+ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
+
 X2Robot::X2Robot() : Robot() {
 }
 
@@ -9,6 +44,7 @@ X2Robot::~X2Robot() {
     freeMemory();
     DEBUG_OUT("X2Robot deleted")
 }
+
 
 bool X2Robot::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
@@ -73,11 +109,11 @@ bool X2Robot::initTorqueControl() {
     return returnValue;
 }
 
-setMovementReturnCode_t X2Robot::setPosition(std::vector<double> positions) {
+setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setPosition(positions[i]);
+        setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
             std::cout << "Joint ID " << p->getId() << ": is not in Position Control " << std::endl;
             returnValue = INCORRECT_MODE;
@@ -91,11 +127,11 @@ setMovementReturnCode_t X2Robot::setPosition(std::vector<double> positions) {
     return returnValue;
 }
 
-setMovementReturnCode_t X2Robot::setVelocity(std::vector<double> velocities) {
+setMovementReturnCode_t X2Robot::setVelocity(Eigen::VectorXd velocities) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setVelocity(velocities[i]);
+        setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setVelocity(velocities[i]);
         if (setPosCode == INCORRECT_MODE) {
             std::cout << "Joint ID " << p->getId() << ": is not in Velocity Control " << std::endl;
             returnValue = INCORRECT_MODE;
@@ -109,11 +145,11 @@ setMovementReturnCode_t X2Robot::setVelocity(std::vector<double> velocities) {
     return returnValue;
 }
 
-setMovementReturnCode_t X2Robot::setTorque(std::vector<double> torques) {
+setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((ActuatedJoint *)p)->setTorque(torques[i]);
+        setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setTorque(torques[i]);
         if (setPosCode == INCORRECT_MODE) {
             std::cout << "Joint ID " << p->getId() << ": is not in Torque Control " << std::endl;
             returnValue = INCORRECT_MODE;
@@ -127,35 +163,124 @@ setMovementReturnCode_t X2Robot::setTorque(std::vector<double> torques) {
     return returnValue;
 }
 
-std::vector<double> X2Robot::getPosition() {
+Eigen::VectorXd X2Robot::getPosition() {
     int i = 0;
-    std::vector<double> actualJointPositions(joints.size());
+    Eigen::VectorXd actualJointPositions(joints.size());
     for (auto p : joints) {
-        actualJointPositions[i] = ((ActuatedJoint *)p)->getPosition();
+        actualJointPositions[i] = ((X2Joint *)p)->getPosition();
         i++;
     }
     return actualJointPositions;
 }
 
-std::vector<double> X2Robot::getVelocity() {
+Eigen::VectorXd X2Robot::getVelocity() {
     int i = 0;
-    std::vector<double> actualJointVelocities(joints.size());
+    Eigen::VectorXd actualJointVelocities(joints.size());
     for (auto p : joints) {
-        actualJointVelocities[i] = ((ActuatedJoint *)p)->getVelocity();
+        actualJointVelocities[i] = ((X2Joint *)p)->getVelocity();
         i++;
     }
     return actualJointVelocities;
 }
 
-std::vector<double> X2Robot::getTorque() {
+Eigen::VectorXd X2Robot::getTorque() {
     int i = 0;
-    std::vector<double> actualJointTorques(joints.size());
+    Eigen::VectorXd actualJointTorques(joints.size());
     for (auto p : joints) {
-        actualJointTorques[i] = ((ActuatedJoint *)p)->getTorque();
+        actualJointTorques[i] = ((X2Joint *)p)->getTorque();
         i++;
     }
     return actualJointTorques;
 }
+
+Eigen::VectorXd X2Robot::getInteractionForce() {
+    Eigen::VectorXd actualInteractionForces(X2_NUM_FORCE_SENSORS);
+    for (int i = 0; i< X2_NUM_FORCE_SENSORS; i++) {
+        actualInteractionForces[i] = forceSensors[i]->getForce();
+    }
+    return actualInteractionForces;
+}
+
+bool X2Robot::calibrateForceSensors() {
+    int numberOfSuccess = 0;
+    for (int i = 0; i< X2_NUM_FORCE_SENSORS; i++) {
+        if(forceSensors[i]->calibrate()) numberOfSuccess++;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
+    if (numberOfSuccess == X2_NUM_FORCE_SENSORS){
+        DEBUG_OUT("[X2Robot::calibrateForceSensors]: Zeroing of force sensors are successfully completed.")
+    } else{
+        DEBUG_OUT("[X2Robot::calibrateForceSensors]: Zeroing failed.")
+    }
+}
+
+bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, float delayTime,
+                    float homingSpeed, float maxTime) {
+
+    std::vector<bool> success(X2_NUM_JOINTS, false);
+    std::chrono::steady_clock::time_point time0;
+    this->initVelocityControl();
+
+    for(int i = 0; i< X2_NUM_JOINTS; i++){
+        if(homingDirection[i] == 0) continue; // skip the joint if it is not asked to do homing
+
+        Eigen::VectorXd desiredVelocity(X2_NUM_JOINTS);
+        std::chrono::steady_clock::time_point firstTimeHighTorque; // time at the first time joint exceed thresholdTorque
+        bool highTorqueReached = false;
+
+        desiredVelocity[i] = homingSpeed * homingDirection[i]/std::abs(homingDirection[i]); // setting the desired velocity by using the direction
+        time0 = std::chrono::steady_clock::now();
+
+        DEBUG_OUT("Homing Joint "<<i <<"...")
+
+        while(success[i] == false &&
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count() < maxTime*1000){
+            this->updateRobot(); // because this function has its own loops, updateRobot needs to be called
+            this->setVelocity(desiredVelocity);
+            if(std::abs(this->getTorque()[i]) >= thresholdTorque){ // if high torque is reached
+                highTorqueReached = true;
+                firstTimeHighTorque = std::chrono::steady_clock::now();
+                while(std::chrono::duration_cast<std::chrono::milliseconds> // high torque should be measured for delayTime
+                        (std::chrono::steady_clock::now() - firstTimeHighTorque).count() < delayTime*1000){
+                    this->updateRobot();
+                    if(std::abs(this->getTorque()[i]) < thresholdTorque){ // if torque value reach below thresholdTorque, goes back
+                        highTorqueReached = false;
+                        break;
+                    }
+                }
+            }
+            success[i] = highTorqueReached;
+        }
+
+        if(success[i]){
+            DEBUG_OUT("Homing Succeeded for Joint "<<i <<".")
+            if (i == X2_LEFT_HIP || i == X2_RIGHT_HIP) { // if it is a hip joint
+
+                // zeroing is done depending on the limits on the homing direction
+                if(homingDirection[i] > 0) ((X2Joint *)this->joints[i])->setPositionOffset(X2JointLimits.hipMax);
+                else ((X2Joint *)this->joints[i])->setPositionOffset(X2JointLimits.hipMin);
+            }else if(i == X2_LEFT_KNEE || i == X2_RIGHT_KNEE){ // if it is a knee joint
+
+                // zeroing is done depending on the limits on the homing direction
+                if(homingDirection[i] > 0) ((X2Joint *)this->joints[i])->setPositionOffset(X2JointLimits.kneeMax);
+                else ((X2Joint *)this->joints[i])->setPositionOffset(X2JointLimits.kneeMin);
+            }
+
+        }else{
+            DEBUG_OUT("Homing Failed for Joint "<<i <<".")
+        }
+
+    }
+    // Checking if all commanded joint successfully homed
+    for(int i = 0; i< X2_NUM_JOINTS; i++){
+        if(homingDirection[i] == 0) continue; // skip the joint if it is not asked to do homing
+        if(success[i] == false) return false;
+    }
+    return true; // will come here if all hoints successfully homed
+
+}
+
 
 bool X2Robot::initialiseJoints() {
     for (int id = 0; id < X2_NUM_JOINTS; id++) {
@@ -185,6 +310,12 @@ bool X2Robot::initialiseNetwork() {
 }
 bool X2Robot::initialiseInputs() {
     inputs.push_back(&keyboard);
+
+    for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
+        forceSensors.push_back(new X2ForceSensor(id));
+        inputs.push_back(forceSensors[id]);
+    }
+
     return true;
 }
 void X2Robot::freeMemory() {

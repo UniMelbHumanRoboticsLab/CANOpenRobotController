@@ -12,6 +12,7 @@
 #define X2JOINT_H_INCLUDED
 
 #include "ActuatedJoint.h"
+#include "CopleyDrive.h"
 
 #define MOTOR_RATED_TORQUE 0.319
 #define REDUCTION_RATIO 122.5
@@ -83,9 +84,24 @@ class X2Joint : public ActuatedJoint {
     X2Joint(int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive);
     ~X2Joint(){};
     bool updateValue();
-    setMovementReturnCode_t setPosition(double desQ);
+    setMovementReturnCode_t setPosition(double desiredPosition);
+    setMovementReturnCode_t setVelocity(double desiredVelocity);
+    setMovementReturnCode_t setTorque(double desiredTorque);
     bool initNetwork();
     double getPosition();
+    double getVelocity();
+    double getTorque();
+
+    /**
+          * \brief Set the current position as offset
+          *
+          * /param offset, joint position value to be at the homing position [rad]
+          *
+         * \return true if successful
+         * \return false if not
+         */
+    void setPositionOffset(double offset);
+
 };
 
 #endif

@@ -44,7 +44,7 @@ int Drive::start() {
 }
 
 int Drive::stop() {
-    // start drive (Node)
+    // stop drive (Node)
     std::stringstream sstream;
     std::vector<std::string> CANCommands;
     sstream << "[1] " << NodeID << " stop";

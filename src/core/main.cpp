@@ -52,15 +52,21 @@ static int rtControlPriority = 80;      /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
 static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
-
-const float controlLoopPeriodInms = 1; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 10; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 (or even 10) leads to unstable communication  */
+const float controlLoopPeriodInms = 2.5; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 2.5; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 (or even 10) leads to unstable communication  */
 
 /** @brief Task Timer used for the Control Loop*/
 struct period_info {
     struct timespec next_period;
     long period_ns;
 };
+
+/** @brief Struct to hold arguments for ROS thread*/
+struct ros_arg_holder {
+    int argc;
+    char ** argv;
+};
+
 /* Forward declartion of control loop thread timer functions*/
 static void inc_period(struct period_info *pinfo);
 static void periodic_task_init(struct period_info *pinfo);
@@ -118,6 +124,10 @@ int main(int argc, char *argv[]) {
 
     }
     configureCANopen(nodeId, rtPriority, CANdevice0Index, CANdevice);
+
+    struct ros_arg_holder * ros_args = (ros_arg_holder*)malloc(sizeof(*ros_args));
+    ros_args->argc = argc;
+    ros_args->argv = argv;
 
     /* Set up catch of linux signals SIGINT(ctrl+c) and SIGTERM (terminate program - shell kill command)
         bind to sigHandler -> raise CO_endProgram flag and safely close application threads*/
@@ -180,18 +190,28 @@ int main(int argc, char *argv[]) {
             if (rtPriority > 0) {
                 struct sched_param param;
                 param.sched_priority = rtPriority;
-                if (pthread_setschedparam(rt_thread_id, SCHED_FIFO, &param) != 0)
+                if (pthread_setschedparam(rt_thread_id, SCHED_FIFO, &param) != 0){
+#ifndef USEROS
                     CO_errExit("Program init - rt_thread set scheduler failed");
+#else
+                    ROS_ERROR("Program init - rt_thread set scheduler failed");
+#endif
+                }
             }
             /* Create control_thread */
-            if (pthread_create(&rt_control_thread_id, NULL, rt_control_thread, NULL) != 0)
+            if (pthread_create(&rt_control_thread_id, NULL, rt_control_thread, ros_args) != 0)
                 CO_errExit("Program init - rt_thread_control creation failed");
             /* Set priority for control thread */
             if (rtPriority > 0) {
                 struct sched_param paramc;
                 paramc.sched_priority = rtControlPriority;
-                if (pthread_setschedparam(rt_control_thread_id, SCHED_FIFO, &paramc) != 0)
+                if (pthread_setschedparam(rt_control_thread_id, SCHED_FIFO, &paramc) != 0){
+#ifndef USEROS
                     CO_errExit("Program init - rt_thread set scheduler failed");
+#else
+                    ROS_ERROR("Program init - rt_thread set scheduler failed");
+#endif
+                }
             }
             /* start CAN */
             CO_CANsetNormalMode(CO->CANmodule[0]);
@@ -293,12 +313,13 @@ static void *rt_control_thread(void *arg) {
     // freopen("log.txt", "w", stdout);
     std::ofstream logfile;
     logfile.open("log.csv");
+    struct ros_arg_holder ros_args = *(struct ros_arg_holder *)arg;
     /*Testing POSIX timer variables*/
     struct timespec start, finish;
     double elapsed, cpu_u;
     struct period_info pinfo;
     periodic_task_init(&pinfo);
-    app_programStart();
+    app_programStart(ros_args.argc, ros_args.argv);
     logfile
         << "Loop_time_sec\n";
     while (!readyToStart) {

@@ -45,7 +45,7 @@ bool CopleyDrive::initTorqueControl() {
     DEBUG_OUT("NodeID " << NodeID << " Initialising Torque Control")
     sendSDOMessages(generateTorqueControlConfigSDO());
 
-    return false;
+    return true;
 }
 std::vector<std::string> CopleyDrive::generatePosControlConfigSDO(motorProfile positionProfile) {
     return Drive::generatePosControlConfigSDO(positionProfile); /*<!execute base class function*/
@@ -58,3 +58,40 @@ std::vector<std::string> CopleyDrive::generateVelControlConfigSDO(motorProfile v
 std::vector<std::string> CopleyDrive::generateTorqueControlConfigSDO() {
     return Drive::generateTorqueControlConfigSDO(); /*<!execute base class function*/
 }
+
+std::vector<std::string> CopleyDrive::generatePositionOffsetSDO(int offset) {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+
+    // set mode of operation
+    sstream << "[1] " << NodeID << " write 0x6060 0 i8 6";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+    // set the home offset
+    sstream << "[1] " << NodeID << " write 0x607C 0 i32 "<< std::dec << offset;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+    // set homing method to 0
+    sstream << "[1] " << NodeID << " write 0X6098 0 i8 0";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+    // set control word to start homing
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x1f";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    return CANCommands;
+}
+
+bool CopleyDrive::setPositionOffset(int offset) {
+    DEBUG_OUT("NodeID " << NodeID << " Setting Position Offset")
+
+    sendSDOMessages(generatePositionOffsetSDO(offset));
+
+    return true;
+
+
+}
+

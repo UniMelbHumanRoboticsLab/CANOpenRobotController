@@ -20,14 +20,20 @@
 #include "CopleyDrive.h"
 #include "Keyboard.h"
 #include "Robot.h"
-#include "RobotParams.h"
+//#include "RobotParams.h"
 #include "X2Joint.h"
+#include "X2ForceSensor.h"
+#include <Eigen/Dense>
+
+#include <chrono>
+#include <thread>
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      *
      */
 
 #define X2_NUM_JOINTS 4
+#define X2_NUM_FORCE_SENSORS 4
 
 // Macros
 #define M_PI 3.14159265358979323846264338327950288
@@ -35,37 +41,8 @@
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
 
 /**
- * An enum type.
- * Joint Index for the 4 joints (note, CANopen NODEID = this + 1)
- */
-enum X2Joints {
-    X2_LEFT_HIP = 0,   /**< Left Hip*/
-    X2_LEFT_KNEE = 1,  /**< Left Knee*/
-    X2_RIGHT_HIP = 2,  /**< Right Hip*/
-    X2_RIGHT_KNEE = 3, /**< Right Knee*/
-};
-/**
- * Paramater definitions: Hip motor reading and corresponding angle. Used for mapping between degree and motor values.
- */
-JointDrivePairs hipJDP{
-    250880,       // drivePosA
-    0,            // drivePosB
-    deg2rad(90),  //jointPosA
-    deg2rad(180)  //jointPosB
-};
-/**
- * Paramater definitions: Knee motor reading and corresponding angle. Used for mapping between degree and motor values.
- */
-JointDrivePairs kneeJDP{
-    250880,       // drivePosA
-    0,            //drivePosB
-    deg2rad(90),  //jointPosA
-    deg2rad(0)    //jointPosB
-};
-
-/**
- * Defines the Joint Limits of the X2 Exoskeleton
- * 
+ * Structure which is used for joint limits. Defines minimum and maximum limits of the each joint
+ *
  */
 struct ExoJointLimits {
     double hipMax;
@@ -73,7 +50,6 @@ struct ExoJointLimits {
     double kneeMax;
     double kneeMin;
 };
-ExoJointLimits X2JointLimits = {deg2rad(210), deg2rad(70), deg2rad(120), deg2rad(0)};
 
 /**
  * \brief Example implementation of the Robot class, representing an X2 Exoskeleton.
@@ -97,6 +73,7 @@ class X2Robot : public Robot {
     ~X2Robot();
     Keyboard keyboard;
     std::vector<Drive *> motorDrives;
+    std::vector<X2ForceSensor *> forceSensors;
 
     // /**
     //  * \brief Timer Variables for moving through trajectories
@@ -143,7 +120,7 @@ class X2Robot : public Robot {
     * \param positions a vector of target positions - applicable for each of the actuated joints
     * \return MovementCode representing success or failure of the application
     */
-    setMovementReturnCode_t setPosition(std::vector<double> positions);
+    setMovementReturnCode_t setPosition(Eigen::VectorXd positions);
 
     /**
     * \brief Set the target velocities for each of the joints
@@ -151,7 +128,7 @@ class X2Robot : public Robot {
     * \param velocities a vector of target velocities - applicable for each of the actuated joints
     * \return MovementCode representing success or failure of the application
     */
-    setMovementReturnCode_t setVelocity(std::vector<double> velocities);
+    setMovementReturnCode_t setVelocity(Eigen::VectorXd velocities);
 
     /**
     * \brief Set the target torque for each of the joints
@@ -159,28 +136,55 @@ class X2Robot : public Robot {
     * \param torques a vector of target torques - applicable for each of the actuated joints
     * \return MovementCode representing success or failure of the application
     */
-    setMovementReturnCode_t setTorque(std::vector<double> torques);
+    setMovementReturnCode_t setTorque(Eigen::VectorXd torques);
 
     /**
     * \brief Get the actual position of each joint
     *
-    * \return std::vector<double> a vector of actual joint positions
+    * \return Eigen::VectorXd a vector of actual joint positions
     */
-    std::vector<double> getPosition();
+    Eigen::VectorXd getPosition();
 
     /**
     * \brief Get the actual velocity of each joint
     *
-    * \return std::vector<double> a vector of actual joint positions
+    * \return Eigen::VectorXd a vector of actual joint positions
     */
-    std::vector<double> getVelocity();
+    Eigen::VectorXd getVelocity();
 
     /**
     * \brief Get the actual torque of each joint
     *
-    * \return std::vector<double> a vector of actual joint positions
+    * \return Eigen::VectorXd a vector of actual joint positions
     */
-    std::vector<double> getTorque();
+    Eigen::VectorXd getTorque();
+
+    /**
+    * \brief Get the interaction force from each force sensor
+    *
+    * \return Eigen::VectorXd a vector of interaction forces
+    */
+    Eigen::VectorXd getInteractionForce();
+
+    /**
+    * \brief Calibrate force sensors
+    *
+    * \return bool success of calibration
+    */
+    bool calibrateForceSensors();
+
+    /**
+    * \brief Homing procedure of joint
+    *
+    * \param homingDirection a vector of int whose sign indicate homing direction. If 0 skips that joint
+    * \param thresholdTorque torque to understand [Nm]
+    * \param delayTime time required for the actual torque being larger than thresholdTorque to identify hardstops [s]
+    * \param homingSpeed velocity used during homing [rad/s]
+    * \param maxTime maximum time to complete the homing [s]
+    * \return bool success of homing
+    */
+    bool homing(std::vector<int> homingDirection = std::vector<int>(X2_NUM_JOINTS, 1), float thresholdTorque = 45.0,
+                float delayTime = 0.2, float homingSpeed = 5*M_PI/180.0, float maxTime = 30.0);
 
     /**
    * Determine if the currently generated trajectory is complete.

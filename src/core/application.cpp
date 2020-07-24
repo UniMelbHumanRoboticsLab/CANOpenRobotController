@@ -21,11 +21,16 @@ STATE_MACHINE_TYPE testMachine;
 char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
-void app_programStart(void) {
+void app_programStart(int argc, char *argv[]) {
     printf("app_Program Start \n");
+#ifndef USEROS
     testMachine.init();
+#else
+    testMachine.init(argc, argv);
+#endif
     testMachine.activate();
 }
+
 /******************************************************************************/
 void app_communicationReset(void) {
 }
