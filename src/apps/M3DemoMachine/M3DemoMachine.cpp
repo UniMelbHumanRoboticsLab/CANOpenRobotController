@@ -11,6 +11,7 @@ M3DemoMachine::M3DemoMachine() {
     standbyState = new M3MassCompensation(this, robot);
     endEffDemoState = new M3EndEffDemo(this, robot);
     impedanceState = new M3DemoImpedanceState(this, robot);
+    minJerkState = new M3DemoMinJerkPosition(this, robot);
     timingState = new M3SamplingEstimationState(this, robot);
 
     endCalib = new EndCalib(this);
@@ -26,14 +27,15 @@ M3DemoMachine::M3DemoMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-     NewTransition(calibState, endCalib, testState);
-     NewTransition(testState, goToState1, standbyState);
+     NewTransition(calibState, endCalib, minJerkState);
+     NewTransition(minJerkState, goToState1, standbyState);
      NewTransition(standbyState, goToState2, timingState);
      NewTransition(timingState, goToState3, endEffDemoState);
      NewTransition(endEffDemoState, goToState4, impedanceState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(calibState);
+    //StateMachine::initialize(timingState);
 }
 M3DemoMachine::~M3DemoMachine() {
     delete testState;

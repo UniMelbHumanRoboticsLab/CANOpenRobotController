@@ -73,12 +73,12 @@ void M3DemoState::duringCode(void) {
     Eigen::Vector3d F(0,0,robot->getEndEffVelocity()[2]);
     robot->setEndEffForceWithCompensation(b*F);*/
 
-    float k_i=0.1;
+    /*float k_i=1.;
     Eigen::Vector3d Xf(-0.4, 0, 0);
     Eigen::Vector3d Xd, dXd;
     JerkIt(Xi, Xf, 5., elapsedTime, Xd, dXd);
     robot->setEndEffVelocity(dXd+k_i*(Xd-robot->getEndEffPosition()));
-    std::cout << (Xd-robot->getEndEffPosition()).transpose() << std::endl;
+    std::cout << (Xd-robot->getEndEffPosition()).norm() << std::endl;*/
 }
 void M3DemoState::exitCode(void) {
     robot->setJointVelocity(Eigen::Vector3d::Zero());
@@ -136,7 +136,6 @@ void M3CalibState::duringCode(void) {
 void M3CalibState::exitCode(void) {
     robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
 }
-
 
 
 
@@ -212,7 +211,6 @@ void M3EndEffDemo::exitCode(void) {
 
 
 
-
 void M3DemoImpedanceState::entryCode(void) {
     robot->initTorqueControl();
     std::cout << "Press Q to select reference point, S/W to tune K gain and A/D for D gain" << std::endl;
@@ -263,7 +261,6 @@ void M3DemoImpedanceState::exitCode(void) {
 
 
 
-
 void M3SamplingEstimationState::entryCode(void) {
     robot->initTorqueControl();
     robot->setEndEffForceWithCompensation(Eigen::Vector3d::Zero());
@@ -305,6 +302,54 @@ void M3SamplingEstimationState::duringCode(void) {
 }
 void M3SamplingEstimationState::exitCode(void) {
     robot->setEndEffForceWithCompensation(Eigen::Vector3d::Zero());
-
 }
+
+
+
+
+void M3DemoMinJerkPosition::entryCode(void) {
+    //Setup velocity control for position over velocity loop
+    robot->initVelocityControl();
+    robot->setJointVelocity(Eigen::Vector3d::Zero());
+    //Initialise to first target point
+    TrajPtIdx=0;
+    startTime=elapsedTime;
+    Xi=robot->getEndEffPosition();
+    Xf=TrajPt[TrajPtIdx];
+    T=TrajTime[TrajPtIdx];
+}
+void M3DemoMinJerkPosition::duringCode(void) {
+    float k_i=1.; //Integral gain
+    Eigen::Vector3d Xd, dXd;
+    //Compute current desired interpolated point
+    double status=JerkIt(Xi, Xf, T, elapsedTime-startTime, Xd, dXd);
+    //Apply position control
+    robot->setEndEffVelocity(dXd+k_i*(Xd-robot->getEndEffPosition()));
+
+    //Have we reached a point?
+    if(status>=1.) {
+        //Go to next point
+        TrajPtIdx++;
+        if(TrajPtIdx>=TrajNbPts){
+            TrajPtIdx=0;
+        }
+        //From where we are
+        Xi=robot->getEndEffPosition();
+        //To next point
+        Xf=TrajPt[TrajPtIdx];
+        T=TrajTime[TrajPtIdx];
+        startTime=elapsedTime;
+    }
+
+    //Display status regularly
+    if(iterations%100==1) {
+        robot->printStatus();
+        std::cout << "Xf="<< Xf.transpose() << " Position error: " << (Xd-robot->getEndEffPosition()).norm() << "m." << std::endl;
+    }
+}
+void M3DemoMinJerkPosition::exitCode(void) {
+    robot->setJointVelocity(Eigen::Vector3d::Zero());
+}
+
+
 

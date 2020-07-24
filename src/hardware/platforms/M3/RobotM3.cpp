@@ -28,9 +28,9 @@ RobotM3::~RobotM3() {
         delete p;
     }
     joints.clear();
-    inputs.clear();
     delete keyboard;
     delete joystick;
+    inputs.clear();
     DEBUG_OUT("RobotM3 deleted")
 }
 

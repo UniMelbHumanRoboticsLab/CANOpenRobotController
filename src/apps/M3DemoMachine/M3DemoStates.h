@@ -52,6 +52,7 @@ class M3TimedState : public State {
         clock_gettime(CLOCK_MONOTONIC, &initTime);
         lastTime = timeval_to_sec(&initTime);
 
+        elapsedTime=0;
         iterations=0;
 
         //Actual state entry
@@ -192,6 +193,32 @@ class M3DemoImpedanceState : public M3TimedState {
 };
 
 
+
+/**
+ * \brief Point to tpoint position control with min jerk trajectory interpolation
+ *
+ */
+class M3DemoMinJerkPosition: public M3TimedState {
+
+   public:
+    M3DemoMinJerkPosition(StateMachine *m, RobotM3 *M3, const char *name = "M3 Demo Minimum Jerk Position"):M3TimedState(m, M3, name){};
+
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
+
+   private:
+    static const unsigned int TrajNbPts=4;
+    unsigned int TrajPtIdx=0;
+    double startTime;
+    Eigen::Vector3d TrajPt[TrajNbPts]={Eigen::Vector3d(-0.4, 0, 0), Eigen::Vector3d(-0.6, 0, -0.2), Eigen::Vector3d(-0.6, 0.1, -0.1), Eigen::Vector3d(-0.6, -0.1, -0.1)};
+    double TrajTime[TrajNbPts]={5, 3, 0.5, 0.5};
+    Eigen::Vector3d Xi, Xf;
+    double T;
+};
+
+
+
 /**
  * \brief Sampling frequency estimation state.
  *
@@ -211,5 +238,6 @@ class M3SamplingEstimationState : public M3TimedState {
     double dX[10000];
     int new_value;
 };
+
 
 #endif
