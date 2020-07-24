@@ -1,17 +1,14 @@
 #include "X2DemoMachineROS.h"
 
 X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot) {
-
     robot_ = robot;
 }
 
 X2DemoMachineROS::~X2DemoMachineROS() {
-
     ros::shutdown();
 }
 
 void X2DemoMachineROS::initialize(int argc, char *argv[]) {
-
     ros::init(argc, argv, "x2_node", ros::init_options::NoSigintHandler);
     ros::NodeHandle nodeHandle;
 
@@ -19,13 +16,11 @@ void X2DemoMachineROS::initialize(int argc, char *argv[]) {
 }
 
 void X2DemoMachineROS::update() {
-
     publishJointStates();
     ros::spinOnce();
 }
 
 void X2DemoMachineROS::publishJointStates() {
-
     Eigen::VectorXd jointPositions = robot_->getPosition();
     Eigen::VectorXd jointVelocities = robot_->getVelocity();
     Eigen::VectorXd jointTorques = robot_->getTorque();
@@ -53,6 +48,4 @@ void X2DemoMachineROS::publishJointStates() {
     jointStateMsg_.effort[3] = jointTorques[3];
 
     jointStatePublisher_.publish(jointStateMsg_);
-
 }
-

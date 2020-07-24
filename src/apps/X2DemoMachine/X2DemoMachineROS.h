@@ -9,18 +9,17 @@
  *
  */
 
-#include "X2Robot.h"
-
-#include "ros/ros.h" // This state machine requires ROS
-#include <std_msgs/String.h>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/String.h>
+
+#include "X2Robot.h"
+#include "ros/ros.h"  // This state machine requires ROS
 
 #ifndef SRC_X2DEMOMACHINEROS_H
 #define SRC_X2DEMOMACHINEROS_H
 
 class X2DemoMachineROS {
-
-public:
+   public:
     X2DemoMachineROS(X2Robot *robot);
     ~X2DemoMachineROS();
 
@@ -28,11 +27,10 @@ public:
     void publishJointStates(void);
     void initialize(int argc, char *argv[]);
 
-private:
+   private:
     ros::Publisher jointStatePublisher_;
     sensor_msgs::JointState jointStateMsg_;
     X2Robot *robot_;
-
 };
 
-#endif //SRC_X2DEMOMACHINEROS_H
+#endif  //SRC_X2DEMOMACHINEROS_H

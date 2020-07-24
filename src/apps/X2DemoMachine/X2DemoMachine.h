@@ -21,19 +21,20 @@
 #include <string>
 
 #include "DebugMacro.h"
-
-#include "X2Robot.h"
 #include "StateMachine.h"
+#include "X2Robot.h"
 
 // State Classes
-#include "states/IdleState.h"
-#include "states/X2DemoState.h"
-
 #include "X2DemoMachineROS.h"
+#include "states/IdleState.h"
+#include "states/Sitting.h"
+#include "states/SittingDwn.h"
+#include "states/Standing.h"
+#include "states/StandingUp.h"
+//#include "states/X2DemoState.h"
 
 class X2DemoMachine : public StateMachine {
-
-public:
+   public:
     bool running = false;
     /**
      *  \todo Pilot Parameters would be set in constructor here
@@ -52,13 +53,17 @@ public:
      *
      */
     IdleState *idleState;
-    X2DemoState *x2DemoState;
+    //X2DemoState *x2DemoState;
+    Sitting *sittingState;
+    Standing *standingState;
+    StandingUp *standingUpState;
+    SittingDwn *sittingDwnState;
 
     X2Robot *robot; /*<!Pointer to the Robot*/
 
     X2DemoMachineROS *x2DemoMachineRos_;
 
-private:
+   private:
     /**
      *
      * \brief Event Objects defined using Macro defined in StateMachine.h
@@ -66,8 +71,9 @@ private:
      * An events check function are defined in the .cpp file.
     */
     EventObject(StartExo) * startExo;
-
+    EventObject(FinishedSitting) * finishedSitting;
+    EventObject(FinishedStanding) * finishedStanding;
+    EventObject(StartNextMove) * startNextMove;
 };
 
-
-#endif //SRC_X2DEMOMACHINE_H
+#endif  //SRC_X2DEMOMACHINE_H
