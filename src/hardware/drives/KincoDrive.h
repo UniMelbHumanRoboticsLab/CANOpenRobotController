@@ -39,11 +39,12 @@ class KincoDrive : public Drive {
          *
          * \return True if successful, False if not
          */
-    bool init();
+    bool Init();
     /**
      * \todo Move jointMinMap and jointMaxMap to set additional parameters (bit 5 in 0x6041 makes updates happen immediately)
      *
      */
+
     /**
          * Sets the drive to Position control with default parameters (through SDO messages)
          *

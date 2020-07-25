@@ -106,7 +106,7 @@ class M3DemoState : public M3TimedState {
     void duringCode(void);
     void exitCode(void);
 
-    Eigen::Vector3d qi, Xi;
+    V3 qi, Xi;
 };
 
 
@@ -127,7 +127,7 @@ class M3CalibState : public M3TimedState {
     bool isCalibDone() {return calibDone;}
 
    private:
-     Eigen::Vector3d stop_reached_time;
+     V3 stop_reached_time;
      bool at_stop[3];
      bool calibDone=false;
 
@@ -181,9 +181,9 @@ class M3DemoImpedanceState : public M3TimedState {
     void exitCode(void);
 
    private:
-    Eigen::Vector3d Xi;
-    double k = 800;
-    double d = 2;
+    V3 Xi;
+    double k = 700;     //! Impedance proportional gain (spring)
+    double d = 2;       //! Impedance derivative gain (damper)
     bool init=false;
 
     int nb_samples=10000;
@@ -192,6 +192,29 @@ class M3DemoImpedanceState : public M3TimedState {
     int new_value;
 };
 
+
+/**
+ * \brief Path contraint with viscous assistance.
+ *
+ */
+class M3DemoPathState : public M3TimedState {
+
+   public:
+    M3DemoPathState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Demo Path State"):M3TimedState(m, M3, name){};
+
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
+
+    short int sign(double val) {return (val>0)?1:((val<0)?-1:0); };
+
+   private:
+    double k = 600;                 //! Impedance proportional gain (spring)
+    double d = 6;                   //! Impedance derivative gain (damper)
+    double viscous_assistance=15;   //! Viscous assistance along path
+    V3 Xi;
+    V3 Xf={-0.4, 0, 0};              //! Path target point
+};
 
 
 /**
@@ -211,9 +234,9 @@ class M3DemoMinJerkPosition: public M3TimedState {
     static const unsigned int TrajNbPts=4;
     unsigned int TrajPtIdx=0;
     double startTime;
-    Eigen::Vector3d TrajPt[TrajNbPts]={Eigen::Vector3d(-0.4, 0, 0), Eigen::Vector3d(-0.6, 0, -0.2), Eigen::Vector3d(-0.6, 0.1, -0.1), Eigen::Vector3d(-0.6, -0.1, -0.1)};
+    V3 TrajPt[TrajNbPts]={V3(-0.4, 0, 0), V3(-0.6, 0, -0.2), V3(-0.6, 0.1, -0.1), V3(-0.6, -0.1, -0.1)};
     double TrajTime[TrajNbPts]={5, 3, 0.5, 0.5};
-    Eigen::Vector3d Xi, Xf;
+    V3 Xi, Xf;
     double T;
 };
 

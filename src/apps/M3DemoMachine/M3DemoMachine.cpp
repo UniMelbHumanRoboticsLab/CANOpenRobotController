@@ -11,6 +11,7 @@ M3DemoMachine::M3DemoMachine() {
     standbyState = new M3MassCompensation(this, robot);
     endEffDemoState = new M3EndEffDemo(this, robot);
     impedanceState = new M3DemoImpedanceState(this, robot);
+    pathState = new M3DemoPathState(this, robot);
     minJerkState = new M3DemoMinJerkPosition(this, robot);
     timingState = new M3SamplingEstimationState(this, robot);
 
@@ -27,9 +28,9 @@ M3DemoMachine::M3DemoMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-     NewTransition(calibState, endCalib, minJerkState);
-     NewTransition(minJerkState, goToState1, standbyState);
-     NewTransition(standbyState, goToState2, timingState);
+     NewTransition(calibState, endCalib, standbyState);
+     NewTransition(standbyState, goToState1, pathState);//minJerkState);
+     NewTransition(minJerkState, goToState2, timingState);
      NewTransition(timingState, goToState3, endEffDemoState);
      NewTransition(endEffDemoState, goToState4, impedanceState);
      NewTransition(impedanceState, goToState1, minJerkState);

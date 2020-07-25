@@ -421,7 +421,7 @@ setMovementReturnCode_t RobotM3::setEndEffForce(Vector3d F) {
     Vector3d tau = J().transpose()*F;
     return setJointTorque(tau);
 }
-setMovementReturnCode_t RobotM3::setEndEffForceWithCompensation(Vector3d F) {
+setMovementReturnCode_t RobotM3::setEndEffForceWithCompensation(Vector3d F, bool friction_comp) {
     if(!calibrated) {
         return NOT_CALIBRATED;
     }
@@ -431,14 +431,16 @@ setMovementReturnCode_t RobotM3::setEndEffForceWithCompensation(Vector3d F) {
         return OUTSIDE_LIMITS;
     }
     Vector3d tau_g = calculateGravityTorques(); //Gravity compensation torque
-    Vector3d tau_f; //Friction compensation torque
-    double alpha = 0.5, beta = 0.2, threshold = 0.000000;
-    for(unsigned int i=0; i<3; i++) {
-        double dq = ((JointM3 *)joints[i])->getVelocity();
-        if(abs(dq)>threshold) {
-            tau_f(i) = alpha*sign(dq) + beta*dq;
-        } else {
-            tau_f(i) = .0;
+    Vector3d tau_f(0,0,0); //Friction compensation torque
+    if(friction_comp) {
+        double alpha = 0.5, beta = 0.2, threshold = 0.000000;
+        for(unsigned int i=0; i<3; i++) {
+            double dq = ((JointM3 *)joints[i])->getVelocity();
+            if(abs(dq)>threshold) {
+                tau_f(i) = alpha*sign(dq) + beta*dq;
+            } else {
+                tau_f(i) = .0;
+            }
         }
     }
 

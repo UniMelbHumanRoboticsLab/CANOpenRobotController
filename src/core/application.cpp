@@ -8,6 +8,9 @@
  */
 #include "application.h"
 
+#include "LoopTiming.h"
+LoopTiming loopTimer;
+
 //Select state machine to use for this application (can be set in cmake)
 #ifndef STATE_MACHINE_TYPE
 #define STATE_MACHINE_TYPE ExoTestMachine
@@ -22,6 +25,7 @@ char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(void) {
+    //loopTimer.init();
     printf("app_Program Start \n");
     testMachine.init();
     testMachine.activate();
@@ -33,6 +37,7 @@ void app_communicationReset(void) {
 void app_programEnd(void) {
     testMachine.end();
     printf("app_programEnd \n");
+    //loopTimer.end();
 }
 /******************************************************************************/
 void app_programAsync(uint16_t timer1msDiffy) {
@@ -43,4 +48,5 @@ void app_programControlLoop(void) {
         testMachine.update();
         testMachine.hwStateUpdate();
     }
+    //loopTimer.tick();
 }

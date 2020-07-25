@@ -253,24 +253,24 @@ class Drive {
     Drive();
 
     /**
-           * \brief Construct a new Drive object
-           *
-           * \param node_id the CANopen Node ID of this drive
-           */
+       * \brief Construct a new Drive object
+       *
+       * \param node_id the CANopen Node ID of this drive
+       */
     Drive(int node_id);
 
     /**
-           * \brief Destroy the Drive object
-           *
-           */
+       * \brief Destroy the Drive object
+       *
+       */
     virtual ~Drive();
 
     /**
-           * \brief Initialises the drive (SDO start message)
-           *
-           * \return True if successful, False if not
-           */
-    virtual bool init() = 0;
+       * \brief Initialises the drive (SDO start message)
+       *
+       * \return True if successful, False if not
+       */
+    virtual bool Init() = 0;
 
     /**
        * \brief Send NMT preop command to the drive node
@@ -308,6 +308,14 @@ class Drive {
            * \return false
            */
     virtual bool initPDOs();
+
+    /**
+           * \brief Initialises velocity and acceleration profiles (used by position and velocity controls) through SDOs write
+           *
+           * \return true if sucessfull
+           * \return false otherwise
+           */
+    virtual bool setMotorProfile(motorProfile profile);
 
     /**
            * Sets the drive to Position control with set parameters (through SDO messages)

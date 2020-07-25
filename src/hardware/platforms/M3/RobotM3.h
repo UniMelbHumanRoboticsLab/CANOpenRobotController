@@ -23,6 +23,8 @@
 #include "Robot.h"
 
 
+typedef Eigen::Vector3d V3; //! Convenience alias for double  Vector of length 3
+
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      *
@@ -49,7 +51,7 @@ class RobotM3 : public Robot {
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
     float LinkLengths[5] = {0.056, 0.15-0.015, 0.5, 0.465, 0.465+0.15-0.015};   /*!< Link lengths used for kniematic models (in m)*/
-    float LinkMasses[5] = {0, 0.450, 0.700, 0.200, 0.9};                        /*!< Link masses used for gravity compensation (in kg)*/
+    float LinkMasses[5] = {0, 0.450, 0.700, 0.200, 0.95};                        /*!< Link masses used for gravity compensation (in kg)*/
 
     Eigen::Vector3d qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
 
@@ -190,6 +192,6 @@ class RobotM3 : public Robot {
     setMovementReturnCode_t setEndEffPosition(Eigen::Vector3d X);
     setMovementReturnCode_t setEndEffVelocity(Eigen::Vector3d dX);
     setMovementReturnCode_t setEndEffForce(Eigen::Vector3d F);
-    setMovementReturnCode_t setEndEffForceWithCompensation(Eigen::Vector3d F);
+    setMovementReturnCode_t setEndEffForceWithCompensation(Eigen::Vector3d F, bool friction_comp=true);
 };
 #endif /*RobotM3_H*/

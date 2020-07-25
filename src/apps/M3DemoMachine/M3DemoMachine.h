@@ -54,6 +54,7 @@ class M3DemoMachine : public StateMachine {
     M3DemoMinJerkPosition* minJerkState;
     M3EndEffDemo *endEffDemoState;
     M3DemoImpedanceState *impedanceState;
+    M3DemoPathState *pathState;
     M3SamplingEstimationState *timingState;
 
    protected:

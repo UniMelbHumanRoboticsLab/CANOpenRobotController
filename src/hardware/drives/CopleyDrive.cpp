@@ -15,7 +15,7 @@ CopleyDrive::~CopleyDrive() {
     DEBUG_OUT(" CopleyDrive Deleted ")
 }
 
-bool CopleyDrive::init() {
+bool CopleyDrive::Init() {
     return false;
 }
 

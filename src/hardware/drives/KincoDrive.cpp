@@ -18,9 +18,12 @@ KincoDrive::~KincoDrive() {
     DEBUG_OUT(" KincoDrive Deleted ")
 }
 
-bool KincoDrive::init() {
+bool KincoDrive::Init() {
     preop();//Set preop first to disable PDO during initialisation
-    return initPDOs();
+    if(initPDOs()) {
+        return true;
+    }
+    return false;
 }
 
 
