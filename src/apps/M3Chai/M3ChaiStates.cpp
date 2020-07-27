@@ -17,6 +17,8 @@ void M3CalibState::entryCode(void) {
 }
 //Move slowly on each joint until max force detected
 void M3CalibState::duringCode(void) {
+    //if(Robot->getStatus()==TORQUE_READY)!!!!! TODO
+
     Eigen::Vector3d tau(0, 0, 0);
 
     //Apply constant torque (with damping) unless stop has been detected for more than 0.5s

@@ -25,7 +25,7 @@ char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(void) {
-    loopTimer.init();
+    //loopTimer.init();
     printf("app_Program Start \n");
     testMachine.init();
     testMachine.activate();
