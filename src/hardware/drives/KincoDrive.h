@@ -101,12 +101,6 @@ class KincoDrive : public Drive {
           */
 
     bool initPDOs();
-
-    std::vector<std::string> generatePosControlConfigSDO(motorProfile positionProfile);
-    std::vector<std::string> generatePosControlConfigSDO();
-    std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
-    std::vector<std::string> generateVelControlConfigSDO();
-    std::vector<std::string> generateTorqueControlConfigSDO();
 };
 
 #endif
