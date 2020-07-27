@@ -230,8 +230,7 @@ int main(int argc, char *argv[]) {
         if (pthread_join(rt_control_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }
-        app_programEnd();
-        usleep(500000); /*wait for threads to finish */
+        usleep(500000); /*wait for last CAN commands to be processed if any */
         //End CAN communication processing
         CO_endProgram = 1;
         if (pthread_join(rt_thread_id, NULL) != 0) {
@@ -289,17 +288,12 @@ static void *rt_thread(void *arg) {
 }
 /* Control thread function ********************************/
 static void *rt_control_thread(void *arg) {
-    // freopen("log.txt", "w", stdout);
-    std::ofstream logfile;
-    logfile.open("log.csv");
     /*Testing POSIX timer variables*/
     struct timespec start, finish;
     double elapsed, cpu_u;
     struct period_info pinfo;
     periodic_task_init(&pinfo);
     app_programStart();
-    logfile
-        << "Loop_time_sec\n";
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);
     }
@@ -311,13 +305,8 @@ static void *rt_control_thread(void *arg) {
         clock_gettime(CLOCK_MONOTONIC, &finish);
         elapsed = (finish.tv_sec - start.tv_sec);
         elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
-        logfile
-            << elapsed
-            << "\n";
     }
-    if (readyToStart && endProgram != 0) {
-        logfile.close();
-    }
+    app_programEnd();
     return NULL;
 }
 /* Control thread time functions ********************************/
