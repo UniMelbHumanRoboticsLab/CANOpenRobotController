@@ -25,7 +25,7 @@ char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(void) {
-    //loopTimer.init();
+    loopTimer.init();
     printf("app_Program Start \n");
     testMachine.init();
     testMachine.activate();
@@ -37,7 +37,7 @@ void app_communicationReset(void) {
 void app_programEnd(void) {
     testMachine.end();
     printf("app_programEnd \n");
-    //loopTimer.end();
+    loopTimer.end();
 }
 /******************************************************************************/
 void app_programAsync(uint16_t timer1msDiffy) {
@@ -48,5 +48,5 @@ void app_programControlLoop(void) {
         testMachine.update();
         testMachine.hwStateUpdate();
     }
-    //loopTimer.tick();
+    loopTimer.tick();
 }
