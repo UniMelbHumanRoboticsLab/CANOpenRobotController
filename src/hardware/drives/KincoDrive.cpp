@@ -1,7 +1,3 @@
-/**
- * @brief An implementation of the Drive Object, specifically for the Kinco Drive
- *
- */
 #include "KincoDrive.h"
 
 #include <iostream>
@@ -13,15 +9,23 @@ KincoDrive::KincoDrive(int NodeID) : Drive::Drive(NodeID) {
     OD_Addresses[ACTUAL_TOR] = 0x6078;
     OD_Addresses[TARGET_TOR] = 0x60F6;
 }
-
 KincoDrive::~KincoDrive() {
     DEBUG_OUT(" KincoDrive Deleted ")
 }
 
-bool KincoDrive::Init() {
+bool KincoDrive::init() {
     preop();//Set preop first to disable PDO during initialisation
     if(initPDOs()) {
         return true;
+    }
+    return false;
+}
+bool KincoDrive::init(motorProfile profile) {
+    preop();//Set preop first to disable PDO during initialisation
+    if(setMotorProfile(profile)) {
+        if(initPDOs()) {
+            return true;
+        }
     }
     return false;
 }
@@ -37,6 +41,12 @@ bool KincoDrive::initPosControl(motorProfile posControlMotorProfile) {
      */
     return true;
 }
+bool KincoDrive::initPosControl() {
+    DEBUG_OUT("NodeID " << NodeID << " Initialising Position Control")
+
+    sendSDOMessages(generatePosControlConfigSDO());
+    return true;
+}
 bool KincoDrive::initVelControl(motorProfile velControlMotorProfile) {
     DEBUG_OUT("NodeID " << NodeID << " Initialising Velocity Control")
     /**
@@ -45,6 +55,12 @@ bool KincoDrive::initVelControl(motorProfile velControlMotorProfile) {
      *
     */
     sendSDOMessages(generateVelControlConfigSDO(velControlMotorProfile));
+    return true;
+}
+bool KincoDrive::initVelControl() {
+    DEBUG_OUT("NodeID " << NodeID << " Initialising Velocity Control")
+
+    sendSDOMessages(generateVelControlConfigSDO());
     return true;
 }
 bool KincoDrive::initTorqueControl() {
@@ -135,6 +151,22 @@ std::vector<std::string> KincoDrive::generatePosControlConfigSDO(motorProfile po
 
     return CANCommands;
 }
+std::vector<std::string> KincoDrive::generatePosControlConfigSDO() {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+    // start drive
+    sstream << "[1] " << NodeID << " start";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+    //enable profile position mode
+    sstream << "[1] " << NodeID << " write 0x6060 0 i8 1";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    return CANCommands;
+}
 std::vector<std::string> KincoDrive::generateVelControlConfigSDO(motorProfile velocityProfile) {
     // Define Vector to be returned as part of this method
     std::vector<std::string> CANCommands;
@@ -161,6 +193,22 @@ std::vector<std::string> KincoDrive::generateVelControlConfigSDO(motorProfile ve
 
     //Set deceleration profile
     sstream << "[1] " << NodeID << " write 0x6084 0 i32 " << std::dec << velocityProfile.profileDeceleration;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    return CANCommands;
+}
+std::vector<std::string> KincoDrive::generateVelControlConfigSDO() {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+    // start drive
+    sstream << "[1] " << NodeID << " start";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+    //enable profile Velocity mode
+    sstream << "[1] " << NodeID << " write 0x6060 0 i8 3";
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 

@@ -115,7 +115,6 @@ void RobotM3::printStatus() {
     std::cout << "F=[ " << getEndEffForce().transpose() << " ]\t";
     std::cout << std::endl;
 }
-
 void RobotM3::printJointStatus() {
     std::cout << std::setprecision(1) << std::fixed;
     std::cout << "q=[ " << getJointPosition().transpose() * 180 / M_PI << " ]\t";
@@ -131,7 +130,7 @@ bool RobotM3::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((JointM3 *)p)->setMode(POSITION_CONTROL, posControlMotorProfile) != POSITION_CONTROL) {
+        if (((JointM3 *)p)->setMode(POSITION_CONTROL) != POSITION_CONTROL) {
             // Something bad happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
@@ -151,7 +150,7 @@ bool RobotM3::initVelocityControl() {
     DEBUG_OUT("Initialising Velocity Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((JointM3 *)p)->setMode(VELOCITY_CONTROL, posControlMotorProfile) != VELOCITY_CONTROL) {
+        if (((JointM3 *)p)->setMode(VELOCITY_CONTROL) != VELOCITY_CONTROL) {
             // Something bad happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;

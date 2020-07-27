@@ -29,11 +29,12 @@ M3DemoMachine::M3DemoMachine() {
      *
      */
      NewTransition(calibState, endCalib, standbyState);
-     NewTransition(standbyState, goToState1, pathState);//minJerkState);
+     NewTransition(standbyState, goToState2, pathState);
+     NewTransition(pathState, goToState2, minJerkState);
      NewTransition(minJerkState, goToState2, timingState);
-     NewTransition(timingState, goToState3, endEffDemoState);
-     NewTransition(endEffDemoState, goToState4, impedanceState);
-     NewTransition(impedanceState, goToState1, minJerkState);
+     NewTransition(timingState, goToState2, endEffDemoState);
+     NewTransition(endEffDemoState, goToState2, impedanceState);
+     NewTransition(impedanceState, goToState2, pathState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(calibState);

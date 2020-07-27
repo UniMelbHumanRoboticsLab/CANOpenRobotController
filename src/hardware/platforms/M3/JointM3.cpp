@@ -1,13 +1,3 @@
-/**
- * @file JointM3.cpp
- * @author Vincent Crocher
- * @brief
- * @version 0.1
- * @date 2020-06-16
- *
- * @copyright Copyright (c) 2020
- *
- */
 #include "JointM3.h"
 
 #include <iostream>
@@ -101,7 +91,7 @@ setMovementReturnCode_t JointM3::setTorque(double taud) {
 
 bool JointM3::initNetwork() {
     DEBUG_OUT("JointM3::initNetwork()")
-    if (drive->Init()) {
+    if (((KincoDrive *)drive)->init(posControlMotorProfile)) {
         return true;
     } else {
         return false;

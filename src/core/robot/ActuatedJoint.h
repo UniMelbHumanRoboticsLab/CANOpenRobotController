@@ -188,7 +188,15 @@ public:
          * \param motorProfile variables for desired mode, e.g. postion: v,a and deceleration. Not used in torque control
          * \return ControlMode Configured Drive Mode, -1 if unsuccessful
          */
-    virtual ControlMode setMode(ControlMode driveMode_, motorProfile = motorProfile{0,0,0});
+    virtual ControlMode setMode(ControlMode driveMode_, motorProfile);
+
+    /**
+         * \brief Set the mode of the device (nominally, position, velocity or torque control)
+         *
+         * \param driveMode The mode to be used if possible
+         * \return ControlMode Configured Drive Mode, -1 if unsuccessful
+         */
+    virtual ControlMode setMode(ControlMode driveMode_);
 
     /**
          * \brief Set the Position object

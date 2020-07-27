@@ -1,10 +1,9 @@
-
 /**
  *
  * \file RobotM3.h
  * \author Vincent Crocher
- * \version 0.1
- * \date 2020-06-16
+ * \version 0.2
+ * \date 2020-07-27
  * \copyright Copyright (c) 2020
  *
  * \brief  The<code> RobotM3</ code> class represents an M3 Robot.
@@ -45,11 +44,6 @@ typedef Eigen::Vector3d V3; //! Convenience alias for double  Vector of length 3
  */
 class RobotM3 : public Robot {
    private:
-    /**
-     * \brief motor drive position control profile paramaters, user defined.
-     *
-     */
-    motorProfile posControlMotorProfile{4000000, 240000, 240000};
     float LinkLengths[5] = {0.056, 0.15-0.015, 0.5, 0.465, 0.465+0.15-0.015};   /*!< Link lengths used for kniematic models (in m)*/
     float LinkMasses[5] = {0, 0.450, 0.700, 0.200, 0.95};                        /*!< Link masses used for gravity compensation (in kg)*/
 

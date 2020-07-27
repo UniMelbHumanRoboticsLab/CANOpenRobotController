@@ -1,10 +1,10 @@
 /**
  * /file M3DemoState.h
  * \author Vincent Crocher
- * \version 0.1
- * \date 2020-06-16
- * \copyright Copyright (c) 2020
+ * \version 0.3
+ * \date 2020-07-27
  *
+ * \copyright Copyright (c) 2020
  *
  */
 

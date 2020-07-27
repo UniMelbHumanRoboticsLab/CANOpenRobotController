@@ -5,9 +5,6 @@ double timeval_to_sec(struct timespec *ts)
     return (double)(ts->tv_sec + ts->tv_nsec / 1000000000.0);
 }
 
-
-
-
 V3 impedance(Eigen::Matrix3d K, Eigen::Matrix3d D, V3 X0, V3 X, V3 dX, V3 dXd=V3::Zero()) {
     return K*(X0-X) + D*(dXd-dX);
 }
@@ -86,8 +83,6 @@ void M3DemoState::exitCode(void) {
 
 
 
-
-
 void M3CalibState::entryCode(void) {
     calibDone=false;
     for(unsigned int i=0; i<3; i++) {
@@ -96,7 +91,7 @@ void M3CalibState::entryCode(void) {
     }
     robot->decalibrate();
     robot->initTorqueControl();
-    std::cout << "Calibrating (keep clear)...";
+    std::cout << "Calibrating (keep clear)..." << std::flush;
 }
 //Move slowly on each joint until max force detected
 void M3CalibState::duringCode(void) {
@@ -129,7 +124,7 @@ void M3CalibState::duringCode(void) {
         else {
             robot->setJointTorque(tau);
             if(iterations%100==1) {
-                std::cout << ".";
+                std::cout << "." << std::flush;
             }
         }
     }
@@ -137,7 +132,6 @@ void M3CalibState::duringCode(void) {
 void M3CalibState::exitCode(void) {
     robot->setEndEffForceWithCompensation(V3(0,0,0));
 }
-
 
 
 
@@ -178,8 +172,6 @@ void M3MassCompensation::exitCode(void) {
 
 
 
-
-
 void M3EndEffDemo::entryCode(void) {
     robot->initVelocityControl();
 }
@@ -208,7 +200,6 @@ void M3EndEffDemo::duringCode(void) {
 void M3EndEffDemo::exitCode(void) {
     robot->setEndEffVelocity(V3(0,0,0));
 }
-
 
 
 
@@ -258,6 +249,7 @@ void M3DemoImpedanceState::duringCode(void) {
 void M3DemoImpedanceState::exitCode(void) {
     robot->setEndEffForceWithCompensation(V3::Zero());
 }
+
 
 
 void M3DemoPathState::entryCode(void) {
@@ -310,6 +302,8 @@ void M3DemoPathState::duringCode(void) {
 
     //Apply force with gravity compensation but w/o friction compensation
     robot->setEndEffForceWithCompensation(Fd, false);
+
+    //Display progression
     if(iterations%100==1) {
         std::cout << "Path progress: |";
         for(int i=0; i<round(progress*50.); i++)
@@ -323,6 +317,7 @@ void M3DemoPathState::duringCode(void) {
 void M3DemoPathState::exitCode(void) {
     robot->setEndEffForceWithCompensation(V3::Zero());
 }
+
 
 
 void M3SamplingEstimationState::entryCode(void) {
@@ -370,7 +365,6 @@ void M3SamplingEstimationState::exitCode(void) {
 
 
 
-
 void M3DemoMinJerkPosition::entryCode(void) {
     //Setup velocity control for position over velocity loop
     robot->initVelocityControl();
@@ -405,11 +399,17 @@ void M3DemoMinJerkPosition::duringCode(void) {
         startTime=elapsedTime;
     }
 
-    /*Display status regularly
+    //Display progression
     if(iterations%100==1) {
+        std::cout << "Progress (Point "<< TrajPtIdx << ") |";
+        for(int i=0; i<round(status*50.); i++)
+            std::cout << "=";
+        for(int i=0; i<round((1-status)*50.); i++)
+            std::cout << " ";
+
+        std::cout << "| (" << status*100 << "%)  ";
         robot->printStatus();
-        std::cout << "Xf="<< Xf.transpose() << " Position error: " << (Xd-robot->getEndEffPosition()).norm() << "m." << std::endl;
-    }*/
+    }
 }
 void M3DemoMinJerkPosition::exitCode(void) {
     robot->setJointVelocity(V3::Zero());
