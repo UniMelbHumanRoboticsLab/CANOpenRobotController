@@ -53,8 +53,8 @@ static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
 static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
 
-const float controlLoopPeriodInms = 3;        /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 3;      /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 can lead to unstable communication on some systems */
+const float controlLoopPeriodInms = 2.5;        /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 2.5;      /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 can lead to unstable communication on some systems */
 
 /** @brief Task Timer used for the Control Loop*/
 struct period_info {
@@ -236,7 +236,6 @@ int main(int argc, char *argv[]) {
         if (pthread_join(rt_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }
-
         /* delete objects from memory */
         CANrx_taskTmr_close();
         taskMain_close();

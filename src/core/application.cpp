@@ -16,7 +16,7 @@ LoopTiming loopTimer;
 #define STATE_MACHINE_TYPE ExoTestMachine
 #endif
 
-STATE_MACHINE_TYPE testMachine;
+STATE_MACHINE_TYPE stateMachine;
 
 /*For master-> node SDO message sending*/
 #define CO_COMMAND_SDO_BUFFER_SIZE 100000
@@ -25,28 +25,28 @@ char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(void) {
-    loopTimer.init();
+    //loopTimer.init();
     printf("app_Program Start \n");
-    testMachine.init();
-    testMachine.activate();
+    stateMachine.init();
+    stateMachine.activate();
 }
 /******************************************************************************/
 void app_communicationReset(void) {
 }
 /******************************************************************************/
 void app_programEnd(void) {
-    testMachine.end();
+    stateMachine.end();
     printf("app_programEnd \n");
-    loopTimer.end();
+    //loopTimer.end();
 }
 /******************************************************************************/
 void app_programAsync(uint16_t timer1msDiffy) {
 }
 
 void app_programControlLoop(void) {
-    if (testMachine.running) {
-        testMachine.update();
-        testMachine.hwStateUpdate();
+    if (stateMachine.running) {
+        stateMachine.update();
+        stateMachine.hwStateUpdate();
     }
-    loopTimer.tick();
+    //loopTimer.tick();
 }

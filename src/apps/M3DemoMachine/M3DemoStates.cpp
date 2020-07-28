@@ -137,7 +137,7 @@ void M3CalibState::exitCode(void) {
 
 void M3MassCompensation::entryCode(void) {
     robot->initTorqueControl();
-    std::cout << "Press S to decrease mass (-100g), W to increase (+100g)." << mass << std::endl;
+    std::cout << "Press S to decrease mass (-100g), W to increase (+100g)." << std::endl;
 }
 void M3MassCompensation::duringCode(void) {
 
@@ -164,6 +164,9 @@ void M3MassCompensation::duringCode(void) {
     if(robot->keyboard->getW()) {
         mass +=0.1;
         std::cout << "Mass: " << mass << std::endl;
+    }
+    if(iterations%100==1) {
+        robot->printJointStatus();
     }
 }
 void M3MassCompensation::exitCode(void) {
@@ -193,7 +196,7 @@ void M3EndEffDemo::duringCode(void) {
     //Apply
     robot->setEndEffVelocity(dX);
 
-    if(iterations%20==1) {
+    if(iterations%100==1) {
         robot->printStatus();
     }
 }
@@ -399,7 +402,7 @@ void M3DemoMinJerkPosition::duringCode(void) {
         startTime=elapsedTime;
     }
 
-    //Display progression
+    /*//Display progression
     if(iterations%100==1) {
         std::cout << "Progress (Point "<< TrajPtIdx << ") |";
         for(int i=0; i<round(status*50.); i++)
@@ -409,7 +412,7 @@ void M3DemoMinJerkPosition::duringCode(void) {
 
         std::cout << "| (" << status*100 << "%)  ";
         robot->printStatus();
-    }
+    }*/
 }
 void M3DemoMinJerkPosition::exitCode(void) {
     robot->setJointVelocity(V3::Zero());

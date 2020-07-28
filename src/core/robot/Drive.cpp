@@ -15,7 +15,6 @@ Drive::Drive(int node_id) {
 }
 
 Drive::~Drive() {
-    stop();
 }
 
 
