@@ -60,8 +60,8 @@ baseSocket::~baseSocket()
 //! \return the close(Socket) return value
 int baseSocket::Disconnect()
 {
+    pthread_cancel(ReceivingThread);
     Connected=false;
-    pthread_join(ReceivingThread, NULL);
 
     int ret=close(Socket);
     if(ret==0) {
@@ -206,8 +206,10 @@ void * receiving(void * c)
                 if(command_hash==toprocess[i]) {
                     //Copy received values
                     pthread_mutex_lock(&local->received_mutex);
+                    pthread_cleanup_push((void (*)(void *))pthread_mutex_unlock, (void *)&local->received_mutex); //Ensure that mutex will be unlock on thread cancelation (disconnect)
                     memcpy(local->ReceivedValues, &toprocess[2], local->NbValuesToReceive*sizeof(double));
                     pthread_mutex_unlock(&local->received_mutex);
+                    pthread_cleanup_pop(1); //no unlock on cancellation required anymore at this point
                     local->IsValues=true;
                 }
                 else {

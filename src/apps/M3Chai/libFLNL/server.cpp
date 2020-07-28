@@ -71,10 +71,10 @@ int server::Reconnect()
 //! \return the close(Socket) return value
 int server::Disconnect()
 {
+    pthread_cancel(ReceivingThread);
+    pthread_cancel(AcceptingThread);
     Connected=false;
     Waiting=false;
-    pthread_join(ReceivingThread, NULL);
-    pthread_join(AcceptingThread, NULL);
 
     int ret=close(Socket);
     if(ret==0) {
