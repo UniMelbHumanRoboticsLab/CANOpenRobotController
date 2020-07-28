@@ -8,8 +8,10 @@
  */
 #include "application.h"
 
+#ifdef TIMING_LOG
 #include "LoopTiming.h"
 LoopTiming loopTimer;
+#endif
 
 //Select state machine to use for this application (can be set in cmake)
 #ifndef STATE_MACHINE_TYPE
@@ -25,7 +27,9 @@ char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(void) {
-    //loopTimer.init();
+    #ifdef TIMING_LOG
+    loopTimer.init();
+    #endif
     printf("app_Program Start \n");
     stateMachine.init();
     stateMachine.activate();
@@ -37,7 +41,10 @@ void app_communicationReset(void) {
 void app_programEnd(void) {
     stateMachine.end();
     printf("app_programEnd \n");
-    //loopTimer.end();
+
+    #ifdef TIMING_LOG
+    loopTimer.end();
+    #endif
 }
 /******************************************************************************/
 void app_programAsync(uint16_t timer1msDiffy) {
@@ -48,5 +55,7 @@ void app_programControlLoop(void) {
         stateMachine.update();
         stateMachine.hwStateUpdate();
     }
-    //loopTimer.tick();
+    #ifdef TIMING_LOG
+    loopTimer.tick();
+    #endif
 }
