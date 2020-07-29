@@ -58,7 +58,7 @@
 
 
 #define EXPECTED_DOUBLE_SIZE 8 //Size expected for the doubles: will be checked at startup and should be same on server and client size
-//#define VERBOSE //Talkative ? (connection, every missed message...)
+#define VERBOSE //Talkative ? (connection, every missed message...)
 
 void * receiving(void *c);
 
@@ -85,12 +85,15 @@ class baseSocket
         //!@name Sending methods
         //@{
             int Send(double * values);
+            int Send(const char * cmd);
         //@}
 
         //!@name Receiving methods
         //@{
             bool IsReceivedValues();
             void GetReceivedValues(double val[]);
+            bool IsReceivedCmd();
+            void GetReceivedCmd(char * cmd);
         //@}
 
     protected:
@@ -104,6 +107,8 @@ class baseSocket
         double * ReceivedValuesCpy;         //!< Returned copy of the ReceivedValue
         pthread_mutex_t received_mutex;     //!< Mutex protecting read/writes to received values
         bool IsValues;                      //!< TRUE if last values are received (since last GetReceivedValues()), FALSE otherwise
+        char * ReceivedCmd;
+        bool IsCmd;
         pthread_t ReceivingThread;          //!< Receiving pthread
 };
 

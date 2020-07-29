@@ -17,8 +17,6 @@ void M3CalibState::entryCode(void) {
 }
 //Move slowly on each joint until max force detected
 void M3CalibState::duringCode(void) {
-    //if(Robot->getStatus()==TORQUE_READY)!!!!! TODO
-
     Eigen::Vector3d tau(0, 0, 0);
 
     //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
@@ -58,6 +56,25 @@ void M3CalibState::exitCode(void) {
 
 
 
+void M3ChaiWaitForCommunication::entryCode(void) {
+    robot->setEndEffForceWithCompensation(V3::Zero());
+}
+void M3ChaiWaitForCommunication::duringCode(void) {
+    //Simply transparent mode while not connected
+    robot->setEndEffForceWithCompensation(V3(0,0,0));
+
+    //Attempt to reconnect (wait for client incoming connection)
+    chaiServer->Reconnect();
+
+    if(iterations%100==0)
+        std::cout /*cerr is banned*/ << "M3ChaiCommunication: Wait for connection" << std::endl;
+}
+void M3ChaiWaitForCommunication::exitCode(void) {
+    robot->setEndEffForceWithCompensation(V3(0,0,0));
+}
+
+
+
 
 void M3ChaiCommunication::entryCode(void) {
     F=Eigen::Vector3d::Zero();
@@ -71,11 +88,11 @@ void M3ChaiCommunication::duringCode(void) {
             double force[3];
             chaiServer->GetReceivedValues(force);
             lastReceivedTime = elapsedTime;
-            F=Eigen::Vector3d(-force[0], force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
+            F=V3(-force[0], force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
         } else if(elapsedTime-lastReceivedTime>watchDogTime) {
             //Watchdog: If no fresh values for more than 10ms, fallback
-             F=Eigen::Vector3d::Zero();
-             std::cout /*cerr is banned*/ << "M3ChaiCommunication: No new value received from client in last " << watchDogTime*1000. << "ms: fallback."  << std::endl;
+            F=V3::Zero();
+            std::cout /*cerr is banned*/ << "M3ChaiCommunication: No new value received from client in last " << watchDogTime*1000. << "ms: fallback."  << std::endl;
         }
 
         //Anyway send values
@@ -85,8 +102,10 @@ void M3ChaiCommunication::duringCode(void) {
         chaiServer->Send(x);
     }
     else {
+        if(iterations%100==0)
+            std::cout /*cerr is banned*/ << "M3ChaiCommunication: Reconnecting" << std::endl;
         //Simply transparent mode while not connected
-        F=Eigen::Vector3d::Zero();
+        F=V3::Zero();
         //Attempt to reconnect (wait for client incoming connection)
         chaiServer->Reconnect();
     }
@@ -99,9 +118,9 @@ void M3ChaiCommunication::duringCode(void) {
     }
 
     if(iterations%100==0)
-        std::cout << F.transpose() << std::endl;
+        std::cout << F.transpose() << " X=" << X.transpose() << std::endl;
 }
 void M3ChaiCommunication::exitCode(void) {
-    robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
+    robot->setEndEffForceWithCompensation(V3(0,0,0));
     chaiServer->Disconnect();
 }

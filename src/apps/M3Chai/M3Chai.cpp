@@ -11,8 +11,11 @@ M3Chai::M3Chai() {
 
     // Create PRE-DESIGNED State Machine events and state objects.
     calibState = new M3CalibState(this, robot);
+    waitForCommunicationState = new M3ChaiWaitForCommunication(this, robot, chaiServer);
     communicationState = new M3ChaiCommunication(this, robot, chaiServer);
     endCalib = new EndCalib(this);
+    isConnected = new IsConnected(this);
+    isDisconnected = new IsDisconnected(this);
 
     /**
      * \brief add a tranisition object to the arch list of the first state in the NewTransition MACRO.
@@ -20,7 +23,9 @@ M3Chai::M3Chai() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    NewTransition(calibState, endCalib, communicationState);
+    NewTransition(calibState, endCalib, waitForCommunicationState);
+    NewTransition(waitForCommunicationState, isConnected, communicationState);
+    NewTransition(communicationState, isDisconnected, waitForCommunicationState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(calibState);
@@ -29,7 +34,10 @@ M3Chai::~M3Chai() {
     delete chaiServer;
     delete calibState;
     delete communicationState;
+    delete waitForCommunicationState;
     delete endCalib;
+    delete isConnected;
+    delete isDisconnected;
     delete robot;
 }
 
@@ -80,4 +88,12 @@ void M3Chai::hwStateUpdate(void) {
 
 bool M3Chai::EndCalib::check() {
     return OWNER->calibState->isCalibDone();
+}
+
+bool M3Chai::IsConnected::check() {
+    return OWNER->chaiServer->IsConnected();
+}
+
+bool M3Chai::IsDisconnected::check() {
+    return !OWNER->chaiServer->IsConnected();
 }

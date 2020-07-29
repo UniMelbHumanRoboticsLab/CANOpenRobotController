@@ -200,7 +200,7 @@ setMovementReturnCode_t RobotM3::applyPosition(std::vector<double> positions) {
                 returnValue = INCORRECT_MODE;
             } else if (setPosCode != SUCCESS) {
                 // Something bad happened
-                std::cout /*cerr banned*/ << "Joint " << p->getId() << " error : " << setMovementReturnCodeString[setPosCode] << std::endl;
+                std::cout /*cerr banned*/ << "Joint " << p->getId() << " position error : " << setMovementReturnCodeString[setPosCode] << std::endl;
                 returnValue = UNKNOWN_ERROR;
             }
             i++;
@@ -218,7 +218,7 @@ setMovementReturnCode_t RobotM3::applyVelocity(std::vector<double> velocities) {
             returnValue = INCORRECT_MODE;
         } else if (setVelCode != SUCCESS) {
             // Something bad happened
-            std::cout /*cerr banned*/ << "Joint " << p->getId() << " error : " << setMovementReturnCodeString[setVelCode] << std::endl;
+            std::cout /*cerr banned*/ << "Joint " << p->getId() << " velocity error : " << setMovementReturnCodeString[setVelCode] << std::endl;
             returnValue = UNKNOWN_ERROR;
         }
         i++;
@@ -235,7 +235,7 @@ setMovementReturnCode_t RobotM3::applyTorque(std::vector<double> torques) {
             returnValue = INCORRECT_MODE;
         } else if (setTorCode != SUCCESS) {
             // Something bad happened
-            std::cout /*cerr banned*/ << "Joint " << p->getId() << " error : " << setMovementReturnCodeString[setTorCode] << std::endl;
+            std::cout /*cerr banned*/ << "Joint " << p->getId() << " torque error : " << setMovementReturnCodeString[setTorCode] << std::endl;
             returnValue = UNKNOWN_ERROR;
         }
         i++;
