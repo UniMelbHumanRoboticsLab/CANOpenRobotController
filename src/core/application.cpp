@@ -8,6 +8,7 @@
  */
 #include "application.h"
 
+#include "DebugMacro.h"
 #ifdef TIMING_LOG
 #include "LoopTiming.h"
 LoopTiming loopTimer;

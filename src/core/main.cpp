@@ -43,18 +43,18 @@ bool readyToStart = false;    /*!< Flag used by control thread to indicate CAN s
 uint32_t tmr1msPrev = 0;
 
 /*CAN msg processing thread variables*/
-static int rtPriority = 90;             /*!< priority of rt CANmsg thread */
+static int rtPriority = 90;                     /*!< priority of rt CANmsg thread */
 static void *rt_thread(void *arg);
 static pthread_t rt_thread_id;
-static int rt_thread_epoll_fd;          /*!< epoll file descriptor for rt thread */
+static int rt_thread_epoll_fd;                  /*!< epoll file descriptor for rt thread */
 /* Application Control loop thread */
-static int rtControlPriority = 80;      /*!< priority of application thread */
+static int rtControlPriority = 80;              /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
-static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
+static int rt_control_thread_epoll_fd;          /*!< epoll file descriptor for control thread */
 
-const float controlLoopPeriodInms = 2.5;        /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 2.5;      /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 can lead to unstable communication on some systems */
+const float controlLoopPeriodInms = 2;          /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 2;        /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 can lead to unstable communication on some systems */
 
 /** @brief Task Timer used for the Control Loop*/
 struct period_info {
@@ -67,11 +67,11 @@ static void periodic_task_init(struct period_info *pinfo);
 static void wait_rest_of_period(struct period_info *pinfo);
 /* Forward declartion of CAN helper functions*/
 void configureCANopen(int nodeId, int rtPriority, int CANdevice0Index, char *CANdevice);
-void CO_errExit(char *msg);              /*!< CAN object error code and exit program*/
-void CO_error(const uint32_t info);      /*!< send CANopen generic emergency message */
-volatile uint32_t CO_timer1ms = 0U;      /*!< Global variable increments each millisecond */
-volatile sig_atomic_t CO_endProgram = 0; /*!< Signal handler: controls the end of CAN processing thread*/
-volatile sig_atomic_t endProgram = 0;    /*!< Signal handler: controls the end of application side (rt thread and main)*/
+void CO_errExit(char *msg);                         /*!< CAN object error code and exit program*/
+void CO_error(const uint32_t info);                 /*!< send CANopen generic emergency message */
+volatile uint32_t CO_timer1ms = 0U;                 /*!< Global variable increments each millisecond */
+volatile sig_atomic_t CO_endProgram = 0;            /*!< Signal handler: controls the end of CAN processing thread*/
+volatile sig_atomic_t endProgram = 0;               /*!< Signal handler: controls the end of application side (rt thread and main)*/
 static void sigHandler(int sig) {
     endProgram = 1;
 }
@@ -265,6 +265,7 @@ static void *rt_thread(void *arg) {
         } else if (CANrx_taskTmr_process(ev.data.fd)) {
             /* code was processed in the above function. Additional code process below */
             INCREMENT_1MS(CO_timer1ms);
+
             /* Monitor variables with trace objects */
             CO_time_process(&CO_time);
 #if CO_NO_TRACE > 0

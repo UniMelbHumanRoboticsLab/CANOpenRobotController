@@ -21,6 +21,10 @@ bool ActuatedJoint::start() {
     drive->start();
 }
 
+bool ActuatedJoint::stop() {
+    drive->stop();
+}
+
 //TODO: add in check
 ControlMode ActuatedJoint::setMode(ControlMode driveMode_, motorProfile profile) {
     if (driveMode_ == POSITION_CONTROL) {

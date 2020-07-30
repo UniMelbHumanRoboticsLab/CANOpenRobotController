@@ -2,7 +2,6 @@
 #include "Keyboard.h"
 
 Keyboard::Keyboard() {
-    std::cout << "Keyboard object created, echo disabled" << std::endl;
     keyboardActive = NB_DISABLE;
     nonblock(NB_ENABLE);
     /* obtain the current terminal configuration */
@@ -13,11 +12,12 @@ Keyboard::Keyboard() {
     noecho.c_lflag = noecho.c_lflag ^ ECHO;
     /* set the terminal */
     tcsetattr(STDIN_FILENO, TCSANOW, &noecho);
+    DEBUG_OUT("Keyboard object created, echo disabled");
 }
 Keyboard::~Keyboard() {
     /* restore the terminal settings */
-    std::cout << "Keyboard object deleted, echo enabled" << std::endl;
     tcsetattr(STDIN_FILENO, TCSANOW, &original);
+    DEBUG_OUT("Keyboard object deleted, echo enabled");
 };
 void Keyboard::updateInput() {
     // usleep(1);

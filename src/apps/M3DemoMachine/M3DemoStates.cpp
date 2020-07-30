@@ -26,17 +26,19 @@ void M3DemoState::entryCode(void) {
     //robot->applyCalibration();
     //robot->initPositionControl();
     //robot->initVelocityControl();
-    robot->initTorqueControl();
+    //robot->initTorqueControl();
     qi=robot->getJointPosition();
     Xi=robot->getEndEffPosition();
     //robot->setJointVelocity(V3::Zero());
-    robot->setEndEffForceWithCompensation(V3::Zero(), false);
+    //robot->setEndEffForceWithCompensation(V3::Zero(), false);
+    robot->printJointStatus();
 }
 void M3DemoState::duringCode(void) {
     if(iterations%100==1) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
-        //robot->printJointStatus();
-        robot->printStatus();
+        std::cout << elapsedTime << " ";
+        robot->printJointStatus();
+        //robot->printStatus();
     }
     /*V3 q = robot->getJointPos();
     q(1)=68*M_PI/180.-0.1*elapsedTime;*/
@@ -91,6 +93,7 @@ void M3CalibState::entryCode(void) {
     }
     robot->decalibrate();
     robot->initTorqueControl();
+    robot->printJointStatus();
     std::cout << "Calibrating (keep clear)..." << std::flush;
 }
 //Move slowly on each joint until max force detected
@@ -164,9 +167,6 @@ void M3MassCompensation::duringCode(void) {
     if(robot->keyboard->getW()) {
         mass +=0.1;
         std::cout << "Mass: " << mass << std::endl;
-    }
-    if(iterations%100==1) {
-        robot->printJointStatus();
     }
 }
 void M3MassCompensation::exitCode(void) {
@@ -257,8 +257,8 @@ void M3DemoImpedanceState::exitCode(void) {
 
 void M3DemoPathState::entryCode(void) {
     robot->initTorqueControl();
-    Xi=robot->getEndEffPosition();
     robot->setEndEffForceWithCompensation(V3::Zero(), false);
+    Xi=robot->getEndEffPosition();
 }
 void M3DemoPathState::duringCode(void) {
     V3 X=robot->getEndEffPosition();
@@ -342,7 +342,7 @@ void M3SamplingEstimationState::duringCode(void) {
 
         //Get time and actual value read from CAN to get sampling rate
         dts[iterations-2] = dt;
-        dX[iterations-2] = robot->getEndEffVelocity()[1];
+        dX[iterations-2] = robot->getJointVelocity()[1];
         if(dX[iterations-2]!=dX[iterations-3] && iterations>2 ){ //Value has actually been updated
             new_value++;
         }

@@ -182,6 +182,13 @@ public:
     bool start();
 
     /**
+         * \brief Stop the associated drive CAN node
+         *
+         * \return Return value of drive->stop();
+         */
+    bool stop();
+
+    /**
          * \brief Set the mode of the device (nominally, position, velocity or torque control)
          *
          * \param driveMode The mode to be used if possible

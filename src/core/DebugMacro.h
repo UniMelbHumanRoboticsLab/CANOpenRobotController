@@ -15,7 +15,7 @@
 #include <iostream>
 //#define NOROBOT
 //#define DEBUG
-//#define TIMING_LOG
+#define TIMING_LOG
 #ifdef DEBUG
 #define DEBUG_OUT(x) (std::cout << x << std::endl);
 #else

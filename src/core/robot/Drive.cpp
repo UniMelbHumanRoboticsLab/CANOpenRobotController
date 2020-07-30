@@ -416,6 +416,7 @@ std::vector<std::string> Drive::generateTorqueControlConfigSDO() {
 }
 
 int Drive::sendSDOMessages(std::vector<std::string> messages) {
+
     char *returnMessage;
     int successfulMessages = 0;
     for (auto strCommand : messages) {
@@ -449,6 +450,7 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
         successfulMessages++;
 #endif
     }
+
     return successfulMessages-messages.size();
 }
 

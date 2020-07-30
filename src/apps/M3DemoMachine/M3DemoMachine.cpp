@@ -38,6 +38,7 @@ M3DemoMachine::M3DemoMachine() {
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(calibState);
+    //StateMachine::initialize(testState);
 }
 M3DemoMachine::~M3DemoMachine() {
     delete testState;
