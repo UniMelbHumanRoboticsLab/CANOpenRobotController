@@ -20,7 +20,7 @@ void M3CalibState::duringCode(void) {
     Eigen::Vector3d tau(0, 0, 0);
 
     //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
-    Eigen::Vector3d vel=robot->getJointVel();
+    Eigen::Vector3d vel=robot->getJointVelocity();
     double b = 3.;
     for(unsigned int i=0; i<3; i++) {
         tau(i) = std::min(std::max(2 - b * vel(i), .0), 2.);
@@ -34,7 +34,7 @@ void M3CalibState::duringCode(void) {
 
     //Switch to gravity control when done
     if(robot->isCalibrated()) {
-        robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+        robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
         robot->printJointStatus();
         calibDone=true; //Trigger event
     }
@@ -45,54 +45,82 @@ void M3CalibState::duringCode(void) {
             std::cout << "OK." << std::endl;
         }
         else {
-            robot->setJointTor(tau);
+            robot->setJointTorque(tau);
         }
     }
 }
 void M3CalibState::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+    robot->setEndEffForceWithCompensation(Eigen::Vector3d(0,0,0));
 }
 
+
+
+
+void M3ChaiWaitForCommunication::entryCode(void) {
+    robot->setEndEffForceWithCompensation(V3::Zero());
+}
+void M3ChaiWaitForCommunication::duringCode(void) {
+    //Simply transparent mode while not connected
+    robot->setEndEffForceWithCompensation(V3(0,0,0));
+
+    //Attempt to reconnect (wait for client incoming connection)
+    chaiServer->Reconnect();
+
+    if(iterations%100==0)
+        std::cout /*cerr is banned*/ << "M3ChaiCommunication: Wait for connection" << std::endl;
+}
+void M3ChaiWaitForCommunication::exitCode(void) {
+    robot->setEndEffForceWithCompensation(V3(0,0,0));
+}
 
 
 
 
 void M3ChaiCommunication::entryCode(void) {
     F=Eigen::Vector3d::Zero();
-    robot->setEndEffForWithCompensation(F);
+    robot->setEndEffForceWithCompensation(F);
 }
 void M3ChaiCommunication::duringCode(void) {
 
     //Retrieve values from chai client if exist
     if(chaiServer->IsConnected()) {
         if(chaiServer->IsReceivedValues()) {
-            double *force = new double[3];
-            force = chaiServer->GetReceivedValues();
+            double force[3];
+            chaiServer->GetReceivedValues(force);
             lastReceivedTime = elapsedTime;
-            F=Eigen::Vector3d(-force[0], -force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
-            std::cout << F.transpose() << std::endl;
-
-            F=Eigen::Vector3d::Zero();
-        }
-
-        //Watchdog: If no fresh values for more than 10ms, fallback
-        if(elapsedTime-lastReceivedTime>watchDogTime) {
-             F=Eigen::Vector3d::Zero();
-             std::cout /*cerr is banned*/ << "M3ChaiCommunication: No new value received from client (in last " << watchDogTime*1000. << "ms): fallback."  << std::endl;
+            F=V3(-force[0], force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
+        } else if(elapsedTime-lastReceivedTime>watchDogTime) {
+            //Watchdog: If no fresh values for more than 10ms, fallback
+            F=V3::Zero();
+            std::cout /*cerr is banned*/ << "M3ChaiCommunication: No new value received from client in last " << watchDogTime*1000. << "ms: fallback."  << std::endl;
         }
 
         //Anyway send values
-        X=robot->getEndEffPos();
-        double *x = new double[3]{-X(0),-X(1),X(2)}; //Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
+        X=robot->getEndEffPosition();
+        dX=robot->getEndEffVelocity();
+        double x[6]={-X(0),X(1),X(2),-dX(0),dX(1),dX(2)};  //Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
         chaiServer->Send(x);
     }
     else {
-        F=Eigen::Vector3d::Zero();
+        if(iterations%100==0)
+            std::cout /*cerr is banned*/ << "M3ChaiCommunication: Reconnecting" << std::endl;
+        //Simply transparent mode while not connected
+        F=V3::Zero();
+        //Attempt to reconnect (wait for client incoming connection)
+        chaiServer->Reconnect();
     }
 
     //Apply requested force on top of device gravity compensation
-    robot->setEndEffForWithCompensation(F);
+    if(robot->setEndEffForceWithCompensation(F)!=SUCCESS) {
+         std::cout /*cerr is banned*/ << "M3ChaiCommunication: Error applying force (";
+         robot->printJointStatus();
+         std::cout /*cerr is banned*/  << ")" << std::endl;
+    }
+
+    if(iterations%100==0)
+        std::cout << F.transpose() << " X=" << X.transpose() << std::endl;
 }
 void M3ChaiCommunication::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+    robot->setEndEffForceWithCompensation(V3(0,0,0));
+    chaiServer->Disconnect();
 }

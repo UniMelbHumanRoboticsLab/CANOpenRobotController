@@ -1,11 +1,11 @@
 /**
  * \file M3DemoMachine.h
  * \author Vincent Crocher
- * \version 0.1
- * \date 2020-06-16
- * \copyright Copyright (c) 2020
- *
  * /brief The <code>M3DemoMachine</code> class represents an example implementation of an M3 state machine.
+ * \version 0.2
+ * \date 2020-07-27
+ *
+ * \copyright Copyright (c) 2020
  *
  */
 #ifndef M3_SM_H
@@ -51,8 +51,10 @@ class M3DemoMachine : public StateMachine {
     M3CalibState *calibState;
     M3MassCompensation *standbyState;
     M3DemoState *testState;
+    M3DemoMinJerkPosition* minJerkState;
     M3EndEffDemo *endEffDemoState;
     M3DemoImpedanceState *impedanceState;
+    M3DemoPathState *pathState;
     M3SamplingEstimationState *timingState;
 
    protected:
@@ -60,6 +62,10 @@ class M3DemoMachine : public StateMachine {
 
    private:
     EventObject(EndCalib) * endCalib;
+    EventObject(GoToState1) * goToState1;
+    EventObject(GoToState2) * goToState2;
+    EventObject(GoToState3) * goToState3;
+    EventObject(GoToState4) * goToState4;
 };
 
 #endif /*M3_SM_H*/

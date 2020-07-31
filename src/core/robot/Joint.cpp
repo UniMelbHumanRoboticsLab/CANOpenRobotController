@@ -43,7 +43,7 @@ double Joint::getTorque() {
     return torque;
 }
 
-void Joint::getStatus() {
+void Joint::printStatus() {
     std::cout << "Joint ID " << id << " @ pos " << getPosition() << " deg" << std::endl;
 }
 

@@ -16,6 +16,15 @@
 ActuatedJoint::ActuatedJoint(int jointID, double jointMin, double jointMax, Drive *drive) : Joint(jointID, jointMin, jointMax), calibrated(false) {
     this->drive = drive;
 }
+
+bool ActuatedJoint::start() {
+    drive->start();
+}
+
+bool ActuatedJoint::stop() {
+    drive->stop();
+}
+
 //TODO: add in check
 ControlMode ActuatedJoint::setMode(ControlMode driveMode_, motorProfile profile) {
     if (driveMode_ == POSITION_CONTROL) {
@@ -26,6 +35,29 @@ ControlMode ActuatedJoint::setMode(ControlMode driveMode_, motorProfile profile)
     }
     else if (driveMode_ == VELOCITY_CONTROL) {
         if (drive->initVelControl(profile)) {
+            driveMode = driveMode_;
+            return VELOCITY_CONTROL;
+        }
+    }
+
+    else if (driveMode_ == TORQUE_CONTROL) {
+        if (drive->initTorqueControl()) {
+            driveMode = driveMode_;
+            return TORQUE_CONTROL;
+        }
+    }
+    return ERROR;
+}
+
+ControlMode ActuatedJoint::setMode(ControlMode driveMode_) {
+    if (driveMode_ == POSITION_CONTROL) {
+        if (drive->initPosControl()) {
+            driveMode = driveMode_;
+            return POSITION_CONTROL;
+        }
+    }
+    else if (driveMode_ == VELOCITY_CONTROL) {
+        if (drive->initVelControl()) {
             driveMode = driveMode_;
             return VELOCITY_CONTROL;
         }
