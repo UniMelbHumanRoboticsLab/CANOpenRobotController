@@ -11,8 +11,16 @@ M3DemoMachine::M3DemoMachine() {
     standbyState = new M3MassCompensation(this, robot);
     endEffDemoState = new M3EndEffDemo(this, robot);
     impedanceState = new M3DemoImpedanceState(this, robot);
+    pathState = new M3DemoPathState(this, robot);
+    minJerkState = new M3DemoMinJerkPosition(this, robot);
     timingState = new M3SamplingEstimationState(this, robot);
+
     endCalib = new EndCalib(this);
+    goToState1 = new GoToState1(this);
+    goToState2 = new GoToState2(this);
+    goToState3 = new GoToState3(this);
+    goToState4 = new GoToState4(this);
+
 
     /**
      * \brief add a tranisition object to the arch list of the first state in the NewTransition MACRO.
@@ -20,12 +28,17 @@ M3DemoMachine::M3DemoMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    NewTransition(calibState, endCalib, timingState);
-    //NewTransition(calibState, endCalib, standbyState);
-    //NewTransition(calibState, endCalib, endEffDemoState);
+     NewTransition(calibState, endCalib, standbyState);
+     NewTransition(standbyState, goToState2, pathState);
+     NewTransition(pathState, goToState2, minJerkState);
+     NewTransition(minJerkState, goToState2, timingState);
+     NewTransition(timingState, goToState2, endEffDemoState);
+     NewTransition(endEffDemoState, goToState2, impedanceState);
+     NewTransition(impedanceState, goToState2, pathState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(calibState);
+    //StateMachine::initialize(testState);
 }
 M3DemoMachine::~M3DemoMachine() {
     delete testState;
@@ -79,3 +92,18 @@ void M3DemoMachine::hwStateUpdate(void) {
 bool M3DemoMachine::EndCalib::check() {
     return OWNER->calibState->isCalibDone();
 }
+
+
+bool M3DemoMachine::GoToState1::check() {
+    return (OWNER->robot->joystick->isButtonPressed(0) || OWNER->robot->keyboard->getNb()==0);
+}
+bool M3DemoMachine::GoToState2::check() {
+    return (OWNER->robot->joystick->isButtonPressed(1) || OWNER->robot->keyboard->getNb()==1);
+}
+bool M3DemoMachine::GoToState3::check() {
+    return (OWNER->robot->joystick->isButtonPressed(2) || OWNER->robot->keyboard->getNb()==2);
+}
+bool M3DemoMachine::GoToState4::check() {
+    return (OWNER->robot->joystick->isButtonPressed(3) || OWNER->robot->keyboard->getNb()==3);
+}
+

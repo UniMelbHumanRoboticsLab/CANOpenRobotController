@@ -5,16 +5,16 @@
  * /author      William Campbell
  * /date 2020-04-09
  * /copyright Copyright (c) 2020
- * 
+ *
  * This file is an adaptation of CANopenSocket, a Linux implementation of CANopen
  * stack with master functionality. Project home page is
  * <https://github.com/CANopenNode/CANopenSocket>. CANopenSocket is based
  * on CANopenNode: <https://github.com/CANopenNode/CANopenNode>.
  *
  * The adaptation is specifically designed for use with the RobotCANControl design stack and
- * a multi limbed robot. It has been tested using a Beagle Bone black and the Fourier Intelligence X2 
+ * a multi limbed robot. It has been tested using a Beagle Bone black and the Fourier Intelligence X2
  * exoskelton in a lab testing setting.It can be addapted for use with other CANopen enabled linux based robotic projects.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -44,7 +44,6 @@
 #include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
-// Simple logging
 
 #include "CANopen.h"
 extern "C" {

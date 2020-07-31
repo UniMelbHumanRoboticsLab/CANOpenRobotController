@@ -1,4 +1,3 @@
-
 /**
  * \file KincoDrive.h
  * \author Justin Fong
@@ -6,9 +5,9 @@
  *
  * This class enables low level functions to the system. It does limited error
  * checking.
- * \version 0.1
- * \date 2020-06-16
- * \version 0.1
+ * \version 0.2
+ * \date 2020-07-27
+ *
  * \copyright Copyright (c) 2020
  *
  */
@@ -35,15 +34,22 @@ class KincoDrive : public Drive {
          */
     ~KincoDrive();
     /**
-         * Setup PDOs and initialises the drive (SDO start message)
+         * Setup PDOs and initialises the drive
          *
          * \return True if successful, False if not
          */
-    bool Init();
+    bool init();
+    /**
+         * Setup PDOs and motor profile (acceleration and velocity)
+         *
+         * \return True if successful, False if not
+         */
+    bool init(motorProfile profile);
     /**
      * \todo Move jointMinMap and jointMaxMap to set additional parameters (bit 5 in 0x6041 makes updates happen immediately)
      *
      */
+
     /**
          * Sets the drive to Position control with default parameters (through SDO messages)
          *
@@ -53,6 +59,7 @@ class KincoDrive : public Drive {
          * \return false if not
          */
     bool initPosControl(motorProfile posControlMotorProfile);
+    bool initPosControl();
     /**
          * Sets the drive to Velocity control with default parameters (through SDO messages)
          *
@@ -62,6 +69,7 @@ class KincoDrive : public Drive {
          * \return false if not
          */
     bool initVelControl(motorProfile velControlMotorProfile);
+    bool initVelControl();
 
     /**
          * Sets the drive to Torque control with default parameters (through SDO messages)
@@ -93,10 +101,6 @@ class KincoDrive : public Drive {
           */
 
     bool initPDOs();
-
-    std::vector<std::string> generatePosControlConfigSDO(motorProfile positionProfile);
-    std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
-    std::vector<std::string> generateTorqueControlConfigSDO();
 };
 
 #endif

@@ -39,6 +39,16 @@ enum setMovementReturnCode_t {
     NOT_CALIBRATED = -3,
     UNKNOWN_ERROR = -100
 };
+/**
+ * setMovementReturnCode_t explicit description
+ */
+static std::map<setMovementReturnCode_t, std::string> setMovementReturnCodeString = {
+    {SUCCESS, "Ok."},
+    {OUTSIDE_LIMITS, "Outside of limits."},
+    {INCORRECT_MODE, "Incorrect drive mode"},
+    {NOT_CALIBRATED, "Not calibrated."},
+    {UNKNOWN_ERROR, "Unknown error."}
+};
 
 /**
  * @ingroup Joint
@@ -165,13 +175,35 @@ public:
     ActuatedJoint(int jointID, double jointMin, double jointMax, Drive *drive);
 
     /**
+         * \brief Start the associated drive CAN node (will start produce PDOs)
+         *
+         * \return Return value of drive->start();
+         */
+    bool start();
+
+    /**
+         * \brief Stop the associated drive CAN node
+         *
+         * \return Return value of drive->stop();
+         */
+    bool stop();
+
+    /**
          * \brief Set the mode of the device (nominally, position, velocity or torque control)
          *
          * \param driveMode The mode to be used if possible
          * \param motorProfile variables for desired mode, e.g. postion: v,a and deceleration. Not used in torque control
          * \return ControlMode Configured Drive Mode, -1 if unsuccessful
          */
-    virtual ControlMode setMode(ControlMode driveMode_, motorProfile = motorProfile{0,0,0});
+    virtual ControlMode setMode(ControlMode driveMode_, motorProfile);
+
+    /**
+         * \brief Set the mode of the device (nominally, position, velocity or torque control)
+         *
+         * \param driveMode The mode to be used if possible
+         * \return ControlMode Configured Drive Mode, -1 if unsuccessful
+         */
+    virtual ControlMode setMode(ControlMode driveMode_);
 
     /**
          * \brief Set the Position object

@@ -1,6 +1,6 @@
 /**
  * @brief An implementation of the Drive Object, specifically for the Copley Drive
- * 
+ *
  */
 #include "CopleyDrive.h"
 
@@ -15,7 +15,7 @@ CopleyDrive::~CopleyDrive() {
     DEBUG_OUT(" CopleyDrive Deleted ")
 }
 
-bool CopleyDrive::Init() {
+bool CopleyDrive::init() {
     return false;
 }
 
@@ -25,7 +25,7 @@ bool CopleyDrive::initPosControl(motorProfile posControlMotorProfile) {
     sendSDOMessages(generatePosControlConfigSDO(posControlMotorProfile));
     /**
      * \todo Move jointMinMap and jointMaxMap to set additional parameters (bit 5 in 0x6041 makes updates happen immediately)
-     * 
+     *
      */
     return true;
 }
@@ -35,7 +35,7 @@ bool CopleyDrive::initVelControl(motorProfile velControlMotorProfile) {
     /**
      * \todo create velControlMOTORPROFILE and test on exo
      * \todo Tune velocity loop gain index 0x2381 to optimize V control
-     * 
+     *
     */
     sendSDOMessages(generateVelControlConfigSDO(velControlMotorProfile));
     return true;
@@ -47,6 +47,7 @@ bool CopleyDrive::initTorqueControl() {
 
     return true;
 }
+
 std::vector<std::string> CopleyDrive::generatePosControlConfigSDO(motorProfile positionProfile) {
     return Drive::generatePosControlConfigSDO(positionProfile); /*<!execute base class function*/
 };

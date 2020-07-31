@@ -18,7 +18,7 @@
 #include "DebugMacro.h"
 #include "RobotM3.h"
 #include "State.h"
-#include "server.h"
+#include "FLNL.h"
 
 /**
  * \brief Conversion from a timespec structure to seconds (double)
@@ -118,6 +118,21 @@ class M3CalibState : public M3TimedState {
 };
 
 
+class M3ChaiWaitForCommunication : public M3TimedState {
+
+   public:
+    M3ChaiWaitForCommunication(StateMachine *m, RobotM3 *M3, server *s, const char *name = "M3 Chai 3D wait for communication"):M3TimedState(m, M3, name), chaiServer(s){};
+
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
+
+   private:
+     server *chaiServer;
+     double watchDogTime = 0.010; //Watchdog time in s
+     Eigen::Vector3d F;
+};
+
 /**
  * \brief Receive and apply force commands from Chai and send robot state update update.
  *
@@ -135,7 +150,7 @@ class M3ChaiCommunication : public M3TimedState {
      server *chaiServer;
      double watchDogTime = 0.010; //Watchdog time in s
      double lastReceivedTime;
-     Eigen::Vector3d F, X;
+     Eigen::Vector3d F, X, dX;
 
 };
 
