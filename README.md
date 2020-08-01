@@ -32,7 +32,7 @@ The following instructions detail the building and testing of a simple test stat
 
 These instructions assume that you have a suitable test platform (i.e. a Target), and a workbench environment (i.e. a Host).
 
-Specifically, the target that these instructions have been written for (and tested on) is a BeagleBone Black running Debian Stretch 9.5 [Firmware](http://beagleboard.org/latest-images). Theoretically, this can be built on other distributions and Linux platforms as well, but they have not yet been tested.
+Specifically, the target that these instructions have been written for (and tested on) is a BeagleBone Black running Debian Stretch 9.5 [Firmware](http://beagleboard.org/latest-images). Theoretically, this can be built on other distributions and Linux platforms as well, but they have not yet been tested. If you use a Beagle Bone AI see instructions [here](doc/BBAISetup.md) to setup the CAN device.
 
 These instructions have been tested on a number of different host workbench build environments, but instructions on setting these up can be found [here](https://exoembedded.readthedocs.io/en/latest/workbench/). We recommend trying option A if possible.
 
