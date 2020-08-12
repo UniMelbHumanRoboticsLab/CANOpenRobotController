@@ -44,26 +44,30 @@ private:
     void initializeLogger(int bufferSize);
     void updateLogElements();
 
-    int controller_type = 3;
+    int controller_type = 2;
+
+    bool logSaved = false;
 
     double inputHistory_[2] = {0,0};
     double outputHistory_[2] = {0,0};
-    double t_step = 0.025;
+    double t_step = 0.0025;
 
-    double mass = 100;
-    double b = 5;
+    double m = 5;
+    double b = 2;
 
     Eigen::VectorXd jointPositions_;
     Eigen::VectorXd jointVelocities_;
     Eigen::VectorXd jointTorques_;
-    Eigen::VectorXd desiredjointVelocities_;
-    Eigen::VectorXd desiredjointTorques_;
+    Eigen::VectorXd desiredJointVelocities_;
+    Eigen::VectorXd desiredJointTorques_;
+    Eigen::VectorXd interactionForces_;
     double time;
 
     bool move = false;
     double timeStop;
 
     double static_fric;
+    double dynamic_const_fric;
     double vel_theresh;
     double J;
     double virtMassRatio;
@@ -71,6 +75,7 @@ private:
     double feedBackTorque;
     double M;
     double c0;
+    double c1;
 
 };
 

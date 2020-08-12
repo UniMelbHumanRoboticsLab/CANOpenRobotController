@@ -61,7 +61,7 @@ bool Drive::setPos(int position) {
 }
 
 bool Drive::setVel(int velocity) {
-//    DEBUG_OUT("Drive " << NodeID << " Writing " << velocity << " to 0x60FF");
+    DEBUG_OUT("Drive " << NodeID << " Writing " << velocity << " to 0x60FF");
     *(&CO_OD_RAM.targetMotorVelocities.motor1 + ((this->NodeID - 1))) = velocity;
     return true;
 }
