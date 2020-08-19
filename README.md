@@ -9,7 +9,7 @@ The project has been under development at the University of Melbourne in partner
 ## The CANOpen Robot Controller project includes:
 
 - An extensible framework to represent multibody robotic systems.
-- An event driven state machine to develop custom applications.
+- An event driven state machine to develop custom applications (see [here](doc/StateMachine.md))
 - An implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers/sensors.
 - [Documentation](https://unimelb-human-robotics-lab.github.io//CANOpenRobotController/index.html)
 - Functional application examples.
@@ -20,9 +20,9 @@ The code is structured into 3 levels:
 
 1. **CANopen Communications Level:** Provides the CAN-level communications, providing the mechanisms for the sending and receiving of PDO and SDO messages
 2. **The Robot Level:** Defines the components of the Robot to be controlled, including the joints, associated drives, and input devices
-3. **The State Machine and Trajectory Generator:** Defines the high level logic for the device, and the trajectories to be used.
+3. **The Application Layer:** Defines the high level logic for the device, based on the implementation of a State Machine.
 
-Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The CANopen Communications level should not need to be changed. The Robot level should only change with respect if the robot to be controlled changes. This is loosely enforced by the source code folder structure - the files which should not need modification are placed in the `src/libs` folder, and the remainder are placed in the `src/apps` folder. Due to this, thus there are base classes in the `libs` folder which are derived in the `apps` folder.
+Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The CANopen Communications level should not need to be changed. The Robot level should only change with respect if the robot to be controlled changes. This is loosely enforced by the source code folder structure - the files which should not need modification are placed in the `src/core` folder, and the remainder are placed in the `src/apps` and `src/hardware` folders. Note that in addition to the CANopen Communication code, the `src/core` folder also includes base classes which are derived from in the `src/apps` and `src/hardware` folders. 
 
 ## Getting started with CORC
 
@@ -49,16 +49,40 @@ This repository includes all the sources files required for this example.
 
 ### Building ExoTestMachine
 
-On the host, build the executable:
+On the host, generate a cross-compiled executable (suitable for running on a Beaglebone Black) using the following commands:
+```bash
+$ mkdir build
+$ cd build
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+$ make
+```
+> Note: To run on a Windows machine, you may need to also add the `-G "Unix Makefiles"` flag to the `cmake` command (i.e. `cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..`). This forces the Unix Makefile format, rather than the default nmake behaviour on Windows. 
+
+or in short:
+```bash
+$ mkdir build && cd build/ && cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+```
+> Note that this requires an appropriately configured toolchain (`arm-linux-gnueabihf-` toolchain). See "Before you start" to setup a proper workbench if required.
+
+Alternatively, if your host is a Linux-based machine, you can build the executable for local test as follows:
 
 ```bash
-$ cd <CANOpenRobotController_directory>
-$ make exe
+$ cd <CANOpenRobotController_directory/build>
+$ cmake ../
+$ make
 ```
-
 > Note: there are also some additional build rules to build additional tests, which are still to be completed
 
-The makefile is configured to compile an executable `EXO_APP_2020` using the `arm-linux-gnueabihf-g++` compiler. Note that this requires an appropriately configured workbench environment (see "Before you start").
+The makefile is configured to compile an executable `ExoTestMachine_APP` using the default C/C++ compilers. 
+
+
+### Building a custom application with a custom state machine
+
+Derive the StateMachine class to a custom one (see [here for details](doc/StateMachine.md)), named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. Place them in a dedicated subfolder in the apps folder.
+
+Edit CMakeLists.txt and change the entry `set (STATE_MACHINE_NAME "ExoTestMachine")` with `set (STATE_MACHINE_NAME "MyCustomStateMachine")`.
+
+That's it, simply use the same build procedure.
 
 ### Transferring files to the Linux platform
 
@@ -66,11 +90,13 @@ The recommended method of transferring files to the BeagleBone is FTP.
 
 Using an FTP Client on the Host (if you do not have one - or a preferred client, [FileZilla](https://filezilla-project.org/) is reasonable), connect to the target (the BeagleBone). By default, when the BeagleBone is connected to a computer using USB, it is configured to:
 
-- **IP Address:** 192.168.7.2 (Windows) or 192.168.6.2 (OSX)
+- **IP Address:** 192.168.7.2 (Windows) or 192.168.6.2 (OSX and Linux)
 - **Username:** debian
 - **Password:** temppwd
 
-On the host, using the FTP client, transfer the build executable in `build/EXO_APP_2020`, along with the contents of the `initRobot` folder, to the Beaglebone.
+On the host, using the FTP client, transfer the build executable in `build/ExoTestMachine_APP`, along with the contents of the `initRobot` folder, to the Beaglebone.
+
+Alternatively, you can use the [script/uploadBB.sh](script/uploadBB.sh) to automatically upload the content of the script folder and the build/\*APP to the BeagleBone.
 
 > Note: The `initRobot` folder contains scripts for setting up the CAN interfaces that CORC uses for communication
 
@@ -85,7 +111,7 @@ $ ssh debian@192.168.7.2
 At this point, you will need to change the permissions of the executables to executable. You can do this using the the `chmod +x` command on the target. e.g.
 
 ```bash
-$ chmod +x EXO_APP_2020
+$ chmod +x ExoTestMachine_APP
 ```
 
 This must be repeated for the `.sh` scripts as well.
@@ -105,7 +131,7 @@ SSH into the BeagleBone in a second terminal window to launch the application:
 
 ```bash
 $$  cd build
-$$  sudo ./EXO_APP_2020
+$$  sudo ./ExoTestMachine_APP
 ```
 
 > Note: Superuser privileges (`sudo`) are required due to the use of real time threads in the application.
