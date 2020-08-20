@@ -2,7 +2,6 @@
 #include "Keyboard.h"
 
 Keyboard::Keyboard() {
-    std::cout << "Keyboard object created, echo disabled" << std::endl;
     keyboardActive = NB_DISABLE;
     nonblock(NB_ENABLE);
     /* obtain the current terminal configuration */
@@ -13,11 +12,12 @@ Keyboard::Keyboard() {
     noecho.c_lflag = noecho.c_lflag ^ ECHO;
     /* set the terminal */
     tcsetattr(STDIN_FILENO, TCSANOW, &noecho);
+    DEBUG_OUT("Keyboard object created, echo disabled");
 }
 Keyboard::~Keyboard() {
     /* restore the terminal settings */
-    std::cout << "Keyboard object deleted, echo enabled" << std::endl;
     tcsetattr(STDIN_FILENO, TCSANOW, &original);
+    DEBUG_OUT("Keyboard object deleted, echo enabled");
 };
 void Keyboard::updateInput() {
     // usleep(1);
@@ -65,7 +65,13 @@ void Keyboard::setKeys() {
         default:
             keyboardActive = 0;
     }
+    //Number keys
+    if(ch>=48 && ch<48+10){
+        currentKeyStates.Nb[ch-48] = true;
+        keyboardActive = 1;
+    }
 }
+
 key_states Keyboard::getStates() {
     key_states current_state = {this->currentKeyStates.a, this->currentKeyStates.s,
                                 this->currentKeyStates.d, this->currentKeyStates.w, this->currentKeyStates.x};
@@ -96,6 +102,10 @@ void Keyboard::printPressed() {
         std::cout
             << "PRESSED Q " << std::endl;
     }
+    if (getNb()>0) {
+        std::cout
+            << "PRESSED " << getNb() << std::endl;
+    }
 }
 void Keyboard::clearCurrentStates() {
     currentKeyStates.a = false;
@@ -104,6 +114,8 @@ void Keyboard::clearCurrentStates() {
     currentKeyStates.w = false;
     currentKeyStates.x = false;
     currentKeyStates.q = false;
+    for(unsigned int i=0; i<10; i++)
+        currentKeyStates.Nb[i] = false;
 }
 bool Keyboard::getA() {
     return currentKeyStates.a;
@@ -123,6 +135,14 @@ bool Keyboard::getX() {
 };
 bool Keyboard::getQ() {
     return currentKeyStates.q;
+};
+int Keyboard::getNb() {
+    for(unsigned int i=0; i<10; i++) {
+        if(currentKeyStates.Nb[i]){
+            return i;
+        }
+    }
+    return -1;
 };
 int Keyboard::kbhit() {
     struct timeval tv;

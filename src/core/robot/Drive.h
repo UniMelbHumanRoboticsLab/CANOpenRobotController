@@ -1,4 +1,3 @@
-
 /**
  * \file Drive.h
  * \author Justin Fong
@@ -9,6 +8,7 @@
  * \version 0.1
  * \date 2020-04-07
  * \version 0.1
+ *
  * \copyright Copyright (c) 2020
  *
  */
@@ -154,6 +154,16 @@ class Drive {
 
     /**
        *
+       * \brief  Start the drive node and set the Position control in CANopen motor drive
+       *
+       *
+       * NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
+       *           https://www.can-cia.org/can-knowledge/canopen/cia402/
+       */
+    std::vector<std::string> generatePosControlConfigSDO();
+
+    /**
+       *
        * \brief  Generates the list of commands required to configure Velocity control in CANopen motor drive
        *
        *
@@ -167,6 +177,16 @@ class Drive {
        *           https://www.can-cia.org/can-knowledge/canopen/cia402/
        */
     std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
+
+    /**
+       *
+       * \brief  Start the drive node and set the Velcoity control in CANopen motor drive
+       *
+       *
+       * NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
+       *           https://www.can-cia.org/can-knowledge/canopen/cia402/
+       */
+    std::vector<std::string> generateVelControlConfigSDO();
 
     /**
        *
@@ -249,24 +269,24 @@ class Drive {
     Drive();
 
     /**
-           * \brief Construct a new Drive object
-           *
-           * \param node_id the CANopen Node ID of this drive
-           */
+       * \brief Construct a new Drive object
+       *
+       * \param node_id the CANopen Node ID of this drive
+       */
     Drive(int node_id);
 
     /**
-           * \brief Destroy the Drive object
-           *
-           */
+       * \brief Destroy the Drive object
+       *
+       */
     virtual ~Drive();
 
     /**
-           * \brief Initialises the drive (SDO start message)
-           *
-           * \return True if successful, False if not
-           */
-    virtual bool Init() = 0;
+       * \brief Initialises the drive (SDO start message)
+       *
+       * \return True if successful, False if not
+       */
+    virtual bool init() = 0;
 
     /**
        * \brief Send NMT preop command to the drive node
@@ -306,6 +326,14 @@ class Drive {
     virtual bool initPDOs();
 
     /**
+           * \brief Initialises velocity and acceleration profiles (used by position and velocity controls) through SDOs write
+           *
+           * \return true if sucessfull
+           * \return false otherwise
+           */
+    virtual bool setMotorProfile(motorProfile profile);
+
+    /**
            * Sets the drive to Position control with set parameters (through SDO messages)
            *
            * Note: Should be overloaded to allow parameters to be set
@@ -315,7 +343,8 @@ class Drive {
            * \return true if successful
            * \return false if not
            */
-    virtual bool initPosControl(motorProfile posControlMotorProfile) = 0;
+    virtual bool initPosControl(motorProfile posControlMotorProfile) { return false; };
+    virtual bool initPosControl() { return false; };
 
     /**
            * Sets the drive to Velocity control with default parameters (through SDO messages)
@@ -325,7 +354,8 @@ class Drive {
            * \return true if successful
            * \return false if not
            */
-    virtual bool initVelControl(motorProfile velControlMotorProfile) = 0;
+    virtual bool initVelControl(motorProfile velControlMotorProfile) { return false; };
+    virtual bool initVelControl() { return false; };
 
     /**
            * Sets the drive to Torque control with default parameters (through SDO messages)
@@ -335,7 +365,7 @@ class Drive {
            * \return true if successful
            * \return false if not
            */
-    virtual bool initTorqueControl() = 0;
+    virtual bool initTorqueControl() { return false; };
 
     /**
            * Updates the internal representation of the state of the drive

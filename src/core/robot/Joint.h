@@ -309,7 +309,7 @@ class Joint {
      * @brief prints out the status of the joints current position in degrees
      *
      */
-    void getStatus();
+    void printStatus();
     /**
      * @brief  Updates the value of the joint. This will read the value from hardware, and
      * update the software's current representation of the value

@@ -15,6 +15,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread" )
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON )
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
+
 #Flags (Release is the default)
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -25,7 +26,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 # Select the application by setting the state machine to use.
 # If your application use ROS, don't forget to change the flag at the top.
 #(should be the class name and have corresponding header naming in a corresponding folder)
-#set (STATE_MACHINE_NAME "M3DemoMachine")
+set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "M3Chai")
 set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
@@ -70,6 +71,8 @@ list(REMOVE_DUPLICATES INCLUDE_DIRS)
 ## Add libraries headers
 list (APPEND INCLUDE_DIRS lib/)
 
+
+
 # Executable name: {STATEMACHINENAME}_APP
 add_executable(${STATE_MACHINE_NAME}_APP
         ${SOURCES}
@@ -87,3 +90,6 @@ target_link_libraries(${STATE_MACHINE_NAME}_APP ${CMAKE_THREAD_LIBS_INIT})
 if(USE_ROS)
     target_link_libraries(${STATE_MACHINE_NAME}_APP ${catkin_LIBRARIES})
 endif()
+
+
+message("-----------------------------------------------\nBuilding application ${STATE_MACHINE_NAME}_APP\n-----------------------------------------------")

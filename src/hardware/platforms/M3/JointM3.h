@@ -2,8 +2,8 @@
  * \file JointM3.h
  * \author Vincent Crocher
  * \brief An M3 actuated joint
- * \version 0.1
- * \date 2020-06-16
+ * \version 0.2
+ * \date 2020-07-27
  *
  * \copyright Copyright (c) 2020
  *
@@ -37,6 +37,12 @@ class JointM3 : public Joint {
     int jointVelocityToDriveUnit(double jointValue) { return sign * jointValue / (2. * M_PI) * 60. * 512. * (double)encoderCounts / 1875 * reductionRatio; };
     double driveUnitToJointTorque(int driveValue) { return sign * driveValue / Ipeak / 1.414 * motorTorqueConstant * reductionRatio; };
     int jointTorqueToDriveUnit(double jointValue) { return sign * jointValue * Ipeak * 1.414 / motorTorqueConstant / reductionRatio; };
+
+    /**
+     * \brief motor drive position control profile paramaters, user defined.
+     *
+     */
+    motorProfile posControlMotorProfile{4000000, 240000, 240000};
 
    public:
     JointM3(int jointID, double q_min, double q_max, short int sign_ = 1, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0, KincoDrive *drive = NULL);

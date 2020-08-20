@@ -1,10 +1,9 @@
-
 /**
  *
  * \file RobotM3.h
  * \author Vincent Crocher
- * \version 0.1
- * \date 2020-06-16
+ * \version 0.2
+ * \date 2020-07-27
  * \copyright Copyright (c) 2020
  *
  * \brief  The<code> RobotM3</ code> class represents an M3 Robot.
@@ -22,6 +21,8 @@
 #include "Joystick.h"
 #include "Robot.h"
 
+
+typedef Eigen::Vector3d V3; //! Convenience alias for double  Vector of length 3
 
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
@@ -43,13 +44,8 @@
  */
 class RobotM3 : public Robot {
    private:
-    /**
-     * \brief motor drive position control profile paramaters, user defined.
-     *
-     */
-    motorProfile posControlMotorProfile{4000000, 240000, 240000};
     float LinkLengths[5] = {0.056, 0.15-0.015, 0.5, 0.465, 0.465+0.15-0.015};   /*!< Link lengths used for kniematic models (in m)*/
-    float LinkMasses[5] = {0, 0.450, 0.700, 0.200, 0.9};                        /*!< Link masses used for gravity compensation (in kg)*/
+    float LinkMasses[5] = {0, 0.450, 0.700, 0.200, 0.95};                        /*!< Link masses used for gravity compensation (in kg)*/
 
     Eigen::Vector3d qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
 
@@ -177,19 +173,19 @@ class RobotM3 : public Robot {
     Eigen::Vector3d inverseKinematic(Eigen::Vector3d X);
     Eigen::Vector3d calculateGravityTorques();
 
-    Eigen::Vector3d getJointPos();
-    Eigen::Vector3d getJointVel();
-    Eigen::Vector3d getJointTor();
-    Eigen::Vector3d getEndEffPos();
-    Eigen::Vector3d getEndEffVel();
-    Eigen::Vector3d getEndEffFor();
+    Eigen::Vector3d getJointPosition();
+    Eigen::Vector3d getJointVelocity();
+    Eigen::Vector3d getJointTorque();
+    Eigen::Vector3d getEndEffPosition();
+    Eigen::Vector3d getEndEffVelocity();
+    Eigen::Vector3d getEndEffForce();
 
-    setMovementReturnCode_t setJointPos(Eigen::Vector3d q);
-    setMovementReturnCode_t setJointVel(Eigen::Vector3d q);
-    setMovementReturnCode_t setJointTor(Eigen::Vector3d tau);
-    setMovementReturnCode_t setEndEffPos(Eigen::Vector3d X);
-    setMovementReturnCode_t setEndEffVel(Eigen::Vector3d dX);
-    setMovementReturnCode_t setEndEffFor(Eigen::Vector3d F);
-    setMovementReturnCode_t setEndEffForWithCompensation(Eigen::Vector3d F);
+    setMovementReturnCode_t setJointPosition(Eigen::Vector3d q);
+    setMovementReturnCode_t setJointVelocity(Eigen::Vector3d q);
+    setMovementReturnCode_t setJointTorque(Eigen::Vector3d tau);
+    setMovementReturnCode_t setEndEffPosition(Eigen::Vector3d X);
+    setMovementReturnCode_t setEndEffVelocity(Eigen::Vector3d dX);
+    setMovementReturnCode_t setEndEffForce(Eigen::Vector3d F);
+    setMovementReturnCode_t setEndEffForceWithCompensation(Eigen::Vector3d F, bool friction_comp=true);
 };
 #endif /*RobotM3_H*/
