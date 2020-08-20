@@ -187,23 +187,28 @@ class Joint {
     /**
     * @brief Fetches the joint position from the hardware (e.g. Drive) and converts to joint units
     * 
+    * Default behaviour is to take value from the Drive object if actuated. Should be overloaded for non-drive joints
+    * 
     * @return double the current position of the joint
     */
-    double updatePosition();
+    virtual double updatePosition();
 
     /**
     * @brief Fetches the joint velocity from the hardware (e.g. Drive) and converts to joint units
-    * 
+    *
+    * Default behaviour is to take value from the Drive object if actuated. Should be overloaded for non-drive joints
     * @return double the current velocity of the joint 
     */
-    double updateVelocity();
+    virtual double updateVelocity();
 
     /**
     * @brief Fetches the joint torque from the hardware (e.g. Drive) and converts to joint units
     * 
+    * Default behaviour is to take value from the Drive object if actuated. Should be overloaded for non-drive joints
+    * 
     * @return double the current torque of the joint 
     */
-    double updateTorque();
+    virtual double updateTorque();
 
    public:
     /**
@@ -312,7 +317,7 @@ class Joint {
      * @return true if successful
      * @return false if unsuccessful
      */
-    virtual bool updateValue() = 0;
+    virtual bool updateValue();
     /**
      * @brief Pure virtual function for initialising the underlying CANopen Network
      * to send and recieve PDO messages for this joint.

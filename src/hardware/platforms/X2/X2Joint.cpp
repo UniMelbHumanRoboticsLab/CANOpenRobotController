@@ -45,26 +45,6 @@ double X2Joint::driveUnitToJointTorque(int driveValue) {
     return driveValue * (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000.0);
 }
 
-bool X2Joint::updateValue() {
-    position = Joint::getPosition();
-    velocity = Joint::getVelocity();
-    torque = Joint::getTorque();
-
-    return true;
-}
-
-setMovementReturnCode_t X2Joint::setPosition(double desiredPosition) {
-    return Joint::setPosition(desiredPosition);
-}
-
-setMovementReturnCode_t X2Joint::setVelocity(double desiredVelocity) {
-    return Joint::setVelocity(desiredVelocity);
-}
-
-setMovementReturnCode_t X2Joint::setTorque(double desiredTorque) {
-    return Joint::setTorque(desiredTorque);
-}
-
 bool X2Joint::initNetwork() {
     DEBUG_OUT("Joint::initNetwork()")
     drive->start();

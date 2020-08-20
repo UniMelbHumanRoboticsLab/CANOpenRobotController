@@ -20,9 +20,9 @@ DummyActJoint::DummyActJoint(int jointID, double jointMin, double jointMax, Driv
 }
 
 bool DummyActJoint::updateValue() {
-    position = Joint::getPosition();
-    velocity = Joint::getVelocity();
-    torque = Joint::getTorque();
+    position = Joint::updatePosition();
+    velocity = Joint::updateVelocity();
+    torque = Joint::updateTorque();
 
     return true;
 }

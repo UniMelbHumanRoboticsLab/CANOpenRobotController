@@ -41,9 +41,6 @@ class JointM3 : public Joint {
    public:
     JointM3(int jointID, double q_min, double q_max, short int sign_ = 1, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0, KincoDrive *drive = NULL);
     ~JointM3();
-
-    bool updateValue();
-
     /**
      * \brief Cehck if current velocity and torque are within limits.
      *

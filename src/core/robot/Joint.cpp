@@ -50,15 +50,12 @@ int Joint::getId() {
 }
 
 double Joint::getPosition() {
-    position = updatePosition();
     return position;
 }
 double Joint::getVelocity() {
-    velocity = updateVelocity();
     return velocity;
 }
 double Joint::getTorque() {
-    torque = updateTorque();
     return torque;
 }
 
@@ -67,6 +64,15 @@ void Joint::getStatus() {
 }
 
 // Methods if joint is actuated
+
+bool Joint::updateValue() {
+    position = updatePosition();
+    velocity = updateVelocity();
+    torque = updateTorque();
+
+    return true;
+}
+
 ControlMode Joint::setMode(ControlMode driveMode_, motorProfile profile) {
     if (actuated) {
         if (driveMode_ == CM_POSITION_CONTROL) {
@@ -134,30 +140,46 @@ void Joint::setPositionOffset(double qcalib = 0) {
 }
 
 double Joint::updatePosition() {
-    return driveUnitToJointPosition(drive->getPos()) - q0;
+    if (actuated) {
+        return driveUnitToJointPosition(drive->getPos()) - q0;
+    }
+    return 0;
 }
 
 double Joint::updateVelocity() {
-    return driveUnitToJointVelocity(drive->getVel());
+    if (actuated) {
+        return driveUnitToJointVelocity(drive->getVel());
+    }
+    return 0;
 }
 
 double Joint::updateTorque() {
-    return driveUnitToJointTorque(drive->getTorque());
+    if (actuated) {
+        return driveUnitToJointTorque(drive->getTorque());
+    }
+    return 0;
 }
 
 // Drive configuration methods
 void Joint::readyToSwitchOn() {
-    drive->readyToSwitchOn();
+    if (actuated) {
+        drive->readyToSwitchOn();
+    }
 }
 
 bool Joint::enable() {
-    if (drive->getState() == READY_TO_SWITCH_ON) {
-        drive->enable();
-        return true;
+    if (actuated) {
+        if (drive->getState() == READY_TO_SWITCH_ON) {
+            drive->enable();
+            return true;
+        }
     }
     return false;
 }
 
 bool Joint::disable() {
-    drive->readyToSwitchOn();  //Ready to switch on is also power off state
+    if (actuated) {
+        drive->readyToSwitchOn();  //Ready to switch on is also power off state
+    }
+    return false;
 }
