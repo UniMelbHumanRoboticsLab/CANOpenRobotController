@@ -13,9 +13,9 @@ RobotM3::RobotM3() : Robot(),
     //Define the robot structure: each joint with limits and drive: should be in constructor
     double max_speed = 360 * M_PI / 180.;
     double tau_max = 1.9 * 23;
-    joints.push_back(new JointM3(0, -45 * M_PI / 180., 45 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max));
-    joints.push_back(new JointM3(1, -15 * M_PI / 180., 70 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max));
-    joints.push_back(new JointM3(2, 0 * M_PI / 180., 95 * M_PI / 180., -1, -max_speed, max_speed, -tau_max, tau_max));
+    joints.push_back(new JointM3(0, -45 * M_PI / 180., 45 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(1)));
+    joints.push_back(new JointM3(1, -15 * M_PI / 180., 70 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(2)));
+    joints.push_back(new JointM3(2, 0 * M_PI / 180., 95 * M_PI / 180., -1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(3)));
 
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
@@ -128,7 +128,7 @@ bool RobotM3::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((JointM3 *)p)->setMode(POSITION_CONTROL, posControlMotorProfile) != POSITION_CONTROL) {
+        if (((JointM3 *)p)->setMode(CM_POSITION_CONTROL, posControlMotorProfile) != CM_POSITION_CONTROL) {
             // Something bad happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
@@ -148,7 +148,7 @@ bool RobotM3::initVelocityControl() {
     DEBUG_OUT("Initialising Velocity Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((JointM3 *)p)->setMode(VELOCITY_CONTROL, posControlMotorProfile) != VELOCITY_CONTROL) {
+        if (((JointM3 *)p)->setMode(CM_VELOCITY_CONTROL, posControlMotorProfile) != CM_VELOCITY_CONTROL) {
             // Something bad happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
@@ -168,7 +168,7 @@ bool RobotM3::initTorqueControl() {
     DEBUG_OUT("Initialising Torque Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((JointM3 *)p)->setMode(TORQUE_CONTROL) != TORQUE_CONTROL) {
+        if (((JointM3 *)p)->setMode(CM_TORQUE_CONTROL) != CM_TORQUE_CONTROL) {
             // Something bad happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;

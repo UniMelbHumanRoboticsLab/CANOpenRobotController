@@ -24,7 +24,6 @@
 #include <sstream>
 #include <vector>
 
-
 /**
  * Map of standard SDOs return error codes
  */
@@ -53,20 +52,19 @@ static std::map<std::string, std::string> SDO_Standard_Error = {
     {"0x06090032", "Value range error: parameter value too small"},
     {"0x060A0023", "Resource not available"},
     {"0x08000021", "Access not possible due to local application"},
-    {"0x08000022", "Access not possible due to current device status"}
-};
-
+    {"0x08000022", "Access not possible due to current device status"}};
 
 /**
  * An enum type.
  * Constants representing the control mode of the drive
  */
 enum ControlMode {
-    UNCONFIGURED = 0,
-    POSITION_CONTROL = 1,
-    VELOCITY_CONTROL = 2,
-    TORQUE_CONTROL = 3,
-    ERROR = -1
+    CM_UNCONFIGURED = 0,
+    CM_POSITION_CONTROL = 1,
+    CM_VELOCITY_CONTROL = 2,
+    CM_TORQUE_CONTROL = 3,
+    CM_ERROR = -1,
+    CM_UNACTUATED_JOINT = -2
 };
 /**
  * An enum type.
@@ -77,7 +75,6 @@ enum DriveState {
     READY_TO_SWITCH_ON = 1,
     ENABLED = 2,
 };
-
 
 /**
  * An enum type
@@ -95,7 +92,6 @@ enum OD_Entry_t {
     TARGET_VEL = 12,
     TARGET_TOR = 13
 };
-
 
 /**
  * \brief struct to hold desired velocity, acceleration and deceleration values for a
@@ -129,7 +125,7 @@ class Drive {
         * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate, int sub_idx=0);
+    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate, int sub_idx = 0);
 
     /**
         * \brief Generates the list of commands required to configure RPDOs on the drives
@@ -140,7 +136,7 @@ class Drive {
         * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming, int sub_idx=0);
+    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming, int sub_idx = 0);
 
     /**
        *
@@ -243,7 +239,7 @@ class Drive {
         * \brief The mode in which the drive is currently configured
         *
         */
-    ControlMode controlMode = UNCONFIGURED;
+    ControlMode controlMode = CM_UNCONFIGURED;
 
    public:
     /**
@@ -447,7 +443,7 @@ class Drive {
         *
         * \return controlMode
         */
-    virtual ControlMode getControlMode(){return controlMode;};
+    virtual ControlMode getControlMode() { return controlMode; };
 
     // CANOpen
     /**

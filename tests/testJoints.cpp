@@ -48,7 +48,7 @@ int main() {
 
     std::cout << "Read Value of the Joint (Expected Value 0): " << normalJoint->getPosition() << "\n";
     motorProfile testProfile{4000000, 240000, 240000};
-    std::cout << "Set the Joint into Position Control Mode: " << normalJoint->setMode(POSITION_CONTROL, testProfile) << "\n";
+    std::cout << "Set the Joint into Position Control Mode: " << normalJoint->setMode(CM_POSITION_CONTROL, testProfile) << "\n";
 
     std::cout << "Set the position of the Joint to 1 (expected result: true): " << normalJoint->setPosition(1) << "\n";
 
@@ -59,7 +59,7 @@ int main() {
     std::cout << "Read Value of the Joint (Expected Value 1): " << normalJoint->getPosition() << "\n";
     //test velocity control commands
 
-    std::cout << "Set the Joint into Velocity Control Mode: " << normalJoint->setMode(VELOCITY_CONTROL, testProfile) << "\n";
+    std::cout << "Set the Joint into Velocity Control Mode: " << normalJoint->setMode(CM_VELOCITY_CONTROL, testProfile) << "\n";
 
     std::cout << "Set the position of the Joint to 1 (expected result: true): " << normalJoint->setVelocity(100) << "\n";
 
