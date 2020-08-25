@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.3)
 project(CORC C CXX)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
-set(USE_ROS ON)
+set(USE_ROS OFF)
 
 if(USE_ROS)
     add_definitions(-DUSEROS)
@@ -25,10 +25,13 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 # Select the application by setting the state machine to use.
 # If your application use ROS, don't forget to change the flag at the top.
 #(should be the class name and have corresponding header naming in a corresponding folder)
+set (STATE_MACHINE_NAME "M1DemoMachine")
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "M3Chai")
 #set (STATE_MACHINE_NAME "ExoTestMachine")
-set (STATE_MACHINE_NAME "X2DemoMachine")
+#set (STATE_MACHINE_NAME "X2DemoMachine")
+
+set (PLATFORM_NAME "M1")
 
 add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
 add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
@@ -57,8 +60,8 @@ include_directories(
 endif()
 
 ## Get all source and header files (only the target app folder is included)
-file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "src/apps/${STATE_MACHINE_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.cpp")
-file(GLOB_RECURSE HEADERS "src/core/*.h" "src/hardware/*.h" "src/apps/${STATE_MACHINE_NAME}/*.h")
+file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/IO/*.cpp" "src/hardware/IO/*.c" "src/hardware/drives/*.cpp" "src/hardware/drives/*.c" "src/hardware/platforms/${PLATFORM_NAME}/*.cpp" "src/hardware/platforms/${PLATFORM_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.cpp")
+file(GLOB_RECURSE HEADERS "src/core/*.h" "src/hardware/IO/*.h" "src/hardware/drives/*.h" "src/hardware/platforms/${PLATFORM_NAME}/*.h" "src/apps/${STATE_MACHINE_NAME}/*.h")
 
 ## Set every folder containing .h file as include directory
 set (INCLUDE_DIRS "")
