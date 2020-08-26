@@ -29,7 +29,10 @@ void StateMachine::activate(void) {
 }
 
 void StateMachine::update(void) {
-    Transition *t = currentState->getActiveArc();
+//    DEBUG_OUT("StateMachine::update")
+    //something is wrong with this statement
+//    Transition *t = currentState->getActiveArc();
+    Transition *t = NULL;
     if (t != NULL) {
         currentState->exit();
         this->currentState = t->target;

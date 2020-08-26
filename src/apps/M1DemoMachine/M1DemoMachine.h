@@ -48,18 +48,23 @@ class M1DemoMachine : public StateMachine {
      * Pointers to the relevant states - initialised in init
      *
      */
-    M1CalibState *calibState;
-    M1MassCompensation *standbyState;
-    M1DemoState *testState;
-    M1EndEffDemo *endEffDemoState;
-    M1DemoImpedanceState *impedanceState;
-    M1SamplingEstimationState *timingState;
+    IdleState *idleState;
+    M1DemoState *demoState;
+    Monitoring *monitorState;
+//    M1CalibState *calibState;
+//    M1MassCompensation *standbyState;
+//    M1EndEffDemo *endEffDemoState;
+//    M1DemoImpedanceState *impedanceState;
+//    M1SamplingEstimationState *timingState;
 
    protected:
     RobotM1 *robot; /*<!Pointer to the Robot*/
 
    private:
-    EventObject(EndCalib) * endCalib;
+    EventObject(StartExo) * startExo;
+    EventObject(MonitorExo) * monitorExo;
+
+//    EventObject(EndCalib) * endCalib;
 };
 
 #endif /*M1_SM_H*/

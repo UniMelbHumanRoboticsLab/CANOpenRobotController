@@ -6,13 +6,15 @@ M1DemoMachine::M1DemoMachine() {
     robot = new RobotM1();
 
     // Create PRE-DESIGNED State Machine events and state objects.
-    testState = new M1DemoState(this, robot);
-    calibState = new M1CalibState(this, robot);
-    standbyState = new M1MassCompensation(this, robot);
-    endEffDemoState = new M1EndEffDemo(this, robot);
-    impedanceState = new M1DemoImpedanceState(this, robot);
-    timingState = new M1SamplingEstimationState(this, robot);
-    endCalib = new EndCalib(this);
+    demoState = new M1DemoState(this, robot);
+    //calibState = new M1CalibState(this, robot);
+    //standbyState = new M1MassCompensation(this, robot);
+    //endEffDemoState = new M1EndEffDemo(this, robot);
+    //impedanceState = new M1DemoImpedanceState(this, robot);
+    //timingState = new M1SamplingEstimationState(this, robot);
+    //endCalib = new EndCalib(this);
+    idleState = new IdleState(this, robot);
+    monitorState = new Monitoring( this, robot);
 
     /**
      * \brief add a tranisition object to the arch list of the first state in the NewTransition MACRO.
@@ -20,15 +22,18 @@ M1DemoMachine::M1DemoMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    NewTransition(calibState, endCalib, timingState);
+    //NewTransition(calibState, endCalib, timingState);
     //NewTransition(calibState, endCalib, standbyState);
     //NewTransition(calibState, endCalib, endEffDemoState);
+    NewTransition(idleState, startExo, demoState);
+//    NewTransition(idleState, monitorExo, monitorState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
-    StateMachine::initialize(calibState);
+    StateMachine::initialize(idleState);
 }
+
 M1DemoMachine::~M1DemoMachine() {
-    delete testState;
+    delete demoState;
     delete robot;
 }
 
@@ -71,11 +76,24 @@ void M1DemoMachine::hwStateUpdate(void) {
     robot->updateRobot();
 }
 
+////////////////////////////////////////////////////////////////
+// Events ------------------------------------------------------
+///////////////////////////////////////////////////////////////
+bool M1DemoMachine::StartExo::check(void) {
+    if (OWNER->robot->keyboard->getS() == true) {
+        std::cout << "Pressed S!" << std::endl;
+        return true;
+    }
+    return false;
+}
 
-
-
-
-
-bool M1DemoMachine::EndCalib::check() {
-    return OWNER->calibState->isCalibDone();
+////////////////////////////////////////////////////////////////
+// Events ------------------------------------------------------
+///////////////////////////////////////////////////////////////
+bool M1DemoMachine::MonitorExo::check(void) {
+    if (OWNER->robot->keyboard->getX() == true) {
+        std::cout << "Pressed S!" << std::endl;
+        return true;
+    }
+    return false;
 }

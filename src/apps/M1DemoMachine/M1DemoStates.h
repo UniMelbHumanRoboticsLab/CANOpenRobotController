@@ -96,6 +96,41 @@ class M1TimedState : public State {
 };
 
 
+/**
+ * \brief Idle State for the X2DemoMachine
+ *
+ * State holds until event triggers its exit, and runs initPositionControl on exit
+ * Control of transition is independent of this class and is defined in X2DemoMachine.
+ *
+ */
+class IdleState : public State {
+    RobotM1 *robot;
+
+public:
+    void entry(void);
+    void during(void);
+    void exit(void);
+    IdleState(StateMachine *m, RobotM1 *exo, const char *name = "Idle state") : State(m, name), robot(exo){};
+    long int iterations;
+};
+
+/**
+ * \brief Monitoring State for the X2DemoMachine
+ *
+ * State holds until event triggers its exit, and runs initPositionControl on exit
+ * Control of transition is independent of this class and is defined in X2DemoMachine.
+ *
+ */
+class Monitoring : public State {
+    RobotM1 *robot;
+
+public:
+    void entry(void);
+    void during(void);
+    void exit(void);
+    Monitoring(StateMachine *m, RobotM1 *exo, const char *name = NULL) : State(m, name), robot(exo){};
+};
+
 class M1DemoState : public M1TimedState {
 
    public:
@@ -105,111 +140,112 @@ class M1DemoState : public M1TimedState {
     void duringCode(void);
     void exitCode(void);
 
-    Eigen::Vector3d qi, Xi;
+    JointVec qi;
+    EndEffVec Xi;
+//    Eigen::Matrix<float, 1, 1> qi, Xi;
 };
 
 
-
-/**
- * \brief Position calibration of M1. Go to the bottom left stops of robot at constant torque for absolute position calibration.
- *
- */
-class M1CalibState : public M1TimedState {
-
-   public:
-    M1CalibState(StateMachine *m, RobotM1 *M1, const char *name = "M1 Calib State"):M1TimedState(m, M1, name){};
-
-    void entryCode(void);
-    void duringCode(void);
-    void exitCode(void);
-
-    bool isCalibDone() {return calibDone;}
-
-   private:
-     Eigen::Vector3d stop_reached_time;
-     bool at_stop[3];
-     bool calibDone=false;
-
-};
-
-
-/**
- * \brief Provide end-effector mass compensation on M1. Mass is controllable through keyboard inputs.
- *
- */
-class M1MassCompensation : public M1TimedState {
-
-   public:
-    M1MassCompensation(StateMachine *m, RobotM1 *M1, const char *name = "M1 Mass Compensation"):M1TimedState(m, M1, name){};
-
-    void entryCode(void);
-    void duringCode(void);
-    void exitCode(void);
-
-   private:
-     double mass = 0;
-
-};
-
-
-/**
- * \brief End-effector velocity control through joystick input.
- *
- */
-class M1EndEffDemo : public M1TimedState {
-
-   public:
-    M1EndEffDemo(StateMachine *m, RobotM1 *M1, const char *name = "M1 Velocity Control Demo"):M1TimedState(m, M1, name){};
-
-    void entryCode(void);
-    void duringCode(void);
-    void exitCode(void);
-};
-
-/**
- * \brief Basic impedance control on a static point.
- *
- */
-class M1DemoImpedanceState : public M1TimedState {
-
-   public:
-    M1DemoImpedanceState(StateMachine *m, RobotM1 *M1, const char *name = "M1 Demo Impedance State"):M1TimedState(m, M1, name){};
-
-    void entryCode(void);
-    void duringCode(void);
-    void exitCode(void);
-
-   private:
-    Eigen::Vector3d Xi;
-    double k = 800;
-    double d = 2;
-    bool init=false;
-
-    int nb_samples=10000;
-    double dts[10000];
-    double dX[10000];
-    int new_value;
-};
-
-
-/**
- * \brief Sampling frequency estimation state.
- *
- */
-class M1SamplingEstimationState : public M1TimedState {
-
-   public:
-    M1SamplingEstimationState(StateMachine *m, RobotM1 *M1, const char *name = "M1 Sampling time estimation State"):M1TimedState(m, M1, name){};
-
-    void entryCode(void);
-    void duringCode(void);
-    void exitCode(void);
-
-   private:
-    int nb_samples=10000;
-    double dts[10000];
-    double dX[10000];
-    int new_value;
-};
+///**
+// * \brief Position calibration of M1. Go to the bottom left stops of robot at constant torque for absolute position calibration.
+// *
+// */
+//class M1CalibState : public M1TimedState {
+//
+//   public:
+//    M1CalibState(StateMachine *m, RobotM1 *M1, const char *name = "M1 Calib State"):M1TimedState(m, M1, name){};
+//
+//    void entryCode(void);
+//    void duringCode(void);
+//    void exitCode(void);
+//
+//    bool isCalibDone() {return calibDone;}
+//
+//   private:
+//     Eigen::Vector3d stop_reached_time;
+//     bool at_stop[3];
+//     bool calibDone=false;
+//
+//};
+//
+//
+///**
+// * \brief Provide end-effector mass compensation on M1. Mass is controllable through keyboard inputs.
+// *
+// */
+//class M1MassCompensation : public M1TimedState {
+//
+//   public:
+//    M1MassCompensation(StateMachine *m, RobotM1 *M1, const char *name = "M1 Mass Compensation"):M1TimedState(m, M1, name){};
+//
+//    void entryCode(void);
+//    void duringCode(void);
+//    void exitCode(void);
+//
+//   private:
+//     double mass = 0;
+//
+//};
+//
+//
+///**
+// * \brief End-effector velocity control through joystick input.
+// *
+// */
+//class M1EndEffDemo : public M1TimedState {
+//
+//   public:
+//    M1EndEffDemo(StateMachine *m, RobotM1 *M1, const char *name = "M1 Velocity Control Demo"):M1TimedState(m, M1, name){};
+//
+//    void entryCode(void);
+//    void duringCode(void);
+//    void exitCode(void);
+//};
+//
+///**
+// * \brief Basic impedance control on a static point.
+// *
+// */
+//class M1DemoImpedanceState : public M1TimedState {
+//
+//   public:
+//    M1DemoImpedanceState(StateMachine *m, RobotM1 *M1, const char *name = "M1 Demo Impedance State"):M1TimedState(m, M1, name){};
+//
+//    void entryCode(void);
+//    void duringCode(void);
+//    void exitCode(void);
+//
+//   private:
+//    Eigen::Vector3d Xi;
+//    double k = 800;
+//    double d = 2;
+//    bool init=false;
+//
+//    int nb_samples=10000;
+//    double dts[10000];
+//    double dX[10000];
+//    int new_value;
+//};
+//
+//
+///**
+// * \brief Sampling frequency estimation state.
+// *
+// */
+//class M1SamplingEstimationState : public M1TimedState {
+//
+//   public:
+//    M1SamplingEstimationState(StateMachine *m, RobotM1 *M1, const char *name = "M1 Sampling time estimation State"):M1TimedState(m, M1, name){};
+//
+//    void entryCode(void);
+//    void duringCode(void);
+//    void exitCode(void);
+//
+//   private:
+//    int nb_samples=10000;
+//    double dts[10000];
+//    double dX[10000];
+//    int new_value;
+//};
 
 #endif

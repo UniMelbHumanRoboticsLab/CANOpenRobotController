@@ -8,11 +8,54 @@ double timeval_to_sec(struct timespec *ts)
 
 //minJerk(X0, Xf, T, t, &X, &dX)
 
-Eigen::Vector3d impedance(Eigen::Matrix3d K, Eigen::Matrix3d D, Eigen::Vector3d X0, Eigen::Vector3d X, Eigen::Vector3d dX) {
-    return K*(X0-X) - D*dX;
+//Eigen::Vector3d impedance(Eigen::Matrix3d K, Eigen::Matrix3d D, Eigen::Vector3d X0, Eigen::Vector3d X, Eigen::Vector3d dX) {
+//    return K*(X0-X) - D*dX;
+//}
+
+void IdleState::entry(void) {
+    std::cout
+            << "==================================" << std::endl
+            << " WELCOME TO THE TEST STATE MACHINE" << std::endl
+            << "==================================" << std::endl
+            << std::endl
+            << "========================" << std::endl
+            << " PRESS X to start monitoring" << std::endl
+            << " PRESS S to start position control" << std::endl
+            << "========================" << std::endl;
 }
 
+void IdleState::during(void) {
+    if(iterations++%100==1) {
+        robot->printJointStatus();
+    }
+}
 
+void IdleState::exit(void) {
+    std::cout << "Idle State Exited" << std::endl;
+}
+
+//******************************* Monitoring **************************
+void Monitoring::entry(void) {
+    std::cout
+            << "==================================" << std::endl
+            << " Monitoring the status of the M1  " << std::endl
+            << "==================================" << std::endl
+            << std::endl
+            << "========================" << std::endl
+            << " PRESS X to start monitoring" << std::endl
+            << " PRESS S to start position control" << std::endl
+            << "========================" << std::endl;
+}
+
+void Monitoring::during(void) {
+    std::cout << ".";
+}
+
+void Monitoring::exit(void) {
+    std::cout << "Idle State Exited" << std::endl;
+}
+
+//******************************* Demo state **************************
 void M1DemoState::entryCode(void) {
     //robot->applyCalibration();
     //robot->initPositionControl();
@@ -21,6 +64,7 @@ void M1DemoState::entryCode(void) {
     qi=robot->getJointPos();
     Xi=robot->getEndEffPos();
 }
+
 void M1DemoState::duringCode(void) {
     if(iterations%100==1) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
@@ -58,14 +102,14 @@ void M1DemoState::duringCode(void) {
     /*Eigen::Vector3d F(0,0,0);
     robot->setEndEffForWithCompensation(F);*/
 }
+
 void M1DemoState::exitCode(void) {
-    robot->setJointVel(Eigen::Vector3d::Zero());
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
+    robot->setJointVel(JointVec::Zero());
+//    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
 }
 
 
-
-
+/*
 void M1CalibState::entryCode(void) {
     calibDone=false;
     for(unsigned int i=0; i<3; i++) {
@@ -285,4 +329,4 @@ void M1SamplingEstimationState::exitCode(void) {
     robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
 
 }
-
+*/

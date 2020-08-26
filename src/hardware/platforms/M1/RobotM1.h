@@ -22,6 +22,14 @@
 #include "Joystick.h"
 #include "Robot.h"
 
+//typedef unsigned int uint;
+
+// System description constants
+static const uint nJoints = 1;  // Number of joints in the system
+static const uint nEndEff = 2;  // Number of dimensions for the end effector data
+typedef Eigen::Matrix<double, nJoints, 1> JointVec;
+typedef Eigen::Matrix<double, nEndEff, 1> EndEffVec;
+typedef Eigen::Matrix<double, nJoints, nEndEff> JacMtx;
 
 /**
      * \todo Load in parameters and dictionary entries from JSON file.
@@ -39,13 +47,6 @@ class RobotM1 : public Robot {
      *
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
-
-    // System description constants
-    static const uint nJoints = 1;  // Number of joints in the system
-    static const uint nEndEff = 2;  // Number of dimensions for the end effector data
-    typedef Eigen::Vector<double, nJoints> JointVec;
-    typedef Eigen::Vector<double, nEndEff> EndEffVec;
-    typedef Eigen::Matrix<double, nJoints, nEndEff> JacMtx;
 
     JointVec LinkLengths;   // Link lengths used for kinematic models (in m)
     JointVec LinkMasses;    // Link masses used for gravity compensation (in kg)
@@ -79,6 +80,7 @@ public:
     Keyboard *keyboard;
     Joystick *joystick;
 
+    bool initMonitoring();
     /**
        * \brief Initializes joint to position control mode.
        *

@@ -40,6 +40,7 @@ bool Robot::stop() {
 }
 
 void Robot::updateRobot() {
+//    std::cout << "Robot::updateRobot" << std::endl;
     for (auto joint : joints)
         joint->updateValue();
     for (auto input : inputs)
