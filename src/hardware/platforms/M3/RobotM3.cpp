@@ -53,7 +53,7 @@ bool RobotM3::initialiseNetwork() {
     }
     //Start node
     for (auto joint : joints) {
-        ((JointM3 *)joint)->start();
+        joint->start();
     }
 
     //Enable drive
@@ -61,9 +61,9 @@ bool RobotM3::initialiseNetwork() {
     for (auto joint : joints) {
         bool joint_ready = false;
         for (int i = 0; i < 10 & !joint_ready; i++) {
-            ((JointM3 *)joint)->readyToSwitchOn();
+            joint->readyToSwitchOn();
             usleep(10000);
-            joint_ready = ((((JointM3 *)joint)->getDriveStatus() & 0x01) == 0x01);
+            joint_ready = ((joint->getDriveStatus() & 0x01) == 0x01);
         }
         if (!joint_ready) {
             std::cout /*cerr is banned*/ << "M3: Failed to enable joint " << n << std::endl;
@@ -82,7 +82,7 @@ bool RobotM3::initialiseInputs() {
 bool RobotM3::stop() {
     std::cout << "Stopping M3 robot..." << std::endl;
     for (auto p : joints) {
-        ((JointM3 *)p)->disable();
+        p->disable();
     }
     return true;
 }

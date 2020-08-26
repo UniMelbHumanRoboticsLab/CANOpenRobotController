@@ -33,6 +33,17 @@ enum setMovementReturnCode_t {
 };
 
 /**
+ * Used to created viewable messages based on setMovementReturnCode_t
+ */
+static std::map<setMovementReturnCode_t, std::string> setMovementReturnCodeString = {
+    {SUCCESS, "Ok."},
+    {OUTSIDE_LIMITS, "Outside of limits."},
+    {INCORRECT_MODE, "Incorrect drive mode"},
+    {NOT_CALIBRATED, "Not calibrated."},
+    {UNKNOWN_ERROR, "Unknown error."}
+};
+
+/**
  * @ingroup Joint
  * \brief Abstract class representing any joints within a Robot.
  *
@@ -376,6 +387,12 @@ class Joint {
      */
     int getDriveStatus() { return drive->getStatus(); }
 
+    /**
+         * \brief Start the associated drive CAN node (will start produce PDOs)
+         *
+         * \return Return value of drive->start();
+         */
+    bool start();
     /**
       * \brief Set the joint ready to switch On
       *

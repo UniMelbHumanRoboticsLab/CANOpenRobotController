@@ -161,6 +161,16 @@ double Joint::updateTorque() {
 }
 
 // Drive configuration methods
+bool Joint::start() {
+    if (actuated) {
+        return drive->start();
+    }
+    else{
+        return false;
+    }
+
+}
+
 void Joint::readyToSwitchOn() {
     if (actuated) {
         drive->readyToSwitchOn();
