@@ -429,7 +429,7 @@ class Drive {
            * \return true if operation successful
            * \return false if operation unsuccessful
            */
-    virtual bool readyToSwitchOn();
+    virtual DriveState readyToSwitchOn();
 
     /**
            * \brief Sets the state of the drive to "enabled"
@@ -440,7 +440,7 @@ class Drive {
            * \return true if operation successful
            * \return false if operation unsuccessful
            */
-    virtual bool enable();
+    virtual DriveState enable();
 
     /**
            * \brief sets the state of the drive to "disabled"
@@ -451,7 +451,7 @@ class Drive {
            * \return true if operation successful
            * \return false if operation unsuccessful
            */
-    virtual bool disable();
+    virtual DriveState disable();
 
     /**
         * \brief Flips Bit 4 of Control Word (0x6041) - A new set point is only confirmed if the transition is from 0 to 1
