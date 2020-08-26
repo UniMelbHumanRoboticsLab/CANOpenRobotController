@@ -26,7 +26,7 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
     // Calibration configuration: posture in which the robot is when using the calibration procedure
     qCalibration(0) = 0 * d2r;
 
-    joints.push_back(new JointM1(0, -45*d2r, 45*d2r, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0)));
+    joints.push_back(new JointM1(0, -60*d2r, 60*d2r, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0)));
 
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
@@ -111,23 +111,29 @@ void RobotM1::updateRobot() {
 
 setMovementReturnCode_t RobotM1::safetyCheck() {
     //End-effector safeties if calibrated
-    if (calibrated) {
-        if (getEndEffVel().norm() > maxEndEffVel) {
-            std::cout /*cerr is banned*/ << "M1: Max velocity reached (" << getEndEffVel().norm() << "m.s-1)!" << std::endl;
+//    if (calibrated) {
+//        if (getEndEffVel().norm() > maxEndEffVel) {
+//            std::cout /*cerr is banned*/ << "M1: Max velocity reached (" << getEndEffVel().norm() << "m.s-1)!" << std::endl;
+//            return OUTSIDE_LIMITS;
+//        }
+//        //if(getEndEffFor().norm()>maxEndEffForce) {
+//        //   std::cout /*cerr is banned*/ << "M1: Max force reached (" << getEndEffFor().norm() << "N)!" << std::endl;
+//        //   return OUTSIDE_LIMITS;
+//        //}
+//    }
+//    //otherwise basic joint safeties
+//    else {
+//        for (uint i = 0; i < nJoints; i++) {    // Error found, YW
+//            if (((JointM1 *)joints[i])->safetyCheck() != SUCCESS) {
+//                std::cout /*cerr is banned*/ << "M1: Joint " << i << " safety triggered!" << std::endl;
+//                return OUTSIDE_LIMITS;
+//            }
+//        }
+//    }
+    for (uint i = 0; i < nJoints; i++) {    // Error found, YW
+        if (((JointM1 *)joints[i])->safetyCheck() != SUCCESS) {
+            std::cout /*cerr is banned*/ << "M1: Joint " << i << " safety triggered!" << std::endl;
             return OUTSIDE_LIMITS;
-        }
-        //if(getEndEffFor().norm()>maxEndEffForce) {
-        //   std::cout /*cerr is banned*/ << "M1: Max force reached (" << getEndEffFor().norm() << "N)!" << std::endl;
-        //   return OUTSIDE_LIMITS;
-        //}
-    }
-    //otherwise basic joint safeties
-    else {
-        for (uint i = 0; i < nJoints; i++) {    // Error found, YW
-            if (((JointM1 *)joints[i])->safetyCheck() != SUCCESS) {
-                std::cout /*cerr is banned*/ << "M1: Joint " << i << " safety triggered!" << std::endl;
-                return OUTSIDE_LIMITS;
-            }
         }
     }
     return SUCCESS;
@@ -176,6 +182,12 @@ bool RobotM1::initMonitoring() {
 bool RobotM1::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
     bool returnValue = true;
+    // Enable joint before set to position control mode - YW
+    for (auto p : joints) {
+        ((JointM1 *)p)->enable();
+    }
+    usleep(2000);
+
     for (auto p : joints) {
         if (((JointM1 *)p)->setMode(POSITION_CONTROL, posControlMotorProfile) != POSITION_CONTROL) {
             // Something bad happened if were are here
@@ -239,21 +251,17 @@ bool RobotM1::initTorqueControl() {
 setMovementReturnCode_t RobotM1::applyPosition(JointVec positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;  //TODO: proper return error code (not only last one)
-    if (!calibrated) {
-        returnValue = NOT_CALIBRATED;
-    } else {
-        for (auto p : joints) {
-            setMovementReturnCode_t setPosCode = ((JointM1 *)p)->setPosition(positions(i));
-            if (setPosCode == INCORRECT_MODE) {
-                std::cout << "Joint " << p->getId() << ": is not in Position Control " << std::endl;
-                returnValue = INCORRECT_MODE;
-            } else if (setPosCode != SUCCESS) {
-                // Something bad happened
-                std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
-                returnValue = UNKNOWN_ERROR;
-            }
-            i++;
+    for (auto p : joints) {
+        setMovementReturnCode_t setPosCode = ((JointM1 *)p)->setPosition(positions(i));
+        if (setPosCode == INCORRECT_MODE) {
+            std::cout << "Joint " << p->getId() << ": is not in Position Control " << std::endl;
+            returnValue = INCORRECT_MODE;
+        } else if (setPosCode != SUCCESS) {
+            // Something bad happened
+            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            returnValue = UNKNOWN_ERROR;
         }
+        i++;
     }
     return returnValue;
 }

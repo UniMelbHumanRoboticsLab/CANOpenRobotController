@@ -33,35 +33,44 @@ JointM1::JointM1(int jointID, double q_min, double q_max, short int sign_, doubl
     DEBUG_OUT("MY JOINT ID: " << this->id)
 }
 
-
 JointM1::~JointM1() {
     delete drive;
 }
 
-double JointM1::driveUnitToJointPosition(int driveValue)  {
-    return d2j_Pos * (double)driveValue;
+bool JointM1::initNetwork() {
+    DEBUG_OUT("JointM1::initNetwork()")
+    return drive->Init();
 }
 
-int JointM1::jointPositionToDriveUnit(double jointValue) {
-    return int(round(j2d_Pos * jointValue));
+/***************************************************************************************/
+/****************** implementation of virtual function of ActuatedJoint class **********/
+/***************************************************************************************/
+// convert from driver unit to joint unit for reading command
+double JointM1::driveUnitToJointPosition(int driveValue)  {
+    return d2j_Pos * (double)driveValue;
 }
 
 double JointM1::driveUnitToJointVelocity(int driveValue) {
     return d2j_Vel * driveValue;
 }
 
-int JointM1::jointVelocityToDriveUnit(double jointValue) {
-    return int(round(j2d_Vel * jointValue));
-}
-
 double JointM1::driveUnitToJointTorque(int driveValue) {
     return d2j_Trq * driveValue;
+}
+
+// covert from joint unit to driver unit for control command
+int JointM1::jointPositionToDriveUnit(double jointValue) {
+    DEBUG_OUT("jointPositionToDriveUnit")
+    return int(round(j2d_Pos * jointValue));
+}
+
+int JointM1::jointVelocityToDriveUnit(double jointValue) {
+    return int(round(j2d_Vel * jointValue));
 }
 
 int JointM1::jointTorqueToDriveUnit(double jointValue) {
     return int(round(j2d_Trq * jointValue));
 }
-
 
 bool JointM1::updateValue() {
     position = driveUnitToJointPosition(drive->getPos()) - q0;
@@ -69,7 +78,6 @@ bool JointM1::updateValue() {
     torque = driveUnitToJointTorque(drive->getTorque());
     return true;
 }
-
 
 setMovementReturnCode_t JointM1::safetyCheck() {
     if(velocity > dqMax  ||  velocity < dqMin) {
@@ -81,8 +89,12 @@ setMovementReturnCode_t JointM1::safetyCheck() {
     return SUCCESS;
 }
 
-
+/***************************************************************************************/
+/****************** Check command safety range and send command to driver **************/
+/***************************************************************************************/
+// including position command, velocity command, torque command
 setMovementReturnCode_t JointM1::setPosition(double qd) {
+    DEBUG_OUT("JointM1::setPosition: " << qd)
     if(calibrated) {
         if(qd >= qMin  &&  qd <= qMax) {
             return ActuatedJoint::setPosition(qd);
@@ -115,7 +127,6 @@ setMovementReturnCode_t JointM1::setVelocity(double dqd) {
     }
 }
 
-
 setMovementReturnCode_t JointM1::setTorque(double taud) {
     //Position protection first only if calibrated
     if(calibrated) {
@@ -133,11 +144,5 @@ setMovementReturnCode_t JointM1::setTorque(double taud) {
     else {
         return OUTSIDE_LIMITS;
     }
-}
-
-
-bool JointM1::initNetwork() {
-    DEBUG_OUT("JointM1::initNetwork()")
-    return drive->Init();
 }
 

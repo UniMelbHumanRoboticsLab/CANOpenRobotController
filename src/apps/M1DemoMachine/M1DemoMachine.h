@@ -61,9 +61,9 @@ class M1DemoMachine : public StateMachine {
     RobotM1 *robot; /*<!Pointer to the Robot*/
 
    private:
-    EventObject(StartExo) * startExo;
-    EventObject(MonitorExo) * monitorExo;
-
+    EventObject(Event2Demo) * event2Demo;
+    EventObject(Event2Monitor) * event2Monitor;
+    EventObject(Event2Idle) * event2Idle;
 //    EventObject(EndCalib) * endCalib;
 };
 

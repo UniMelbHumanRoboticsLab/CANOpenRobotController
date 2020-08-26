@@ -5,7 +5,7 @@
 M1DemoMachine::M1DemoMachine() {
     robot = new RobotM1();
 
-    // Create PRE-DESIGNED State Machine events and state objects.
+    // Create PRE-DESIGNED State Machine state objects.
     demoState = new M1DemoState(this, robot);
     //calibState = new M1CalibState(this, robot);
     //standbyState = new M1MassCompensation(this, robot);
@@ -16,6 +16,11 @@ M1DemoMachine::M1DemoMachine() {
     idleState = new IdleState(this, robot);
     monitorState = new Monitoring( this, robot);
 
+    // Create PRE-DESIGNED State Machine events objects.
+    event2Demo = new Event2Demo(this);
+    event2Monitor = new Event2Monitor(this);
+    event2Idle = new Event2Idle(this);
+
     /**
      * \brief add a tranisition object to the arch list of the first state in the NewTransition MACRO.
      * Effectively creating a statemachine transition from State A to B in the event of event c.
@@ -25,7 +30,10 @@ M1DemoMachine::M1DemoMachine() {
     //NewTransition(calibState, endCalib, timingState);
     //NewTransition(calibState, endCalib, standbyState);
     //NewTransition(calibState, endCalib, endEffDemoState);
-    NewTransition(idleState, startExo, demoState);
+    NewTransition(idleState, event2Demo, demoState);
+    NewTransition(idleState, event2Monitor, monitorState);
+    NewTransition(demoState, event2Idle, idleState);
+    NewTransition(monitorState, event2Idle, idleState);
 //    NewTransition(idleState, monitorExo, monitorState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
@@ -79,7 +87,7 @@ void M1DemoMachine::hwStateUpdate(void) {
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
-bool M1DemoMachine::StartExo::check(void) {
+bool M1DemoMachine::Event2Demo::check(void) {
     if (OWNER->robot->keyboard->getS() == true) {
         std::cout << "Pressed S!" << std::endl;
         return true;
@@ -90,9 +98,20 @@ bool M1DemoMachine::StartExo::check(void) {
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
-bool M1DemoMachine::MonitorExo::check(void) {
+bool M1DemoMachine::Event2Monitor::check(void) {
     if (OWNER->robot->keyboard->getX() == true) {
         std::cout << "Pressed S!" << std::endl;
+        return true;
+    }
+    return false;
+}
+
+////////////////////////////////////////////////////////////////
+// Events ------------------------------------------------------
+///////////////////////////////////////////////////////////////
+bool M1DemoMachine::Event2Idle::check(void) {
+    if (OWNER->robot->keyboard->getQ() == true) {
+        std::cout << "Pressed Q!" << std::endl;
         return true;
     }
     return false;

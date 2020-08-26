@@ -46,7 +46,7 @@ class RobotM1 : public Robot {
      * \brief motor drive position control profile parameters, user defined.
      *
      */
-    motorProfile posControlMotorProfile{4000000, 240000, 240000};
+    motorProfile posControlMotorProfile{400000, 20000, 20000};
 
     JointVec LinkLengths;   // Link lengths used for kinematic models (in m)
     JointVec LinkMasses;    // Link masses used for gravity compensation (in kg)

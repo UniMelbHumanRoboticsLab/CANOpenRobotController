@@ -55,6 +55,11 @@ bool KincoDrive::initTorqueControl() {
     return true;
 }
 
+bool KincoDrive::resetError(){
+    DEBUG_OUT("NodeID " << NodeID << " reset error")
+    sendSDOMessages(generateResetErrorSDO());
+    return true;
+}
 
 bool KincoDrive::initPDOs() {
     DEBUG_OUT("KincoDrive::initPDOs")
@@ -167,6 +172,7 @@ std::vector<std::string> KincoDrive::generateVelControlConfigSDO(motorProfile ve
 
     return CANCommands;
 }
+
 std::vector<std::string> KincoDrive::generateTorqueControlConfigSDO() {
     // Define Vector to be returned as part of this method
     std::vector<std::string> CANCommands;
@@ -183,3 +189,28 @@ std::vector<std::string> KincoDrive::generateTorqueControlConfigSDO() {
 
     return CANCommands;
 }
+
+std::vector<std::string> KincoDrive::generateResetErrorSDO() {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+
+    // shutdown
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x06";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    // reset fault
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x80";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    // reset fault
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x06";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    return CANCommands;
+}
+

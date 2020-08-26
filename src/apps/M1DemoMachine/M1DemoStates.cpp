@@ -5,7 +5,6 @@ double timeval_to_sec(struct timespec *ts)
     return (double)(ts->tv_sec + ts->tv_nsec / 1000000000.0);
 }
 
-
 //minJerk(X0, Xf, T, t, &X, &dX)
 
 //Eigen::Vector3d impedance(Eigen::Matrix3d K, Eigen::Matrix3d D, Eigen::Vector3d X0, Eigen::Vector3d X, Eigen::Vector3d dX) {
@@ -25,9 +24,6 @@ void IdleState::entry(void) {
 }
 
 void IdleState::during(void) {
-    if(iterations++%100==1) {
-        robot->printJointStatus();
-    }
 }
 
 void IdleState::exit(void) {
@@ -48,7 +44,9 @@ void Monitoring::entry(void) {
 }
 
 void Monitoring::during(void) {
-    std::cout << ".";
+    if(iterations++%100==1) {
+        robot->printJointStatus();
+    }
 }
 
 void Monitoring::exit(void) {
@@ -57,10 +55,10 @@ void Monitoring::exit(void) {
 
 //******************************* Demo state **************************
 void M1DemoState::entryCode(void) {
-    //robot->applyCalibration();
-    //robot->initPositionControl();
+    robot->applyCalibration();
+    robot->initPositionControl();
     //robot->initVelocityControl();
-    robot->initTorqueControl();
+//    robot->initTorqueControl();
     qi=robot->getJointPos();
     Xi=robot->getEndEffPos();
 }
@@ -70,7 +68,18 @@ void M1DemoState::duringCode(void) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
         robot->printJointStatus();
         //robot->printStatus();
+        qi=robot->getJointPos();
+        qi(0) = qi(0) + 0.01*elapsedTime;
+        if(robot->setJointPos(qi) == SUCCESS){
+            std::cout << "Set new position "<< qi(0) << std::endl;
+        }
     }
+//    JointVec tau;
+//    tau(0) = 0.5;
+//    robot->setJointTor(tau);
+//    JointVec pos;
+//    pos(0) = 30;
+
     /*Eigen::Vector3d q = robot->getJointPos();
     q(1)=68*M_PI/180.-0.1*elapsedTime;*/
     //std::cout << q.transpose() <<std::endl;
@@ -104,7 +113,9 @@ void M1DemoState::duringCode(void) {
 }
 
 void M1DemoState::exitCode(void) {
-    robot->setJointVel(JointVec::Zero());
+//    robot->setJointVel(JointVec::Zero());
+//    robot->setJointTor(JointVec::Zero());
+    robot->setJointPos(JointVec::Zero());
 //    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
 }
 

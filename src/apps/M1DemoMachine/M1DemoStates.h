@@ -111,7 +111,6 @@ public:
     void during(void);
     void exit(void);
     IdleState(StateMachine *m, RobotM1 *exo, const char *name = "Idle state") : State(m, name), robot(exo){};
-    long int iterations;
 };
 
 /**
@@ -129,6 +128,7 @@ public:
     void during(void);
     void exit(void);
     Monitoring(StateMachine *m, RobotM1 *exo, const char *name = NULL) : State(m, name), robot(exo){};
+    long int iterations;
 };
 
 class M1DemoState : public M1TimedState {
@@ -142,6 +142,7 @@ class M1DemoState : public M1TimedState {
 
     JointVec qi;
     EndEffVec Xi;
+    bool flag = true;
 //    Eigen::Matrix<float, 1, 1> qi, Xi;
 };
 
