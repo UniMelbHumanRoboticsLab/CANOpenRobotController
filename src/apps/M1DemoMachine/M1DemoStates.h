@@ -143,6 +143,8 @@ class M1DemoState : public M1TimedState {
     JointVec qi;
     EndEffVec Xi;
     bool flag = true;
+    double freq;
+    double counter;
 //    Eigen::Matrix<float, 1, 1> qi, Xi;
 };
 

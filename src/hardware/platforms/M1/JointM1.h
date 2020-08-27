@@ -56,6 +56,14 @@ class JointM1 : public ActuatedJoint {
     setMovementReturnCode_t setTorque(double taud);
 
     bool initNetwork();
+
+    /**
+     * \brief Get error message
+     *
+     * \return true if succesful
+     * \return false if drive is currently not in the correct state to enable
+     */
+    void errorMessage(setMovementReturnCode_t errorCode);
 };
 
 #endif

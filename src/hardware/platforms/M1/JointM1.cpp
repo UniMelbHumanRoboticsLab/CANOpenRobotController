@@ -23,8 +23,10 @@ JointM1::JointM1(int jointID, double q_min, double q_max, short int sign_, doubl
     reductionRatio = 22.;           // Reduction ratio due to gear head
     Ipeak = 45.0;                   //Kinco FD123 peak current
     motorTorqueConstant = 0.132;    //SMC60S-0020 motor torque constant
-    d2j_Pos = sign * (2. * M_PIf64) / (double)encoderCounts / reductionRatio;   // Drive to Joint unit conversion for position
-    j2d_Pos = sign / (2. * M_PIf64) * (double)encoderCounts * reductionRatio;   // Joint to Drive unit conversion for position
+//    d2j_Pos = sign * (2. * M_PIf64) / (double)encoderCounts / reductionRatio;   // Drive to Joint unit conversion for position
+    d2j_Pos = 5.14/(encoderCounts*50);   // count to degree - Drive to Joint unit conversion for position
+//    j2d_Pos = sign / (2. * M_PIf64) * (double)encoderCounts * reductionRatio;   // Joint to Drive unit conversion for position
+    j2d_Pos = 50*encoderCounts/5.14;   // degree to count - Joint to Drive unit conversion for position
     d2j_Vel = sign * (2. * M_PIf64) / 60. / 512. / (double)encoderCounts * 1875 / reductionRatio;   // Drive to Joint unit conversion for velocity
     j2d_Vel = sign / (2. * M_PIf64) * 60. * 512. * (double)encoderCounts / 1875 * reductionRatio;   // Joint to Drive unit conversion for velocity
     d2j_Trq = sign / Ipeak / 1.414 * motorTorqueConstant * reductionRatio;   // Drive to Joint unit conversion for torque
@@ -60,7 +62,8 @@ double JointM1::driveUnitToJointTorque(int driveValue) {
 
 // covert from joint unit to driver unit for control command
 int JointM1::jointPositionToDriveUnit(double jointValue) {
-    DEBUG_OUT("jointPositionToDriveUnit")
+//    int count = int(round(j2d_Pos * jointValue));
+//    DEBUG_OUT("jointPositionToDriveUnit " << count);
     return int(round(j2d_Pos * jointValue));
 }
 
@@ -94,7 +97,7 @@ setMovementReturnCode_t JointM1::safetyCheck() {
 /***************************************************************************************/
 // including position command, velocity command, torque command
 setMovementReturnCode_t JointM1::setPosition(double qd) {
-    DEBUG_OUT("JointM1::setPosition: " << qd)
+//    DEBUG_OUT("JointM1::setPosition: " << qd)
     if(calibrated) {
         if(qd >= qMin  &&  qd <= qMax) {
             return ActuatedJoint::setPosition(qd);
@@ -143,6 +146,25 @@ setMovementReturnCode_t JointM1::setTorque(double taud) {
     }
     else {
         return OUTSIDE_LIMITS;
+    }
+}
+
+void JointM1::errorMessage(setMovementReturnCode_t errorCode){
+    switch(errorCode) {
+        case SUCCESS:
+            DEBUG_OUT(" ActuatedJoint::Success");
+            break; //optional
+        case OUTSIDE_LIMITS:
+            DEBUG_OUT(" ActuatedJoint::Outside of limitations");
+            break; //optional
+        case INCORRECT_MODE:
+            DEBUG_OUT(" ActuatedJoint::Incorrect mode");
+            break; //optional
+        case NOT_CALIBRATED:
+            DEBUG_OUT(" ActuatedJoint::Not calibrated");
+            break; //optional
+        default : //Optional
+            DEBUG_OUT(" ActuatedJoint::Unknown error");
     }
 }
 

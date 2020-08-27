@@ -61,6 +61,10 @@ void M1DemoState::entryCode(void) {
 //    robot->initTorqueControl();
     qi=robot->getJointPos();
     Xi=robot->getEndEffPos();
+    freq = 0.5;
+    counter = 1;
+//    qi(0) = 10;
+//    robot->setJointPos(qi);
 }
 
 void M1DemoState::duringCode(void) {
@@ -68,12 +72,27 @@ void M1DemoState::duringCode(void) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
         robot->printJointStatus();
         //robot->printStatus();
-        qi=robot->getJointPos();
-        qi(0) = qi(0) + 0.01*elapsedTime;
-        if(robot->setJointPos(qi) == SUCCESS){
-            std::cout << "Set new position "<< qi(0) << std::endl;
-        }
+        /* */
+//        counter = counter + 1;
+//        std::cout << dt << std::endl;
+//        qi(0) = 10*sin(2*M_PI*freq*counter/100);
+////        qi=robot->getJointPos();
+//        if(robot->setJointPos(qi) == SUCCESS){
+//            std::cout << "Set new position "<< qi(0) << std::endl;
+//        }
     }
+
+    qi(0) = 20*sin(2*M_PI*freq*iterations/300);
+//        qi=robot->getJointPos();
+    if(robot->setJointPos(qi) != SUCCESS){
+        std::cout << "Error: " << std::endl;
+    }
+
+//    qi(0) = 20*sin(2*M_PI*freq*elapsedTime);
+//    if(robot->setJointPos(qi) == SUCCESS){
+//        std::cout << "Set new position "<< qi(0) << std::endl;
+//    }
+
 //    JointVec tau;
 //    tau(0) = 0.5;
 //    robot->setJointTor(tau);

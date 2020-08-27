@@ -252,13 +252,14 @@ setMovementReturnCode_t RobotM1::applyPosition(JointVec positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;  //TODO: proper return error code (not only last one)
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((JointM1 *)p)->setPosition(positions(i));
+        setMovementReturnCode_t setPosCode = ((JointM1 *)p)->setPosition(positions(i)*d2r);
         if (setPosCode == INCORRECT_MODE) {
             std::cout << "Joint " << p->getId() << ": is not in Position Control " << std::endl;
             returnValue = INCORRECT_MODE;
         } else if (setPosCode != SUCCESS) {
             // Something bad happened
-            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            std::cout << "Joint " << p->getId() << ": " << std::endl;
+            ((JointM1 *)p)->errorMessage(setPosCode);
             returnValue = UNKNOWN_ERROR;
         }
         i++;
