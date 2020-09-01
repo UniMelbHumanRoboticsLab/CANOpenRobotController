@@ -11,7 +11,7 @@ endif()
 ## Compile as C++11 with pthread
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread" )
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread -static" )
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON )
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
