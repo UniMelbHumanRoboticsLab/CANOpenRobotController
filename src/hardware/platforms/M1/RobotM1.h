@@ -31,6 +31,17 @@ typedef Eigen::Matrix<double, nJoints, 1> JointVec;
 typedef Eigen::Matrix<double, nEndEff, 1> EndEffVec;
 typedef Eigen::Matrix<double, nJoints, nEndEff> JacMtx;
 
+
+/**
+ * An enum type.
+ * Constants representing the Drives State
+ */
+enum RobotState{
+    R_SUCCESS = 1,
+    R_OUTSIDE_LIMITS = -1,
+    R_UNKNOWN_ERROR = -100
+};
+
 /**
      * \todo Load in parameters and dictionary entries from JSON file.
      *
@@ -46,7 +57,7 @@ class RobotM1 : public Robot {
      * \brief motor drive position control profile parameters, user defined.
      *
      */
-    motorProfile posControlMotorProfile{400000, 20000, 20000};
+    motorProfile posControlMotorProfile{2000000, 80000, 80000};
 
     JointVec LinkLengths;   // Link lengths used for kinematic models (in m)
     JointVec LinkMasses;    // Link masses used for gravity compensation (in kg)
@@ -55,7 +66,6 @@ class RobotM1 : public Robot {
     JointVec g;  //Gravitational constant: remember to change it if using the robot on the Moon or another planet
     JointVec max_speed; // {radians}
     JointVec tau_max;  // {Nm}
-
     /*!< Conversion factors between degrees and radians */
     double d2r, r2d;
 
@@ -79,6 +89,7 @@ public:
 
     Keyboard *keyboard;
     Joystick *joystick;
+    RobotState status;
 
     bool initMonitoring();
     /**
@@ -192,16 +203,16 @@ public:
     JointVec getJointPos();
     JointVec getJointVel();
     JointVec getJointTor();
-    EndEffVec getEndEffPos();
-    EndEffVec getEndEffVel();
-    EndEffVec getEndEffFor();
+//    EndEffVec getEndEffPos();
+//    EndEffVec getEndEffVel();
+//    EndEffVec getEndEffFor();
 
     setMovementReturnCode_t setJointPos(JointVec pos);
     setMovementReturnCode_t setJointVel(JointVec vel);
     setMovementReturnCode_t setJointTor(JointVec tor);
-    setMovementReturnCode_t setEndEffPos(EndEffVec X);
-    setMovementReturnCode_t setEndEffVel(EndEffVec dX);
-    setMovementReturnCode_t setEndEffFor(EndEffVec F);
-    setMovementReturnCode_t setEndEffForWithCompensation(EndEffVec F);
+//    setMovementReturnCode_t setEndEffPos(EndEffVec X);
+//    setMovementReturnCode_t setEndEffVel(EndEffVec dX);
+//    setMovementReturnCode_t setEndEffFor(EndEffVec F);
+//    setMovementReturnCode_t setEndEffForWithCompensation(EndEffVec F);
 };
 #endif /*RobotM1_H*/

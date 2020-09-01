@@ -14,7 +14,7 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
 
     //Define the robot structure: each joint with limits and drive - TMH
     // JOINT 0 - the only joint in the case of M1
-    max_speed(0) = 360 * d2r; // {radians}
+    max_speed(0) = 360; // {radians}
     tau_max(0) = 1.9 * 23;  // {Nm}
     LinkLengths(0) = 0.1;   // Link lengths used for kinematic models (in m)
     LinkMasses(0) = 0.5;    // Link masses used for gravity compensation (in kg)
@@ -26,10 +26,15 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
     // Calibration configuration: posture in which the robot is when using the calibration procedure
     qCalibration(0) = 0 * d2r;
 
-    joints.push_back(new JointM1(0, -60*d2r, 60*d2r, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0)));
+    posControlMotorProfile.profileVelocity = 600.*512*10000/1875;
+    posControlMotorProfile.profileAcceleration = 500.*65535*10000/4000000;
+    posControlMotorProfile.profileDeceleration = 500.*65535*10000/4000000;
+
+    joints.push_back(new JointM1(0, -60, 60, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0)));
 
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
+    status = R_SUCCESS;
 }
 
 RobotM1::~RobotM1() {
@@ -104,6 +109,7 @@ void RobotM1::updateRobot() {
     }
 //    std::cout << "safety check" << std::endl; // YW debug
     if (safetyCheck() != SUCCESS) {
+        status = R_OUTSIDE_LIMITS;
         stop();
     }
 //    std::cout << "safety check done" << std::endl; // YW debug
@@ -141,16 +147,16 @@ setMovementReturnCode_t RobotM1::safetyCheck() {
 
 void RobotM1::printStatus() {
     std::cout << std::setprecision(3) << std::fixed;
-    std::cout << "X=[ " << getEndEffPos().transpose() << " ]\t";
-    std::cout << "dX=[ " << getEndEffVel().transpose() << " ]\t";
-    std::cout << "F=[ " << getEndEffFor().transpose() << " ]\t";
+//    std::cout << "X=[ " << getEndEffPos().transpose() << " ]\t";
+//    std::cout << "dX=[ " << getEndEffVel().transpose() << " ]\t";
+//    std::cout << "F=[ " << getEndEffFor().transpose() << " ]\t";
     std::cout << std::endl;
 }
 
 void RobotM1::printJointStatus() {
     std::cout << std::setprecision(1) << std::fixed;
-    std::cout << "q=[ " << getJointPos().transpose() * r2d << " ]\t";
-    std::cout << "dq=[ " << getJointVel().transpose() * r2d << " ]\t";
+    std::cout << "q=[ " << getJointPos().transpose() << " ]\t";
+    std::cout << "dq=[ " << getJointVel().transpose() << " ]\t";
     std::cout << "tau=[ " << getJointTor().transpose() << " ]\t";
     std::cout << "{";
     for (auto joint : joints)
@@ -173,20 +179,15 @@ bool RobotM1::initMonitoring() {
 
     // Pause for a bit to let commands go
     usleep(2000);
-//    for (auto p : joints) {
-//        ((JointM1 *)p)->enable();
-//    }
+    for (auto p : joints) {
+        ((JointM1 *)p)->disable();
+    }
     return returnValue;
 }
 
 bool RobotM1::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
     bool returnValue = true;
-    // Enable joint before set to position control mode - YW
-    for (auto p : joints) {
-        ((JointM1 *)p)->enable();
-    }
-    usleep(2000);
 
     for (auto p : joints) {
         if (((JointM1 *)p)->setMode(POSITION_CONTROL, posControlMotorProfile) != POSITION_CONTROL) {
@@ -195,14 +196,14 @@ bool RobotM1::initPositionControl() {
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
-        ((JointM1 *)p)->readyToSwitchOn();
+//        ((JointM1 *)p)->readyToSwitchOn();
     }
 
     // Pause for a bit to let commands go
-    usleep(2000);
-    for (auto p : joints) {
-        ((JointM1 *)p)->enable();
-    }
+//    usleep(2000);
+//    for (auto p : joints) {
+//        ((JointM1 *)p)->enable();
+//    }
     return returnValue;
 }
 
@@ -252,7 +253,7 @@ setMovementReturnCode_t RobotM1::applyPosition(JointVec positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;  //TODO: proper return error code (not only last one)
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((JointM1 *)p)->setPosition(positions(i)*d2r);
+        setMovementReturnCode_t setPosCode = ((JointM1 *)p)->setPosition(positions(i));
         if (setPosCode == INCORRECT_MODE) {
             std::cout << "Joint " << p->getId() << ": is not in Position Control " << std::endl;
             returnValue = INCORRECT_MODE;
@@ -271,13 +272,15 @@ setMovementReturnCode_t RobotM1::applyVelocity(JointVec velocities) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;  //TODO: proper return error code (not only last one)
     for (auto p : joints) {
+        std::cout << "Joint velocity 2: " << velocities(0) << std::endl;
         setMovementReturnCode_t setVelCode = ((JointM1 *)p)->setVelocity(velocities(i));
         if (setVelCode == INCORRECT_MODE) {
             std::cout << "Joint " << p->getId() << ": is not in Velocity Control " << std::endl;
             returnValue = INCORRECT_MODE;
         } else if (setVelCode != SUCCESS) {
             // Something bad happened
-            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            std::cout << "Joint " << p->getId() << " velocity : " << std::endl;
+            ((JointM1 *)p)->errorMessage(setVelCode);
             returnValue = UNKNOWN_ERROR;
         }
         i++;
@@ -351,6 +354,19 @@ JointVec RobotM1::getJointTor() {
     return tau;
 }
 
+setMovementReturnCode_t RobotM1::setJointPos(JointVec pos_d) {
+    return applyPosition(pos_d);
+}
+
+setMovementReturnCode_t RobotM1::setJointVel(JointVec vel_d) {
+    return applyVelocity(vel_d);
+}
+
+setMovementReturnCode_t RobotM1::setJointTor(JointVec tor_d) {
+    return applyTorque(tor_d);
+}
+
+/*
 EndEffVec RobotM1::getEndEffPos() {
     //return directKinematic(getJointPos());
     EndEffVec s;
@@ -371,18 +387,6 @@ EndEffVec RobotM1::getEndEffFor() {
 
 }
 
-setMovementReturnCode_t RobotM1::setJointPos(JointVec pos_d) {
-    return applyPosition(pos_d);
-}
-
-setMovementReturnCode_t RobotM1::setJointVel(JointVec vel_d) {
-    return applyVelocity(vel_d);
-}
-
-setMovementReturnCode_t RobotM1::setJointTor(JointVec tor_d) {
-    return applyTorque(tor_d);
-}
-/*
 setMovementReturnCode_t RobotM1::setEndEffPos(EndEffVec X_d) {
     if (!calibrated) {
         return NOT_CALIBRATED;

@@ -68,7 +68,9 @@ class M1TimedState : public State {
         lastTime = now;
 
         iterations++;
-
+//        if(dt > 0.005){
+//            std::cout << std::setprecision(4) << dt << std::endl;
+//        }
         //Actual state during
         duringCode();
     };
@@ -148,6 +150,27 @@ class M1DemoState : public M1TimedState {
 //    Eigen::Matrix<float, 1, 1> qi, Xi;
 };
 
+/**
+ * \brief Position tracking of M1
+ *
+ */
+class M1PositionTracking: public M1TimedState {
+
+public:
+    M1PositionTracking(StateMachine *m, RobotM1 *M1, const char *name = "M1 Test State"):M1TimedState(m, M1, name){};
+
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
+
+    JointVec qi;
+    EndEffVec Xi;
+    bool flag = true;
+    double freq;
+    double counter;
+    bool status = true;
+//    Eigen::Matrix<float, 1, 1> qi, Xi;
+};
 
 ///**
 // * \brief Position calibration of M1. Go to the bottom left stops of robot at constant torque for absolute position calibration.

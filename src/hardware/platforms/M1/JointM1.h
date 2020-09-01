@@ -1,6 +1,6 @@
 /**
  * \file JointM1.h
- * \author Tim Haswell borrowing heavily from Vincent Crocher
+ * \author Yue Wen, Tim Haswell borrowing heavily from Vincent Crocher
  * \brief An M1 actuated joint
  * \version 0.1
  * \date 2020-07-08
@@ -24,6 +24,7 @@ class JointM1 : public ActuatedJoint {
    private:
     double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
     double d2j_Pos, d2j_Vel, d2j_Trq, j2d_Pos, j2d_Vel, j2d_Trq;
+    double d2r, r2d;
     short int sign;
     int encoderCounts;       //Encoder counts per turn
     double reductionRatio;   // Reduction ratio due to gear head
@@ -31,6 +32,12 @@ class JointM1 : public ActuatedJoint {
     double Ipeak;                //Kinco FD123 peak current
     double motorTorqueConstant;  //SMC60S-0020 motor torque constant
 
+    /**
+     * \brief Conversion between drive unit (encoder count) and joint unit (radian).
+     *
+     * \return drive unit for low-level control purpose
+     * \return joint unit for high-level control purpose
+     */
     double driveUnitToJointPosition(int driveValue);
     int jointPositionToDriveUnit(double jointValue);
     double driveUnitToJointVelocity(int driveValue);

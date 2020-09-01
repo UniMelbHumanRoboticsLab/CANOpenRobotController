@@ -19,7 +19,8 @@ void IdleState::entry(void) {
             << std::endl
             << "========================" << std::endl
             << " PRESS X to start monitoring" << std::endl
-            << " PRESS S to start position control" << std::endl
+            << " PRESS S to start demo state" << std::endl
+            << " PRESS A to start position control" << std::endl
             << "========================" << std::endl;
 }
 
@@ -32,15 +33,8 @@ void IdleState::exit(void) {
 
 //******************************* Monitoring **************************
 void Monitoring::entry(void) {
-    std::cout
-            << "==================================" << std::endl
-            << " Monitoring the status of the M1  " << std::endl
-            << "==================================" << std::endl
-            << std::endl
-            << "========================" << std::endl
-            << " PRESS X to start monitoring" << std::endl
-            << " PRESS S to start position control" << std::endl
-            << "========================" << std::endl;
+    robot->applyCalibration();
+    robot->initMonitoring();
 }
 
 void Monitoring::during(void) {
@@ -53,17 +47,60 @@ void Monitoring::exit(void) {
     std::cout << "Idle State Exited" << std::endl;
 }
 
+
+//******************************* Demo state **************************
+void M1PositionTracking::entryCode(void) {
+    robot->applyCalibration();
+    robot->initPositionControl();
+    freq = 0.2;
+    counter = 1;
+}
+
+void M1PositionTracking::duringCode(void) {
+    if(iterations%100==1) {
+        //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
+        robot->printJointStatus();
+    }
+
+    if(robot->status != R_SUCCESS){
+        status = false;
+        std::cout << "Robot error !" << std::endl;
+    }
+
+    // control frequency is 100 hz
+    if(status) {
+        uint sample = iterations;
+//        std::cout << qi(0) << std::endl;
+        qi=robot->getJointPos();
+        double q_r = qi(0);
+        std::cout << qi(0) << " <-> ";
+        qi(0) = 20*sin(2*M_PI*freq*sample/100);
+        std::cout << qi(0) << std::endl;
+        double q_d = qi(0);
+//        if ((q_d-q_r)>2 || (q_d-q_r)<-2) {
+//            (JointM1 *)robot->joints[0]
+//        }
+        if(robot->setJointPos(qi) != SUCCESS){
+            std::cout << "Error: " << std::endl;
+        }
+    }
+}
+
+void M1PositionTracking::exitCode(void) {
+    robot->setJointPos(JointVec::Zero());
+}
+
 //******************************* Demo state **************************
 void M1DemoState::entryCode(void) {
     robot->applyCalibration();
     robot->initPositionControl();
     //robot->initVelocityControl();
 //    robot->initTorqueControl();
-    qi=robot->getJointPos();
-    Xi=robot->getEndEffPos();
-    freq = 0.5;
+//    qi=robot->getJointPos();
+//    Xi=robot->getEndEffPos();
+    freq = 0.1;
     counter = 1;
-//    qi(0) = 10;
+//    qi(0) = 45;
 //    robot->setJointPos(qi);
 }
 
@@ -73,6 +110,7 @@ void M1DemoState::duringCode(void) {
         robot->printJointStatus();
         //robot->printStatus();
         /* */
+//        std::cout << std::dec << iterations << std::endl;
 //        counter = counter + 1;
 //        std::cout << dt << std::endl;
 //        qi(0) = 10*sin(2*M_PI*freq*counter/100);
@@ -82,11 +120,30 @@ void M1DemoState::duringCode(void) {
 //        }
     }
 
-    qi(0) = 20*sin(2*M_PI*freq*iterations/300);
-//        qi=robot->getJointPos();
-    if(robot->setJointPos(qi) != SUCCESS){
-        std::cout << "Error: " << std::endl;
+    if(robot->status == R_SUCCESS && iterations%4==0) {
+        // control frequency is 400 hz
+        uint sample = iterations/4;
+//        std::cout << qi(0) << std::endl;
+        qi=robot->getJointPos();
+        std::cout << qi(0) << " <-> ";
+        qi(0) = 20*sin(2*M_PI*freq*sample/100);
+        std::cout << qi(0) << std::endl;
+        JointVec dq_t;
+        dq_t(0) = 1;
+        if(robot->setJointPos(qi) != SUCCESS){
+            std::cout << "Error: " << std::endl;
+        }
+//        std::cout << "Velocity _1: " << dq_t(0) << std::endl;
+//        robot->setJointVel(dq_t);
     }
+
+//    qi(0) = 30*sin(2*M_PI*freq*iterations/200);
+//    if(robot->setJointPos(qi) != SUCCESS){
+//        std::cout << "Error: " << std::endl;
+//    }
+
+//    int frequency = 1./dt;
+//    std::cout << "Frequency: " << std::dec << frequency << std::endl;
 
 //    qi(0) = 20*sin(2*M_PI*freq*elapsedTime);
 //    if(robot->setJointPos(qi) == SUCCESS){
@@ -137,7 +194,6 @@ void M1DemoState::exitCode(void) {
     robot->setJointPos(JointVec::Zero());
 //    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
 }
-
 
 /*
 void M1CalibState::entryCode(void) {

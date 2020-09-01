@@ -15,11 +15,13 @@ M1DemoMachine::M1DemoMachine() {
     //endCalib = new EndCalib(this);
     idleState = new IdleState(this, robot);
     monitorState = new Monitoring( this, robot);
+    positionTracking = new M1PositionTracking(this, robot);
 
     // Create PRE-DESIGNED State Machine events objects.
     event2Demo = new Event2Demo(this);
     event2Monitor = new Event2Monitor(this);
     event2Idle = new Event2Idle(this);
+    event2Pos = new Event2Pos(this);
 
     /**
      * \brief add a tranisition object to the arch list of the first state in the NewTransition MACRO.
@@ -31,9 +33,13 @@ M1DemoMachine::M1DemoMachine() {
     //NewTransition(calibState, endCalib, standbyState);
     //NewTransition(calibState, endCalib, endEffDemoState);
     NewTransition(idleState, event2Demo, demoState);
-    NewTransition(idleState, event2Monitor, monitorState);
     NewTransition(demoState, event2Idle, idleState);
+
+    NewTransition(idleState, event2Monitor, monitorState);
     NewTransition(monitorState, event2Idle, idleState);
+
+    NewTransition(idleState, event2Pos, positionTracking);
+    NewTransition(positionTracking, event2Idle, idleState);
 //    NewTransition(idleState, monitorExo, monitorState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
@@ -112,6 +118,17 @@ bool M1DemoMachine::Event2Monitor::check(void) {
 bool M1DemoMachine::Event2Idle::check(void) {
     if (OWNER->robot->keyboard->getQ() == true) {
         std::cout << "Pressed Q!" << std::endl;
+        return true;
+    }
+    return false;
+}
+
+////////////////////////////////////////////////////////////////
+// Events ------------------------------------------------------
+///////////////////////////////////////////////////////////////
+bool M1DemoMachine::Event2Pos::check(void) {
+    if (OWNER->robot->keyboard->getA() == true) {
+//        std::cout << "Pressed A!" << std::endl;
         return true;
     }
     return false;

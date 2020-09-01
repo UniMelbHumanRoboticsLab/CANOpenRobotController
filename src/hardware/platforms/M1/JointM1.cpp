@@ -1,6 +1,6 @@
 /**
  * @file JointM1.cpp
- * @author Tim Haswell borrowing heavily from Vincent Crocher
+ * @author Yue Wen, Tim Haswell borrowing heavily from Vincent Crocher
  * @brief
  * @version 0.1
  * @date 2020-07-08
@@ -17,18 +17,23 @@
 JointM1::JointM1(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max): ActuatedJoint(jointID, q_min, q_max, nullptr),
                                                                                                                                           sign(sign_), qMin(q_min), qMax(q_max), dqMin(dq_min), dqMax(dq_max), tauMin(tau_min), tauMax(tau_max){
     drive = new KincoDrive(jointID+1);
+    d2r = M_PIf64 / 180.;
+    r2d = 180. / M_PIf64;
 
     // Define unchanging unit conversion properties
     encoderCounts = 10000;          //Encoder counts per turn
-    reductionRatio = 22.;           // Reduction ratio due to gear head
+    reductionRatio = 1;         // Reduction ratio due to gear head, seems right, but not sure yet
     Ipeak = 45.0;                   //Kinco FD123 peak current
     motorTorqueConstant = 0.132;    //SMC60S-0020 motor torque constant
-//    d2j_Pos = sign * (2. * M_PIf64) / (double)encoderCounts / reductionRatio;   // Drive to Joint unit conversion for position
-    d2j_Pos = 5.14/(encoderCounts*50);   // count to degree - Drive to Joint unit conversion for position
-//    j2d_Pos = sign / (2. * M_PIf64) * (double)encoderCounts * reductionRatio;   // Joint to Drive unit conversion for position
-    j2d_Pos = 50*encoderCounts/5.14;   // degree to count - Joint to Drive unit conversion for position
-    d2j_Vel = sign * (2. * M_PIf64) / 60. / 512. / (double)encoderCounts * 1875 / reductionRatio;   // Drive to Joint unit conversion for velocity
-    j2d_Vel = sign / (2. * M_PIf64) * 60. * 512. * (double)encoderCounts / 1875 * reductionRatio;   // Joint to Drive unit conversion for velocity
+//    d2j_Pos = sign / (double)encoderCounts / reductionRatio;   // Drive to Joint unit conversion for position
+    d2j_Pos = 5.14/(encoderCounts);         // count to degree - Drive to Joint unit conversion for position
+//    j2d_Pos = sign * (double)encoderCounts * reductionRatio;   // Joint to Drive unit conversion for position
+    j2d_Pos = encoderCounts/5.14;           // degree to count - Joint to Drive unit conversion for position
+    d2j_Vel = sign / 60. / 512. / (double)encoderCounts * 1875 / reductionRatio;   // Drive to Joint unit conversion for velocity
+//    d2j_Vel = sign / 512. / (double)encoderCounts * 1875;   // Drive to Joint unit conversion for velocity
+    j2d_Vel = sign * 60. * 512. * (double)encoderCounts / 1875 * reductionRatio;   // Joint to Drive unit conversion for velocity
+//    j2d_Vel = sign * 512. * (double)encoderCounts / 1875;   // Joint to Drive unit conversion for velocity
+
     d2j_Trq = sign / Ipeak / 1.414 * motorTorqueConstant * reductionRatio;   // Drive to Joint unit conversion for torque
     j2d_Trq = sign * Ipeak * 1.414 / motorTorqueConstant / reductionRatio;   // Joint to Drive unit conversion for torque
 
@@ -84,9 +89,11 @@ bool JointM1::updateValue() {
 
 setMovementReturnCode_t JointM1::safetyCheck() {
     if(velocity > dqMax  ||  velocity < dqMin) {
+        DEBUG_OUT(" Velocity out of bound: " << velocity);
         return OUTSIDE_LIMITS;
     }
     if(torque > tauMax  ||  torque < tauMin) {
+        DEBUG_OUT(" Torque out of bound: " << torque);
         return OUTSIDE_LIMITS;
     }
     return SUCCESS;
@@ -101,8 +108,11 @@ setMovementReturnCode_t JointM1::setPosition(double qd) {
     if(calibrated) {
         if(qd >= qMin  &&  qd <= qMax) {
             return ActuatedJoint::setPosition(qd);
+//            drive->setPos(jointPositionToDriveUnit(qd+q0));
+//            return SUCCESS;
         }
         else {
+            DEBUG_OUT(" Position out of bound: " << qd);
             return OUTSIDE_LIMITS;
         }
     }
@@ -124,6 +134,8 @@ setMovementReturnCode_t JointM1::setVelocity(double dqd) {
     //Capped velocity
     if(dqd>=dqMin && dqd<=dqMax) {
         return ActuatedJoint::setVelocity(dqd);
+//        drive->setVel(jointVelocityToDriveUnit(dqd));
+        return SUCCESS;
     }
     else {
         return OUTSIDE_LIMITS;
