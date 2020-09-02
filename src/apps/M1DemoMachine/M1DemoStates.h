@@ -162,13 +162,21 @@ public:
     void entryCode(void);
     void duringCode(void);
     void exitCode(void);
+    void positionControl(void);
+    void velocityControl(void);
+    void torqueControl(void);
 
-    JointVec qi;
+    JointVec q;
+    JointVec dq;
+    JointVec tau;
+
     EndEffVec Xi;
     bool flag = true;
     double freq;
     double counter;
     bool status = true;
+    int mode = 1;
+    double magnitude = 20;
 //    Eigen::Matrix<float, 1, 1> qi, Xi;
 };
 
