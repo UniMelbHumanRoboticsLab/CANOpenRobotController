@@ -4,19 +4,18 @@
 
 using namespace Eigen;
 
-short int sign(double val) {return (val>0)?1:((val<0)?-1:0); }
+short int sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
 
 RobotM3::RobotM3() : Robot(),
-                    calibrated(false),
-                    maxEndEffVel(2),
-                    maxEndEffForce(60) {
-
+                     calibrated(false),
+                     maxEndEffVel(2),
+                     maxEndEffForce(60) {
     //Define the robot structure: each joint with limits and drive: should be in constructor
-    double max_speed=360*M_PI/180.;
-    double tau_max=1.9*23;
-    joints.push_back(new JointM3(0, -45*M_PI/180., 45*M_PI/180., 1, -max_speed, max_speed, -tau_max, tau_max));
-    joints.push_back(new JointM3(1, -15*M_PI/180., 70*M_PI/180., 1, -max_speed, max_speed, -tau_max, tau_max));
-    joints.push_back(new JointM3(2, 0*M_PI/180., 95*M_PI/180., -1, -max_speed, max_speed, -tau_max, tau_max));
+    double max_speed = 360 * M_PI / 180.;
+    double tau_max = 1.9 * 23;
+    joints.push_back(new JointM3(0, -45 * M_PI / 180., 45 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(1)));
+    joints.push_back(new JointM3(1, -15 * M_PI / 180., 70 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(2)));
+    joints.push_back(new JointM3(2, 0 * M_PI / 180., 95 * M_PI / 180., -1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(3)));
 
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
@@ -54,19 +53,19 @@ bool RobotM3::initialiseNetwork() {
     }
     //Start node
     for (auto joint : joints) {
-        ((JointM3 *)joint)->start();
+        joint->start();
     }
 
     //Enable drive
-    int n=0;
+    int n = 0;
     for (auto joint : joints) {
-        bool joint_ready=false;
-        for(int i=0; i<10 & !joint_ready; i++) {
-            ((JointM3 *)joint)->readyToSwitchOn();
+        bool joint_ready = false;
+        for (int i = 0; i < 10 & !joint_ready; i++) {
+            joint->readyToSwitchOn();
             usleep(10000);
-            joint_ready = ((((JointM3 *)joint)->getDriveStatus() & 0x01)==0x01);
+            joint_ready = ((joint->getDriveStatus() & 0x01) == 0x01);
         }
-        if(!joint_ready) {
+        if (!joint_ready) {
             std::cout /*cerr is banned*/ << "M3: Failed to enable joint " << n << std::endl;
             return false;
         }
@@ -83,7 +82,7 @@ bool RobotM3::initialiseInputs() {
 bool RobotM3::stop() {
     std::cout << "Stopping M3 robot..." << std::endl;
     for (auto p : joints) {
-        ((JointM3 *)p)->disable();
+        p->disable();
     }
     return true;
 }
@@ -148,7 +147,7 @@ bool RobotM3::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((JointM3 *)p)->setMode(POSITION_CONTROL) != POSITION_CONTROL) {
+        if (((JointM3 *)p)->setMode(CM_POSITION_CONTROL) != CM_POSITION_CONTROL) {
             // Something bad happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
@@ -170,7 +169,7 @@ bool RobotM3::initVelocityControl() {
     DEBUG_OUT("Initialising Velocity Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((JointM3 *)p)->setMode(VELOCITY_CONTROL) != VELOCITY_CONTROL) {
+        if (((JointM3 *)p)->setMode(CM_VELOCITY_CONTROL) != CM_VELOCITY_CONTROL) {
             // Something bad happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
@@ -191,7 +190,7 @@ bool RobotM3::initTorqueControl() {
     DEBUG_OUT("Initialising Torque Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((JointM3 *)p)->setMode(TORQUE_CONTROL) != TORQUE_CONTROL) {
+        if (((JointM3 *)p)->setMode(CM_TORQUE_CONTROL) != CM_TORQUE_CONTROL) {
             // Something bad happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
@@ -328,18 +327,18 @@ Matrix3d RobotM3::J() {
     double F2 = -L[2] * cos(q[1]);
     double F3 = (L[1] + L[3]) * cos(q[2]) + L[2] * sin(q[1]) + L[0];
 
-	//Jacobian matrix elements
-	J(0,0) = F3*sin(q[0]);
-	J(0,1) = F2*cos(q[0]);
- 	J(0,2) = F1*cos(q[0]);
+    //Jacobian matrix elements
+    J(0, 0) = F3 * sin(q[0]);
+    J(0, 1) = F2 * cos(q[0]);
+    J(0, 2) = F1 * cos(q[0]);
 
-	J(1,0) = - F3*cos(q[0]);
- 	J(1,1) =   F2*sin(q[0]);
- 	J(1,2) =   F1*sin(q[0]);
+    J(1, 0) = -F3 * cos(q[0]);
+    J(1, 1) = F2 * sin(q[0]);
+    J(1, 2) = F1 * sin(q[0]);
 
-	J(2,0) = 0;
-	J(2,1) = - L[2]*sin(q[1]);
-	J(2,2) = - (L[1]+L[3])*cos(q[2]);
+    J(2, 0) = 0;
+    J(2, 1) = -L[2] * sin(q[1]);
+    J(2, 2) = -(L[1] + L[3]) * cos(q[2]);
 
     return J;
 }
@@ -368,22 +367,22 @@ Vector3d RobotM3::calculateGravityTorques() {
 }
 
 Vector3d RobotM3::getJointPosition() {
-    return Vector3d({((JointM3*)joints[0])->getPosition(), ((JointM3*)joints[1])->getPosition(), ((JointM3*)joints[2])->getPosition()});
+    return Vector3d({((JointM3 *)joints[0])->getPosition(), ((JointM3 *)joints[1])->getPosition(), ((JointM3 *)joints[2])->getPosition()});
 }
 Vector3d RobotM3::getJointVelocity() {
-    return Vector3d({((JointM3*)joints[0])->getVelocity(), ((JointM3*)joints[1])->getVelocity(), ((JointM3*)joints[2])->getVelocity()});
+    return Vector3d({((JointM3 *)joints[0])->getVelocity(), ((JointM3 *)joints[1])->getVelocity(), ((JointM3 *)joints[2])->getVelocity()});
 }
 Vector3d RobotM3::getJointTorque() {
-    return Vector3d({((JointM3*)joints[0])->getTorque(), ((JointM3*)joints[1])->getTorque(), ((JointM3*)joints[2])->getTorque()});
+    return Vector3d({((JointM3 *)joints[0])->getTorque(), ((JointM3 *)joints[1])->getTorque(), ((JointM3 *)joints[2])->getTorque()});
 }
 Vector3d RobotM3::getEndEffPosition() {
-     return directKinematic(getJointPosition());
+    return directKinematic(getJointPosition());
 }
 Vector3d RobotM3::getEndEffVelocity() {
-     return J()*getJointVelocity();
+    return J() * getJointVelocity();
 }
 Vector3d RobotM3::getEndEffForce() {
-     return (J().transpose()).inverse()*getJointTorque();
+    return (J().transpose()).inverse() * getJointTorque();
 }
 
 setMovementReturnCode_t RobotM3::setJointPosition(Vector3d q) {
@@ -399,71 +398,70 @@ setMovementReturnCode_t RobotM3::setJointTorque(Vector3d tau) {
     return applyTorque(tor);
 }
 setMovementReturnCode_t RobotM3::setEndEffPosition(Vector3d X) {
-    if(!calibrated) {
+    if (!calibrated) {
         return NOT_CALIBRATED;
     }
 
     //TODO: add a limit check
-    if(!1) {
+    if (!1) {
         return OUTSIDE_LIMITS;
     }
 
     Vector3d q = inverseKinematic(X);
-    if(std::isnan(q[0])||std::isnan(q[1])||std::isnan(q[2])) {
+    if (std::isnan(q[0]) || std::isnan(q[1]) || std::isnan(q[2])) {
         return OUTSIDE_LIMITS;
-    }
-    else {
+    } else {
         return setJointPosition(q);
     }
 }
 setMovementReturnCode_t RobotM3::setEndEffVelocity(Vector3d dX) {
-    if(!calibrated) {
+    if (!calibrated) {
         return NOT_CALIBRATED;
     }
 
     //TODO: add a limit check
-    if(!1) {
+    if (!1) {
         return OUTSIDE_LIMITS;
     }
 
-    Vector3d dq = J().inverse()*dX;
+    Vector3d dq = J().inverse() * dX;
     return setJointVelocity(dq);
 }
 setMovementReturnCode_t RobotM3::setEndEffForce(Vector3d F) {
-    if(!calibrated) {
+    if (!calibrated) {
         return NOT_CALIBRATED;
     }
 
     //TODO: add a limit check
-    if(!1) {
+    if (!1) {
         return OUTSIDE_LIMITS;
     }
 
-    Vector3d tau = J().transpose()*F;
+    Vector3d tau = J().transpose() * F;
     return setJointTorque(tau);
 }
 setMovementReturnCode_t RobotM3::setEndEffForceWithCompensation(Vector3d F, bool friction_comp) {
-    if(!calibrated) {
+    if (!calibrated) {
         return NOT_CALIBRATED;
     }
 
     //TODO: add a limit check
-    if(!1) {
+    if (!1) {
         return OUTSIDE_LIMITS;
     }
-    Vector3d tau_g = calculateGravityTorques(); //Gravity compensation torque
-    Vector3d tau_f(0,0,0); //Friction compensation torque
-    if(friction_comp) {
+    Vector3d tau_g = calculateGravityTorques();  //Gravity compensation torque
+    Vector3d tau_f(0, 0, 0);                     //Friction compensation torque
+    if (friction_comp) {
         double alpha = 0.5, beta = 0.2, threshold = 0.000000;
-        for(unsigned int i=0; i<3; i++) {
+        for (unsigned int i = 0; i < 3; i++) {
             double dq = ((JointM3 *)joints[i])->getVelocity();
-            if(abs(dq)>threshold) {
-                tau_f(i) = alpha*sign(dq) + beta*dq;
+            if (abs(dq) > threshold) {
+                tau_f(i) = alpha * sign(dq) + beta * dq;
             } else {
                 tau_f(i) = .0;
             }
         }
     }
 
-    return setJointTorque(J().transpose()*F + tau_g + tau_f);
+    return setJointTorque(J().transpose() * F + tau_g + tau_f);
 }

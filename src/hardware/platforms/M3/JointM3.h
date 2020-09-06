@@ -13,18 +13,18 @@
 
 #include <cmath>
 
-#include "ActuatedJoint.h"
+#include "Joint.h"
 #include "KincoDrive.h"
 
 /**
  * \brief M3 actuated joints, using Kinoc drives.
  *
  */
-class JointM3 : public ActuatedJoint {
+class JointM3 : public Joint {
    private:
     double q, dq, tau;
-    double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
-    short int sign;
+    const double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
+    const short int sign;
     int encoderCounts = 10000;  //Encoder counts per turn
     double reductionRatio = 22.;
 
@@ -45,11 +45,8 @@ class JointM3 : public ActuatedJoint {
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
 
    public:
-    JointM3(int jointID, double q_min, double q_max, short int sign_ = 1, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0);
+    JointM3(int jointID, double q_min, double q_max, short int sign_ = 1, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0, KincoDrive *drive = NULL);
     ~JointM3();
-
-    bool updateValue();
-
     /**
      * \brief Cehck if current velocity and torque are within limits.
      *

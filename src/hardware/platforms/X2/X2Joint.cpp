@@ -14,7 +14,7 @@
 
 #include "DebugMacro.h"
 
-X2Joint::X2Joint(int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive) : ActuatedJoint(jointID, jointMin, jointMax, drive) {
+X2Joint::X2Joint(int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive) : Joint(jointID, jointMin, jointMax, drive) {
     DEBUG_OUT("Joint Created, JOINT ID: " << this->id)
     // Do nothing else
     JDSlope = (jdp.drivePosB - jdp.drivePosA) / (jdp.jointPosB - jdp.jointPosA);
@@ -45,26 +45,6 @@ double X2Joint::driveUnitToJointTorque(int driveValue) {
     return driveValue * (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000.0);
 }
 
-bool X2Joint::updateValue() {
-    position = ActuatedJoint::getPosition();
-    velocity = ActuatedJoint::getVelocity();
-    torque = ActuatedJoint::getTorque();
-
-    return true;
-}
-
-setMovementReturnCode_t X2Joint::setPosition(double desiredPosition) {
-    return ActuatedJoint::setPosition(desiredPosition);
-}
-
-setMovementReturnCode_t X2Joint::setVelocity(double desiredVelocity) {
-    return ActuatedJoint::setVelocity(desiredVelocity);
-}
-
-setMovementReturnCode_t X2Joint::setTorque(double desiredTorque) {
-    return ActuatedJoint::setTorque(desiredTorque);
-}
-
 bool X2Joint::initNetwork() {
     DEBUG_OUT("Joint::initNetwork()")
     drive->start();
@@ -85,6 +65,5 @@ double X2Joint::getTorque() {
 }
 
 void X2Joint::setPositionOffset(double offset) {
-    ((CopleyDrive*)drive)->setPositionOffset(jointPositionToDriveUnit(-offset));
-
+    ((CopleyDrive *)drive)->setPositionOffset(jointPositionToDriveUnit(-offset));
 }

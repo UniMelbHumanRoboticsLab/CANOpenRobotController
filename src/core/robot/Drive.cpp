@@ -98,19 +98,22 @@ int Drive::getTorque() {
 }
 
 
-bool Drive::readyToSwitchOn() {
+DriveState Drive::readyToSwitchOn() {
     *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x06;
     driveState = READY_TO_SWITCH_ON;
+    return driveState;
 }
 
-bool Drive::enable() {
+DriveState Drive::enable() {
     *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x0F;
     driveState = ENABLED;
+    return driveState;
 }
 
-bool Drive::disable() {
+DriveState Drive::disable() {
     *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x00;
     driveState = DISABLED;
+    return driveState;
 }
 
 DriveState Drive::getState() {
