@@ -52,8 +52,8 @@ static int rtControlPriority = 80;      /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
 static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
-const float controlLoopPeriodInms = 2.5; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 2.5; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
+const float controlLoopPeriodInms = 3; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 3; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
 
 /** @brief Task Timer used for the Control Loop*/
 struct period_info {
@@ -192,7 +192,7 @@ int main(int argc, char *argv[]) {
                 param.sched_priority = rtPriority;
                 if (pthread_setschedparam(rt_thread_id, SCHED_FIFO, &param) != 0){
 #ifndef USEROS
-                    CO_errExit("Program init - rt_thread set scheduler failed");
+                    CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
 #else
                     ROS_ERROR("Program init - rt_thread set scheduler failed");
 #endif
@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
                 paramc.sched_priority = rtControlPriority;
                 if (pthread_setschedparam(rt_control_thread_id, SCHED_FIFO, &paramc) != 0){
 #ifndef USEROS
-                    CO_errExit("Program init - rt_thread set scheduler failed");
+                    CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
 #else
                     ROS_ERROR("Program init - rt_thread set scheduler failed");
 #endif

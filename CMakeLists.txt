@@ -31,8 +31,9 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 # If your application use ROS, don't forget to change the flag at the top.
 #(should be the class name and have corresponding header naming in a corresponding folder)
 set (STATE_MACHINE_NAME "M3DemoMachine")
+#set (STATE_MACHINE_NAME "M3Machining")
 #set (STATE_MACHINE_NAME "M3Chai")
-set (STATE_MACHINE_NAME "ExoTestMachine")
+#set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
 
 add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})

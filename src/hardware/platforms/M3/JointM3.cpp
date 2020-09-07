@@ -4,9 +4,16 @@
 
 #include "DebugMacro.h"
 
-JointM3::JointM3(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, KincoDrive *drive) : Joint(jointID, q_min, q_max, drive), sign(sign_), qMin(q_min), qMax(q_max), dqMin(dq_min), dqMax(dq_max), tauMin(tau_min), tauMax(tau_max){DEBUG_OUT("MY JOINT ID: " << this->id)}
+JointM3::JointM3(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, KincoDrive *drive) :   Joint(jointID, q_min, q_max, drive),
+                                                                                                                                                                sign(sign_),
+                                                                                                                                                                qMin(q_min), qMax(q_max),
+                                                                                                                                                                dqMin(dq_min), dqMax(dq_max),
+                                                                                                                                                                tauMin(tau_min), tauMax(tau_max)
+                                                                                                                                                                {
+                                                                                                                                                                    DEBUG_OUT("MY JOINT ID: " << this->id)
+                                                                                                                                                                }
 
-                                                                                                                                                              JointM3::~JointM3() {
+JointM3::~JointM3() {
     // This delete is because drives aren't instantiated in M3Robot (as they are in other examples. )
     delete drive;
 }

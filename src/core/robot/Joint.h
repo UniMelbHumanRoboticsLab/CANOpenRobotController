@@ -79,13 +79,13 @@ class Joint {
 
     /**
     * @brief Defines whether this joint is actuated or not (i.e. if it has a drive object attached )
-    * 
+    *
     */
     const bool actuated;
 
     /**
       * \brief Contains a Drive object, which is a CANOpen device which is used to control the
-      * physical hardware. If joint is unactuated, set to NULL. 
+      * physical hardware. If joint is unactuated, set to NULL.
       *
       */
     Drive *drive;
@@ -97,8 +97,8 @@ class Joint {
     ControlMode driveMode = CM_UNCONFIGURED;
 
     /**
-     * @brief Indicates whether a calibration has been performed on this joint yet. 
-     * 
+     * @brief Indicates whether a calibration has been performed on this joint yet.
+     *
      */
     bool calibrated = false;
 
@@ -197,9 +197,9 @@ class Joint {
 
     /**
     * @brief Fetches the joint position from the hardware (e.g. Drive) and converts to joint units
-    * 
+    *
     * Default behaviour is to take value from the Drive object if actuated. Should be overloaded for non-drive joints
-    * 
+    *
     * @return double the current position of the joint
     */
     virtual double updatePosition();
@@ -208,16 +208,16 @@ class Joint {
     * @brief Fetches the joint velocity from the hardware (e.g. Drive) and converts to joint units
     *
     * Default behaviour is to take value from the Drive object if actuated. Should be overloaded for non-drive joints
-    * @return double the current velocity of the joint 
+    * @return double the current velocity of the joint
     */
     virtual double updateVelocity();
 
     /**
     * @brief Fetches the joint torque from the hardware (e.g. Drive) and converts to joint units
-    * 
+    *
     * Default behaviour is to take value from the Drive object if actuated. Should be overloaded for non-drive joints
-    * 
-    * @return double the current torque of the joint 
+    *
+    * @return double the current torque of the joint
     */
     virtual double updateTorque();
 
@@ -347,7 +347,15 @@ class Joint {
       * \param motorProfile variables for desired mode, e.g. postion: v,a and deceleration. Not used in torque control
       * \return ControlMode Configured Drive Mode, -1 if unsuccessful
       */
-    virtual ControlMode setMode(ControlMode driveMode_, motorProfile = motorProfile{0, 0, 0});
+    virtual ControlMode setMode(ControlMode driveMode_, motorProfile);
+
+    /**
+         * \brief Set the mode of the device (nominally, position, velocity or torque control)
+         *
+         * \param driveMode The mode to be used if possible
+         * \return ControlMode Configured Drive Mode, -1 if unsuccessful
+         */
+    virtual ControlMode setMode(ControlMode driveMode_);
 
     /**
       * \brief Set the Position object
