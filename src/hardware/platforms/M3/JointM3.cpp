@@ -19,10 +19,10 @@ JointM3::~JointM3() {
 }
 
 setMovementReturnCode_t JointM3::safetyCheck() {
-    if (dq > dqMax || dq < dqMin) {
+    if (velocity > dqMax || velocity < dqMin) {
         return OUTSIDE_LIMITS;
     }
-    if (tau > tauMax || tau < tauMin) {
+    if (torque > tauMax || torque < tauMin) {
         return OUTSIDE_LIMITS;
     }
     return SUCCESS;
@@ -43,10 +43,10 @@ setMovementReturnCode_t JointM3::setPosition(double qd) {
 setMovementReturnCode_t JointM3::setVelocity(double dqd) {
     //Position protection first only if calibrated
     if (calibrated) {
-        if (q <= qMin && dqd < 0) {
+        if (position <= qMin && dqd < 0) {
             dqd = 0;
         }
-        if (q >= qMax && dqd > 0) {
+        if (position >= qMax && dqd > 0) {
             dqd = 0;
         }
     }
@@ -61,10 +61,10 @@ setMovementReturnCode_t JointM3::setVelocity(double dqd) {
 setMovementReturnCode_t JointM3::setTorque(double taud) {
     //Position protection first only if calibrated
     if (calibrated) {
-        if (q <= qMin && taud < 0) {
+        if (position <= qMin && taud < 0) {
             taud = 0;
         }
-        if (q >= qMax && taud > 0) {
+        if (position >= qMax && taud > 0) {
             taud = 0;
         }
     }

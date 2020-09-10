@@ -22,7 +22,6 @@
  */
 class JointM3 : public Joint {
    private:
-    double q, dq, tau;
     const double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
     const short int sign;
     int encoderCounts = 10000;  //Encoder counts per turn
