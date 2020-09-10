@@ -373,9 +373,10 @@ void M3DemoMinJerkPosition::entryCode(void) {
     Xi=robot->getEndEffPosition();
     Xf=TrajPt[TrajPtIdx];
     T=TrajTime[TrajPtIdx];
+    k_i=1.;
 }
 void M3DemoMinJerkPosition::duringCode(void) {
-    float k_i=1.; //Integral gain
+
     V3 Xd, dXd;
     //Compute current desired interpolated point
     double status=JerkIt(Xi, Xf, T, elapsedTime-startTime, Xd, dXd);
@@ -398,8 +399,9 @@ void M3DemoMinJerkPosition::duringCode(void) {
         startTime=elapsedTime;
     }
 
+
     //Display progression
-    /*if(iterations%100==1) {
+    if(iterations%100==1) {
         std::cout << "Progress (Point "<< TrajPtIdx << ") |";
         for(int i=0; i<round(status*50.); i++)
             std::cout << "=";
@@ -408,7 +410,7 @@ void M3DemoMinJerkPosition::duringCode(void) {
 
         std::cout << "| (" << status*100 << "%)  ";
         robot->printStatus();
-    }*/
+    }
 }
 void M3DemoMinJerkPosition::exitCode(void) {
     robot->setJointVelocity(V3::Zero());

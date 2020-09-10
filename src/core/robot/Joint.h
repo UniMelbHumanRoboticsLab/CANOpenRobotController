@@ -116,7 +116,7 @@ class Joint {
       * \param jointValue The joint value to be converted
       * \return int The equivalent drive value for the given joint value
       */
-    virtual int jointPositionToDriveUnit(double jointValue) { return 0; };
+    virtual int jointPositionToDriveUnit(double jointValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
 
     /**
       * \brief Converts from the drive value to the equivalent value for the joint position
@@ -131,7 +131,7 @@ class Joint {
       * \param driveValue The drive value to be converted
       * \return The equivalent joint value for the given drive value
       */
-    virtual double driveUnitToJointPosition(int driveValue) { return 0; };
+    virtual double driveUnitToJointPosition(int driveValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
 
     /**
       * \brief Converts from the joint velocity value to the equivalent value for the drive
@@ -147,7 +147,7 @@ class Joint {
       * \param jointValue The joint value to be converted
       * \return int The equivalent drive value for the given joint value
       */
-    virtual int jointVelocityToDriveUnit(double jointValue) { return 0; };
+    virtual int jointVelocityToDriveUnit(double jointValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
 
     /**
       * \brief Converts from the drive value to the equivalent value for the joint position
@@ -162,7 +162,7 @@ class Joint {
       * \param driveValue The drive value to be converted
       * \return The equivalent joint value for the given drive value
       */
-    virtual double driveUnitToJointVelocity(int driveValue) { return 0; };
+    virtual double driveUnitToJointVelocity(int driveValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
 
     /**
       * \brief Converts from the joint torque value to the equivalent value for the drive
@@ -178,7 +178,7 @@ class Joint {
       * \param jointValue The joint value to be converted
       * \return int The equivalent drive value for the given joint value
       */
-    virtual int jointTorqueToDriveUnit(double jointValue) { return 0; };
+    virtual int jointTorqueToDriveUnit(double jointValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
 
     /**
       * \brief Converts from the drive value to the equivalent value for the joint position
@@ -193,7 +193,7 @@ class Joint {
       * \param driveValue The drive value to be converted
       * \return The equivalent joint value for the given drive value
       */
-    virtual double driveUnitToJointTorque(int driveValue) { return 0; };
+    virtual double driveUnitToJointTorque(int driveValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
 
     /**
     * @brief Fetches the joint position from the hardware (e.g. Drive) and converts to joint units
