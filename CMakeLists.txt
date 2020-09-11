@@ -1,12 +1,28 @@
 cmake_minimum_required(VERSION 3.3)
 project(CORC C CXX)
 
+
+# Select the application by setting the state machine to use.
+# If your application use ROS, don't forget to change the flag at the top.
+#(should be the class name and have corresponding header naming in a corresponding folder)
+#set (STATE_MACHINE_NAME "M3DemoMachine")
+#set (STATE_MACHINE_NAME "M3Machining")
+#set (STATE_MACHINE_NAME "M3Chai")
+#set (STATE_MACHINE_NAME "ExoTestMachine")
+set (STATE_MACHINE_NAME "X2DemoMachine")
+
+# Comment to use actual hardware, uncomment for a nor robot (virtual) app
+set(NO_ROBOT ON)
+
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS OFF)
 
 if(USE_ROS)
     add_definitions(-DUSEROS)
 endif()
+
+
+
 
 ## Compile as C++11 with pthread
 set(CMAKE_CXX_STANDARD 11)
@@ -27,17 +43,13 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-# Select the application by setting the state machine to use.
-# If your application use ROS, don't forget to change the flag at the top.
-#(should be the class name and have corresponding header naming in a corresponding folder)
-set (STATE_MACHINE_NAME "M3DemoMachine")
-#set (STATE_MACHINE_NAME "M3Machining")
-#set (STATE_MACHINE_NAME "M3Chai")
-#set (STATE_MACHINE_NAME "ExoTestMachine")
-#set (STATE_MACHINE_NAME "X2DemoMachine")
 
 add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
 add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
+if(NO_ROBOT)
+	add_definitions(-DNOROBOT=1)
+endif()
+
 
 if(USE_ROS)
 # Required ROS packages
@@ -79,22 +91,26 @@ list (APPEND INCLUDE_DIRS lib/)
 
 
 # Executable name: {STATEMACHINENAME}_APP
-add_executable(${STATE_MACHINE_NAME}_APP
+set (APP_NAME ${STATE_MACHINE_NAME}_APP)
+if(NO_ROBOT)
+	set (APP_NAME ${APP_NAME}_NOROBOT)
+endif()
+add_executable(${APP_NAME}
         ${SOURCES}
         )
 
-target_include_directories(${STATE_MACHINE_NAME}_APP PRIVATE ${INCLUDE_DIRS})
+target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
 
 # Set required external packages
 find_package(Threads REQUIRED)
 
 # Link non-ROS libraries
-target_link_libraries(${STATE_MACHINE_NAME}_APP ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${APP_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
 # Link ROS libraries
 if(USE_ROS)
-    target_link_libraries(${STATE_MACHINE_NAME}_APP ${catkin_LIBRARIES})
+    target_link_libraries(${APP_NAME} ${catkin_LIBRARIES})
 endif()
 
 
-message("-----------------------------------------------\nBuilding application ${STATE_MACHINE_NAME}_APP\n-----------------------------------------------")
+message("-----------------------------------------------\nBuilding application ${APP_NAME}\n-----------------------------------------------")

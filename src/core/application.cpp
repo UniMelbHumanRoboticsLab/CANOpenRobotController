@@ -29,6 +29,9 @@ char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
     printf("app_Program Start \n");
+#ifdef NOROBOT
+    printf("Running in NOROBOT (virtual) mode.\n");
+#endif // NOROBOT
 #ifndef USEROS
     stateMachine.init();
 #else
