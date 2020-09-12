@@ -7,6 +7,7 @@ using namespace Eigen;
 short int sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
 
 RobotM3::RobotM3() : Robot(),
+                     endEffTool(&M3Handle),
                      calibrated(false),
                      maxEndEffVel(2),
                      maxEndEffForce(60) {
@@ -360,8 +361,8 @@ Vector3d RobotM3::calculateGravityTorques() {
 
     //Calculate gravitational torques
     tau_g[0] = 0;
-    tau_g[1] = -L[2] / 2.0f * sin(q[1]) * (M[1] + M[2] + M[3] + M[4]) * g;
-    tau_g[2] = -(L[1] / 2.0f * (M[0] + M[3]) + L[1] * M[2] + L[4] / 2.0f * M[4]) * cos(q[2]) * g;
+    tau_g[1] = -L[2] / 2.0f * sin(q[1]) * (M[1] + M[2] + M[3] + M[4] + endEffTool->Mass) * g;
+    tau_g[2] = -(L[1] / 2.0f * (M[0] + M[3]) + L[1] * M[2] + L[4] / 2.0f * (M[4] + endEffTool->Mass)) * cos(q[2]) * g;
 
     return tau_g;
 }

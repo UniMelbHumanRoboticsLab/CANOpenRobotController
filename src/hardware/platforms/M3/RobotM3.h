@@ -29,6 +29,18 @@ typedef Eigen::Vector3d V3; //! Convenience alias for double  Vector of length 3
      *
      */
 
+typedef struct M3Tool
+{
+    M3Tool(Eigen::Matrix4d t, double m, std::string name="tool"):T(t),Mass(m),Name(name) {};
+    const Eigen::Matrix4d T; //Transformation matrix (in m)
+    const double Mass; //In kg
+    const std::string Name;
+} M3Tool;
+
+//Classic tools attached to M3
+static M3Tool M3Handle(Eigen::Matrix4d::Identity(), 0.95, "Handle"); //! Default handle with 3 rotational DoFs
+static M3Tool M3MachiningTool(Eigen::Matrix4d::Identity(), 0.5, "Machining tool"); //!
+
 /**
  * \brief Implementation of the M3 robot class, representing an M3 using 3 JointM3 (and so Kinco drives).
  * model reference:
@@ -45,7 +57,9 @@ typedef Eigen::Vector3d V3; //! Convenience alias for double  Vector of length 3
 class RobotM3 : public Robot {
    private:
     float LinkLengths[5] = {0.056, 0.15-0.015, 0.5, 0.465, 0.465+0.15-0.015};   /*!< Link lengths used for kniematic models (in m)*/
-    float LinkMasses[5] = {0, 0.450, 0.700, 0.200, 0.95};                        /*!< Link masses used for gravity compensation (in kg)*/
+    float LinkMasses[5] = {0, 0.450, 0.700, 0.200, .0};                        /*!< Link masses used for gravity compensation (in kg)*/
+
+    M3Tool *endEffTool; /*!< End-effector representation (transformation and mass) */
 
     Eigen::Vector3d qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
 
@@ -187,5 +201,8 @@ class RobotM3 : public Robot {
     setMovementReturnCode_t setEndEffVelocity(Eigen::Vector3d dX);
     setMovementReturnCode_t setEndEffForce(Eigen::Vector3d F);
     setMovementReturnCode_t setEndEffForceWithCompensation(Eigen::Vector3d F, bool friction_comp=true);
+
+
+    void changeTool(M3Tool *new_tool) {endEffTool=new_tool; std::cout << "RobotM3::changeTool: new tool: " << endEffTool->Name << std::endl;}
 };
 #endif /*RobotM3_H*/

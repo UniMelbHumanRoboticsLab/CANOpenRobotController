@@ -6,13 +6,13 @@ project(CORC C CXX)
 # If your application use ROS, don't forget to change the flag at the top.
 #(should be the class name and have corresponding header naming in a corresponding folder)
 #set (STATE_MACHINE_NAME "M3DemoMachine")
-#set (STATE_MACHINE_NAME "M3Machining")
+set (STATE_MACHINE_NAME "M3Machining")
 #set (STATE_MACHINE_NAME "M3Chai")
 #set (STATE_MACHINE_NAME "ExoTestMachine")
-set (STATE_MACHINE_NAME "X2DemoMachine")
+#set (STATE_MACHINE_NAME "X2DemoMachine")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT ON)
+#set(NO_ROBOT ON)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS OFF)
