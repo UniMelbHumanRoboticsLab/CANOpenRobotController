@@ -268,24 +268,24 @@ setMovementReturnCode_t RobotM3::applyTorque(std::vector<double> torques) {
 Vector3d RobotM3::directKinematic(Vector3d q) {
     Vector3d X;
 
-    float *L = LinkLengths;
+    std::vector<float> L = LinkLengths;
 
-    double F1 = (L[2] * sin(q[1]) + L[4] * cos(q[2]) + L[0]);
+    double F1 = (L[2] * sin(q[1]) + (L[3]+endEffTool->length) * cos(q[2]) + L[0]);
 
     X[0] = -F1 * cos(q[0]);
     X[1] = -F1 * sin(q[0]);
-    X[2] = L[2] * cos(q[1]) - L[4] * sin(q[2]);
+    X[2] = L[2] * cos(q[1]) - (L[3]+endEffTool->length) * sin(q[2]);
 
     return X;
 }
 Vector3d RobotM3::inverseKinematic(Vector3d X) {
     Vector3d q;
 
-    float *L = LinkLengths;
+    std::vector<float> L = LinkLengths;
 
     //Check accessible workspace
     double normX = X.norm();
-    if ((L[4] < L[2] && normX < L[2] - L[4]) || (L[4] > L[2] && normX < sqrt(L[4] * L[4] - L[2] * L[2])) || normX > (L[2] + L[4] + L[0]) || X[0] > 0) {
+    if ((L[3] < L[2] && normX < L[2] - (L[3]+endEffTool->length)) || ((L[3]+endEffTool->length) > L[2] && normX < sqrt((L[4]+endEffTool->length) * (L[3]+endEffTool->length) - L[2] * L[2])) || normX > (L[2] + (L[3]+endEffTool->length) + L[0]) || X[0] > 0) {
         std::cout /*cerr is banned*/ << "RobotM3::inverseKinematic() error: Point not accessible. NaN returned." << std::endl;
         q[0] = q[1] = q[2] = nan("");
         return q;
@@ -308,8 +308,8 @@ Vector3d RobotM3::inverseKinematic(Vector3d X) {
     tmpX[2] = X[2];
 
     //Calculate joints 2 and 3
-    double beta = acos((L[2] * L[2] + L[4] * L[4] - tmpX[0] * tmpX[0] - tmpX[2] * tmpX[2]) / (2. * (L[2] * L[4])));
-    q[1] = acos(L[4] * sin(beta) / sqrt(tmpX[0] * tmpX[0] + tmpX[2] * tmpX[2])) - atan2(tmpX[2], -tmpX[0]);
+    double beta = acos((L[2] * L[2] + L[3] * L[3] - tmpX[0] * tmpX[0] - tmpX[2] * tmpX[2]) / (2. * (L[2] * L[3])));
+    q[1] = acos(L[3] * sin(beta) / sqrt(tmpX[0] * tmpX[0] + tmpX[2] * tmpX[2])) - atan2(tmpX[2], -tmpX[0]);
     q[2] = M_PI / 2. + q[1] - beta;
 
     return q;
@@ -321,12 +321,12 @@ Matrix3d RobotM3::J() {
         q(i) = ((JointM3 *)joints[i])->getPosition();
     }
 
-    float *L = LinkLengths;
+    std::vector<float> L = LinkLengths;
 
     //Pre calculate factors for optimisation
-    double F1 = (L[1] + L[3]) * sin(q[2]);
+    double F1 = (L[3]+endEffTool->length) * sin(q[2]);
     double F2 = -L[2] * cos(q[1]);
-    double F3 = (L[1] + L[3]) * cos(q[2]) + L[2] * sin(q[1]) + L[0];
+    double F3 = (L[3]+endEffTool->length) * cos(q[2]) + L[2] * sin(q[1]) + L[0];
 
     //Jacobian matrix elements
     J(0, 0) = F3 * sin(q[0]);
@@ -339,7 +339,7 @@ Matrix3d RobotM3::J() {
 
     J(2, 0) = 0;
     J(2, 1) = -L[2] * sin(q[1]);
-    J(2, 2) = -(L[1] + L[3]) * cos(q[2]);
+    J(2, 2) = -(L[3]+endEffTool->length) * cos(q[2]);
 
     return J;
 }
@@ -348,8 +348,8 @@ Vector3d RobotM3::calculateGravityTorques() {
     Vector3d tau_g;
 
     //For convenience
-    float *L = LinkLengths;
-    float *M = LinkMasses;
+    std::vector<float> L = LinkLengths;
+    std::vector<float> M = LinkMasses;
 
     float g = 9.81;  //Gravitational constant: remember to change it if using the robot on the Moon or another planet
 
@@ -361,8 +361,8 @@ Vector3d RobotM3::calculateGravityTorques() {
 
     //Calculate gravitational torques
     tau_g[0] = 0;
-    tau_g[1] = -L[2] / 2.0f * sin(q[1]) * (M[1] + M[2] + M[3] + M[4] + endEffTool->Mass) * g;
-    tau_g[2] = -(L[1] / 2.0f * (M[0] + M[3]) + L[1] * M[2] + L[4] / 2.0f * (M[4] + endEffTool->Mass)) * cos(q[2]) * g;
+    tau_g[1] = -L[2] / 2.0f * sin(q[1]) * (M[1] + M[2] + M[3] + M[4] + endEffTool->mass) * g;
+    tau_g[2] = -(L[1] / 2.0f * (M[0] + M[3]) + L[1] * M[2] + L[3]/2.0f*M[4] + (L[3]+endEffTool->length/2.)*endEffTool->mass) * cos(q[2]) * g;
 
     return tau_g;
 }

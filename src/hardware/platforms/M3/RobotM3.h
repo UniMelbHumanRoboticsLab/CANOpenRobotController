@@ -31,33 +31,52 @@ typedef Eigen::Vector3d V3; //! Convenience alias for double  Vector of length 3
 
 typedef struct M3Tool
 {
-    M3Tool(Eigen::Matrix4d t, double m, std::string name="tool"):T(t),Mass(m),Name(name) {};
-    const Eigen::Matrix4d T; //Transformation matrix (in m)
-    const double Mass; //In kg
-    const std::string Name;
+    M3Tool(double l, double m, std::string n="tool"):length(l),mass(m),name(n) {};
+    const double length; //Tool length from attachment
+    const double mass; //In kg
+    const std::string name;
 } M3Tool;
 
 //Classic tools attached to M3
-static M3Tool M3Handle(Eigen::Matrix4d::Identity(), 0.95, "Handle"); //! Default handle with 3 rotational DoFs
-static M3Tool M3MachiningTool(Eigen::Matrix4d::Identity(), 0.5, "Machining tool"); //!
+static M3Tool M3NoTool(0, .0, "No Tool"); //! Default handle with 3 rotational DoFs
+static M3Tool M3Handle(0.140, 0.720, "Handle"); //! Default handle with 3 rotational DoFs 0.465
+static M3Tool M3MachiningTool(0.10, 0.5, "Machining tool"); //!
 
 /**
  * \brief Implementation of the M3 robot class, representing an M3 using 3 JointM3 (and so Kinco drives).
  * model reference:
- *             2
- *      3       \
- *      /\       \(L2)
- * (L3)/  \       \
- *    /    \       \
- *   4      \      .\0
- *           \   .
- *          1\.  (L1)
+ *
+ *                              /\
+ *                            /-  \
+ *                          /-     \
+ *                        /-        \
+ *              (L4)    /-           \
+ *                    /-  \           \
+ *                  /-     \           \
+ *                 /        \           \ (L2)
+ *               /-          \           \
+ *           M3/-             \        M1 \
+ *           /-                \           \
+ *         /-                   \           \
+ *       /-                   M2 \           \
+ *     /-                         \           \
+ *+------+                         \           \
+ *| MTool|                          \           \
+ *+------+                           \         q1-  (L0)
+ *                                    \          -------
+ *                                     \    (L1)      q0
+ *                                    q2              |
+ *                                                    |
+ *                                                    |
+ *                                                    |
+ *
  *
  */
+
 class RobotM3 : public Robot {
    private:
-    float LinkLengths[5] = {0.056, 0.15-0.015, 0.5, 0.465, 0.465+0.15-0.015};   /*!< Link lengths used for kniematic models (in m)*/
-    float LinkMasses[5] = {0, 0.450, 0.700, 0.200, .0};                        /*!< Link masses used for gravity compensation (in kg)*/
+    const std::vector<float> LinkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};   /*!< Link lengths used for kinematic models (in m), excluding tool*/
+    const std::vector<float> LinkMasses = {0, 0.450, 0.400, 0.100, .0};                  /*!< Link masses used for gravity compensation (in kg), excluding tool*/
 
     M3Tool *endEffTool; /*!< End-effector representation (transformation and mass) */
 
@@ -203,6 +222,6 @@ class RobotM3 : public Robot {
     setMovementReturnCode_t setEndEffForceWithCompensation(Eigen::Vector3d F, bool friction_comp=true);
 
 
-    void changeTool(M3Tool *new_tool) {endEffTool=new_tool; std::cout << "RobotM3::changeTool: new tool: " << endEffTool->Name << std::endl;}
+    void changeTool(M3Tool *new_tool) {endEffTool=new_tool; std::cout << "RobotM3::changeTool: new tool: " << endEffTool->name << std::endl;}
 };
 #endif /*RobotM3_H*/
