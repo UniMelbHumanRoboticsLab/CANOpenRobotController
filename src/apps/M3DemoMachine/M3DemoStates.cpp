@@ -37,9 +37,10 @@ void M3DemoState::duringCode(void) {
     if(iterations%100==1) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
         std::cout << elapsedTime << " ";
-        robot->printJointStatus();
-        //robot->printStatus();
+        //robot->printJointStatus();
+        robot->printStatus();
     }
+    robot->setEndEffForceWithCompensation(V3(0,0,0));
     /*V3 q = robot->getJointPos();
     q(1)=68*M_PI/180.-0.1*elapsedTime;*/
     //std::cout << q.transpose() <<std::endl;
@@ -161,11 +162,11 @@ void M3MassCompensation::duringCode(void) {
 
     //Mass controllable through keyboard inputs
     if(robot->keyboard->getS()) {
-        mass -=0.1;
+        mass -=0.1;robot->printStatus();
         std::cout << "Mass: " << mass << std::endl;
     }
     if(robot->keyboard->getW()) {
-        mass +=0.1;
+        mass +=0.1;robot->printStatus();
         std::cout << "Mass: " << mass << std::endl;
     }
 }
@@ -179,24 +180,18 @@ void M3EndEffDemo::entryCode(void) {
     robot->initVelocityControl();
 }
 void M3EndEffDemo::duringCode(void) {
-    V3 dX(0,0,0);
 
-    if(elapsedTime<1.0)
-    {
-        //Go towards the center
-        dX={-0.1,0.1,0.1};
-    }
-    else {
-        //Joystick driven
-        for(unsigned int i=0; i<3; i++) {
-            dX(i)=robot->joystick->getAxis(i)/2.;
-        }
+    //Joystick driven
+    V3 dXd(0,0,0);
+    for(unsigned int i=0; i<3; i++) {
+        dXd(i)=robot->joystick->getAxis(i)/2.;
     }
 
     //Apply
-    robot->setEndEffVelocity(dX);
+    robot->setEndEffVelocity(dXd);
 
     if(iterations%100==1) {
+        std::cout << dXd.transpose() << "  ";
         robot->printStatus();
     }
 }
@@ -378,14 +373,16 @@ void M3DemoMinJerkPosition::entryCode(void) {
     Xi=robot->getEndEffPosition();
     Xf=TrajPt[TrajPtIdx];
     T=TrajTime[TrajPtIdx];
+    k_i=1.;
 }
 void M3DemoMinJerkPosition::duringCode(void) {
-    float k_i=1.; //Integral gain
+
     V3 Xd, dXd;
     //Compute current desired interpolated point
     double status=JerkIt(Xi, Xf, T, elapsedTime-startTime, Xd, dXd);
     //Apply position control
     robot->setEndEffVelocity(dXd+k_i*(Xd-robot->getEndEffPosition()));
+
 
     //Have we reached a point?
     if(status>=1.) {
@@ -402,7 +399,8 @@ void M3DemoMinJerkPosition::duringCode(void) {
         startTime=elapsedTime;
     }
 
-    /*//Display progression
+
+    //Display progression
     if(iterations%100==1) {
         std::cout << "Progress (Point "<< TrajPtIdx << ") |";
         for(int i=0; i<round(status*50.); i++)
@@ -412,7 +410,7 @@ void M3DemoMinJerkPosition::duringCode(void) {
 
         std::cout << "| (" << status*100 << "%)  ";
         robot->printStatus();
-    }*/
+    }
 }
 void M3DemoMinJerkPosition::exitCode(void) {
     robot->setJointVelocity(V3::Zero());

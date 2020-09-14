@@ -95,6 +95,28 @@ ControlMode Joint::setMode(ControlMode driveMode_, motorProfile profile) {
     return CM_UNACTUATED_JOINT;
 }
 
+ControlMode Joint::setMode(ControlMode driveMode_) {
+    if (actuated) {
+        if (driveMode_ == CM_POSITION_CONTROL) {
+            if (drive->initPosControl()) {
+                driveMode = driveMode_;
+                return CM_POSITION_CONTROL;
+            }
+        } else if (driveMode_ == CM_VELOCITY_CONTROL) {
+            if (drive->initVelControl()) {
+                driveMode = driveMode_;
+                return CM_VELOCITY_CONTROL;
+            }
+        } else if (driveMode_ == CM_TORQUE_CONTROL) {
+            if (drive->initTorqueControl()) {
+                driveMode = driveMode_;
+                return CM_TORQUE_CONTROL;
+            }
+        }
+    }
+    return CM_UNACTUATED_JOINT;
+}
+
 setMovementReturnCode_t Joint::setPosition(double desQ) {
     if (actuated) {
         if (driveMode == CM_POSITION_CONTROL) {

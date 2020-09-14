@@ -4,18 +4,25 @@
 
 #include "DebugMacro.h"
 
-JointM3::JointM3(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, KincoDrive *drive) : Joint(jointID, q_min, q_max, drive), sign(sign_), qMin(q_min), qMax(q_max), dqMin(dq_min), dqMax(dq_max), tauMin(tau_min), tauMax(tau_max){DEBUG_OUT("MY JOINT ID: " << this->id)}
+JointM3::JointM3(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, KincoDrive *drive) :   Joint(jointID, q_min, q_max, drive),
+                                                                                                                                                                sign(sign_),
+                                                                                                                                                                qMin(q_min), qMax(q_max),
+                                                                                                                                                                dqMin(dq_min), dqMax(dq_max),
+                                                                                                                                                                tauMin(tau_min), tauMax(tau_max)
+                                                                                                                                                                {
+                                                                                                                                                                    DEBUG_OUT("MY JOINT ID: " << this->id)
+                                                                                                                                                                }
 
-                                                                                                                                                              JointM3::~JointM3() {
+JointM3::~JointM3() {
     // This delete is because drives aren't instantiated in M3Robot (as they are in other examples. )
     delete drive;
 }
 
 setMovementReturnCode_t JointM3::safetyCheck() {
-    if (dq > dqMax || dq < dqMin) {
+    if (velocity > dqMax || velocity < dqMin) {
         return OUTSIDE_LIMITS;
     }
-    if (tau > tauMax || tau < tauMin) {
+    if (torque > tauMax || torque < tauMin) {
         return OUTSIDE_LIMITS;
     }
     return SUCCESS;
@@ -36,10 +43,10 @@ setMovementReturnCode_t JointM3::setPosition(double qd) {
 setMovementReturnCode_t JointM3::setVelocity(double dqd) {
     //Position protection first only if calibrated
     if (calibrated) {
-        if (q <= qMin && dqd < 0) {
+        if (position <= qMin && dqd < 0) {
             dqd = 0;
         }
-        if (q >= qMax && dqd > 0) {
+        if (position >= qMax && dqd > 0) {
             dqd = 0;
         }
     }
@@ -54,10 +61,10 @@ setMovementReturnCode_t JointM3::setVelocity(double dqd) {
 setMovementReturnCode_t JointM3::setTorque(double taud) {
     //Position protection first only if calibrated
     if (calibrated) {
-        if (q <= qMin && taud < 0) {
+        if (position <= qMin && taud < 0) {
             taud = 0;
         }
-        if (q >= qMax && taud > 0) {
+        if (position >= qMax && taud > 0) {
             taud = 0;
         }
     }

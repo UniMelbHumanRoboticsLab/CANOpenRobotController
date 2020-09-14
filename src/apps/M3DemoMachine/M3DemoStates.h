@@ -234,10 +234,11 @@ class M3DemoMinJerkPosition: public M3TimedState {
     static const unsigned int TrajNbPts=4;
     unsigned int TrajPtIdx=0;
     double startTime;
-    V3 TrajPt[TrajNbPts]={V3(-0.4, 0, 0), V3(-0.6, 0, -0.2), V3(-0.6, 0.1, -0.1), V3(-0.6, -0.1, -0.1)};
+    V3 TrajPt[TrajNbPts]={V3(-0.55, 0, 0), V3(-0.7, 0, -0.2), V3(-0.7, 0.1, -0.1), V3(-0.7, -0.1, -0.1)};
     double TrajTime[TrajNbPts]={5, 3, 0.5, 0.5};
     V3 Xi, Xf;
     double T;
+    float k_i=1.; //Integral gain
 };
 
 

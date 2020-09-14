@@ -13,7 +13,6 @@
 #ifndef DEBUG_H_INCLUDED
 #define DEBUG_H_INCLUDED
 #include <iostream>
-#define NOROBOT
 //#define DEBUG
 //#define TIMING_LOG
 #ifdef DEBUG
