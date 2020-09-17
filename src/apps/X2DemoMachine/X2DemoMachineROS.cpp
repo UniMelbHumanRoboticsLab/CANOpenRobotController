@@ -11,14 +11,8 @@ X2DemoMachineROS::~X2DemoMachineROS() {
 }
 
 void X2DemoMachineROS::initialize(int argc, char *argv[]) {
-    for(int i=0; i<argc; i++)
-        std::cout << argv[i] << " ";
-    std::cout << std::endl;
     ros::init(argc, argv, "x2_node", ros::init_options::NoSigintHandler);
     ros::NodeHandle nodeHandle;
-    for(int i=0; i<argc; i++)
-        std::cout << argv[i] << " ";
-    std::cout << std::endl;
 
     jointStatePublisher_ = nodeHandle.advertise<sensor_msgs::JointState>("joint_states", 10);
 }
