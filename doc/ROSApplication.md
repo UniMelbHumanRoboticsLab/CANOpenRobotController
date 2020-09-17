@@ -20,7 +20,7 @@ On the target:
 ```
 >These can be added to the .bashrc of the host and target respectivelly to be automatically setup.
 
->If the hostnames are not defined, edit the /etc/hosts files (see ROS [documentation](http://wiki.ros.org/ROS/Tutorials/MultipleRemoteMachines) or this [example](https://github.com/mktk1117/six_wheel_robot/wiki/Communication-between-Raspberry-Pi-and-PC-(ROS\)) for more details).
+>If the hostnames are not defined, edit the /etc/hosts files (see ROS [documentation](http://wiki.ros.org/ROS/Tutorials/MultipleRemoteMachines) or this [example](https://github.com/mktk1117/six_wheel_robot/wiki/Communication-between-Raspberry-Pi-and-PC-\(ROS\)) for more details).
 
 
 ## Cross-compilation
