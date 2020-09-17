@@ -30,6 +30,7 @@ X2DemoMachine::X2DemoMachine() {
 void X2DemoMachine::init(int argc, char *argv[]) {
     DEBUG_OUT("X2DemoMachine::init()")
     initialised = robot->initialise();
+    DEBUG_OUT("X2DemoMachineROS::init()")
     x2DemoMachineRos_->initialize(argc, argv);
     running = true;
 }
@@ -37,8 +38,8 @@ void X2DemoMachine::init(int argc, char *argv[]) {
 void X2DemoMachine::end() {
     if(initialised) {
         currentState->exit();
-        x2DemoMachineRos_->~X2DemoMachineROS();
-        robot->~X2Robot();
+        delete x2DemoMachineRos_;
+        delete robot;
     }
 }
 

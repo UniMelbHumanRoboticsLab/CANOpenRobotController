@@ -307,7 +307,7 @@ void M3DemoPathState::duringCode(void) {
         for(int i=0; i<round(progress*50.); i++)
             std::cout << "=";
         for(int i=0; i<round((1-progress)*50.); i++)
-            std::cout << " ";
+            std::cout << "-";
 
         std::cout << "| (" << progress*100 << "%)" << std::endl;
     }
@@ -406,7 +406,7 @@ void M3DemoMinJerkPosition::duringCode(void) {
         for(int i=0; i<round(status*50.); i++)
             std::cout << "=";
         for(int i=0; i<round((1-status)*50.); i++)
-            std::cout << " ";
+            std::cout << "-";
 
         std::cout << "| (" << status*100 << "%)  ";
         robot->printStatus();
