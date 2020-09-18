@@ -21,6 +21,7 @@
 #include "Keyboard.h"
 #include "Joystick.h"
 #include "Robot.h"
+#include "M1ForceSensor.h"
 
 //typedef unsigned int uint;
 
@@ -70,7 +71,7 @@ class RobotM1 : public Robot {
     double d2r, r2d;
 
     // Storage variables for real-time updated values from CANopn
-    JointVec q, dq, tau;
+    JointVec q, dq, tau, tau_s;
 
     JointVec qCalibration;  // Calibration configuration: posture in which the robot is when using the calibration procedure
 
@@ -89,6 +90,7 @@ public:
 
     Keyboard *keyboard;
     Joystick *joystick;
+    M1ForceSensor *m1ForceSensor;
     RobotState status;
 
     bool initMonitoring();
@@ -153,6 +155,7 @@ public:
     *  q=qcalibration in current configuration.
     */
     void applyCalibration();
+    bool calibrateForceSensors();
 
     bool isCalibrated() {return calibrated;}
     void decalibrate() {calibrated = false;}
@@ -203,6 +206,7 @@ public:
     JointVec getJointPos();
     JointVec getJointVel();
     JointVec getJointTor();
+    JointVec getJointTor_s();
 //    EndEffVec getEndEffPos();
 //    EndEffVec getEndEffVel();
 //    EndEffVec getEndEffFor();

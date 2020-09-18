@@ -19,21 +19,19 @@ JointM1::JointM1(int jointID, double q_min, double q_max, short int sign_, doubl
     drive = new KincoDrive(jointID+1);
     d2r = M_PIf64 / 180.;
     r2d = 180. / M_PIf64;
-
     // Define unchanging unit conversion properties
+    double round2radian = 2*M_PIf64;
+    double correctionFactor = 1875./512;   //magic number
     encoderCounts = 10000;          //Encoder counts per turn
-    reductionRatio = 1;         // Reduction ratio due to gear head, seems right, but not sure yet
+    reductionRatio = 69;            // Reduction ratio due to gear head, seems right, but not sure yet
+    d2j_Pos = round2radian * sign / (double)encoderCounts / reductionRatio;   // Drive to Joint unit conversion for position, in radian
+    j2d_Pos = sign * (double)encoderCounts * reductionRatio / round2radian;   // Joint to Drive unit conversion for position, in encoder count
+
+    d2j_Vel = round2radian * sign / 60. / (double)encoderCounts / reductionRatio * correctionFactor;   // Drive to Joint unit conversion for velocity, reading is encoder count per minutes
+    j2d_Vel = sign * 60. * (double)encoderCounts * reductionRatio/round2radian / correctionFactor;   // Joint to Drive unit conversion for velocity, command input is round per second
+
     Ipeak = 45.0;                   //Kinco FD123 peak current
     motorTorqueConstant = 0.132;    //SMC60S-0020 motor torque constant
-//    d2j_Pos = sign / (double)encoderCounts / reductionRatio;   // Drive to Joint unit conversion for position
-    d2j_Pos = 5.14/(encoderCounts);         // count to degree - Drive to Joint unit conversion for position
-//    j2d_Pos = sign * (double)encoderCounts * reductionRatio;   // Joint to Drive unit conversion for position
-    j2d_Pos = encoderCounts/5.14;           // degree to count - Joint to Drive unit conversion for position
-    d2j_Vel = sign / 60. / 512. / (double)encoderCounts * 1875 / reductionRatio;   // Drive to Joint unit conversion for velocity
-//    d2j_Vel = sign / 512. / (double)encoderCounts * 1875;   // Drive to Joint unit conversion for velocity
-    j2d_Vel = sign * 60. * 512. * (double)encoderCounts / 1875 * reductionRatio;   // Joint to Drive unit conversion for velocity
-//    j2d_Vel = sign * 512. * (double)encoderCounts / 1875;   // Joint to Drive unit conversion for velocity
-
     d2j_Trq = sign / Ipeak / 1.414 * motorTorqueConstant * reductionRatio;   // Drive to Joint unit conversion for torque
     j2d_Trq = sign * Ipeak * 1.414 / motorTorqueConstant / reductionRatio;   // Joint to Drive unit conversion for torque
 
@@ -67,7 +65,6 @@ double JointM1::driveUnitToJointTorque(int driveValue) {
 
 // covert from joint unit to driver unit for control command
 int JointM1::jointPositionToDriveUnit(double jointValue) {
-//    int count = int(round(j2d_Pos * jointValue));
 //    DEBUG_OUT("jointPositionToDriveUnit " << count);
     return int(round(j2d_Pos * jointValue));
 }
@@ -131,11 +128,17 @@ setMovementReturnCode_t JointM1::setVelocity(double dqd) {
             dqd = 0;
         }
     }
+//    int driveValue = drive->getVel();
+//    DEBUG_OUT("driveValue : " << driveValue);
+//    DEBUG_OUT("driveValue/encoder/60 : " <<  std::setprecision(3) << 1.0*driveValue/encoderCounts/60);
+//    DEBUG_OUT("driveValue/encoder/60/reductionRatio : " <<  std::setprecision(3) << 1.0*driveValue/encoderCounts/60/reductionRatio);
+
     //Capped velocity
     if(dqd>=dqMin && dqd<=dqMax) {
         return ActuatedJoint::setVelocity(dqd);
 //        drive->setVel(jointVelocityToDriveUnit(dqd));
         return SUCCESS;
+
     }
     else {
         return OUTSIDE_LIMITS;

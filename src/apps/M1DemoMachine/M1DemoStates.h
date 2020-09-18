@@ -19,6 +19,11 @@
 #include "RobotM1.h"
 #include "State.h"
 
+#include "server.h"
+#include <csignal> //For raise()
+
+#define IP_ADDRESS "192.168.137.196" //Local IP address to use
+
 using namespace std;
 
 /**
@@ -107,6 +112,7 @@ class M1TimedState : public State {
  */
 class IdleState : public State {
     RobotM1 *robot;
+    server *chaiServer;
 
 public:
     void entry(void);
@@ -165,10 +171,19 @@ public:
     void positionControl(void);
     void velocityControl(void);
     void torqueControl(void);
+    void admittanceControl(void);
 
-    JointVec q;
+    JointVec q;     //positive dorsi flexion
     JointVec dq;
     JointVec tau;
+
+    double Ks;
+    double dt;
+    double B;
+    double Mass;
+    double net_tau;
+    double gain;
+    double acc;
 
     EndEffVec Xi;
     bool flag = true;

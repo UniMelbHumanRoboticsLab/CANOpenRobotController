@@ -27,13 +27,15 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
     qCalibration(0) = 0 * d2r;
 
     posControlMotorProfile.profileVelocity = 600.*512*10000/1875;
-    posControlMotorProfile.profileAcceleration = 500.*65535*10000/4000000;
-    posControlMotorProfile.profileDeceleration = 500.*65535*10000/4000000;
+    posControlMotorProfile.profileAcceleration = 2000.*65535*10000/4000000;
+    posControlMotorProfile.profileDeceleration = 2000.*65535*10000/4000000;
 
-    joints.push_back(new JointM1(0, -60, 60, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0)));
+    joints.push_back(new JointM1(0, -100, 100, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0)));
 
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
+    inputs.push_back(m1ForceSensor = new M1ForceSensor(1));
+
     status = R_SUCCESS;
 }
 
@@ -74,6 +76,12 @@ bool RobotM1::initialiseNetwork() {
 }
 bool RobotM1::initialiseInputs() {
     /*nothing to do*/
+//    inputs.push_back(&keyboard);
+//
+//    for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
+//        forceSensors.push_back(new X2ForceSensor(id));
+//        inputs.push_back(forceSensors[id]);
+//    }
     return true;
 }
 
@@ -92,6 +100,24 @@ void RobotM1::applyCalibration() {
     calibrated = true;
 }
 
+//bool RobotM1::calibrateForceSensors() {
+//    if(m1ForceSensor->calibrate()){
+//        DEBUG_OUT("[RobotM1::calibrateForceSensors]: Zeroing of force sensors are successfully completed.");
+//        return true;
+//    } else{
+//        DEBUG_OUT("[RobotM1::calibrateForceSensors]: Zeroing failed.");
+//        return false;
+//    }
+//}
+
+//Eigen::VectorXd X2Robot::getInteractionForce() {
+//    Eigen::VectorXd actualInteractionForces(X2_NUM_FORCE_SENSORS);
+//    for (int i = 0; i< X2_NUM_FORCE_SENSORS; i++) {
+//        actualInteractionForces[i] = forceSensors[i]->getForce();
+//    }
+//    return actualInteractionForces;
+//}
+
 void RobotM1::updateRobot() {
     Robot::updateRobot();   // Trigger RT data update at the joint level
     // Gather joint data at the Robot level
@@ -106,6 +132,7 @@ void RobotM1::updateRobot() {
         q(i) = ((JointM1 *)joints[i])->getPosition();
         dq(i) = ((JointM1 *)joints[i])->getVelocity();
         tau(i) = ((JointM1 *)joints[i])->getTorque();
+        tau_s(i) = m1ForceSensor[i].getForce();
     }
 //    std::cout << "safety check" << std::endl; // YW debug
     if (safetyCheck() != SUCCESS) {
@@ -158,6 +185,7 @@ void RobotM1::printJointStatus() {
     std::cout << "q=[ " << getJointPos().transpose() << " ]\t";
     std::cout << "dq=[ " << getJointVel().transpose() << " ]\t";
     std::cout << "tau=[ " << getJointTor().transpose() << " ]\t";
+    std::cout << "tau_s=[ " << getJointTor_s().transpose() << " ]\t";
     std::cout << "{";
     for (auto joint : joints)
         std::cout << "0x" << std::hex << ((JointM1 *)joint)->getDriveStatus() << "; ";
@@ -180,7 +208,7 @@ bool RobotM1::initMonitoring() {
     // Pause for a bit to let commands go
     usleep(2000);
     for (auto p : joints) {
-        ((JointM1 *)p)->disable();
+        ((JointM1 *)p)->enable();
     }
     return returnValue;
 }
@@ -272,7 +300,7 @@ setMovementReturnCode_t RobotM1::applyVelocity(JointVec velocities) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;  //TODO: proper return error code (not only last one)
     for (auto p : joints) {
-        std::cout << "Joint velocity 2: " << velocities(0) << std::endl;
+//        std::cout << "Joint velocity 2: " << velocities(0) << std::endl;
         setMovementReturnCode_t setVelCode = ((JointM1 *)p)->setVelocity(velocities(i));
         if (setVelCode == INCORRECT_MODE) {
             std::cout << "Joint " << p->getId() << ": is not in Velocity Control " << std::endl;
@@ -343,23 +371,27 @@ JointVec RobotM1::calculateGravityTorques() {
 }
 
 JointVec RobotM1::getJointPos() {
-    return q;
+    return q*r2d;
 }
 
 JointVec RobotM1::getJointVel() {
-    return dq;
+    return dq*r2d;
 }
 
 JointVec RobotM1::getJointTor() {
     return tau;
 }
 
+JointVec RobotM1::getJointTor_s() {
+    return tau_s;
+}
+
 setMovementReturnCode_t RobotM1::setJointPos(JointVec pos_d) {
-    return applyPosition(pos_d);
+    return applyPosition(pos_d*d2r);
 }
 
 setMovementReturnCode_t RobotM1::setJointVel(JointVec vel_d) {
-    return applyVelocity(vel_d);
+    return applyVelocity(vel_d*d2r);
 }
 
 setMovementReturnCode_t RobotM1::setJointTor(JointVec tor_d) {
