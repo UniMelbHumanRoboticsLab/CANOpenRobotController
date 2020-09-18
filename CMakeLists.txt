@@ -1,29 +1,34 @@
 cmake_minimum_required(VERSION 3.3)
 project(CORC C CXX)
 
+#For cross-compiling for Arm (BeagleBone) use the armhf toolchain:
+# cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake .. 
+# See doc for more details.
+################################## USER FLAGS ##################################
 
 ## Select the application by setting the state machine to use
 #(it should be the class name and have corresponding header naming in a corresponding folder)
 # If your application use ROS, don't forget to change the flag bellow to.
-#set (STATE_MACHINE_NAME "M3DemoMachine")
+set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "M3Machining")
 #set (STATE_MACHINE_NAME "M3Chai")
 #set (STATE_MACHINE_NAME "ExoTestMachine")
-set (STATE_MACHINE_NAME "X2DemoMachine")
+#set (STATE_MACHINE_NAME "X2DemoMachine")
 
 ## Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT ON)
+#set(NO_ROBOT ON)
 
 ## ROS Flag. set ON if you want to use ROS. Else, set OFF or comment
-set(USE_ROS ON)
+#set(USE_ROS ON)
+
+################################################################################
+
 
 if(USE_ROS)
     add_definitions(-DUSEROS)
 endif()
 
 
-
-set(CMAKE_SYSROOT /home/vincent/Mbed/bbai-sysroot/)
 ## Compile as C++11 with pthread
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -43,31 +48,13 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-
+## Current state machine (APP) to be build
 add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
 add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
 if(NO_ROBOT)
 	add_definitions(-DNOROBOT=1)
 endif()
 
-
-if(USE_ROS)
-	## Required ROS packages
-	find_package(roscpp REQUIRED)
-	find_package(std_msgs REQUIRED)
-	message("--${roscpp_INCLUDE_DIRS}--")
-	message("--${std_msgs_INCLUDE_DIRS}--")
-	set(roscpp_INCLUDE_DIRS "/home/vincent/Mbed/bbai-sysroot/usr/include")
-	set(std_msgs_INCLUDE_DIRS "/home/vincent/Mbed/bbai-sysroot/usr/include")
-	include_directories(${roscpp_INCLUDE_DIRS})
-	include_directories(${std_msgs_INCLUDE_DIRS})
-	
-	set(roscpp_LIBRARIES "/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libroscpp.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libpthread.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_signals.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_filesystem.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/librosconsole.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/librosconsole_log4cxx.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/librosconsole_backend_interface.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/liblog4cxx.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_regex.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libroscpp_serialization.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/librostime.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libxmlrpcpp.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libcpp_common.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_system.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_thread.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_chrono.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_date_time.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_atomic.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libpthread.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libconsole_bridge.so")
-	set(std_msgs_LIBRARIES "/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libroscpp_serialization.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/librostime.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libcpp_common.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_system.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_thread.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_chrono.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_date_time.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libboost_atomic.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libpthread.so;/home/vincent/Mbed/bbai-sysroot/usr/lib/arm-linux-gnueabihf/libconsole_bridge.so")
-	set(ROS_LIBRARIES ${roscpp_LIBRARIES} ${std_msgs_LIBRARIES})
-	message("--${roscpp_LIBRARIES}--")
-	message("--${std_msgs_LIBRARIES}--")
-endif()
 
 ## Get all source and header files (only the target app folder is included)
 file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "src/apps/${STATE_MACHINE_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.cpp")
@@ -84,7 +71,6 @@ list(REMOVE_DUPLICATES INCLUDE_DIRS)
 list (APPEND INCLUDE_DIRS lib/)
 
 
-
 ## Executable name: {STATEMACHINENAME}_APP
 set (APP_NAME ${STATE_MACHINE_NAME}_APP)
 if(NO_ROBOT)
@@ -93,6 +79,30 @@ endif()
 add_executable(${APP_NAME}
 				${SOURCES}
 				)
+
+
+#Add ROS dependencies
+if(USE_ROS)
+	message("-- Using sysroot folder: ${CMAKE_SYSROOT}")
+	## Required ROS packages
+	find_package(roscpp REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
+	find_package(std_msgs REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
+	#Reset include dirs towards sysroot only
+	foreach(inc_dir ${roscpp_INCLUDE_DIRS} ${std_msgs_INCLUDE_DIRS})
+		string(REGEX REPLACE "^/usr/" "${CMAKE_SYSROOT}usr/" inc_dir_cross ${inc_dir})
+		include_directories(${inc_dir_cross})
+	endforeach()
+	#Reset libraries towards sysroot only
+	foreach(lib_path ${roscpp_LIBRARIES} ${std_msgs_LIBRARIES})
+		string(REPLACE "/" ";" lib_path_list ${lib_path}) #Breakdown path in list
+		list(REVERSE lib_path_list)
+		list(GET lib_path_list 0 lib) #Get last element (library name)
+		find_library(new_path ${lib} PATHS ${CMAKE_SYSROOT}) #Force to look for it in actual sysroot path
+		list(APPEND ROS_LIBRARIES ${new_path}) #Add it
+		unset(new_path CACHE) #Clear variable to allow new search
+	endforeach()
+endif()
+
 
 target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
 
@@ -104,7 +114,7 @@ target_link_libraries(${APP_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
 ## Link ROS libraries
 if(USE_ROS)
-	 target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
+	target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
 endif()
 
 
