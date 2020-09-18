@@ -29,6 +29,7 @@ In order to cross-compile CORC with ROS support from the host machine, you first
 	/usr/
 	/lib/
 ```
+>It is recommended to do this on a minimal system to reduce the size of these folders. Typically graphical packages (xserver etc...) which may be installed by default on the BB distribution can be uninstall before.
 
 Once the files are copied, in a terminal, set the directory of this folder:
 ```bash
@@ -37,9 +38,9 @@ Once the files are copied, in a terminal, set the directory of this folder:
 
 Edit the `CMakeFileLists.txt` to select the app to build and ensure that the line `set(USE_ROS ON)` is NOT commented and set to ON.
 
-Cross-compile by adding the sysroot path argument cmake (and the toolchain argument). In the root CANOpenRobotController:
+Cross-compile by passing the sysroot path argument to cmake (and the toolchain argument). In the root CANOpenRobotController:
 ```bash
-	$ rm -r build && mkdir build && cd build/ && cmake -DCMAKE_SYSROOT=/path/to/sysroot/ -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+	$ rm -r build && mkdir build && cd build/ && cmake -DCMAKE_SYSROOT=/path/to/my/folder/corc-target-sysroot -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
 	$ make -j8
 ```
 Voila !

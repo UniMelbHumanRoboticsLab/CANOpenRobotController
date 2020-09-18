@@ -4,7 +4,7 @@ project(CORC C CXX)
 #To cross-compile for Arm (BeagleBone) use the armhf toolchain:
 # cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake .. 
 #To cross-compile with ROS support prepare a sysroot and pass it to cmake:
-# cmake -DCMAKE_SYSROOT=/path/to/sysroot/ -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+# cmake -DCMAKE_SYSROOT=/path/to/my/folder/corc-target-sysroot -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
 # See doc for more details.
 ################################## USER FLAGS ##################################
 
