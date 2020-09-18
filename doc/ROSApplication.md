@@ -37,9 +37,9 @@ Once the files are copied, in a terminal, set the directory of this folder:
 
 Edit the `CMakeFileLists.txt` to select the app to build and ensure that the line `set(USE_ROS ON)` is NOT commented and set to ON.
 
-Cross-compile normally: in the roor CANOpenRobotController:
+Cross-compile by adding the sysroot path argument cmake (and the toolchain argument). In the root CANOpenRobotController:
 ```bash
-	$ rm -r build && mkdir build && cd build/ && cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+	$ rm -r build && mkdir build && cd build/ && cmake -DCMAKE_SYSROOT=/path/to/sysroot/ -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
 	$ make -j8
 ```
 Voila !
