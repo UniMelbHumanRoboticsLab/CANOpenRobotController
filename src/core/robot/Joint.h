@@ -12,6 +12,7 @@
 #define JOINT_H_INCLUDED
 #include <iomanip>
 #include <iostream>
+#include <cstring>
 
 #include "Drive.h"
 /** @defgroup Joint Joint Module
@@ -229,7 +230,7 @@ class Joint {
      * @param jointMin The minimum allowable value for this joint (below this will cause an error)
      * @param jointMax The maximum allowable value for this joint (above this will cause an error)
      */
-    Joint(int jointID, double jointMin, double jointMax);
+    Joint(int jointID, double jointMin, double jointMax, const std::string& name);
 
     /**
      * @brief Construct a new Joint object

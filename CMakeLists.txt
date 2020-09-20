@@ -4,7 +4,7 @@ project(CORC C CXX)
 #To cross-compile for Arm (BeagleBone) use the armhf toolchain:
 # cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake .. 
 #To cross-compile with ROS support prepare a sysroot and pass it to cmake:
-# cmake -DCMAKE_SYSROOT=/path/to/my/folder/corc-target-sysroot -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+# cmake -DCMAKE_SYSROOT=/path/to/sysroot/ -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
 # See doc for more details.
 ################################## USER FLAGS ##################################
 
@@ -18,7 +18,7 @@ project(CORC C CXX)
 set (STATE_MACHINE_NAME "X2DemoMachine")
 
 ## Comment to use actual hardware, uncomment for a nor robot (virtual) app
-#set(NO_ROBOT ON)
+set(NO_ROBOT ON)
 
 ## ROS Flag. set ON if you want to use ROS. Else, set OFF or comment
 set(USE_ROS ON)
@@ -83,29 +83,36 @@ add_executable(${APP_NAME}
 				)
 
 
-#Add ROS dependencies
+## Add ROS dependencies
 if(USE_ROS)
-	if(IS_DIRECTORY ${CMAKE_SYSROOT})
-		message("-- Using sysroot folder: ${CMAKE_SYSROOT}")
-		## Required ROS packages
-		find_package(roscpp REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
-		find_package(std_msgs REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
-		#Reset include dirs towards sysroot only
-		foreach(inc_dir ${roscpp_INCLUDE_DIRS} ${std_msgs_INCLUDE_DIRS})
-			string(REGEX REPLACE "^/usr/" "${CMAKE_SYSROOT}usr/" inc_dir_cross ${inc_dir})
-			include_directories(${inc_dir_cross})
-		endforeach()
-		#Reset libraries towards sysroot only
-		foreach(lib_path ${roscpp_LIBRARIES} ${std_msgs_LIBRARIES})
-			string(REPLACE "/" ";" lib_path_list ${lib_path}) #Breakdown path in list
-			list(REVERSE lib_path_list)
-			list(GET lib_path_list 0 lib) #Get last element (library name)
-			find_library(new_path ${lib} PATHS ${CMAKE_SYSROOT}) #Force to look for it in actual sysroot path
-			list(APPEND ROS_LIBRARIES ${new_path}) #Add it
-			unset(new_path CACHE) #Clear variable to allow new search
-		endforeach()
+	# Required ROS packages
+	find_package(roscpp REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
+	find_package(std_msgs REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
+	if(NOT CMAKE_CROSSCOMPILING)
+		include_directories(${roscpp_INCLUDE_DIRS})
+		include_directories(${std_msgs_INCLUDE_DIRS})
+		set(ROS_LIBRARIES ${roscpp_LIBRARIES} ${std_msgs_LIBRARIES})
 	else()
-		message(FATAL_ERROR "No sysroot (CMAKE_SYSROOT) defined or not an accessible path")
+		# If cross-compiling force search in sysroot
+		if(IS_DIRECTORY ${CMAKE_SYSROOT})
+			message("-- Using sysroot folder: ${CMAKE_SYSROOT}")
+			#Reset include dirs towards sysroot only
+			foreach(inc_dir ${roscpp_INCLUDE_DIRS} ${std_msgs_INCLUDE_DIRS})
+				string(REGEX REPLACE "^/usr/" "${CMAKE_SYSROOT}usr/" inc_dir_cross ${inc_dir})
+				include_directories(${inc_dir_cross})
+			endforeach()
+			#Reset libraries towards sysroot only
+			foreach(lib_path ${roscpp_LIBRARIES} ${std_msgs_LIBRARIES})
+				string(REPLACE "/" ";" lib_path_list ${lib_path}) #Breakdown path in list
+				list(REVERSE lib_path_list)
+				list(GET lib_path_list 0 lib) #Get last element (library name)
+				find_library(new_path ${lib} PATHS ${CMAKE_SYSROOT}) #Force to look for it in actual sysroot path
+				list(APPEND ROS_LIBRARIES ${new_path}) #Add it
+				unset(new_path CACHE) #Clear variable to allow new search
+			endforeach()
+		else()
+			message(FATAL_ERROR "No sysroot (CMAKE_SYSROOT) defined or not an accessible path")
+		endif()
 	endif()
 endif()
 

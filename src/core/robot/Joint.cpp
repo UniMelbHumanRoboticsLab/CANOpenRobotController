@@ -10,11 +10,10 @@
  */
 #include "Joint.h"
 
-#include <iostream>
 
 #include "DebugMacro.h"
 
-Joint::Joint(int jointID, double jointMin, double jointMax) : id(jointID), qMin(jointMin), qMax(jointMax), actuated(false) {
+Joint::Joint(int jointID, double jointMin, double jointMax, const std::string& name="") : id(jointID), qMin(jointMin), qMax(jointMax), actuated(false) {
     position = 0;
     velocity = 0;
     torque = 0;
