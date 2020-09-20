@@ -57,6 +57,10 @@ class Joint {
      */
     const int id;
     /**
+     * Joint name. Used primarily for debug display and ROS state publishing (if applicable).
+     */
+    const std::string name;
+    /**
      * The current state of the joint (i.e. the value), to be returned in SI units.
      */
     double position;
@@ -230,7 +234,7 @@ class Joint {
      * @param jointMin The minimum allowable value for this joint (below this will cause an error)
      * @param jointMax The maximum allowable value for this joint (above this will cause an error)
      */
-    Joint(int jointID, double jointMin, double jointMax, const std::string& name);
+    Joint(int jointID, double jointMin, double jointMax, const std::string& name="");
 
     /**
      * @brief Construct a new Joint object
@@ -240,7 +244,7 @@ class Joint {
      * @param jointMax The maximum allowable value for this joint (above this will cause an error)
      * @param q0 Initial value for the position
      */
-    Joint(int jointID, double jointMin, double jointMax, double q0);
+    Joint(int jointID, double jointMin, double jointMax, double q0, const std::string& name="");
 
     /**
      * @brief Construct a new Joint object
@@ -250,7 +254,7 @@ class Joint {
      * @param jointMax The maximum allowable value for this joint (above this will cause an error)
      * @param jointDrive A pointer to the drive object (if this joint is actuated)
      */
-    Joint(int jointID, double jointMin, double jointMax, Drive *jointDrive);
+    Joint(int jointID, double jointMin, double jointMax, Drive *jointDrive, const std::string& name="");
 
     /**
      * @brief Construct a new Joint object
@@ -261,7 +265,7 @@ class Joint {
      * @param q0 Initial value for the position
      * @param jointDrive A pointer to the drive object (if this joint is actuated)
      */
-    Joint(int jointID, double jointMin, double jointMax, double q0, Drive *jointDrive);
+    Joint(int jointID, double jointMin, double jointMax, double q0, Drive *jointDrive, const std::string& name="");
     /**
      * @brief Destroy the Joint object
      *

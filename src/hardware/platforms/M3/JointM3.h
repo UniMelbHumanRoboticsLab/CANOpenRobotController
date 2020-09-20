@@ -11,6 +11,7 @@
 #ifndef JOINTM3_H_INCLUDED
 #define JOINTM3_H_INCLUDED
 
+#include <iostream>
 #include <cmath>
 
 #include "Joint.h"
@@ -44,7 +45,7 @@ class JointM3 : public Joint {
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
 
    public:
-    JointM3(int jointID, double q_min, double q_max, short int sign_ = 1, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0, KincoDrive *drive = NULL);
+    JointM3(int jointID, double q_min, double q_max, short int sign_ = 1, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0, KincoDrive *drive = NULL, const std::string& name="");
     ~JointM3();
     /**
      * \brief Cehck if current velocity and torque are within limits.

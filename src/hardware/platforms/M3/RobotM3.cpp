@@ -14,9 +14,9 @@ RobotM3::RobotM3() : Robot(),
     //Define the robot structure: each joint with limits and drive: should be in constructor
     double max_speed = 360 * M_PI / 180.;
     double tau_max = 1.9 * 23;
-    joints.push_back(new JointM3(0, -45 * M_PI / 180., 45 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(1)));
-    joints.push_back(new JointM3(1, -15 * M_PI / 180., 70 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(2)));
-    joints.push_back(new JointM3(2, 0 * M_PI / 180., 95 * M_PI / 180., -1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(3)));
+    joints.push_back(new JointM3(0, -45 * M_PI / 180., 45 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(1), "q1"));
+    joints.push_back(new JointM3(1, -15 * M_PI / 180., 70 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(2), "q2"));
+    joints.push_back(new JointM3(2, 0 * M_PI / 180., 95 * M_PI / 180., -1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(3), "q3"));
 
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
