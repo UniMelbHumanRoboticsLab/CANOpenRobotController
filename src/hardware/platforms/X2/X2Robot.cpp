@@ -336,3 +336,11 @@ void X2Robot::freeMemory() {
 void X2Robot::updateRobot() {
     Robot::updateRobot();
 }
+
+bool X2Robot::disable() {
+    std::cout << "Disabling X2 robot..." << std::endl;
+    for (auto p : joints) {
+        p->disable();
+    }
+    return true;
+}

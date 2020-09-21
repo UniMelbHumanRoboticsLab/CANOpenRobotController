@@ -223,9 +223,10 @@ class X2Robot : public Robot {
        */
     void updateRobot();
     /**
-       * \brief Joint Limit Map between Joint value and min Degrees possible
-       * \param int Joint value
-       * \return double minDeg 
+       * \brief disable the drives of the X2 robot
+       * \return bool
        */
+    bool disable();
+
 };
 #endif /*EXOROBOT_H*/
