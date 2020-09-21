@@ -14,32 +14,32 @@
 
 #include "DebugMacro.h"
 
-DummyActJoint::DummyActJoint(int jointID, double jointMin, double jointMax, Drive *drive) : ActuatedJoint(jointID, jointMin, jointMax, drive) {
+DummyActJoint::DummyActJoint(int jointID, double jointMin, double jointMax, Drive *drive) : Joint(jointID, jointMin, jointMax, drive) {
     DEBUG_OUT("MY JOINT ID: " << this->id)
     // Do nothing else
 }
 
 bool DummyActJoint::updateValue() {
-    position = ActuatedJoint::getPosition();
-    velocity = ActuatedJoint::getVelocity();
-    torque = ActuatedJoint::getTorque();
+    position = Joint::updatePosition();
+    velocity = Joint::updateVelocity();
+    torque = Joint::updateTorque();
 
     return true;
 }
 
 setMovementReturnCode_t DummyActJoint::setPosition(double desiredPosition) {
     lastPositionCommand = desiredPosition;
-    return ActuatedJoint::setPosition(desiredPosition);
+    return Joint::setPosition(desiredPosition);
 }
 
 setMovementReturnCode_t DummyActJoint::setVelocity(double desiredVelocity) {
     lastVelocityCommand = desiredVelocity;
-    return ActuatedJoint::setVelocity(desiredVelocity);
+    return Joint::setVelocity(desiredVelocity);
 }
 
 setMovementReturnCode_t DummyActJoint::setTorque(double desiredTorque) {
     lastTorqueCommand = desiredTorque;
-    return ActuatedJoint::setTorque(desiredTorque);
+    return Joint::setTorque(desiredTorque);
 }
 
 bool DummyActJoint::initNetwork() {

@@ -11,8 +11,8 @@
 #ifndef X2JOINT_H_INCLUDED
 #define X2JOINT_H_INCLUDED
 
-#include "ActuatedJoint.h"
 #include "CopleyDrive.h"
+#include "Joint.h"
 
 #define MOTOR_RATED_TORQUE 0.319
 #define REDUCTION_RATIO 122.5
@@ -35,7 +35,7 @@ typedef struct JointDrivePairs {
  * Important to note the simple implementation between the driveValue and jointValue
  * 
  */
-class X2Joint : public ActuatedJoint {
+class X2Joint : public Joint {
    private:
     double JDSlope;
     double JDIntercept;
@@ -83,10 +83,7 @@ class X2Joint : public ActuatedJoint {
    public:
     X2Joint(int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive);
     ~X2Joint(){};
-    bool updateValue();
-    setMovementReturnCode_t setPosition(double desiredPosition);
-    setMovementReturnCode_t setVelocity(double desiredVelocity);
-    setMovementReturnCode_t setTorque(double desiredTorque);
+
     bool initNetwork();
     double getPosition();
     double getVelocity();
@@ -101,7 +98,6 @@ class X2Joint : public ActuatedJoint {
          * \return false if not
          */
     void setPositionOffset(double offset);
-
 };
 
 #endif

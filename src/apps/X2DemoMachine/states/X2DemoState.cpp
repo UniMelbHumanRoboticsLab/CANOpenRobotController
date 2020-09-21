@@ -19,7 +19,7 @@ void X2DemoState::during(void) {
         robot->setVelocity(desiredVelocity);
 
     }else{
-        desiredVelocity <<0, 0, 0, 0;
+        desiredVelocity << 0, 0, 0, 0;
         robot->setVelocity(desiredVelocity);
     }
 }
