@@ -19,6 +19,14 @@ void X2DemoState::entry(void) {
     interactionForces_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 
 //    initializeLogger(120000);
+    auto logger = spdlog::basic_logger_mt<spdlog::async_factory>("test_logger", "logs/async_log2.txt");
+//    spdlog::set_default_logger(logger);
+//    spdlog::flush_on(spdlog::level::info);
+//    spdlog::logger async_file = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/async_log2.txt");
+    logger->info("Trial Asynch Logging 2");
+//    logger->
+        // Under VisualStudio, this must be called before main finishes to workaround a known VS issue
+
 
     time0 = std::chrono::steady_clock::now();
 }
@@ -138,9 +146,10 @@ void X2DemoState::during(void) {
 
         time = (std::chrono::duration_cast<std::chrono::microseconds>(
                 std::chrono::steady_clock::now() - time0).count()) / 1000000.0;
-
 //        desiredJointVelocities_ << 0.0, 0.0, 0.0, 80.0 / t_final * M_PI / 180.0;
         desiredJointVelocities_ << 0.0, 00.0* M_PI / 180.0, 0.0, 30.0* M_PI / 180.0;
+
+//        if(time < 0.001) auto async_file = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/async_log.txt");
 
         if (time > t_final) {
             if (logSaved == false) {
@@ -151,7 +160,12 @@ void X2DemoState::during(void) {
                 robot->setTorque(Eigen::VectorXd::Zero(X2_NUM_JOINTS));
             }
         }
-        else robot->setVelocity(desiredJointVelocities_);
+        else {
+            robot->setVelocity(desiredJointVelocities_);
+//            spdlog::info("Joint Position{}", robot->getPosition()[3]*180/M_PI);
+            spdlog::get("test_logger")->info("Joint Position{}", robot->getPosition()[3]*180/M_PI);
+        }
+
     }
 
 //    updateLogElements();
@@ -159,6 +173,7 @@ void X2DemoState::during(void) {
 void X2DemoState::exit(void) {
     std::cout << "Example State Exited" << std::endl;
     robot->setTorque(Eigen::VectorXd::Zero(X2_NUM_JOINTS));
+    spdlog::drop_all();
 //    signal_logger::logger->saveLoggerData({signal_logger::LogFileType::BINARY});
 //    signal_logger::logger->cleanup();
 

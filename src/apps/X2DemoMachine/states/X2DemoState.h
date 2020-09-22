@@ -22,6 +22,9 @@
 #include <fstream>
 
 #include "signal_logger/signal_logger.hpp"
+#include "spdlog/spdlog.h"
+#include "spdlog/async.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 /**
  * \brief Demo State for the X2DemoMachine
