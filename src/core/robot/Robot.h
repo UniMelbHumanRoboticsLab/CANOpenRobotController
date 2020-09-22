@@ -21,7 +21,6 @@
 #define ROBOT_H_INCLUDED
 #include <vector>
 
-#include "ActuatedJoint.h"
 #include "InputDevice.h"
 #include "Joint.h"
 

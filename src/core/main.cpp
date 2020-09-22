@@ -52,8 +52,8 @@ static int rtControlPriority = 80;      /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
 static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
-const float controlLoopPeriodInms = 2.5; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 2.5; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 (or even 10) leads to unstable communication  */
+const float controlLoopPeriodInms = 3; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 3; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
 
 /** @brief Task Timer used for the Control Loop*/
 struct period_info {
@@ -73,11 +73,11 @@ static void periodic_task_init(struct period_info *pinfo);
 static void wait_rest_of_period(struct period_info *pinfo);
 /* Forward declartion of CAN helper functions*/
 void configureCANopen(int nodeId, int rtPriority, int CANdevice0Index, char *CANdevice);
-void CO_errExit(char *msg);              /*!< CAN object error code and exit program*/
-void CO_error(const uint32_t info);      /*!< send CANopen generic emergency message */
-volatile uint32_t CO_timer1ms = 0U;      /*!< Global variable increments each millisecond */
-volatile sig_atomic_t CO_endProgram = 0; /*!< Signal handler: controls the end of CAN processing thread*/
-volatile sig_atomic_t endProgram = 0;    /*!< Signal handler: controls the end of application side (rt thread and main)*/
+void CO_errExit(char *msg);                         /*!< CAN object error code and exit program*/
+void CO_error(const uint32_t info);                 /*!< send CANopen generic emergency message */
+volatile uint32_t CO_timer1ms = 0U;                 /*!< Global variable increments each millisecond */
+volatile sig_atomic_t CO_endProgram = 0;            /*!< Signal handler: controls the end of CAN processing thread*/
+volatile sig_atomic_t endProgram = 0;               /*!< Signal handler: controls the end of application side (rt thread and main)*/
 static void sigHandler(int sig) {
     endProgram = 1;
 }
@@ -192,7 +192,7 @@ int main(int argc, char *argv[]) {
                 param.sched_priority = rtPriority;
                 if (pthread_setschedparam(rt_thread_id, SCHED_FIFO, &param) != 0){
 #ifndef USEROS
-                    CO_errExit("Program init - rt_thread set scheduler failed");
+                    CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
 #else
                     ROS_ERROR("Program init - rt_thread set scheduler failed");
 #endif
@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
                 paramc.sched_priority = rtControlPriority;
                 if (pthread_setschedparam(rt_control_thread_id, SCHED_FIFO, &paramc) != 0){
 #ifndef USEROS
-                    CO_errExit("Program init - rt_thread set scheduler failed");
+                    CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
 #else
                     ROS_ERROR("Program init - rt_thread set scheduler failed");
 #endif
@@ -247,18 +247,15 @@ int main(int argc, char *argv[]) {
         /* program exit ***************************************************************/
         //End application first
         endProgram = 1;
-        usleep(100000); /*wait for end programm commands to be processed */
         if (pthread_join(rt_control_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }
-        app_programEnd();
+        usleep(500000); /*wait for last CAN commands to be processed if any */
         //End CAN communication processing
         CO_endProgram = 1;
-        usleep(100000); /*wait for threads to finish */
         if (pthread_join(rt_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }
-
         /* delete objects from memory */
         CANrx_taskTmr_close();
         taskMain_close();
@@ -310,36 +307,17 @@ static void *rt_thread(void *arg) {
 }
 /* Control thread function ********************************/
 static void *rt_control_thread(void *arg) {
-    // freopen("log.txt", "w", stdout);
-    std::ofstream logfile;
-    logfile.open("log.csv");
-    struct ros_arg_holder ros_args = *(struct ros_arg_holder *)arg;
-    /*Testing POSIX timer variables*/
-    struct timespec start, finish;
-    double elapsed, cpu_u;
     struct period_info pinfo;
     periodic_task_init(&pinfo);
-    app_programStart(ros_args.argc, ros_args.argv);
-    logfile
-        << "Loop_time_sec\n";
+    app_programStart();
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);
     }
     while (endProgram == 0) {
-        /* Measuring WALL CLOCK controlloop execution time*/
-        clock_gettime(CLOCK_MONOTONIC, &start);
         app_programControlLoop();
         wait_rest_of_period(&pinfo);
-        clock_gettime(CLOCK_MONOTONIC, &finish);
-        elapsed = (finish.tv_sec - start.tv_sec);
-        elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
-        logfile
-            << elapsed
-            << "\n";
     }
-    if (readyToStart && endProgram != 0) {
-        logfile.close();
-    }
+    app_programEnd();
     return NULL;
 }
 /* Control thread time functions ********************************/

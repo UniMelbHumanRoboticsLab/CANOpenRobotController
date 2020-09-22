@@ -15,7 +15,6 @@ Drive::Drive(int node_id) {
 }
 
 Drive::~Drive() {
-    stop();
 }
 
 
@@ -71,7 +70,7 @@ bool Drive::setTorque(int torque) {
     * \todo add setTorque to object dictionary for all drives
     *
     */
-//    DEBUG_OUT("Drive " << NodeID << " Writing " <<  (short int)torque << " to 0x" << std::hex << OD_Addresses[TARGET_TOR]);
+    DEBUG_OUT("Drive " << NodeID << " Writing " <<  (short int)torque << " to 0x" << std::hex << OD_Addresses[TARGET_TOR]);
     *(&CO_OD_RAM.targetMotorTorques.motor1 + ((this->NodeID - 1))) = torque;
     return true;
 }
@@ -99,19 +98,22 @@ int Drive::getTorque() {
 }
 
 
-bool Drive::readyToSwitchOn() {
+DriveState Drive::readyToSwitchOn() {
     *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x06;
     driveState = READY_TO_SWITCH_ON;
+    return driveState;
 }
 
-bool Drive::enable() {
+DriveState Drive::enable() {
     *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x0F;
     driveState = ENABLED;
+    return driveState;
 }
 
-bool Drive::disable() {
+DriveState Drive::disable() {
     *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x00;
     driveState = DISABLED;
+    return driveState;
 }
 
 DriveState Drive::getState() {
@@ -175,6 +177,37 @@ bool Drive::initPDOs() {
     //DEBUG_OUT("Set up TARGET_TOR RPDO")
     if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x00))<0) {
         std::cout /*cerr is banned*/ << "Set up TARGET_TOR RPDO FAILED on node" << NodeID <<std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool Drive::setMotorProfile(motorProfile profile) {
+    DEBUG_OUT("Drive::initMotorProfile")
+
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+
+     //Set velocity profile
+    sstream << "[1] " << NodeID << " write 0x6081 0 i32 " << std::dec << profile.profileVelocity;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //Set acceleration profile
+    sstream << "[1] " << NodeID << " write 0x6083 0 i32 " << std::dec << profile.profileAcceleration;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //Set deceleration profile
+    sstream << "[1] " << NodeID << " write 0x6084 0 i32 " << std::dec << profile.profileDeceleration;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    if(sendSDOMessages(CANCommands)<0) {
+        std::cout /*cerr is banned*/ << "Set up Velocity/Acceleration profile failed on node " << NodeID  <<std::endl;
         return false;
     }
 
@@ -308,6 +341,23 @@ std::vector<std::string> Drive::generatePosControlConfigSDO(motorProfile positio
 
     return CANCommands;
 }
+std::vector<std::string> Drive::generatePosControlConfigSDO() {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+    // start drive
+    sstream << "[1] " << NodeID << " start";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+    //enable profile position mode
+    sstream << "[1] " << NodeID << " write 0x6060 0 i8 1";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    return CANCommands;
+}
+
 std::vector<std::string> Drive::generateVelControlConfigSDO(motorProfile velocityProfile) {
     // Define Vector to be returned as part of this method
     std::vector<std::string> CANCommands;
@@ -322,18 +372,35 @@ std::vector<std::string> Drive::generateVelControlConfigSDO(motorProfile velocit
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
-//    //Set acceleration profile
-//    sstream << "[1] " << NodeID << " write 0x6083 0 i32 " << std::dec << velocityProfile.profileAcceleration;
-//    CANCommands.push_back(sstream.str());
-//    sstream.str(std::string());
-//
-//    //Set deceleration profile
-//    sstream << "[1] " << NodeID << " write 0x6084 0 i32 " << std::dec << velocityProfile.profileDeceleration;
-//    CANCommands.push_back(sstream.str());
-//    sstream.str(std::string());
+    //Set acceleration profile
+    sstream << "[1] " << NodeID << " write 0x6083 0 i32 " << std::dec << velocityProfile.profileAcceleration;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //Set deceleration profile
+    sstream << "[1] " << NodeID << " write 0x6084 0 i32 " << std::dec << velocityProfile.profileDeceleration;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
 
     return CANCommands;
 }
+std::vector<std::string> Drive::generateVelControlConfigSDO() {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+    // start drive
+    sstream << "[1] " << NodeID << " start";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+    //enable profile Velocity mode
+    sstream << "[1] " << NodeID << " write 0x6060 0 i8 0xFD";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    return CANCommands;
+}
+
 std::vector<std::string> Drive::generateTorqueControlConfigSDO() {
     // Define Vector to be returned as part of this method
     std::vector<std::string> CANCommands;
@@ -352,8 +419,8 @@ std::vector<std::string> Drive::generateTorqueControlConfigSDO() {
 }
 
 int Drive::sendSDOMessages(std::vector<std::string> messages) {
-    char *returnMessage;
 
+    char *returnMessage;
     int successfulMessages = 0;
     for (auto strCommand : messages) {
         DEBUG_OUT(strCommand)
@@ -386,7 +453,8 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
         successfulMessages++;
 #endif
     }
-    return successfulMessages-messages.size(); // todo change the return to bool
+
+    return successfulMessages-messages.size();
 }
 
 

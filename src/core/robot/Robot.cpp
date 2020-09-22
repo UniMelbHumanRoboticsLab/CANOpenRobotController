@@ -54,5 +54,5 @@ void Robot::printStatus() {
 }
 
 void Robot::printJointStatus(int J_i) {
-    joints[J_i]->getStatus();
+    joints[J_i]->printStatus();
 }

@@ -44,7 +44,7 @@ private:
     void initializeLogger(int bufferSize);
     void updateLogElements();
 
-    int controller_type = 2;
+    int controller_type = 4;
 
     bool logSaved = false;
 

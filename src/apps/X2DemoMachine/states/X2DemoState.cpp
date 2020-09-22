@@ -8,8 +8,8 @@ void X2DemoState::entry(void) {
 //    robot->homing(homingDirection);
 //    robot->calibrateForceSensors();
 
-//    robot->initVelocityControl();
-    robot->initTorqueControl();
+    robot->initVelocityControl();
+//    robot->initTorqueControl();
 
     jointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     jointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
@@ -18,7 +18,7 @@ void X2DemoState::entry(void) {
     desiredJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     interactionForces_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 
-    initializeLogger(120000);
+//    initializeLogger(120000);
 
     time0 = std::chrono::steady_clock::now();
 }
@@ -125,12 +125,12 @@ void X2DemoState::during(void) {
         if(time > t_final){
             desiredJointTorques_[3] = 0;
             robot->setTorque(desiredJointTorques_);
-            if(logSaved == false) {
-
-                signal_logger::logger->saveLoggerData({signal_logger::LogFileType::BINARY});
-                signal_logger::logger->cleanup();
-                logSaved = true;
-            }
+//            if(logSaved == false) {
+//
+//                signal_logger::logger->saveLoggerData({signal_logger::LogFileType::BINARY});
+//                signal_logger::logger->cleanup();
+//                logSaved = true;
+//            }
         }
     }else if(controller_type == 4) {
 
@@ -140,12 +140,12 @@ void X2DemoState::during(void) {
                 std::chrono::steady_clock::now() - time0).count()) / 1000000.0;
 
 //        desiredJointVelocities_ << 0.0, 0.0, 0.0, 80.0 / t_final * M_PI / 180.0;
-        desiredJointVelocities_ << 0.0, 30.0* M_PI / 180.0, 0.0, 30.0* M_PI / 180.0;
+        desiredJointVelocities_ << 0.0, 00.0* M_PI / 180.0, 0.0, 30.0* M_PI / 180.0;
 
         if (time > t_final) {
             if (logSaved == false) {
-                signal_logger::logger->saveLoggerData({signal_logger::LogFileType::BINARY});
-                signal_logger::logger->cleanup();
+//                signal_logger::logger->saveLoggerData({signal_logger::LogFileType::BINARY});
+//                signal_logger::logger->cleanup();
                 logSaved = true;
                 robot->initTorqueControl();
                 robot->setTorque(Eigen::VectorXd::Zero(X2_NUM_JOINTS));
@@ -154,7 +154,7 @@ void X2DemoState::during(void) {
         else robot->setVelocity(desiredJointVelocities_);
     }
 
-    updateLogElements();
+//    updateLogElements();
 }
 void X2DemoState::exit(void) {
     std::cout << "Example State Exited" << std::endl;
@@ -164,53 +164,53 @@ void X2DemoState::exit(void) {
 
 }
 
-void X2DemoState::log(){
-    logJoint
-            << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0
-            << ", ";
-    logJoint
-            << robot->getPosition()[3]
-            << ", ";
-    logJoint
-            << robot->getVelocity()[3]
-            << ", ";
-    logJoint
-            << robot->getTorque()[3]
-            << "\n";
+//void X2DemoState::log(){
+//    logJoint
+//            << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0
+//            << ", ";
+//    logJoint
+//            << robot->getPosition()[3]
+//            << ", ";
+//    logJoint
+//            << robot->getVelocity()[3]
+//            << ", ";
+//    logJoint
+//            << robot->getTorque()[3]
+//            << "\n";
+//
+//}
 
-}
+//void X2DemoState::initializeLogger(int bufferSize) {
+//
+//    signal_logger::setSignalLoggerStd();
+//    signal_logger::SignalLoggerOptions options;
+//    options.updateFrequency_ = 1.0/t_step;
+//    signal_logger::logger->initLogger(options);
+//    signal_logger::add(jointPositions_, "position", "joint", "rad", 1,
+//                       signal_logger::LogElementAction::SAVE, bufferSize);
+//    signal_logger::add(jointVelocities_, "velocity", "joint", "rad/s", 1,
+//                       signal_logger::LogElementAction::SAVE, bufferSize);
+//    signal_logger::add(jointTorques_, "torque", "joint", "N.m", 1,
+//                       signal_logger::LogElementAction::SAVE, bufferSize);
+//    signal_logger::add(desiredJointTorques_, "desired_torque", "joint", "N.m", 1,
+//                       signal_logger::LogElementAction::SAVE, bufferSize);
+//    signal_logger::add(interactionForces_, "interaction_force", "sensor", "N", 1,
+//                       signal_logger::LogElementAction::SAVE, bufferSize);
+//    signal_logger::add(time, "time", "time", "s", 1,
+//                       signal_logger::LogElementAction::SAVE, bufferSize);
+//
+//    signal_logger::logger->updateLogger();
+//    signal_logger::logger->startLogger();
+//
+//}
 
-void X2DemoState::initializeLogger(int bufferSize) {
-
-    signal_logger::setSignalLoggerStd();
-    signal_logger::SignalLoggerOptions options;
-    options.updateFrequency_ = 1.0/t_step;
-    signal_logger::logger->initLogger(options);
-    signal_logger::add(jointPositions_, "position", "joint", "rad", 1,
-                       signal_logger::LogElementAction::SAVE, bufferSize);
-    signal_logger::add(jointVelocities_, "velocity", "joint", "rad/s", 1,
-                       signal_logger::LogElementAction::SAVE, bufferSize);
-    signal_logger::add(jointTorques_, "torque", "joint", "N.m", 1,
-                       signal_logger::LogElementAction::SAVE, bufferSize);
-    signal_logger::add(desiredJointTorques_, "desired_torque", "joint", "N.m", 1,
-                       signal_logger::LogElementAction::SAVE, bufferSize);
-    signal_logger::add(interactionForces_, "interaction_force", "sensor", "N", 1,
-                       signal_logger::LogElementAction::SAVE, bufferSize);
-    signal_logger::add(time, "time", "time", "s", 1,
-                       signal_logger::LogElementAction::SAVE, bufferSize);
-
-    signal_logger::logger->updateLogger();
-    signal_logger::logger->startLogger();
-
-}
-
-void X2DemoState::updateLogElements() {
-
-    time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time0).count())/1000000.0;
-    jointPositions_ = robot->getPosition();
-    jointVelocities_ = robot->getVelocity();
-    jointTorques_ = robot->getTorque();
-    interactionForces_ = robot->getInteractionForce();
-
-    signal_logger::logger->collectLoggerData();
-}
+//void X2DemoState::updateLogElements() {
+//
+//    time = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time0).count())/1000000.0;
+//    jointPositions_ = robot->getPosition();
+//    jointVelocities_ = robot->getVelocity();
+//    jointTorques_ = robot->getTorque();
+//    interactionForces_ = robot->getInteractionForce();
+//
+//    signal_logger::logger->collectLoggerData();
+//}

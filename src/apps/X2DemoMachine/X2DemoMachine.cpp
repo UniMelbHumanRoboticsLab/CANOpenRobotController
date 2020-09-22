@@ -37,6 +37,7 @@ void X2DemoMachine::init(int argc, char *argv[]) {
 void X2DemoMachine::end() {
     if(initialised) {
         currentState->exit();
+        robot->disable();
         x2DemoMachineRos_->~X2DemoMachineROS();
         robot->~X2Robot();
     }
