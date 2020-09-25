@@ -19,11 +19,27 @@ void X2DemoState::entry(void) {
     interactionForces_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 
 //    initializeLogger(120000);
+//    spdlog::init_thread_pool(10000, 1); // queue with 10K items and 1 backing thread.
+
+    double a = 13.4;
+//    int c = 5;
+//    Eigen::VectorXd k(4);
+//    std::cout<<k<<std::endl;
+
+    logHelper.add(a, "var a");
+    logHelper.printValue();
+    a = 8.3;
+    logHelper.printValue();
+
     auto logger = spdlog::basic_logger_mt<spdlog::async_factory>("test_logger", "logs/async_log2.txt");
-//    spdlog::set_default_logger(logger);
-//    spdlog::flush_on(spdlog::level::info);
-//    spdlog::logger async_file = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/async_log2.txt");
-    logger->info("Trial Asynch Logging 2");
+
+
+    logger->set_pattern("%v");
+//    logger->info("Trial Asynch Logging 2");
+
+
+
+
 //    logger->
         // Under VisualStudio, this must be called before main finishes to workaround a known VS issue
 
@@ -142,12 +158,12 @@ void X2DemoState::during(void) {
         }
     }else if(controller_type == 4) {
 
-        float t_final = 2.0;
+        float t_final = 12.0;
 
         time = (std::chrono::duration_cast<std::chrono::microseconds>(
                 std::chrono::steady_clock::now() - time0).count()) / 1000000.0;
 //        desiredJointVelocities_ << 0.0, 0.0, 0.0, 80.0 / t_final * M_PI / 180.0;
-        desiredJointVelocities_ << 0.0, 00.0* M_PI / 180.0, 0.0, 30.0* M_PI / 180.0;
+        desiredJointVelocities_ << 0.0, 00.0* M_PI / 180.0, 0.0, 5.0* M_PI / 180.0;
 
 //        if(time < 0.001) auto async_file = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/async_log.txt");
 
@@ -163,11 +179,9 @@ void X2DemoState::during(void) {
         else {
             robot->setVelocity(desiredJointVelocities_);
 //            spdlog::info("Joint Position{}", robot->getPosition()[3]*180/M_PI);
-            spdlog::get("test_logger")->info("Joint Position{}", robot->getPosition()[3]*180/M_PI);
+            spdlog::get("test_logger")->info(time);
         }
-
     }
-
 //    updateLogElements();
 }
 void X2DemoState::exit(void) {

@@ -20,11 +20,16 @@
 #include <chrono>
 #include <math.h>
 #include <fstream>
+#include <string>
 
 #include "signal_logger/signal_logger.hpp"
 #include "spdlog/spdlog.h"
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/fmt/bin_to_hex.h"
+#include "spdlog/sinks/rotating_file_sink.h"
+
+#include "spdlog/helper/LogHelper.h"
 
 /**
  * \brief Demo State for the X2DemoMachine
@@ -46,6 +51,8 @@ private:
     void log();
     void initializeLogger(int bufferSize);
     void updateLogElements();
+
+    LogHelper logHelper;
 
     int controller_type = 4;
 
