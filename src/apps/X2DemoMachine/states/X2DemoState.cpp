@@ -21,20 +21,46 @@ void X2DemoState::entry(void) {
 //    initializeLogger(120000);
 //    spdlog::init_thread_pool(10000, 1); // queue with 10K items and 1 backing thread.
 
-    double a = 13.4;
-//    int c = 5;
-//    Eigen::VectorXd k(4);
-//    std::cout<<k<<std::endl;
+    logHelper.initLogger("test_logger", "logs/async_log2.txt", LogFormat::CSV);
+    double a = 13.2;
+//    int b = 3;
 
-    logHelper.add(a, "var a");
-    logHelper.printValue();
-    a = 8.3;
-    logHelper.printValue();
+    Eigen::VectorXd trialEigen(4);
+    logHelper.add(trialEigen, "joint");
+    logHelper.add(a, "variable a");
 
-    auto logger = spdlog::basic_logger_mt<spdlog::async_factory>("test_logger", "logs/async_log2.txt");
+    logHelper.startLogger();
+
+//    int k = 12;
+//    double l = 3.2;
+//    Eigen::VectorXd m(4);
+//    m<<0.1,2.1,3.2,4.5;
+//    std::vector<double> n;
+//    n.push_back(3.4);
+//    n.push_back(2.1);
+//    n.push_back(2.1);
+//    n.push_back(2.1);
+//    n.push_back(2.1);
+//    n.push_back(2.1);
+//
+//
+//    std::cout<<"size of Eig: "<<sizeof(trialEigen)<<std::endl;
+//    std::cout<<"size of vec: "<<sizeof(n)<<std::endl;
+
+//    std::cout<<"k: "<<std::to_string(k)<<std::endl;
+//    std::cout<<"l: "<<std::to_string(l)<<std::endl;
+////    std::cout<<"m: "<<std::to_string(m[0])<<std::endl;
+//
+//    std::cout<<"size m"<<m.size()<<std::endl;
+//    std::cout<<"size n"<<n.size()<<std::endl;
+//
+//    std::cout<<"IS scalar m ?: "<<std::is_scalar<decltype(m)>::value<<std::endl;
+//    std::cout<<"IS scalar n ?: "<<std::is_scalar<decltype(n)>::value<<std::endl;
+
+//    auto logger = spdlog::basic_logger_mt<spdlog::async_factory>("test_logger", "logs/async_log2.txt");
 
 
-    logger->set_pattern("%v");
+//    logger->set_pattern("%v");
 //    logger->info("Trial Asynch Logging 2");
 
 
@@ -158,12 +184,14 @@ void X2DemoState::during(void) {
         }
     }else if(controller_type == 4) {
 
-        float t_final = 12.0;
+        float t_final = 4.0;
+        jointPositions_ = robot->getPosition();
+//        logHelper.printValue();
 
         time = (std::chrono::duration_cast<std::chrono::microseconds>(
                 std::chrono::steady_clock::now() - time0).count()) / 1000000.0;
 //        desiredJointVelocities_ << 0.0, 0.0, 0.0, 80.0 / t_final * M_PI / 180.0;
-        desiredJointVelocities_ << 0.0, 00.0* M_PI / 180.0, 0.0, 5.0* M_PI / 180.0;
+        desiredJointVelocities_ << 0.0, 10.0* M_PI / 180.0, 0.0, 15.0* M_PI / 180.0;
 
 //        if(time < 0.001) auto async_file = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/async_log.txt");
 
@@ -179,7 +207,7 @@ void X2DemoState::during(void) {
         else {
             robot->setVelocity(desiredJointVelocities_);
 //            spdlog::info("Joint Position{}", robot->getPosition()[3]*180/M_PI);
-            spdlog::get("test_logger")->info(time);
+//            spdlog::get("test_logger")->info(time);
         }
     }
 //    updateLogElements();
@@ -187,7 +215,7 @@ void X2DemoState::during(void) {
 void X2DemoState::exit(void) {
     std::cout << "Example State Exited" << std::endl;
     robot->setTorque(Eigen::VectorXd::Zero(X2_NUM_JOINTS));
-    spdlog::drop_all();
+//    spdlog::drop_all();
 //    signal_logger::logger->saveLoggerData({signal_logger::LogFileType::BINARY});
 //    signal_logger::logger->cleanup();
 
