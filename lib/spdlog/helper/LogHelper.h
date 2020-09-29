@@ -215,7 +215,7 @@ public:
      */
     bool recordLogData(){
         if(!isStarted_){
-            spdlog::error("Can't start collecting data without starting the logger first");
+            spdlog::error("Can't collect data without starting the logger first");
             return false;
         }
         else{
@@ -232,6 +232,9 @@ public:
             spdlog::get(loggerName_)->info(valueMsg);
             return true;
         }
+    }
+    void endLog(){
+        spdlog::drop_all();
     }
 };
 
