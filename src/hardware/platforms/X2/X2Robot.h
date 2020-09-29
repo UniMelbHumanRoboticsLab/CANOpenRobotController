@@ -63,6 +63,10 @@ class X2Robot : public Robot {
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
     motorProfile velControlMotorProfile{0, 240000, 240000};
+    Eigen::VectorXd jointPositions_;
+    Eigen::VectorXd jointVelocities_;
+    Eigen::VectorXd jointTorques_;
+    Eigen::VectorXd interactionForces_;
 
    public:
     /**
@@ -144,28 +148,28 @@ class X2Robot : public Robot {
     *
     * \return Eigen::VectorXd a vector of actual joint positions
     */
-    Eigen::VectorXd getPosition();
+    Eigen::VectorXd& getPosition();
 
     /**
     * \brief Get the actual velocity of each joint
     *
     * \return Eigen::VectorXd a vector of actual joint positions
     */
-    Eigen::VectorXd getVelocity();
+    Eigen::VectorXd& getVelocity();
 
     /**
     * \brief Get the actual torque of each joint
     *
     * \return Eigen::VectorXd a vector of actual joint positions
     */
-    Eigen::VectorXd getTorque();
+    Eigen::VectorXd& getTorque();
 
     /**
     * \brief Get the interaction force from each force sensor
     *
     * \return Eigen::VectorXd a vector of interaction forces
     */
-    Eigen::VectorXd getInteractionForce();
+    Eigen::VectorXd& getInteractionForce();
 
     /**
     * \brief Calibrate force sensors
