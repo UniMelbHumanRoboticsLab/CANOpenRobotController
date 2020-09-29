@@ -1,7 +1,7 @@
 /**
  * /file LogHelper.h
  * /author Emek Baris Kucuktabak
- * /brief Helper Class to easy use of SPDLog
+ * /brief Helper Classes to easy use of spdLog
  * /version 0.1
  * /date 2020-09-23
  *
@@ -27,12 +27,23 @@ enum LogFormat {
     //todo: add BINARY
 };
 
+/**
+ * \brief pure virtual base class of LogElement
+ *
+ */
 class LogElementBase{
 public:
     virtual std::string getName() {};
-    virtual void printValue() {};
+    virtual std::string getValue() {};
 
 };
+
+/**
+ * \brief Templated logElement class to access values and names of different typed variables
+ * \param ptr pointer to the variable
+ * \param name name of the variable
+ *
+ */
 
 template <typename ValueType_>
 class LogElement : public LogElementBase{
@@ -51,14 +62,25 @@ public:
         return getNameImplementation<ValueType_>();
     }
 
+    std::string getValue(){
+        return getValueImplementation<ValueType_>();
+    }
+
 private:
-    // if scalar just returns the name_
+    /**
+     * \brief If the variable is scalar, just returns the variable name
+     *
+     */
     template <typename T>
     typename std::enable_if<std::is_scalar<T>::value, std::string>::type getNameImplementation(){
 
         return name_;
     }
 
+    /**
+     * \brief If the variable is scalar, returns the name such that name_1, name_2, name_3...
+     *
+     */
     template <typename T>
     typename std::enable_if<!std::is_scalar<T>::value, std::string>::type getNameImplementation(){
         std::string name = "";
@@ -72,11 +94,40 @@ private:
 
         return name;
     }
+
+    /**
+     * \brief If the variable is scalar, just returns the variable value
+     *
+     */
+    template <typename T>
+    typename std::enable_if<std::is_scalar<T>::value, std::string>::type getValueImplementation(){
+
+        return std::to_string(*((ValueType_*)ptr_));
+    }
+
+    /**
+     * \brief If the variable is scalar, returns the name such that name_1, name_2, name_3...
+     *
+     */
+    template <typename T>
+    typename std::enable_if<!std::is_scalar<T>::value, std::string>::type getValueImplementation(){
+        std::string valueStr = "";
+
+        int sizeOfVar = (*((ValueType_*)ptr_)).size();
+
+        for(int i=0; i<sizeOfVar; i++){
+            valueStr += std::to_string((*((ValueType_*)ptr_))[i]);
+
+            if(i!= sizeOfVar-1) valueStr += ", ";
+
+        }
+
+        return valueStr;
+    }
 };
 
 /**
  * \brief Helper class that allows easier use of spdlog.
- *
  *
  */
 
@@ -113,9 +164,10 @@ public:
     * \param loggerName name of the logger
     * \param fileName file name to create the log document
     * \param logFormat format of the log (csv, binary etc.)
+    * \param truncate boolean flag to clear the file at the beginning
     * \return bool success of homing
     */
-    bool initLogger(std::string loggerName, std::string fileName, LogFormat logFormat){
+    bool initLogger(std::string loggerName, std::string fileName, LogFormat logFormat, bool truncate){
         loggerName_ = loggerName;
         logFormat_ = logFormat;
 
@@ -124,20 +176,22 @@ public:
             isInitialized_ = false;
         }
         else if(logFormat == LogFormat::CSV){
-            auto logger = spdlog::basic_logger_mt<spdlog::async_factory>(loggerName, fileName);
+            auto logger = spdlog::basic_logger_mt<spdlog::async_factory>(loggerName, fileName, truncate);
             logger->set_pattern("%v");
             isInitialized_ = true;
         }
         return isInitialized_;
     }
 
-
+    /**
+     * \brief Start the logger. Generates the header based on the added variables
+     *
+     */
     bool startLogger(){
         if(!isInitialized_){
             spdlog::error("Can't start the Logger without initializing first");
             return false;
         }
-
         else{
             std::string headerMsg = "";
             for(int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their names
@@ -147,29 +201,38 @@ public:
                 // either a coma or new line comes
                 if(i != vectorOfLogElements.size()-1){
                     headerMsg += ", ";
-                }else headerMsg += "\n";
+                }
 
             }
-            std::cout<<"HEADER MSG: "<<headerMsg<<std::endl;
+            spdlog::get(loggerName_)->info(headerMsg);
+            isStarted_ = true;
             return true;
         }
-
-
-//        spdlog::get(loggerName_)->info(vectorOfLogElements[0]->getValue());
-//        spdlog::get("test_logger")->info(vectorOfLogElements[0]->getValue());
-
-
-
     }
+    /**
+     * \brief Records the values of the added variables at the intant the function is called.
+     *
+     */
+    bool recordLogData(){
+        if(!isStarted_){
+            spdlog::error("Can't start collecting data without starting the logger first");
+            return false;
+        }
+        else{
+            std::string valueMsg = "";
+            for(int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their values
 
-    void printValue(){
-//        std::cout<< *((vectorOfTypes[0] *) vectorOfPtrs[0]) <<std::endl;
-//        vectorOfLogElements[0]->printValue();
-//        vectorOfLogElements[1]->printValue();
+                valueMsg += vectorOfLogElements[i]->getValue();
+
+                // either a coma or new line comes
+                if(i != vectorOfLogElements.size()-1){
+                    valueMsg += ", ";
+                }
+            }
+            spdlog::get(loggerName_)->info(valueMsg);
+            return true;
+        }
     }
-
 };
-
-
 
 #endif //SRC_LOGHELPER_H

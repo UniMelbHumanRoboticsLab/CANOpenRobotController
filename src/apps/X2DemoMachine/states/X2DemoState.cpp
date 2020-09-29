@@ -21,16 +21,21 @@ void X2DemoState::entry(void) {
 //    initializeLogger(120000);
 //    spdlog::init_thread_pool(10000, 1); // queue with 10K items and 1 backing thread.
 
-    logHelper.initLogger("test_logger", "logs/async_log2.txt", LogFormat::CSV);
+    logHelper.initLogger("test_logger", "logs/helperTrial.csv", LogFormat::CSV, true);
     double a = 13.2;
 //    int b = 3;
 
     Eigen::VectorXd trialEigen(4);
-    logHelper.add(trialEigen, "joint");
-    logHelper.add(a, "variable a");
+    trialEigen<<0.2,3.1,4,5.6666665;
+    logHelper.add(jointPositions_, "jointPositions");
+    logHelper.add(a, "a");
 
     logHelper.startLogger();
 
+
+//    auto logger = spdlog::basic_logger_mt<spdlog::async_factory>("test_logger", "logs/async_log2.txt");
+//    logger->info("Trial Asynch Logging 2");
+//    spdlog::get("test_logger")->info("Joint Position{}", robot->getPosition()[3]*180/M_PI);
 //    int k = 12;
 //    double l = 3.2;
 //    Eigen::VectorXd m(4);
@@ -186,7 +191,7 @@ void X2DemoState::during(void) {
 
         float t_final = 4.0;
         jointPositions_ = robot->getPosition();
-//        logHelper.printValue();
+        logHelper.recordLogData();
 
         time = (std::chrono::duration_cast<std::chrono::microseconds>(
                 std::chrono::steady_clock::now() - time0).count()) / 1000000.0;
@@ -215,7 +220,7 @@ void X2DemoState::during(void) {
 void X2DemoState::exit(void) {
     std::cout << "Example State Exited" << std::endl;
     robot->setTorque(Eigen::VectorXd::Zero(X2_NUM_JOINTS));
-//    spdlog::drop_all();
+    spdlog::drop_all();
 //    signal_logger::logger->saveLoggerData({signal_logger::LogFileType::BINARY});
 //    signal_logger::logger->cleanup();
 
