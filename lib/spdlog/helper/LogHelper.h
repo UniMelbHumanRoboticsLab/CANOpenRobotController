@@ -44,7 +44,6 @@ public:
  * \param name name of the variable
  *
  */
-
 template <typename ValueType_>
 class LogElement : public LogElementBase{
 
@@ -78,7 +77,7 @@ private:
     }
 
     /**
-     * \brief If the variable is scalar, returns the name such that name_1, name_2, name_3...
+     * \brief If the variable is not scalar, returns the name such that name_1, name_2, name_3...
      *
      */
     template <typename T>
@@ -106,7 +105,7 @@ private:
     }
 
     /**
-     * \brief If the variable is scalar, returns the name such that name_1, name_2, name_3...
+     * \brief If the variable is not scalar, returns the value such that value_1, value_2, value_3...
      *
      */
     template <typename T>
@@ -119,9 +118,7 @@ private:
             valueStr += std::to_string((*((ValueType_*)ptr_))[i]);
 
             if(i!= sizeOfVar-1) valueStr += ", ";
-
         }
-
         return valueStr;
     }
 };
@@ -130,7 +127,6 @@ private:
  * \brief Helper class that allows easier use of spdlog.
  *
  */
-
 class LogHelper {
 
 private:
@@ -209,6 +205,7 @@ public:
             return true;
         }
     }
+
     /**
      * \brief Records the values of the added variables at the intant the function is called.
      *
