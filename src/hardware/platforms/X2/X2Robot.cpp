@@ -38,6 +38,10 @@ JointDrivePairs kneeJDP{
 ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
 X2Robot::X2Robot() : Robot() {
+    jointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    jointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    jointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    interactionForces_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
 }
 
 X2Robot::~X2Robot() {
@@ -70,7 +74,7 @@ bool X2Robot::initVelocityControl() {
     DEBUG_OUT("Initialising Velocity Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (p->setMode(CM_VELOCITY_CONTROL) != CM_VELOCITY_CONTROL) {
+        if (p->setMode(CM_VELOCITY_CONTROL, velControlMotorProfile) != CM_VELOCITY_CONTROL) {
             // Something back happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
@@ -162,42 +166,38 @@ setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
     return returnValue;
 }
 
-Eigen::VectorXd X2Robot::getPosition() {
+Eigen::VectorXd& X2Robot::getPosition() {
     int i = 0;
-    Eigen::VectorXd actualJointPositions(joints.size());
     for (auto p : joints) {
-        actualJointPositions[i] = ((X2Joint *)p)->getPosition();
+        jointPositions_[i] = ((X2Joint *)p)->getPosition();
         i++;
     }
-    return actualJointPositions;
+    return jointPositions_;
 }
 
-Eigen::VectorXd X2Robot::getVelocity() {
+Eigen::VectorXd& X2Robot::getVelocity() {
     int i = 0;
-    Eigen::VectorXd actualJointVelocities(joints.size());
     for (auto p : joints) {
-        actualJointVelocities[i] = ((X2Joint *)p)->getVelocity();
+        jointVelocities_[i] = ((X2Joint *)p)->getVelocity();
         i++;
     }
-    return actualJointVelocities;
+    return jointVelocities_;
 }
 
-Eigen::VectorXd X2Robot::getTorque() {
+Eigen::VectorXd& X2Robot::getTorque() {
     int i = 0;
-    Eigen::VectorXd actualJointTorques(joints.size());
     for (auto p : joints) {
-        actualJointTorques[i] = ((X2Joint *)p)->getTorque();
+        jointTorques_[i] = ((X2Joint *)p)->getTorque();
         i++;
     }
-    return actualJointTorques;
+    return jointTorques_;
 }
 
-Eigen::VectorXd X2Robot::getInteractionForce() {
-    Eigen::VectorXd actualInteractionForces(X2_NUM_FORCE_SENSORS);
+Eigen::VectorXd& X2Robot::getInteractionForce() {
     for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
-        actualInteractionForces[i] = forceSensors[i]->getForce();
+        interactionForces_[i] = forceSensors[i]->getForce();
     }
-    return actualInteractionForces;
+    return interactionForces_;
 }
 
 bool X2Robot::calibrateForceSensors() {
@@ -335,4 +335,12 @@ void X2Robot::freeMemory() {
 }
 void X2Robot::updateRobot() {
     Robot::updateRobot();
+}
+
+bool X2Robot::disable() {
+    std::cout << "Disabling X2 robot..." << std::endl;
+    for (auto p : joints) {
+        p->disable();
+    }
+    return true;
 }

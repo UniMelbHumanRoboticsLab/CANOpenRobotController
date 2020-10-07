@@ -31,10 +31,15 @@
 
 #include "X2DemoMachineROS.h"
 
+// Logger
+#include "spdlog/helper/LogHelper.h"
+
 class X2DemoMachine : public StateMachine {
 
 public:
     bool running = false;
+    std::chrono::steady_clock::time_point time0; // initial time that machine started
+    double time; // time passed after tim0 in [s]
     /**
      *  \todo Pilot Parameters would be set in constructor here
      *
@@ -66,6 +71,8 @@ private:
      * An events check function are defined in the .cpp file.
     */
     EventObject(StartExo) * startExo;
+
+    LogHelper logHelper;
 
 };
 
