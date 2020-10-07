@@ -186,7 +186,7 @@ class M3DemoImpedanceState : public M3TimedState {
     double d = 2;       //! Impedance derivative gain (damper)
     bool init=false;
 
-    int nb_samples=10000;
+    unsigned int nb_samples=10000;
     double dts[10000];
     double dX[10000];
     int new_value;

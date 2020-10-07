@@ -49,7 +49,7 @@ class Robot {
     * \brief Default <code>Robot</code> constructor.
     */
     Robot();
-    ~Robot();
+    virtual ~Robot();
     //@}
 
     /** @name Initialisation Methods */

@@ -26,12 +26,10 @@ bool Robot::initialise() {
         if (initialiseNetwork()) {
             if (initialiseInputs()) {
                 return true;
-            } else {
-                return false;
             }
         }
-    } else
-        return false;
+    }
+    return false;
 }
 
 

@@ -33,8 +33,8 @@ enum LogFormat {
  */
 class LogElementBase{
 public:
-    virtual std::string getName() {};
-    virtual std::string getValue() {};
+    virtual std::string getName() = 0;
+    virtual std::string getValue() = 0;
 
 };
 
@@ -190,7 +190,7 @@ public:
         }
         else{
             std::string headerMsg = "";
-            for(int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their names
+            for(unsigned int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their names
 
                 headerMsg += vectorOfLogElements[i]->getName();
 
@@ -217,7 +217,7 @@ public:
         }
         else{
             std::string valueMsg = "";
-            for(int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their values
+            for(unsigned int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their values
 
                 valueMsg += vectorOfLogElements[i]->getValue();
 

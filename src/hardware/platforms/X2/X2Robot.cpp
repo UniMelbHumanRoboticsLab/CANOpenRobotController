@@ -209,8 +209,10 @@ bool X2Robot::calibrateForceSensors() {
 
     if (numberOfSuccess == X2_NUM_FORCE_SENSORS) {
         DEBUG_OUT("[X2Robot::calibrateForceSensors]: Zeroing of force sensors are successfully completed.")
+        return true;
     } else {
         DEBUG_OUT("[X2Robot::calibrateForceSensors]: Zeroing failed.")
+        return false;
     }
 }
 

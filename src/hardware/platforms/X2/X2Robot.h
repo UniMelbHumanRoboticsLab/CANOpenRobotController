@@ -20,7 +20,6 @@
 #include "CopleyDrive.h"
 #include "Keyboard.h"
 #include "Robot.h"
-//#include "RobotParams.h"
 #include "X2Joint.h"
 #include "X2ForceSensor.h"
 #include <Eigen/Dense>
@@ -36,7 +35,7 @@
 #define X2_NUM_FORCE_SENSORS 4
 
 // Macros
-#define M_PI 3.14159265358979323846264338327950288
+//#define M_PI 3.14159265358979323846264338327950288 //Already defined in cmath
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
 
