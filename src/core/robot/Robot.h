@@ -67,12 +67,12 @@ class Robot {
     bool initialise();
 
     /**
-     * \brief Stop the robot. Default behaviour does nothing.
+     * \brief Stop the robot: disable all actuated joints.
      *
      * \return true if successful
      * \return false if unsuccessful
      */
-    virtual bool stop();
+    virtual bool disable();
 
     /**
      * \brief Pure Virtual function, implemeted by robot designer with specified number of each concrete joint classes

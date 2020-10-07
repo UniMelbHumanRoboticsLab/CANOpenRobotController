@@ -35,7 +35,11 @@ bool Robot::initialise() {
 }
 
 
-bool Robot::stop() {
+bool Robot::disable() {
+    std::cout << "Disabling robot..." << std::endl;
+    for (auto p : joints) {
+        p->disable();
+    }
     return true;
 }
 

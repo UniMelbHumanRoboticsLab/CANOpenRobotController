@@ -213,7 +213,6 @@ class X2Robot : public Robot {
     /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
        * Initialize each <code>Input</code> Object.
-
       */
     bool initialiseInputs();
     /**
@@ -226,11 +225,5 @@ class X2Robot : public Robot {
        * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
        */
     void updateRobot();
-    /**
-       * \brief disable the drives of the X2 robot
-       * \return bool
-       */
-    bool disable();
-
 };
 #endif /*EXOROBOT_H*/

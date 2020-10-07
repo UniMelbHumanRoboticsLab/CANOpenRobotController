@@ -90,14 +90,6 @@ class RobotM3 : public Robot {
     bool initTorqueControl();
 
     /**
-       * \brief Send a stop command to all joint drives.
-       *
-       * \return true If all joints are stopped
-       * \return false  Otherwise
-       */
-    bool stop();
-
-    /**
     * \brief Set the target positions for each of the joints
     *
     * \param positions a vector of target positions - applicable for each of the actauted joints
