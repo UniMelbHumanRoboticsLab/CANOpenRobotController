@@ -39,7 +39,6 @@ void X2DemoMachine::init(int argc, char *argv[]) {
     logHelper.add(robot->getPosition(), "JointPositions");
     logHelper.add(robot->getTorque(), "JointTorques");
     logHelper.startLogger();
-
 }
 
 void X2DemoMachine::end() {
@@ -47,8 +46,8 @@ void X2DemoMachine::end() {
         logHelper.endLog();
         currentState->exit();
         robot->disable();
-        x2DemoMachineRos_->~X2DemoMachineROS();
-        robot->~X2Robot();
+        delete x2DemoMachineRos_;
+        delete robot;
     }
 }
 

@@ -331,7 +331,6 @@ void X2Robot::freeMemory() {
         DEBUG_OUT("Deleting Input")
         delete p;
     }
-    keyboard.~Keyboard();
 }
 void X2Robot::updateRobot() {
     Robot::updateRobot();
