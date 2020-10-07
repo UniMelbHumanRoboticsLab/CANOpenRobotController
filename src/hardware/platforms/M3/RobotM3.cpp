@@ -256,8 +256,8 @@ setMovementReturnCode_t RobotM3::applyTorque(std::vector<double> torques) {
     return returnValue;
 }
 
-Vector3d RobotM3::directKinematic(Vector3d q) {
-    Vector3d X;
+VM3 RobotM3::directKinematic(VM3 q) {
+    VM3 X;
 
     float *L = LinkLengths;
 
@@ -269,8 +269,8 @@ Vector3d RobotM3::directKinematic(Vector3d q) {
 
     return X;
 }
-Vector3d RobotM3::inverseKinematic(Vector3d X) {
-    Vector3d q;
+VM3 RobotM3::inverseKinematic(VM3 X) {
+    VM3 q;
 
     float *L = LinkLengths;
 
@@ -286,7 +286,7 @@ Vector3d RobotM3::inverseKinematic(Vector3d X) {
     q[0] = -atan2(X[1], -X[0]);
 
     //Project onto parallel mechanism plane
-    Vector3d tmpX;
+    VM3 tmpX;
     if (X[0] > 0) {
         //should never happen as outside of workspace...
         tmpX[0] = sqrt(X[0] * X[0] + X[1] * X[1]);
@@ -307,7 +307,7 @@ Vector3d RobotM3::inverseKinematic(Vector3d X) {
 }
 Matrix3d RobotM3::J() {
     Matrix3d J;
-    Vector3d q;
+    VM3 q;
     for (unsigned int i = 0; i < 3; i++) {
         q(i) = ((JointM3 *)joints[i])->getPosition();
     }
@@ -335,8 +335,8 @@ Matrix3d RobotM3::J() {
     return J;
 }
 
-Vector3d RobotM3::calculateGravityTorques() {
-    Vector3d tau_g;
+VM3 RobotM3::calculateGravityTorques() {
+    VM3 tau_g;
 
     //For convenience
     float *L = LinkLengths;
@@ -345,7 +345,7 @@ Vector3d RobotM3::calculateGravityTorques() {
     float g = 9.81;  //Gravitational constant: remember to change it if using the robot on the Moon or another planet
 
     //Get current configuration
-    Vector3d q;
+    VM3 q;
     for (unsigned int i = 0; i < 3; i++) {
         q(i) = ((JointM3 *)joints[i])->getPosition();
     }
@@ -358,38 +358,38 @@ Vector3d RobotM3::calculateGravityTorques() {
     return tau_g;
 }
 
-Vector3d RobotM3::getJointPosition() {
-    return Vector3d({((JointM3 *)joints[0])->getPosition(), ((JointM3 *)joints[1])->getPosition(), ((JointM3 *)joints[2])->getPosition()});
+VM3 RobotM3::getJointPosition() {
+    return VM3({((JointM3 *)joints[0])->getPosition(), ((JointM3 *)joints[1])->getPosition(), ((JointM3 *)joints[2])->getPosition()});
 }
-Vector3d RobotM3::getJointVelocity() {
-    return Vector3d({((JointM3 *)joints[0])->getVelocity(), ((JointM3 *)joints[1])->getVelocity(), ((JointM3 *)joints[2])->getVelocity()});
+VM3 RobotM3::getJointVelocity() {
+    return VM3({((JointM3 *)joints[0])->getVelocity(), ((JointM3 *)joints[1])->getVelocity(), ((JointM3 *)joints[2])->getVelocity()});
 }
-Vector3d RobotM3::getJointTorque() {
-    return Vector3d({((JointM3 *)joints[0])->getTorque(), ((JointM3 *)joints[1])->getTorque(), ((JointM3 *)joints[2])->getTorque()});
+VM3 RobotM3::getJointTorque() {
+    return VM3({((JointM3 *)joints[0])->getTorque(), ((JointM3 *)joints[1])->getTorque(), ((JointM3 *)joints[2])->getTorque()});
 }
-Vector3d RobotM3::getEndEffPosition() {
+VM3 RobotM3::getEndEffPosition() {
     return directKinematic(getJointPosition());
 }
-Vector3d RobotM3::getEndEffVelocity() {
+VM3 RobotM3::getEndEffVelocity() {
     return J() * getJointVelocity();
 }
-Vector3d RobotM3::getEndEffForce() {
+VM3 RobotM3::getEndEffForce() {
     return (J().transpose()).inverse() * getJointTorque();
 }
 
-setMovementReturnCode_t RobotM3::setJointPosition(Vector3d q) {
+setMovementReturnCode_t RobotM3::setJointPosition(VM3 q) {
     std::vector<double> pos{q(0), q(1), q(2)};
     return applyPosition(pos);
 }
-setMovementReturnCode_t RobotM3::setJointVelocity(Vector3d dq) {
+setMovementReturnCode_t RobotM3::setJointVelocity(VM3 dq) {
     std::vector<double> vel{dq(0), dq(1), dq(2)};
     return applyVelocity(vel);
 }
-setMovementReturnCode_t RobotM3::setJointTorque(Vector3d tau) {
+setMovementReturnCode_t RobotM3::setJointTorque(VM3 tau) {
     std::vector<double> tor{tau(0), tau(1), tau(2)};
     return applyTorque(tor);
 }
-setMovementReturnCode_t RobotM3::setEndEffPosition(Vector3d X) {
+setMovementReturnCode_t RobotM3::setEndEffPosition(VM3 X) {
     if (!calibrated) {
         return NOT_CALIBRATED;
     }
@@ -399,14 +399,14 @@ setMovementReturnCode_t RobotM3::setEndEffPosition(Vector3d X) {
         return OUTSIDE_LIMITS;
     }
 
-    Vector3d q = inverseKinematic(X);
+    VM3 q = inverseKinematic(X);
     if (std::isnan(q[0]) || std::isnan(q[1]) || std::isnan(q[2])) {
         return OUTSIDE_LIMITS;
     } else {
         return setJointPosition(q);
     }
 }
-setMovementReturnCode_t RobotM3::setEndEffVelocity(Vector3d dX) {
+setMovementReturnCode_t RobotM3::setEndEffVelocity(VM3 dX) {
     if (!calibrated) {
         return NOT_CALIBRATED;
     }
@@ -416,10 +416,10 @@ setMovementReturnCode_t RobotM3::setEndEffVelocity(Vector3d dX) {
         return OUTSIDE_LIMITS;
     }
 
-    Vector3d dq = J().inverse() * dX;
+    VM3 dq = J().inverse() * dX;
     return setJointVelocity(dq);
 }
-setMovementReturnCode_t RobotM3::setEndEffForce(Vector3d F) {
+setMovementReturnCode_t RobotM3::setEndEffForce(VM3 F) {
     if (!calibrated) {
         return NOT_CALIBRATED;
     }
@@ -429,10 +429,10 @@ setMovementReturnCode_t RobotM3::setEndEffForce(Vector3d F) {
         return OUTSIDE_LIMITS;
     }
 
-    Vector3d tau = J().transpose() * F;
+    VM3 tau = J().transpose() * F;
     return setJointTorque(tau);
 }
-setMovementReturnCode_t RobotM3::setEndEffForceWithCompensation(Vector3d F, bool friction_comp) {
+setMovementReturnCode_t RobotM3::setEndEffForceWithCompensation(VM3 F, bool friction_comp) {
     if (!calibrated) {
         return NOT_CALIBRATED;
     }
@@ -441,8 +441,8 @@ setMovementReturnCode_t RobotM3::setEndEffForceWithCompensation(Vector3d F, bool
     if (!1) {
         return OUTSIDE_LIMITS;
     }
-    Vector3d tau_g = calculateGravityTorques();  //Gravity compensation torque
-    Vector3d tau_f(0, 0, 0);                     //Friction compensation torque
+    VM3 tau_g = calculateGravityTorques();  //Gravity compensation torque
+    VM3 tau_f(0, 0, 0);                     //Friction compensation torque
     if (friction_comp) {
         double alpha = 0.5, beta = 0.2, threshold = 0.000000;
         for (unsigned int i = 0; i < 3; i++) {

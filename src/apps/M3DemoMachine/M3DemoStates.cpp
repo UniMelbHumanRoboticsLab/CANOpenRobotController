@@ -5,12 +5,12 @@ double timeval_to_sec(struct timespec *ts)
     return (double)(ts->tv_sec + ts->tv_nsec / 1000000000.0);
 }
 
-V3 impedance(Eigen::Matrix3d K, Eigen::Matrix3d D, V3 X0, V3 X, V3 dX, V3 dXd=V3::Zero()) {
+VM3 impedance(Eigen::Matrix3d K, Eigen::Matrix3d D, VM3 X0, VM3 X, VM3 dX, VM3 dXd=VM3::Zero()) {
     return K*(X0-X) + D*(dXd-dX);
 }
 
 //minJerk(X0, Xf, T, t, &X, &dX)
-double JerkIt(V3 X0, V3 Xf, double T, double t, V3 &Xd, V3 &dXd) {
+double JerkIt(VM3 X0, VM3 Xf, double T, double t, VM3 &Xd, VM3 &dXd) {
     t = std::max(std::min(t, T), .0); //Bound time
     double tn=std::max(std::min(t/T, 1.0), .0);//Normalised time bounded 0-1
     double tn3=pow(tn,3.);
@@ -29,8 +29,8 @@ void M3DemoState::entryCode(void) {
     //robot->initTorqueControl();
     qi=robot->getJointPosition();
     Xi=robot->getEndEffPosition();
-    //robot->setJointVelocity(V3::Zero());
-    //robot->setEndEffForceWithCompensation(V3::Zero(), false);
+    //robot->setJointVelocity(VM3::Zero());
+    //robot->setEndEffForceWithCompensation(VM3::Zero(), false);
     robot->printJointStatus();
 }
 void M3DemoState::duringCode(void) {
@@ -40,48 +40,48 @@ void M3DemoState::duringCode(void) {
         //robot->printJointStatus();
         robot->printStatus();
     }
-    robot->setEndEffForceWithCompensation(V3(0,0,0));
-    /*V3 q = robot->getJointPos();
+    robot->setEndEffForceWithCompensation(VM3(0,0,0));
+    /*VM3 q = robot->getJointPos();
     q(1)=68*M_PI/180.-0.1*elapsedTime;*/
     //std::cout << q.transpose() <<std::endl;
-    //robot->setJointPos(qi-V3(0.03,0.03,0.03));
+    //robot->setJointPos(qi-VM3(0.03,0.03,0.03));
     //double v=-sin(2*M_PI*1./10*elapsedTime);
     //double v=-0.1;
-    //robot->setJointVel(V3(0,0,0));
+    //robot->setJointVel(VM3(0,0,0));
 
     //robot->printStatus();
 
-    /*V3 dX(-0.02,0.05,0.1);
+    /*VM3 dX(-0.02,0.05,0.1);
     if(robot->getEndEffPosition()(2)<0) {
         robot->setEndEffVel(dX);
     }
     else {
-        robot->setEndEffVel(V3(0,0,0));
+        robot->setEndEffVel(VM3(0,0,0));
     }*/
 
 
-    /*V3 Dq;
+    /*VM3 Dq;
     if(elapsedTime<5)
         Dq={0,0.015*elapsedTime,0.015*elapsedTime};
     else
         Dq={0,0.015*5.,0.015*5.};
     robot->setJointPos(qi-Dq);*/
 
-    /*V3 tau(0,-5.0,0);*/
+    /*VM3 tau(0,-5.0,0);*/
     //robot->setJointTor(robot->calculateGravityTorques());
 
 
 
     /*float k_i=1.;
-    V3 Xf(-0.4, 0, 0);
-    V3 Xd, dXd;
+    VM3 Xf(-0.4, 0, 0);
+    VM3 Xd, dXd;
     JerkIt(Xi, Xf, 5., elapsedTime, Xd, dXd);
     robot->setEndEffVelocity(dXd+k_i*(Xd-robot->getEndEffPosition()));
     std::cout << (Xd-robot->getEndEffPosition()).norm() << std::endl;*/
 }
 void M3DemoState::exitCode(void) {
-    robot->setJointVelocity(V3::Zero());
-    robot->setEndEffForceWithCompensation(V3(0,0,0));
+    robot->setJointVelocity(VM3::Zero());
+    robot->setEndEffForceWithCompensation(VM3(0,0,0));
 }
 
 
@@ -99,10 +99,10 @@ void M3CalibState::entryCode(void) {
 }
 //Move slowly on each joint until max force detected
 void M3CalibState::duringCode(void) {
-    V3 tau(0, 0, 0);
+    VM3 tau(0, 0, 0);
 
     //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
-    V3 vel=robot->getJointVelocity();
+    VM3 vel=robot->getJointVelocity();
     double b = 3.;
     for(unsigned int i=0; i<3; i++) {
         tau(i) = std::min(std::max(2 - b * vel(i), .0), 2.);
@@ -116,7 +116,7 @@ void M3CalibState::duringCode(void) {
 
     //Switch to gravity control when done
     if(robot->isCalibrated()) {
-        robot->setEndEffForceWithCompensation(V3(0,0,0));
+        robot->setEndEffForceWithCompensation(VM3(0,0,0));
         calibDone=true; //Trigger event
     }
     else {
@@ -134,7 +134,7 @@ void M3CalibState::duringCode(void) {
     }
 }
 void M3CalibState::exitCode(void) {
-    robot->setEndEffForceWithCompensation(V3(0,0,0));
+    robot->setEndEffForceWithCompensation(VM3(0,0,0));
 }
 
 
@@ -158,7 +158,7 @@ void M3MassCompensation::duringCode(void) {
     }
 
     //Apply corresponding force
-    robot->setEndEffForceWithCompensation(V3(0,0,t*mass*9.8));
+    robot->setEndEffForceWithCompensation(VM3(0,0,t*mass*9.8));
 
     //Mass controllable through keyboard inputs
     if(robot->keyboard->getS()) {
@@ -171,7 +171,7 @@ void M3MassCompensation::duringCode(void) {
     }
 }
 void M3MassCompensation::exitCode(void) {
-    robot->setEndEffForceWithCompensation(V3(0,0,0));
+    robot->setEndEffForceWithCompensation(VM3(0,0,0));
 }
 
 
@@ -182,7 +182,7 @@ void M3EndEffDemo::entryCode(void) {
 void M3EndEffDemo::duringCode(void) {
 
     //Joystick driven
-    V3 dXd(0,0,0);
+    VM3 dXd(0,0,0);
     for(unsigned int i=0; i<3; i++) {
         dXd(i)=robot->joystick->getAxis(i)/2.;
     }
@@ -196,7 +196,7 @@ void M3EndEffDemo::duringCode(void) {
     }
 }
 void M3EndEffDemo::exitCode(void) {
-    robot->setEndEffVelocity(V3(0,0,0));
+    robot->setEndEffVelocity(VM3(0,0,0));
 }
 
 
@@ -241,28 +241,28 @@ void M3DemoImpedanceState::duringCode(void) {
         robot->setEndEffForceWithCompensation(impedance(K, D, Xi, robot->getEndEffPosition(), robot->getEndEffVelocity()));
     }
     else {
-        robot->setEndEffForceWithCompensation(V3(0,0,0));
+        robot->setEndEffForceWithCompensation(VM3(0,0,0));
     }
 }
 void M3DemoImpedanceState::exitCode(void) {
-    robot->setEndEffForceWithCompensation(V3::Zero());
+    robot->setEndEffForceWithCompensation(VM3::Zero());
 }
 
 
 
 void M3DemoPathState::entryCode(void) {
     robot->initTorqueControl();
-    robot->setEndEffForceWithCompensation(V3::Zero(), false);
+    robot->setEndEffForceWithCompensation(VM3::Zero(), false);
     Xi=robot->getEndEffPosition();
 }
 void M3DemoPathState::duringCode(void) {
-    V3 X=robot->getEndEffPosition();
-    V3 dX=robot->getEndEffVelocity();
-    V3 Xd=Xi;
-    V3 Fd(0,0,0);
+    VM3 X=robot->getEndEffPosition();
+    VM3 dX=robot->getEndEffVelocity();
+    VM3 Xd=Xi;
+    VM3 Fd(0,0,0);
 
     //Find closest point on path
-    V3 PathUnitV=(Xf-Xi)/(Xf-Xi).norm();
+    VM3 PathUnitV=(Xf-Xi)/(Xf-Xi).norm();
     Xd = Xi + ( (X-Xi).dot(PathUnitV)*PathUnitV);
 
     //Progress along path
@@ -287,8 +287,8 @@ void M3DemoPathState::duringCode(void) {
     }
 
     //Velocity vector projection
-    V3 dX_path = dX.dot(PathUnitV)*PathUnitV;
-    V3 dX_ortho = dX - dX_path;
+    VM3 dX_path = dX.dot(PathUnitV)*PathUnitV;
+    VM3 dX_ortho = dX - dX_path;
 
     //Impedance towards path  point with only ortho velocity component
     Eigen::Matrix3d K = k*Eigen::Matrix3d::Identity();
@@ -313,27 +313,27 @@ void M3DemoPathState::duringCode(void) {
     }
 }
 void M3DemoPathState::exitCode(void) {
-    robot->setEndEffForceWithCompensation(V3::Zero());
+    robot->setEndEffForceWithCompensation(VM3::Zero());
 }
 
 
 
 void M3SamplingEstimationState::entryCode(void) {
     robot->initTorqueControl();
-    robot->setEndEffForceWithCompensation(V3::Zero());
+    robot->setEndEffForceWithCompensation(VM3::Zero());
     std::cout << "Move robot around while estimating time" << std::endl;
 }
 void M3SamplingEstimationState::duringCode(void) {
     //Apply gravity compensation
-    robot->setEndEffForceWithCompensation(V3::Zero());
+    robot->setEndEffForceWithCompensation(VM3::Zero());
 
     //Save dt
     if(iterations>1 && iterations<nb_samples+2) {
         //Do some math for fun
         Eigen::Matrix3d K = 2.36*Eigen::Matrix3d::Identity();
         Eigen::Matrix3d D = 0.235*Eigen::Matrix3d::Identity();
-        impedance(K, Eigen::Matrix3d::Zero(), V3(-0.5, 0.23, 0.65), robot->getEndEffPosition(), robot->getEndEffVelocity()).transpose();
-        robot->J().inverse()*V3::Zero()+2*robot->inverseKinematic(V3(-0.5, 0, 0));
+        impedance(K, Eigen::Matrix3d::Zero(), VM3(-0.5, 0.23, 0.65), robot->getEndEffPosition(), robot->getEndEffVelocity()).transpose();
+        robot->J().inverse()*VM3::Zero()+2*robot->inverseKinematic(VM3(-0.5, 0, 0));
 
         //Get time and actual value read from CAN to get sampling rate
         dts[iterations-2] = dt;
@@ -358,7 +358,7 @@ void M3SamplingEstimationState::duringCode(void) {
     }
 }
 void M3SamplingEstimationState::exitCode(void) {
-    robot->setEndEffForceWithCompensation(V3::Zero());
+    robot->setEndEffForceWithCompensation(VM3::Zero());
 }
 
 
@@ -366,7 +366,7 @@ void M3SamplingEstimationState::exitCode(void) {
 void M3DemoMinJerkPosition::entryCode(void) {
     //Setup velocity control for position over velocity loop
     robot->initVelocityControl();
-    robot->setJointVelocity(V3::Zero());
+    robot->setJointVelocity(VM3::Zero());
     //Initialise to first target point
     TrajPtIdx=0;
     startTime=elapsedTime;
@@ -377,7 +377,7 @@ void M3DemoMinJerkPosition::entryCode(void) {
 }
 void M3DemoMinJerkPosition::duringCode(void) {
 
-    V3 Xd, dXd;
+    VM3 Xd, dXd;
     //Compute current desired interpolated point
     double status=JerkIt(Xi, Xf, T, elapsedTime-startTime, Xd, dXd);
     //Apply position control
@@ -413,7 +413,7 @@ void M3DemoMinJerkPosition::duringCode(void) {
     }
 }
 void M3DemoMinJerkPosition::exitCode(void) {
-    robot->setJointVelocity(V3::Zero());
+    robot->setJointVelocity(VM3::Zero());
 }
 
 
