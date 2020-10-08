@@ -12,11 +12,11 @@ void X2DemoMachineROS::initialize(int argc, char *argv[]) {
     ros::init(argc, argv, "x2_node", ros::init_options::NoSigintHandler);
     ros::NodeHandle nodeHandle;
 
-    jointStatePublisher_ = nodeHandle.advertise<sensor_msgs::JointState>("joint_states", 10);
-    leftThighForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("left_thigh_wrench", 10);
-    leftShankForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("left_shank_wrench", 10);
-    rightThighForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("right_thigh_wrench", 10);
-    rightShankForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("right_shank_wrench", 10);
+    jointStatePublisher_ = nodeHandle.advertise<sensor_msgs::JointState>("/x2/joint_states", 10);
+    leftThighForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("/x2/left_thigh_wrench", 10);
+    leftShankForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("/x2/left_shank_wrench", 10);
+    rightThighForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("/x2/right_thigh_wrench", 10);
+    rightShankForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("/x2/right_shank_wrench", 10);
 }
 
 void X2DemoMachineROS::update() {
