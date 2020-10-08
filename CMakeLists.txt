@@ -12,7 +12,7 @@ project(CORC C CXX)
 set (STATE_MACHINE_NAME "X2DemoMachine")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT OFF)
+set(NO_ROBOT ON)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS ON)
@@ -59,6 +59,8 @@ find_package(catkin REQUIRED COMPONENTS
         std_msgs
         sensor_msgs
         geometry_msgs
+        cob_gazebo_ros_control
+        x2_description
         )
 
 catkin_package(
