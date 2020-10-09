@@ -2,19 +2,20 @@ x2:
   # Publish all joint states -----------------------------------
   joint_state_controller:
     type: joint_state_controller/JointStateController
-    publish_rate: 100  
+    publish_rate: 400
 
   # Position Controllers ---------------------------------------
-  left_hip_position_controller:
-    type: position_controllers/JointPositionController
-    joint: left_hip_joint
-
+  position_controller:
+    type: position_controllers/JointGroupPositionController
+    joints: ['left_hip_joint', 'left_knee_joint', 'right_hip_joint', 'right_knee_joint']
+    
   # Velocity Controllers ---------------------------------------
-  left_hip_velocity_controller:
-    type: velocity_controllers/JointVelocityController
-    joint: left_hip_joint
+  velocity_controller:
+    type: velocity_controllers/JointGroupVelocityController
+    joints: ['left_hip_joint', 'left_knee_joint', 'right_hip_joint', 'right_knee_joint']
 
   # Torque Controllers ---------------------------------------
-  left_hip_torque_controller:
-    type: effort_controllers/JointEffortController
-    joint: left_hip_joint
+  torque_controller:
+    type: effort_controllers/JointGroupEffortController
+    joints: ['left_hip_joint', 'left_knee_joint', 'right_hip_joint', 'right_knee_joint']
+
