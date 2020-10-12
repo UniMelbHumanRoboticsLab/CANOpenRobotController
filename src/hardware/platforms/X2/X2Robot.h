@@ -35,6 +35,7 @@
 #ifdef SIM
 #include "ros/ros.h"
 #include "controller_manager_msgs/SwitchController.h"
+#include "std_msgs/Float64MultiArray.h"
 #endif
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
@@ -79,8 +80,18 @@ class X2Robot : public Robot {
 
     #ifdef SIM
     ros::NodeHandle* nodeHandle_;
+
     ros::ServiceClient controllerSwitchClient_;
-    controller_manager_msgs::SwitchController controllerSwitchMsg;
+    controller_manager_msgs::SwitchController controllerSwitchMsg_;
+
+    ros::Publisher positionCommandPublisher_;
+    ros::Publisher velocityCommandPublisher_;
+    ros::Publisher torqueCommandPublisher_;
+
+    std_msgs::Float64MultiArray positionCommandMsg_;
+    std_msgs::Float64MultiArray velocityCommandMsg_;
+    std_msgs::Float64MultiArray torqueCommandMsg_;
+
     #endif
 
    public:
