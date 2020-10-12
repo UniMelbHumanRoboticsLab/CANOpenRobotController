@@ -22,11 +22,8 @@
     <arg name="headless" value="$(arg headless)"/>
   </include>
 
-  <!-- CORC 
-  <node name="x2_node" pkg="CORC" type="X2DemoMachine_APP_NOROBOT"/> -->
-
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
-  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" args="-urdf -model x2 -param robot_description"/>
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -model x2 -param robot_description"/>
 
   <!-- Load joint controller configurations from YAML file to parameter server -->
   <rosparam file="$(find CORC)/config/x2_ros_control.yaml" command="load"/>
@@ -41,12 +38,15 @@
 
   <!-- The robot_state_publisher reads the urdf from /robot_description parameter
        and listens to joint information on the /joint_states topic -->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen">
   <remap from="/joint_states" to="/x2/joint_states" />
   </node>
 
   <!-- rviz will enable us to see the robot -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find x2_description)/rviz/view_robot.rviz"/>
+  <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find x2_description)/rviz/view_robot.rviz"/>
+
+  <!-- CORC -->
+  <node name="x2_node" pkg="CORC" type="X2DemoMachine_APP_NOROBOT" output="screen"/> 
 
 </launch>
 
