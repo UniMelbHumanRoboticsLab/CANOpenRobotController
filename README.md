@@ -187,6 +187,9 @@ Secondly, CMakeLists.txt must be edited and the entry `set (STATE_MACHINE_NAME "
 
 That's it, simply use the same build procedure.
 
+### ROS Support
+See [here](doc/ROSApplication.md) for instructions on how to build and run a CORC app with ROS support.
+
 ## Developer Information
 
 - Detailed documentation: https://exoembedded.readthedocs.io/en/latest/
