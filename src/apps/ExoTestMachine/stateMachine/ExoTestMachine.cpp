@@ -47,7 +47,7 @@ void ExoTestMachine::init() {
 
 void ExoTestMachine::end() {
     DEBUG_OUT("Ending ExoTestMachine")
-    robot->~ExoRobot();
+    delete robot;
 }
 
 ////////////////////////////////////////////////////////////////

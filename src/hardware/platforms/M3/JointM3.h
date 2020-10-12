@@ -23,8 +23,8 @@
  */
 class JointM3 : public Joint {
    private:
-    const double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
     const short int sign;
+    const double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
     int encoderCounts = 10000;  //Encoder counts per turn
     double reductionRatio = 22.;
 

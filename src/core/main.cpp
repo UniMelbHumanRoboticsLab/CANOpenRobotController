@@ -51,9 +51,8 @@ static int rt_thread_epoll_fd;          /*!< epoll file descriptor for rt thread
 static int rtControlPriority = 80;      /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
-static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
-const float controlLoopPeriodInms = 2; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 2; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
+const float controlLoopPeriodInms = 3; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 3; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
 
 /** @brief Task Timer used for the Control Loop*/
 struct period_info {
@@ -73,7 +72,7 @@ static void periodic_task_init(struct period_info *pinfo);
 static void wait_rest_of_period(struct period_info *pinfo);
 /* Forward declartion of CAN helper functions*/
 void configureCANopen(int nodeId, int rtPriority, int CANdevice0Index, char *CANdevice);
-void CO_errExit(char *msg);                         /*!< CAN object error code and exit program*/
+void CO_errExit(char const *msg);                         /*!< CAN object error code and exit program*/
 void CO_error(const uint32_t info);                 /*!< send CANopen generic emergency message */
 volatile uint32_t CO_timer1ms = 0U;                 /*!< Global variable increments each millisecond */
 volatile sig_atomic_t CO_endProgram = 0;            /*!< Signal handler: controls the end of CAN processing thread*/
@@ -97,7 +96,7 @@ int main(int argc, char *argv[]) {
     char CANdevice[10]="";
     int CANdevice0Index;
     //Rotate through list of interfaces and select first one existing and up
-    for(unsigned i=0; i<can_dev_number; i++) {
+    for(int i=0; i<can_dev_number; i++) {
         printf("%s: ", CANdeviceList[i]);
         //Check if interface exists
         CANdevice0Index = if_nametoindex(CANdeviceList[i]);/*map linux CAN interface to corresponding int index return zero if no interface exists.*/
@@ -106,19 +105,21 @@ int main(int argc, char *argv[]) {
             snprintf(operstate_filename, 254, "/sys/class/net/%s/operstate", CANdeviceList[i]);
             //Check if it's up
             FILE* operstate_f = fopen(operstate_filename, "r");
-            fscanf(operstate_f, "%s", &operstate_s);
-            printf("%s\n", operstate_s);
-            //Check if not "down" as will be "unknown" if up
-            if(strcmp(operstate_s, "down")!=0) {
-                snprintf(CANdevice, 9, "%s", CANdeviceList[i]);
-                printf("Using: %s (%d)\n", CANdeviceList[i], CANdevice0Index);
-                break;
-            }
-            else {
+            if(fscanf(operstate_f, "%s", &operstate_s)>0)
+            {
+                printf("%s\n", operstate_s);
+                //Check if not "down" as will be "unknown" if up
+                if(strcmp(operstate_s, "down")!=0) {
+                    snprintf(CANdevice, 9, "%s", CANdeviceList[i]);
+                    printf("Using: %s (%d)\n", CANdeviceList[i], CANdevice0Index);
+                    break;
+                } else {
+                    CANdevice0Index=0;
+                }
+            } else {
                 CANdevice0Index=0;
             }
-        }
-        else {
+        } else {
             printf("-\n");
         }
 
@@ -223,7 +224,6 @@ int main(int argc, char *argv[]) {
             while (reset == CO_RESET_NOT && endProgram == 0) {
                 /* loop for normal program execution main epoll reading ******************************************/
                 int ready;
-                int first = 0;
                 struct epoll_event ev;
                 ready = epoll_wait(mainline_epoll_fd, &ev, 1, -1);
                 if (ready != 1) {
@@ -368,7 +368,7 @@ void configureCANopen(int nodeId, int rtPriority, int CANdevice0Index, char *CAN
         exit(EXIT_FAILURE);
     }
 };
-void CO_errExit(char *msg) {
+void CO_errExit(char const *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }

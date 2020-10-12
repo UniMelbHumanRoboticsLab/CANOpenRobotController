@@ -241,7 +241,7 @@ std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> it
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
-    for (int i = 1; i <= items.size(); i++) {
+    for (unsigned int i = 1; i <= items.size(); i++) {
         // Set transmit parameters
         sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1A00 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + sub_idx * 0x100 + OD_Data_Size[items[i - 1]];
         CANCommands.push_back(sstream.str());
@@ -290,7 +290,7 @@ std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> it
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
-    for (int i = 1; i <= items.size(); i++) {
+    for (unsigned int i = 1; i <= items.size(); i++) {
         // Set transmit parameters
         sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1600 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + sub_idx * 0x100 + OD_Data_Size[items[i - 1]];
         CANCommands.push_back(sstream.str());
@@ -419,15 +419,14 @@ std::vector<std::string> Drive::generateTorqueControlConfigSDO() {
 }
 
 int Drive::sendSDOMessages(std::vector<std::string> messages) {
-
-    char *returnMessage;
     int successfulMessages = 0;
     for (auto strCommand : messages) {
         DEBUG_OUT(strCommand)
-        // explicitly cast c++ string to from const char* to char* for use by cancomm function
-        char *SDO_Message = (char *)(strCommand.c_str());
 
 #ifndef NOROBOT
+        // explicitly cast c++ string to from const char* to char* for use by cancomm function
+        char *SDO_Message = (char *)(strCommand.c_str());
+        char *returnMessage;
         cancomm_socketFree(SDO_Message, &returnMessage);
         std::string retMsg = returnMessage;
 

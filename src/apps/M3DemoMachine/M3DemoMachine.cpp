@@ -67,7 +67,7 @@ void M3DemoMachine::init() {
 void M3DemoMachine::end() {
     if(initialised) {
         currentState->exit();
-        robot->stop();
+        robot->disable();
     }
 }
 
@@ -83,9 +83,6 @@ void M3DemoMachine::end() {
 void M3DemoMachine::hwStateUpdate(void) {
     robot->updateRobot();
 }
-
-
-
 
 
 

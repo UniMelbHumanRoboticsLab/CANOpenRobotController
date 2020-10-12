@@ -22,7 +22,7 @@
 #include "Robot.h"
 
 
-typedef Eigen::Vector3d V3; //! Convenience alias for double  Vector of length 3
+typedef Eigen::Vector3d VM3; //! Convenience alias for double  Vector of length 3
 
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
@@ -80,7 +80,7 @@ class RobotM3 : public Robot {
 
     M3Tool *endEffTool; /*!< End-effector representation (transformation and mass) */
 
-    Eigen::Vector3d qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
+    VM3 qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
 
     bool calibrated;
     double maxEndEffVel; /*!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.*/
@@ -121,14 +121,6 @@ class RobotM3 : public Robot {
        * \return false  If some or all joints fail the configuration
        */
     bool initTorqueControl();
-
-    /**
-       * \brief Send a stop command to all joint drives.
-       *
-       * \return true If all joints are stopped
-       * \return false  Otherwise
-       */
-    bool stop();
 
     /**
     * \brief Set the target positions for each of the joints
@@ -202,26 +194,25 @@ class RobotM3 : public Robot {
 
 
     Eigen::Matrix3d J();
-    Eigen::Vector3d directKinematic(Eigen::Vector3d q);
-    Eigen::Vector3d inverseKinematic(Eigen::Vector3d X);
-    Eigen::Vector3d calculateGravityTorques();
+    VM3 directKinematic(VM3 q);
+    VM3 inverseKinematic(VM3 X);
+    VM3 calculateGravityTorques();
 
-    Eigen::Vector3d getJointPosition();
-    Eigen::Vector3d getJointVelocity();
-    Eigen::Vector3d getJointTorque();
-    Eigen::Vector3d getEndEffPosition();
-    Eigen::Vector3d getEndEffVelocity();
-    Eigen::Vector3d getEndEffForce();
+    VM3 getJointPosition();
+    VM3 getJointVelocity();
+    VM3 getJointTorque();
+    VM3 getEndEffPosition();
+    VM3 getEndEffVelocity();
+    VM3 getEndEffForce();
 
-    setMovementReturnCode_t setJointPosition(Eigen::Vector3d q);
-    setMovementReturnCode_t setJointVelocity(Eigen::Vector3d q);
-    setMovementReturnCode_t setJointTorque(Eigen::Vector3d tau);
-    setMovementReturnCode_t setEndEffPosition(Eigen::Vector3d X);
-    setMovementReturnCode_t setEndEffVelocity(Eigen::Vector3d dX);
-    setMovementReturnCode_t setEndEffForce(Eigen::Vector3d F);
-    setMovementReturnCode_t setEndEffForceWithCompensation(Eigen::Vector3d F, bool friction_comp=true);
-
-
+    setMovementReturnCode_t setJointPosition(VM3 q);
+    setMovementReturnCode_t setJointVelocity(VM3 q);
+    setMovementReturnCode_t setJointTorque(VM3 tau);
+    setMovementReturnCode_t setEndEffPosition(VM3 X);
+    setMovementReturnCode_t setEndEffVelocity(VM3 dX);
+    setMovementReturnCode_t setEndEffForce(VM3 F);
+    setMovementReturnCode_t setEndEffForceWithCompensation(VM3 F, bool friction_comp=true);
+  
     void changeTool(M3Tool *new_tool) {endEffTool=new_tool; std::cout << "RobotM3::changeTool: new tool: " << endEffTool->name << std::endl;}
 };
 #endif /*RobotM3_H*/
