@@ -26,6 +26,16 @@
 
 #include <chrono>
 #include <thread>
+
+// Logger
+#include "spdlog/helper/LogHelper.h"
+
+#define SIM ///////////////////////////// DELETEEEEEEEEEEEEEEEEEEEEEEEEEEE!!!!
+
+#ifdef SIM
+#include "ros/ros.h"
+#include "controller_manager_msgs/SwitchController.h"
+#endif
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      *
@@ -66,6 +76,12 @@ class X2Robot : public Robot {
     Eigen::VectorXd jointVelocities_;
     Eigen::VectorXd jointTorques_;
     Eigen::VectorXd interactionForces_;
+
+    #ifdef SIM
+    ros::NodeHandle* nodeHandle_;
+    ros::ServiceClient controllerSwitchClient_;
+    controller_manager_msgs::SwitchController controllerSwitchMsg;
+    #endif
 
    public:
     /**
@@ -215,6 +231,10 @@ class X2Robot : public Robot {
       */
     bool initialiseInputs();
     /**
+       * \brief Initialize ROS services, publisher ans subscribers
+      */
+    bool initialiseROS();
+    /**
        * \brief Free robot objects vector pointer memory.
        */
     void freeMemory();
@@ -224,5 +244,13 @@ class X2Robot : public Robot {
        * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
        */
     void updateRobot();
+
+    /**
+       * \brief method to pass the nodeHandle. Only available in SIM mode
+       */
+    #ifdef SIM
+    void setNodeHandle(ros::NodeHandle& nodeHandle);
+    #endif
+
 };
 #endif /*EXOROBOT_H*/

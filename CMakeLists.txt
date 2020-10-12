@@ -21,6 +21,10 @@ if(USE_ROS)
     add_definitions(-DUSEROS)
 endif()
 
+if(NO_ROBOT AND USE_ROS)
+    add_definitions(-DSIM)
+endif()
+
 
 
 
@@ -59,6 +63,7 @@ find_package(catkin REQUIRED COMPONENTS
         std_msgs
         sensor_msgs
         geometry_msgs
+        controller_manager_msgs
         cob_gazebo_ros_control
         x2_description
         )

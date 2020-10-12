@@ -67,6 +67,22 @@ bool X2Robot::initPositionControl() {
     for (auto p : joints) {
         p->enable();
     }
+
+#ifdef SIM
+    controllerSwitchMsg.request.start_controllers = {"position_controller"};
+    controllerSwitchMsg.request.stop_controllers = {"velocity_controller", "torque_controller"};
+    controllerSwitchMsg.request.strictness = 1;
+    controllerSwitchMsg.request.start_asap = true;
+    controllerSwitchMsg.request.timeout = 0.0;
+
+    if(controllerSwitchClient_.call(controllerSwitchMsg)){
+        spdlog::info("Switched to position controller");
+    }else {
+        spdlog::error("Failed switching to position controller");
+        returnValue = false;
+    }
+#endif
+
     return returnValue;
 }
 
@@ -88,6 +104,22 @@ bool X2Robot::initVelocityControl() {
     for (auto p : joints) {
         p->enable();
     }
+
+#ifdef SIM
+    controllerSwitchMsg.request.start_controllers = {"velocity_controller"};
+    controllerSwitchMsg.request.stop_controllers = {"position_controller", "torque_controller"};
+    controllerSwitchMsg.request.strictness = 1;
+    controllerSwitchMsg.request.start_asap = true;
+    controllerSwitchMsg.request.timeout = 0.0;
+
+    if(controllerSwitchClient_.call(controllerSwitchMsg)){
+        spdlog::info("Switched to velocity controller");
+    }else {
+        spdlog::error("Failed switching to velocity controller");
+        returnValue = false;
+    }
+#endif
+
     return returnValue;
 }
 
@@ -109,6 +141,22 @@ bool X2Robot::initTorqueControl() {
     for (auto p : joints) {
         p->enable();
     }
+
+#ifdef SIM
+    controllerSwitchMsg.request.start_controllers = {"torque_controller"};
+    controllerSwitchMsg.request.stop_controllers = {"position_controller", "velocity_controller"};
+    controllerSwitchMsg.request.strictness = 1;
+    controllerSwitchMsg.request.start_asap = true;
+    controllerSwitchMsg.request.timeout = 0.0;
+
+    if(controllerSwitchClient_.call(controllerSwitchMsg)){
+        spdlog::info("Switched to torque controller");
+    }else {
+        spdlog::error("Failed switching to torque controller");
+        returnValue = false;
+    }
+#endif
+
     return returnValue;
 }
 
@@ -308,6 +356,10 @@ bool X2Robot::initialiseNetwork() {
             return false;
     }
 
+#ifdef SIM
+    initialiseROS();
+#endif
+
     return true;
 }
 bool X2Robot::initialiseInputs() {
@@ -320,6 +372,11 @@ bool X2Robot::initialiseInputs() {
 
     return true;
 }
+
+bool X2Robot::initialiseROS() {
+    controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("/x2/controller_manager/switch_controller");
+}
+
 void X2Robot::freeMemory() {
     for (auto p : joints) {
         DEBUG_OUT("Delete Joint ID: " << p->getId())
@@ -337,3 +394,10 @@ void X2Robot::freeMemory() {
 void X2Robot::updateRobot() {
     Robot::updateRobot();
 }
+
+#ifdef SIM
+void X2Robot::setNodeHandle(ros::NodeHandle &nodeHandle) {
+
+    nodeHandle_ = &nodeHandle;
+}
+#endif
