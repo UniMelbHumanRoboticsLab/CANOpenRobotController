@@ -11,10 +11,10 @@ project(CORC C CXX)
 ## Select the application by setting the state machine to use
 #(it should be the class name and have corresponding header naming in a corresponding folder)
 # If your application use ROS, don't forget to change the flag bellow to.
-set (STATE_MACHINE_NAME "M3DemoMachine")
+#set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "M3Machining")
 #set (STATE_MACHINE_NAME "M3Chai")
-#set (STATE_MACHINE_NAME "ExoTestMachine")
+set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
 
 ## Comment to use actual hardware, uncomment for a nor robot (virtual) app
@@ -31,7 +31,7 @@ if(USE_ROS)
 endif()
 
 
-## Compile as C++11 with pthread
+## Compile as C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(USE_ROS)
@@ -73,26 +73,37 @@ list(REMOVE_DUPLICATES INCLUDE_DIRS)
 list (APPEND INCLUDE_DIRS lib/)
 
 
-## Executable name: {STATEMACHINENAME}_APP
-set (APP_NAME ${STATE_MACHINE_NAME}_APP)
-if(NO_ROBOT)
-	set (APP_NAME ${APP_NAME}_NOROBOT)
-endif()
-add_executable(${APP_NAME}
-				${SOURCES}
-				)
-
-
 ## Add ROS dependencies
 if(USE_ROS)
-	# Required ROS packages
-	find_package(roscpp REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
-	find_package(std_msgs REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
+	#ROS local compile: use catkin
 	if(NOT CMAKE_CROSSCOMPILING)
-		include_directories(${roscpp_INCLUDE_DIRS})
-		include_directories(${std_msgs_INCLUDE_DIRS})
-		set(ROS_LIBRARIES ${roscpp_LIBRARIES} ${std_msgs_LIBRARIES})
+	message("--catkin--")
+		# Required ROS packages
+		find_package(catkin REQUIRED COMPONENTS
+				roscpp
+				rospy
+				std_msgs
+				sensor_msgs
+				geometry_msgs
+				)
+
+		catkin_package(
+				#  INCLUDE_DIRS include
+				#  LIBRARIES x2
+				#  CATKIN_DEPENDS roscpp rospy std_msgs
+				#  DEPENDS system_lib
+		)
+
+		#include CATKIN
+		include_directories(${catkin_INCLUDE_DIRS})
+		set(ROS_LIBRARIES ${catkin_LIBRARIES})
+	#Cross-compile with ROS (w/o catkin)
 	else()
+		# Required ROS packages
+		find_package(roscpp REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
+		find_package(std_msgs REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
+		find_package(sensor_msgs REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
+		find_package(geometry_msgs REQUIRED CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
 		# If cross-compiling force search in sysroot
 		if(IS_DIRECTORY ${CMAKE_SYSROOT})
 			message("-- Using sysroot folder: ${CMAKE_SYSROOT}")
@@ -117,6 +128,17 @@ if(USE_ROS)
 endif()
 
 
+## Executable name: {STATEMACHINENAME}_APP
+set (APP_NAME ${STATE_MACHINE_NAME}_APP)
+if(NO_ROBOT)
+	set (APP_NAME ${APP_NAME}_NOROBOT)
+endif()
+add_executable(${APP_NAME}
+				${SOURCES}
+				)
+
+
+## Includes
 target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
 
 ## Set required external packages
@@ -125,7 +147,7 @@ find_package(Threads REQUIRED)
 ## Link non-ROS libraries
 target_link_libraries(${APP_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
-## Link ROS libraries
+## Link ROS libraries 
 if(USE_ROS)
 	target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
 endif()

@@ -400,7 +400,7 @@ void M3DemoMinJerkPosition::duringCode(void) {
     }
 
 
-    //Display progression
+   /* //Display progression
     if(iterations%100==1) {
         std::cout << "Progress (Point "<< TrajPtIdx << ") |";
         for(int i=0; i<round(status*50.); i++)
@@ -410,7 +410,7 @@ void M3DemoMinJerkPosition::duringCode(void) {
 
         std::cout << "| (" << status*100 << "%)  ";
         robot->printStatus();
-    }
+    }*/
 }
 void M3DemoMinJerkPosition::exitCode(void) {
     robot->setJointVelocity(V3::Zero());
