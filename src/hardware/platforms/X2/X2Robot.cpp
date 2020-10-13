@@ -51,6 +51,7 @@ X2Robot::~X2Robot() {
 #ifdef SIM
 bool X2Robot::initialiseROS() {
     controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("/x2/controller_manager/switch_controller");
+
     positionCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/position_controller/command", 10);
     velocityCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/velocity_controller/command", 10);
     torqueCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/torque_controller/command", 10);

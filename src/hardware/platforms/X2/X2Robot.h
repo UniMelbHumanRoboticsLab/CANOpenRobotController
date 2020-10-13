@@ -92,7 +92,6 @@ class X2Robot : public Robot {
     controller_manager_msgs::SwitchController controllerSwitchMsg_;
 
     void jointStateCallback(const sensor_msgs::JointState& msg);
-
     #endif
 
    public:
