@@ -34,6 +34,7 @@ public:
     void exit(void);
     X2DemoState(StateMachine *m, X2Robot *exo, const char *name = NULL) : State(m, name), robot(exo){};
 
+
 private:
     std::chrono::steady_clock::time_point time0;
 };
