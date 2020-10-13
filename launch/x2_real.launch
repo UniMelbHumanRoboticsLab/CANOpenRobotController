@@ -5,7 +5,7 @@
   <param name="robot_description" command="$(find xacro)/xacro '$(find x2_description)/urdf/x2_fixed_base.urdf.xacro'"/>
 
   <!-- CORC -->
-  <node name="x2_node" pkg="CORC" type="X2DemoMachine_APP"/>
+  <node name="x2_node" pkg="CORC" type="X2DemoMachine_APP" output="screen"/>
 
   <!-- The robot_state_publisher reads the urdf from /robot_description parameter
        and listens to joint information on the /joint_states topic -->
