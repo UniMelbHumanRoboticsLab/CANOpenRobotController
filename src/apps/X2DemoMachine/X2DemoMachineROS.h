@@ -36,7 +36,6 @@ class X2DemoMachineROS {
     ros::Publisher leftShankForcePublisher_;
     ros::Publisher rightThighForcePublisher_;
     ros::Publisher rightShankForcePublisher_;
-    ros::Publisher dummyPublisher_;
 
     sensor_msgs::JointState jointStateMsg_;
     geometry_msgs::WrenchStamped leftThighForceMsg_;

@@ -260,7 +260,7 @@ class X2Robot : public Robot {
     /**
        * \brief Initialize ROS services, publisher ans subscribers
       */
-    bool initialiseROS();
+    void initialiseROS();
     #endif
 
 };

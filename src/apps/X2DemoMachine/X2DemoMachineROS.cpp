@@ -10,7 +10,7 @@ X2DemoMachineROS::~X2DemoMachineROS() {
 }
 
 void X2DemoMachineROS::initialize() {
-    
+    DEBUG_OUT("X2DemoMachineROS::init()")
 #ifndef SIM // if simulation, these will be published by Gazebo
     jointStatePublisher_ = nodeHandle_->advertise<sensor_msgs::JointState>("/x2/joint_states", 10);
     leftThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("/x2/left_thigh_wrench", 10);

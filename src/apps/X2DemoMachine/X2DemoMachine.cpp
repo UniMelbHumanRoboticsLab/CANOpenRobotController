@@ -42,7 +42,6 @@ void X2DemoMachine::init(int argc, char *argv[]) {
 #endif
 
     initialised = robot_->initialise();
-    DEBUG_OUT("X2DemoMachineROS::init()")
     x2DemoMachineRos_->initialize();
     running = true;
     time0 = std::chrono::steady_clock::now();

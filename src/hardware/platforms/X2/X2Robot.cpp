@@ -49,7 +49,7 @@ X2Robot::~X2Robot() {
     DEBUG_OUT("X2Robot deleted")
 }
 #ifdef SIM
-bool X2Robot::initialiseROS() {
+void X2Robot::initialiseROS() {
     controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("/x2/controller_manager/switch_controller");
 
     positionCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/position_controller/command", 10);

@@ -21,7 +21,7 @@ set (STATE_MACHINE_NAME "X2DemoMachine")
 set(NO_ROBOT ON)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
-set(USE_ROS ON)
+set(USE_ROS OFF)
 
 if(USE_ROS)
     add_definitions(-DUSEROS)
