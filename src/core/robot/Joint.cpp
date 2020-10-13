@@ -10,31 +10,29 @@
  */
 #include "Joint.h"
 
-#include <iostream>
 
 #include "DebugMacro.h"
 
-Joint::Joint(int jointID, double jointMin, double jointMax) : id(jointID), qMin(jointMin), qMax(jointMax), actuated(false) {
+Joint::Joint(int jointID, double jointMin, double jointMax, const std::string& n) : id(jointID), name(n), qMin(jointMin), qMax(jointMax), actuated(false) {
     position = 0;
     velocity = 0;
     torque = 0;
 }
 
-Joint::Joint(int jointID, double jointMin, double jointMax, double q0) : id(jointID), qMin(jointMin), qMax(jointMax), actuated(false) {
+Joint::Joint(int jointID, double jointMin, double jointMax, double q0, const std::string& n) : id(jointID), name(n), qMin(jointMin), qMax(jointMax), actuated(false) {
     position = q0;
     velocity = 0;
     torque = 0;
 }
 
-Joint::Joint(int jointID, double jointMin, double jointMax, Drive *jointDrive) : id(jointID), qMin(jointMin), qMax(jointMax), actuated(true) {
+Joint::Joint(int jointID, double jointMin, double jointMax, Drive *jointDrive, const std::string& n) : id(jointID), name(n), qMin(jointMin), qMax(jointMax), actuated(true) {
     position = 0;
     velocity = 0;
     torque = 0;
     this->drive = jointDrive;
-    calibrated = false;
 }
 
-Joint::Joint(int jointID, double jointMin, double jointMax, double q0, Drive *jointDrive) : id(jointID), qMin(jointMin), qMax(jointMax), actuated(true) {
+Joint::Joint(int jointID, double jointMin, double jointMax, double q0, Drive *jointDrive, const std::string& n) : id(jointID), name(n), qMin(jointMin), qMax(jointMax), actuated(true) {
     position = q0;
     velocity = 0;
     torque = 0;
@@ -60,7 +58,7 @@ double Joint::getTorque() {
 }
 
 void Joint::printStatus() {
-    std::cout << "Joint ID " << id << " @ pos " << getPosition() << " deg" << std::endl;
+    std::cout << "Joint " << name << "(ID " << id << ") @ pos " << getPosition() << " deg" << std::endl;
 }
 
 // Methods if joint is actuated
