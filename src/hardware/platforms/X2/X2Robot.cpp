@@ -48,7 +48,16 @@ X2Robot::~X2Robot() {
     freeMemory();
     DEBUG_OUT("X2Robot deleted")
 }
+#ifdef SIM
+bool X2Robot::initialiseROS() {
+    controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("/x2/controller_manager/switch_controller");
+    positionCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/position_controller/command", 10);
+    velocityCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/velocity_controller/command", 10);
+    torqueCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/torque_controller/command", 10);
 
+    jointStateSubscriber_ = nodeHandle_->subscribe("/x2/joint_states", 1, &X2Robot::jointStateCallback, this);
+}
+#endif
 bool X2Robot::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
     bool returnValue = true;
@@ -251,29 +260,35 @@ setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
 }
 
 Eigen::VectorXd& X2Robot::getPosition() {
+#ifndef SIM
     int i = 0;
     for (auto p : joints) {
         jointPositions_[i] = ((X2Joint *)p)->getPosition();
         i++;
     }
+#endif
     return jointPositions_;
 }
 
 Eigen::VectorXd& X2Robot::getVelocity() {
+#ifndef SIM
     int i = 0;
     for (auto p : joints) {
         jointVelocities_[i] = ((X2Joint *)p)->getVelocity();
         i++;
     }
+#endif
     return jointVelocities_;
 }
 
 Eigen::VectorXd& X2Robot::getTorque() {
+#ifndef SIM
     int i = 0;
     for (auto p : joints) {
         jointTorques_[i] = ((X2Joint *)p)->getTorque();
         i++;
     }
+#endif
     return jointTorques_;
 }
 
@@ -409,13 +424,6 @@ bool X2Robot::initialiseInputs() {
     return true;
 }
 
-bool X2Robot::initialiseROS() {
-    controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("/x2/controller_manager/switch_controller");
-    positionCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/position_controller/command", 10);
-    velocityCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/velocity_controller/command", 10);
-    torqueCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/torque_controller/command", 10);
-}
-
 void X2Robot::freeMemory() {
     for (auto p : joints) {
         DEBUG_OUT("Delete Joint ID: " << p->getId())
@@ -439,4 +447,14 @@ void X2Robot::setNodeHandle(ros::NodeHandle &nodeHandle) {
 
     nodeHandle_ = &nodeHandle;
 }
+
+void X2Robot::jointStateCallback(const sensor_msgs::JointState &msg) {
+
+    for(int i = 0; i<X2_NUM_JOINTS; i++){
+        jointPositions_[i] = msg.position[i];
+        jointVelocities_[i] = msg.velocity[i];
+        jointTorques_[i] = msg.effort[i];
+    }
+}
+
 #endif

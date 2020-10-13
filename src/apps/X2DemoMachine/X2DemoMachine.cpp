@@ -36,7 +36,10 @@ void X2DemoMachine::init(int argc, char *argv[]) {
 
     // Pass nodeHandle to the classes that use ROS features
     x2DemoMachineRos_->setNodeHandle(nodeHandle);
+
+#ifdef SIM
     robot_->setNodeHandle(nodeHandle);
+#endif
 
     initialised = robot_->initialise();
     x2DemoMachineRos_->initialize();
