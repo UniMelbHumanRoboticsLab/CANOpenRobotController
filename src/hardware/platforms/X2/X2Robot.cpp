@@ -38,9 +38,10 @@ JointDrivePairs kneeJDP{
 ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
 X2Robot::X2Robot() : Robot() {
+    /*TODO
     jointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     jointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    jointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    jointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);*/
     interactionForces_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
 }
 
@@ -166,34 +167,15 @@ setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
     return returnValue;
 }
 
-Eigen::VectorXd& X2Robot::getPosition() {
-    int i = 0;
-    for (auto p : joints) {
-        jointPositions_[i] = ((X2Joint *)p)->getPosition();
-        i++;
-    }
-    return jointPositions_;
-}
-
-Eigen::VectorXd& X2Robot::getVelocity() {
-    int i = 0;
-    for (auto p : joints) {
-        jointVelocities_[i] = ((X2Joint *)p)->getVelocity();
-        i++;
-    }
-    return jointVelocities_;
-}
-
-Eigen::VectorXd& X2Robot::getTorque() {
-    int i = 0;
-    for (auto p : joints) {
-        jointTorques_[i] = ((X2Joint *)p)->getTorque();
-        i++;
-    }
-    return jointTorques_;
-}
 
 Eigen::VectorXd& X2Robot::getInteractionForce() {
+    //TODO: generalise sensors
+    //Initialise vector if not already done
+    if(interactionForces_.size()!=forceSensors.size()) {
+        interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
+    }
+
+    //Update values
     for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
         interactionForces_[i] = forceSensors[i]->getForce();
     }
@@ -335,5 +317,15 @@ void X2Robot::freeMemory() {
     }
 }
 void X2Robot::updateRobot() {
+
+    //TODO: generalise sensors update
     Robot::updateRobot();
+
+    if(interactionForces_.size()!=forceSensors.size()) {
+        interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
+    }
+    //Update values
+    for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
+        interactionForces_[i] = forceSensors[i]->getForce();
+    }
 }

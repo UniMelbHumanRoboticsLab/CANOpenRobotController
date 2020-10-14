@@ -155,7 +155,7 @@ public:
     }
 
     /**
-    * \brief Initialize the logger
+    * \brief Initialize an asynchronous logger
     *
     * \param loggerName name of the logger
     * \param fileName file name to create the log document
@@ -207,7 +207,7 @@ public:
     }
 
     /**
-     * \brief Records the values of the added variables at the intant the function is called.
+     * \brief Records the values of the added variables at the instant the function is called.
      *
      */
     bool recordLogData(){

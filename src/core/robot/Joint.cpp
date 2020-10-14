@@ -9,8 +9,6 @@
  *
  */
 #include "Joint.h"
-
-
 #include "DebugMacro.h"
 
 Joint::Joint(int jointID, double jointMin, double jointMax, const std::string& n) : id(jointID), name(n), qMin(jointMin), qMax(jointMax), actuated(false) {

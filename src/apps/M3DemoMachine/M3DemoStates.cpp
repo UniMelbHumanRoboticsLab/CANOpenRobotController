@@ -27,7 +27,7 @@ void M3DemoState::entryCode(void) {
     //robot->initPositionControl();
     //robot->initVelocityControl();
     //robot->initTorqueControl();
-    qi=robot->getJointPosition();
+    qi=robot->getPosition();
     Xi=robot->getEndEffPosition();
     //robot->setJointVelocity(VM3::Zero());
     //robot->setEndEffForceWithCompensation(VM3::Zero(), false);
@@ -102,7 +102,7 @@ void M3CalibState::duringCode(void) {
     VM3 tau(0, 0, 0);
 
     //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
-    VM3 vel=robot->getJointVelocity();
+    VM3 vel=robot->getVelocity();
     double b = 3.;
     for(unsigned int i=0; i<3; i++) {
         tau(i) = std::min(std::max(2 - b * vel(i), .0), 2.);
@@ -337,7 +337,7 @@ void M3SamplingEstimationState::duringCode(void) {
 
         //Get time and actual value read from CAN to get sampling rate
         dts[iterations-2] = dt;
-        dX[iterations-2] = robot->getJointVelocity()[1];
+        dX[iterations-2] = robot->getVelocity()[1];
         if(dX[iterations-2]!=dX[iterations-3] && iterations>2 ){ //Value has actually been updated
             new_value++;
         }

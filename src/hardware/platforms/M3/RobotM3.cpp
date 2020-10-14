@@ -127,9 +127,9 @@ void RobotM3::printStatus() {
 }
 void RobotM3::printJointStatus() {
     std::cout << std::setprecision(1) << std::fixed;
-    std::cout << "q=[ " << getJointPosition().transpose() * 180 / M_PI << " ]\t";
-    std::cout << "dq=[ " << getJointVelocity().transpose() * 180 / M_PI << " ]\t";
-    std::cout << "tau=[ " << getJointTorque().transpose() << " ]\t";
+    std::cout << "q=[ " << getPosition().transpose() * 180 / M_PI << " ]\t";
+    std::cout << "dq=[ " << getVelocity().transpose() * 180 / M_PI << " ]\t";
+    std::cout << "tau=[ " << getTorque().transpose() << " ]\t";
     std::cout << "{";
     for (auto joint : joints)
         std::cout << "0x" << std::hex << ((JointM3 *)joint)->getDriveStatus() << "; ";
@@ -359,23 +359,15 @@ VM3 RobotM3::calculateGravityTorques() {
     return tau_g;
 }
 
-VM3 RobotM3::getJointPosition() {
-    return VM3({((JointM3 *)joints[0])->getPosition(), ((JointM3 *)joints[1])->getPosition(), ((JointM3 *)joints[2])->getPosition()});
-}
-VM3 RobotM3::getJointVelocity() {
-    return VM3({((JointM3 *)joints[0])->getVelocity(), ((JointM3 *)joints[1])->getVelocity(), ((JointM3 *)joints[2])->getVelocity()});
-}
-VM3 RobotM3::getJointTorque() {
-    return VM3({((JointM3 *)joints[0])->getTorque(), ((JointM3 *)joints[1])->getTorque(), ((JointM3 *)joints[2])->getTorque()});
-}
+
 VM3 RobotM3::getEndEffPosition() {
-    return directKinematic(getJointPosition());
+    return directKinematic(getPosition());
 }
 VM3 RobotM3::getEndEffVelocity() {
-    return J() * getJointVelocity();
+    return J() * getVelocity();
 }
 VM3 RobotM3::getEndEffForce() {
-    return (J().transpose()).inverse() * getJointTorque();
+    return (J().transpose()).inverse() * getTorque();
 }
 
 setMovementReturnCode_t RobotM3::setJointPosition(VM3 q) {

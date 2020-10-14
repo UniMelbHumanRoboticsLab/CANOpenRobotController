@@ -1,6 +1,6 @@
 /**
  * \file Robot.h
- * \author William Campbell
+ * \author William Campbell, Justin Fong, Vincent Crocher
  * \brief  The <code>Robot</code> class is a abstract class which is a software representation of a Robot
  * with a flexible representation in terms of number of joints, number of sensors and type of I/O
  * the real world or virtual robot has. The class specificall represents a robot with an underlying
@@ -8,9 +8,8 @@
  * Implementations have been designed <code>ExoRobot<code> under CANOpen protocol, however others
  * may be implemented by future developers.
  *
- * \version 0.1
- * \date 2020-04-09
- * \version 0.1
+ * \version 0.2
+ * \date 2020-10-14
  * \copyright Copyright (c) 2020
  */
 /**
@@ -20,6 +19,7 @@
 #ifndef ROBOT_H_INCLUDED
 #define ROBOT_H_INCLUDED
 #include <vector>
+#include <Eigen/Dense>
 
 #include "InputDevice.h"
 #include "Joint.h"
@@ -39,8 +39,11 @@ class Robot {
     *
     */
     std::vector<Joint *> joints;
-
     std::vector<InputDevice *> inputs;
+
+    Eigen::VectorXd jointPositions_;
+    Eigen::VectorXd jointVelocities_;
+    Eigen::VectorXd jointTorques_;
 
    public:
     /** @name Constructors and Destructors */
@@ -109,6 +112,27 @@ class Robot {
     virtual void updateRobot();
 
     /**
+    * \brief Get the latest joints position
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+    Eigen::VectorXd& getPosition();
+
+    /**
+    * \brief Get the latest joints velocity
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+    Eigen::VectorXd& getVelocity();
+
+    /**
+    * \brief Get the latest joints torque
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+    Eigen::VectorXd& getTorque();
+
+    /**
     * \brief print out status of robot and all of its joints
     *
     */
@@ -171,6 +195,7 @@ class Robot {
     */
     virtual setMovementReturnCode_t setTorque(std::vector<double> torques) { return INCORRECT_MODE; };
     //@}
+
 
 
     /** @name Logging methods */
