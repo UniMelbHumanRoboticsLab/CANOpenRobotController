@@ -197,10 +197,18 @@ See [here](doc/ROSApplication.md) for instructions on how to build and run a COR
 - Project Repository: https://github.com/capstonealex/exo
 - CANopen Socket: https://github.com/CANopenNode/CANopenSocket
 
-Feel free to contact fong.j[at]unimelb.edu.au with questions or suggestions for continuing development.
+
+## Contributors
+The following individuals have made contributions to CORC:
+
+- William Campbell
+- Vincent Crocher
+- Emek Barış Küçüktabak 
+- Justin Fong
+
+Please contact fong.j[at]unimelb.edu.au with questions or suggestions for continuing development, or if you wish to be more involved in the planning/organisation of CORC.
 
 ## License
-
 ​
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 ​
