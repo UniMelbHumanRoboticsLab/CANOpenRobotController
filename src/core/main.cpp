@@ -85,6 +85,9 @@ static void sigHandler(int sig) {
 /** Mainline and threads                                                     **/
 /******************************************************************************/
 int main(int argc, char *argv[]) {
+    //Initialise console and file logging. Name file can be specified if required (see logging.h)
+    init_logging();
+
     /* TODO : MOVE bellow definitionsTO SOME KIND OF CANobject, struct or the like*/
     CO_NMT_reset_cmd_t reset = CO_RESET_NOT;
     bool_t firstRun = true;

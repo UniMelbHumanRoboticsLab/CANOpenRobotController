@@ -29,9 +29,7 @@ char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
-    printf("app_Program Start \n");
-    //Initialise console and file logging. Name file can be specified if required (see logging.h)
-    init_logging();
+    spdlog::info("app_Program Start");
 #ifdef NOROBOT
     printf("Running in NOROBOT (virtual) mode.\n");
 #endif // NOROBOT
@@ -49,7 +47,7 @@ void app_communicationReset(void) {
 /******************************************************************************/
 void app_programEnd(void) {
     stateMachine.end();
-    printf("app_programEnd \n");
+    spdlog::info("app_programEnd");
 
     #ifdef TIMING_LOG
     loopTimer.end();
