@@ -52,13 +52,13 @@ M3DemoMachine::~M3DemoMachine() {
  */
 
 void M3DemoMachine::init() {
-    DEBUG_OUT("M3DemoMachine::init()")
+    spdlog::debug("M3DemoMachine::init()");
     if(robot->initialise()) {
         initialised = true;
     }
     else {
         initialised = false;
-        std::cout /*cerr is banned*/ << "Failed robot initialisation. Exiting..." << std::endl;
+        spdlog::critical("Failed robot initialisation. Exiting...");
         std::raise(SIGTERM); //Clean exit
     }
     running = true;

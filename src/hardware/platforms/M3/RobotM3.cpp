@@ -1,7 +1,5 @@
 #include "RobotM3.h"
 
-#include "DebugMacro.h"
-
 using namespace Eigen;
 
 short int sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
@@ -22,23 +20,23 @@ RobotM3::RobotM3() : Robot(),
     inputs.push_back(joystick = new Joystick());
 }
 RobotM3::~RobotM3() {
-    DEBUG_OUT("Delete RobotM3 object begins")
+    spdlog::debug("Delete RobotM3 object begins");
     for (auto p : joints) {
-        DEBUG_OUT("Delete Joint ID: " << p->getId())
+        spdlog::debug("Delete Joint ID: {}", p->getId());
         delete p;
     }
     joints.clear();
     delete keyboard;
     delete joystick;
     inputs.clear();
-    DEBUG_OUT("RobotM3 deleted")
+    spdlog::debug("RobotM3 deleted");
 }
 
 bool RobotM3::initialiseJoints() {
     return true;
 }
 bool RobotM3::initialiseNetwork() {
-    DEBUG_OUT("RobotM3::initialiseNetwork()");
+    spdlog::debug("RobotM3::initialiseNetwork()");
 
     bool status;
     for (auto joint : joints) {
@@ -47,9 +45,9 @@ bool RobotM3::initialiseNetwork() {
             return false;
     }
     //Give time to drives PDO initialisation
-    DEBUG_OUT("...");
+    spdlog::debug("...");
     for (int i = 0; i < 5; i++) {
-        DEBUG_OUT(".");
+        spdlog::debug(".");
         usleep(10000);
     }
     //Start node
@@ -67,7 +65,7 @@ bool RobotM3::initialiseNetwork() {
             joint_ready = ((joint->getDriveStatus() & 0x01) == 0x01);
         }
         if (!joint_ready) {
-            std::cout /*cerr is banned*/ << "M3: Failed to enable joint " << n << std::endl;
+            spdlog::error("M3: Failed to enable joint {}", n);
             return false;
         }
         n++;
@@ -98,11 +96,11 @@ setMovementReturnCode_t RobotM3::safetyCheck() {
     //End-effector safeties if calibrated
     if (calibrated) {
         if (getEndEffVelocity().norm() > maxEndEffVel) {
-            std::cout /*cerr is banned*/ << "M3: Max velocity reached (" << getEndEffVelocity().norm() << "m.s-1)!" << std::endl;
+            spdlog::error("M3: Max velocity reached ({}m.s-1)!", getEndEffVelocity().norm());
             return OUTSIDE_LIMITS;
         }
         //if(getEndEffForce().norm()>maxEndEffForce) {
-        //   std::cout /*cerr is banned*/ << "M3: Max force reached (" << getEndEffForce().norm() << "N)!" << std::endl;
+        //   spdlog::error("M3: Max force reached ({}N)!", getEndEffForce().norm());
         //   return OUTSIDE_LIMITS;
         //}
     }
@@ -110,7 +108,7 @@ setMovementReturnCode_t RobotM3::safetyCheck() {
     else {
         for (unsigned int i = 0; i < 3; i++) {
             if (((JointM3 *)joints[i])->safetyCheck() != SUCCESS) {
-                std::cout /*cerr is banned*/ << "M3: Joint " << i << " safety triggered!" << std::endl;
+                spdlog::error("M3: Joint {} safety triggered!", i);
                 return OUTSIDE_LIMITS;
             }
         }
@@ -137,12 +135,12 @@ void RobotM3::printJointStatus() {
 }
 
 bool RobotM3::initPositionControl() {
-    DEBUG_OUT("Initialising Position Control on all joints ")
+    spdlog::debug("Initialising Position Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
         if (((JointM3 *)p)->setMode(CM_POSITION_CONTROL) != CM_POSITION_CONTROL) {
             // Something bad happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::error("Something bad happened");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -159,12 +157,12 @@ bool RobotM3::initPositionControl() {
     return returnValue;
 }
 bool RobotM3::initVelocityControl() {
-    DEBUG_OUT("Initialising Velocity Control on all joints ")
+    spdlog::debug("Initialising Velocity Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
         if (((JointM3 *)p)->setMode(CM_VELOCITY_CONTROL) != CM_VELOCITY_CONTROL) {
             // Something bad happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::error("Something bad happened");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -180,12 +178,12 @@ bool RobotM3::initVelocityControl() {
     return returnValue;
 }
 bool RobotM3::initTorqueControl() {
-    DEBUG_OUT("Initialising Torque Control on all joints ")
+    spdlog::debug("Initialising Torque Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
         if (((JointM3 *)p)->setMode(CM_TORQUE_CONTROL) != CM_TORQUE_CONTROL) {
             // Something bad happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::error("Something bad happened");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -210,11 +208,11 @@ setMovementReturnCode_t RobotM3::applyPosition(std::vector<double> positions) {
         for (auto p : joints) {
             setMovementReturnCode_t setPosCode = ((JointM3 *)p)->setPosition(positions[i]);
             if (setPosCode == INCORRECT_MODE) {
-                std::cout << "Joint " << p->getId() << ": is not in Position Control " << std::endl;
+                spdlog::error("Joint {} : is not in Position Control", p->getId());
                 returnValue = INCORRECT_MODE;
             } else if (setPosCode != SUCCESS) {
                 // Something bad happened
-                std::cout /*cerr banned*/ << "Joint " << p->getId() << " position error : " << setMovementReturnCodeString[setPosCode] << std::endl;
+                spdlog::error("Joint {} position error : {} ", p->getId(), setMovementReturnCodeString[setPosCode]);
                 returnValue = UNKNOWN_ERROR;
             }
             i++;
@@ -228,11 +226,11 @@ setMovementReturnCode_t RobotM3::applyVelocity(std::vector<double> velocities) {
     for (auto p : joints) {
         setMovementReturnCode_t setVelCode = ((JointM3 *)p)->setVelocity(velocities[i]);
         if (setVelCode == INCORRECT_MODE) {
-            std::cout << "Joint " << p->getId() << ": is not in Velocity Control " << std::endl;
+            spdlog::error("Joint {} : is not in Velocity Control", p->getId());
             returnValue = INCORRECT_MODE;
         } else if (setVelCode != SUCCESS) {
             // Something bad happened
-            std::cout /*cerr banned*/ << "Joint " << p->getId() << " velocity error : " << setMovementReturnCodeString[setVelCode] << std::endl;
+            spdlog::error("Joint {} velocity error : {} ", p->getId(), setMovementReturnCodeString[setVelCode]);
             returnValue = UNKNOWN_ERROR;
         }
         i++;
@@ -245,11 +243,11 @@ setMovementReturnCode_t RobotM3::applyTorque(std::vector<double> torques) {
     for (auto p : joints) {
         setMovementReturnCode_t setTorCode = ((JointM3 *)p)->setTorque(torques[i]);
         if (setTorCode == INCORRECT_MODE) {
-            std::cout /*cerr banned*/ << "Joint " << p->getId() << ": is not in Torque Control " << std::endl;
+            spdlog::error("Joint {} : is not in Torque Control", p->getId());
             returnValue = INCORRECT_MODE;
         } else if (setTorCode != SUCCESS) {
             // Something bad happened
-            std::cout /*cerr banned*/ << "Joint " << p->getId() << " torque error : " << setMovementReturnCodeString[setTorCode] << std::endl;
+            spdlog::error("Joint {} torque error : {} ", p->getId(), setMovementReturnCodeString[setTorCode]);
             returnValue = UNKNOWN_ERROR;
         }
         i++;
@@ -278,7 +276,7 @@ VM3 RobotM3::inverseKinematic(VM3 X) {
     //Check accessible workspace
     double normX = X.norm();
     if ((L[3] < L[2] && normX < L[2] - (L[3]+endEffTool->length)) || ((L[3]+endEffTool->length) > L[2] && normX < sqrt((L[4]+endEffTool->length) * (L[3]+endEffTool->length) - L[2] * L[2])) || normX > (L[2] + (L[3]+endEffTool->length) + L[0]) || X[0] > 0) {
-        std::cout /*cerr is banned*/ << "RobotM3::inverseKinematic() error: Point not accessible. NaN returned." << std::endl;
+        spdlog::error("RobotM3::inverseKinematic() error: Point not accessible. NaN returned.");
         q[0] = q[1] = q[2] = nan("");
         return q;
     }

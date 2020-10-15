@@ -11,14 +11,12 @@
  */
 #include "Robot.h"
 
-#include "DebugMacro.h"
-
 Robot::Robot(){
-    DEBUG_OUT("Robot object created")
+    spdlog::debug("Robot object created");
 }
 
 Robot::~Robot() {
-    DEBUG_OUT("Robot object deleted")
+    spdlog::debug("Robot object deleted");
 }
 
 bool Robot::initialise() {

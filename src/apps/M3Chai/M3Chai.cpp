@@ -48,17 +48,17 @@ M3Chai::~M3Chai() {
  */
 
 void M3Chai::init() {
-    DEBUG_OUT("M3Chai::init()")
+    spdlog::debug("M3Chai::init()");
     if(robot->initialise()) {
         initialised = true;
         if(chaiServer->Connect(IP_ADDRESS)!=0) {
-            std::cout /*cerr is banned*/ << "M3ChaiCommunication: Unable to initialise socket... Quitting." <<std::endl;
+            spdlog::critical("M3ChaiCommunication: Unable to initialise socket... Quitting.");
             raise(SIGTERM); //Clean exit
         }
     }
     else {
         initialised = false;
-        std::cout /*cerr is banned*/ << "Failed robot initialisation. Exiting..." << std::endl;
+        spdlog::critical("Failed robot initialisation. Exiting...");
         std::raise(SIGTERM); //Clean exit
     }
     running = true;
@@ -67,7 +67,7 @@ void M3Chai::init() {
 void M3Chai::end() {
     if(initialised) {
         currentState->exit();
-        robot->stop();
+        robot->disable();
     }
 }
 

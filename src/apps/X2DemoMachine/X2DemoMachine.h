@@ -20,8 +20,6 @@
 #include <iostream>
 #include <string>
 
-#include "DebugMacro.h"
-
 #include "X2Robot.h"
 #include "StateMachine.h"
 

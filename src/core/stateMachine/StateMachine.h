@@ -16,7 +16,9 @@
 
 class State;
 
+#include "logging.h"
 #include "State.h"
+
 /**
  * @ingroup stateMachine
  * \brief Abstract class representing a state machine. Includes a number of State and Transition objects

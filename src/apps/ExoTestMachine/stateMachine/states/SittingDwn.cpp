@@ -20,11 +20,11 @@ void SittingDwn::during(void) {
 
     /**
      *  /todo - Check if the GO button on the robot is pressed
-     * 
+     *
      */
     if (true) {
         currTrajProgress += elapsedSec;
-        DEBUG_OUT("Elapsed Time: " << currTrajProgress)
+        spdlog::debug("Elapsed Time: {}", currTrajProgress);
 
         robot->setPosition(trajectoryGenerator->getSetPoint(currTrajProgress));
     }

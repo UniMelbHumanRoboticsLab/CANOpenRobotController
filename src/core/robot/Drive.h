@@ -24,6 +24,8 @@
 #include <sstream>
 #include <vector>
 
+#include "logging.h"
+
 /**
  * Map of standard SDOs return error codes
  */

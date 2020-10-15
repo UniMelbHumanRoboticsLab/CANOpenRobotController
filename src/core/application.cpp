@@ -8,7 +8,7 @@
  */
 #include "application.h"
 
-#include "DebugMacro.h"
+
 #ifdef TIMING_LOG
 #include "LoopTiming.h"
 LoopTiming loopTimer;
@@ -21,6 +21,7 @@ LoopTiming loopTimer;
 
 STATE_MACHINE_TYPE stateMachine;
 
+
 /*For master-> node SDO message sending*/
 #define CO_COMMAND_SDO_BUFFER_SIZE 100000
 #define STRING_BUFFER_SIZE (CO_COMMAND_SDO_BUFFER_SIZE * 4 + 100)
@@ -29,6 +30,8 @@ char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
     printf("app_Program Start \n");
+    //Initialise console and file logging. Name file can be specified if required (see logging.h)
+    init_logging();
 #ifdef NOROBOT
     printf("Running in NOROBOT (virtual) mode.\n");
 #endif // NOROBOT
