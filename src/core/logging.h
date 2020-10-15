@@ -11,7 +11,7 @@
 #define LOGGING_H_INCLUDED
 
 //Select logging level between: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL or OFF
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
     //For logging and output use either the following functions:
     //spdlog::trace("Test trace {}", my_value);

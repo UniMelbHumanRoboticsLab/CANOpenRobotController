@@ -59,13 +59,13 @@ bool RobotM3::initialiseNetwork() {
     int n = 0;
     for (auto joint : joints) {
         bool joint_ready = false;
-        for (int i = 0; i < (10 & !joint_ready); i++) {
+        for (int i = 0; (i < 10 & !joint_ready); i++) {
             joint->readyToSwitchOn();
             usleep(10000);
             joint_ready = ((joint->getDriveStatus() & 0x01) == 0x01);
         }
         if (!joint_ready) {
-            spdlog::error("M3: Failed to enable joint {}", n);
+            spdlog::error("M3: Failed to enable joint {} (status: {})", n, joint->getDriveStatus());
             return false;
         }
         n++;

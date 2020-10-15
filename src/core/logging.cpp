@@ -53,7 +53,6 @@ void init_logging(const char * filename)
     sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(filename, 1024 * 1024 * 50, 1));
     //Register this two sinks logger as main logger
     std::shared_ptr<spdlog::logger> main_logger = std::make_shared<spdlog::logger>("CORC log", begin(sinks), end(sinks));
-    //spdlog::set_default_logger(std::make_shared<spdlog::logger>("CORC log", begin(sinks), end(sinks)));
     spdlog::initialize_logger(main_logger);
     spdlog::set_default_logger(main_logger);
 }

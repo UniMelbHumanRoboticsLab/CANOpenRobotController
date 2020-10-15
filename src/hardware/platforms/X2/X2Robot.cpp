@@ -37,11 +37,6 @@ JointDrivePairs kneeJDP{
 ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
 X2Robot::X2Robot() : Robot() {
-    /*TODO
-    jointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    jointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    jointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);*/
-    interactionForces_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
 }
 
 X2Robot::~X2Robot() {
