@@ -28,6 +28,7 @@ if(USE_ROS)
 endif()
 
 if(NO_ROBOT AND USE_ROS)
+	set(SIM ON)
     add_definitions(-DSIM)
 endif()
 
@@ -86,10 +87,14 @@ if(USE_ROS)
 				std_msgs
 				sensor_msgs
 				geometry_msgs
-		        controller_manager_msgs
-        		cob_gazebo_ros_control
-        		x2_description
         )
+		if(SIM)
+			find_package(catkin REQUIRED COMPONENTS
+			controller_manager_msgs
+			cob_gazebo_ros_control
+			x2_description
+			)
+		endif()
 
 
 		catkin_package(
