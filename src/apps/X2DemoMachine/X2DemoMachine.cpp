@@ -77,5 +77,4 @@ void X2DemoMachine::update() {
 
     StateMachine::update();
     x2DemoMachineRos_->update();
-    logHelper.recordLogData();
 }

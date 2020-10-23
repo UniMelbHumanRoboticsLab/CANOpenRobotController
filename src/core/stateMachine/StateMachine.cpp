@@ -35,4 +35,6 @@ void StateMachine::update(void) {
         currentState->entry();
     }
     currentState->during();
+    if(logHelper.isStarted() && logHelper.isInitialised())
+        logHelper.recordLogData();
 }

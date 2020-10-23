@@ -69,9 +69,6 @@ private:
      * An events check function are defined in the .cpp file.
     */
     EventObject(StartExo) * startExo;
-
-    LogHelper logHelper;
-
 };
 
 

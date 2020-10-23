@@ -18,7 +18,7 @@
     //spdlog::debug("Test debug {}", my_value);
     //...
     //spdlog::critical("Test debug {}", my_value);
- 
+
     //Or the following macros
     //SPDLOG_LOGGER_TRACE(main_logger, "Test trace");
     //SPDLOG_LOGGER_DEBUG(main_logger, "Test debug");
@@ -31,7 +31,7 @@
 #include "spdlog/sinks/rotating_file_sink.h" // support for rotating file logging
 #include "spdlog/sinks/stdout_color_sinks.h"
 
-void init_logging(const char * filename = "CORC.log");
+void init_logging(const char * filename = "logs/CORC.log");
 
 //Development use to log loop timing
 //#define TIMING_LOG

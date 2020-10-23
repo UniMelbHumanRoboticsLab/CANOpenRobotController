@@ -18,6 +18,7 @@ class State;
 
 #include "logging.h"
 #include "State.h"
+#include "spdlog/helper/LogHelper.h"
 
 /**
  * @ingroup stateMachine
@@ -73,6 +74,12 @@ class StateMachine {
     State *currentState;
 
     bool initialised = false;
+
+    /**
+     * \brief Custom spdlogger allowing to conveniently log Eigen Vectors (among other things)
+     * Required to be initialised in the derived state machine init()
+     */
+    LogHelper logHelper;
 };
 
 /**

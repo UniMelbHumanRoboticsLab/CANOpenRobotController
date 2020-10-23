@@ -32,7 +32,7 @@ bool Robot::initialise() {
 
 
 bool Robot::disable() {
-    std::cout << "Disabling robot..." << std::endl;
+    spdlog::info("Disabling robot...");
     for (auto p : joints) {
         p->disable();
     }

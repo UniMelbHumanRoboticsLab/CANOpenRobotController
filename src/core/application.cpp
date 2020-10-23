@@ -29,9 +29,9 @@ char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
-    spdlog::info("app_Program Start");
+    spdlog::info("CORC Start application");
 #ifdef NOROBOT
-    printf("Running in NOROBOT (virtual) mode.\n");
+    spdlog::info("Running in NOROBOT (virtual) mode.");
 #endif // NOROBOT
 #ifndef USEROS
     stateMachine.init();
@@ -47,8 +47,7 @@ void app_communicationReset(void) {
 /******************************************************************************/
 void app_programEnd(void) {
     stateMachine.end();
-    spdlog::info("app_programEnd");
-
+    spdlog::info("CORC End application");
     #ifdef TIMING_LOG
     loopTimer.end();
     #endif

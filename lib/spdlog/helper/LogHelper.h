@@ -180,6 +180,24 @@ public:
     }
 
     /**
+    * \brief Is initialised?
+    *
+    * \return true if logger is initialised, false otherwise
+    */
+    bool isInitialised() {
+        return isInitialized_;
+    }
+
+    /**
+    * \brief Is started?
+    *
+    * \return true if logger is started, false otherwise
+    */
+    bool isStarted() {
+        return isStarted_;
+    }
+
+    /**
      * \brief Start the logger. Generates the header based on the added variables
      *
      */
@@ -189,20 +207,27 @@ public:
             return false;
         }
         else{
-            std::string headerMsg = "";
-            for(unsigned int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their names
+            if(vectorOfLogElements.size()>0){
+                std::string headerMsg = "";
+                for(unsigned int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their names
+                    headerMsg += vectorOfLogElements[i]->getName();
 
-                headerMsg += vectorOfLogElements[i]->getName();
-
-                // either a coma or new line comes
-                if(i != vectorOfLogElements.size()-1){
-                    headerMsg += ", ";
+                    // either a coma or new line comes
+                    if(i != vectorOfLogElements.size()-1){
+                        headerMsg += ", ";
+                    }
                 }
-
+                spdlog::info("started {} {}", loggerName_, headerMsg);
+                //spdlog::get(loggerName_)->info(headerMsg);
+                isStarted_ = true;
+                spdlog::info("started");
+                return true;
             }
-            spdlog::get(loggerName_)->info(headerMsg);
-            isStarted_ = true;
-            return true;
+            else {
+                spdlog::info("not started");
+                isStarted_ = false;
+                return false;
+            }
         }
     }
 

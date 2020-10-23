@@ -50,11 +50,15 @@ M3DemoMachine::~M3DemoMachine() {
  * for example initialising robot objects.
  *
  */
-
 void M3DemoMachine::init() {
     spdlog::debug("M3DemoMachine::init()");
     if(robot->initialise()) {
         initialised = true;
+        logHelper.initLogger("M3DemoMachineLog", "logs/M3DemoMachine.csv", LogFormat::CSV, true);
+        logHelper.add(robot->getPosition(), "JointPositions");
+        logHelper.add(robot->getTorque(), "JointTorques");
+        //clogHelper.startLogger(); // !!! Hang on spdlog::get(loggerName_)->info(headerMsg);
+        /*spdlog::info("loghelper initialised 3");*/
     }
     else {
         initialised = false;
@@ -66,6 +70,8 @@ void M3DemoMachine::init() {
 
 void M3DemoMachine::end() {
     if(initialised) {
+        if(logHelper.isStarted())
+            logHelper.endLog();
         currentState->exit();
         robot->disable();
     }
