@@ -217,14 +217,12 @@ public:
                         headerMsg += ", ";
                     }
                 }
-                spdlog::info("started {} {}", loggerName_, headerMsg);
-                //spdlog::get(loggerName_)->info(headerMsg);
+                spdlog::info("Starting logger {} ({})", loggerName_, headerMsg);
+                spdlog::get(loggerName_)->info(headerMsg);
                 isStarted_ = true;
-                spdlog::info("started");
                 return true;
             }
             else {
-                spdlog::info("not started");
                 isStarted_ = false;
                 return false;
             }

@@ -47,6 +47,15 @@ void Robot::updateRobot() {
         input->updateInput();
 
     //Update local copies of joint values
+    if(jointPositions_.size()!=joints.size()) {
+        jointPositions_ = Eigen::VectorXd::Zero(joints.size());
+    }
+    if(jointVelocities_.size()!=joints.size()) {
+        jointVelocities_ = Eigen::VectorXd::Zero(joints.size());
+    }
+    if(jointTorques_.size()!=joints.size()) {
+        jointTorques_ = Eigen::VectorXd::Zero(joints.size());
+    }
     unsigned int i = 0;
     for (auto joint : joints) {
         jointPositions_[i] = joint->getPosition();

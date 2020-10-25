@@ -55,10 +55,11 @@ void M3DemoMachine::init() {
     if(robot->initialise()) {
         initialised = true;
         logHelper.initLogger("M3DemoMachineLog", "logs/M3DemoMachine.csv", LogFormat::CSV, true);
+        logHelper.add(time_running, "Time (s)");
         logHelper.add(robot->getPosition(), "JointPositions");
+        logHelper.add(robot->getVelocity(), "JointVelocities");
         logHelper.add(robot->getTorque(), "JointTorques");
-        //clogHelper.startLogger(); // !!! Hang on spdlog::get(loggerName_)->info(headerMsg);
-        /*spdlog::info("loghelper initialised 3");*/
+        logHelper.startLogger();
     }
     else {
         initialised = false;
@@ -66,6 +67,8 @@ void M3DemoMachine::init() {
         std::raise(SIGTERM); //Clean exit
     }
     running = true;
+    time_init = std::chrono::steady_clock::now();
+    time_running = 0;
 }
 
 void M3DemoMachine::end() {
@@ -87,6 +90,8 @@ void M3DemoMachine::end() {
  *
  */
 void M3DemoMachine::hwStateUpdate(void) {
+    time_running = (std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now() - time_init).count()) / 1e6;
     robot->updateRobot();
 }
 

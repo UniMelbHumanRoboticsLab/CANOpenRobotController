@@ -72,7 +72,7 @@ static void periodic_task_init(struct period_info *pinfo);
 static void wait_rest_of_period(struct period_info *pinfo);
 /* Forward declartion of CAN helper functions*/
 void configureCANopen(int nodeId, int rtPriority, int CANdevice0Index, char *CANdevice);
-void CO_errExit(char const *msg);                         /*!< CAN object error code and exit program*/
+void CO_errExit(char const *msg);                   /*!< CAN object error code and exit program*/
 void CO_error(const uint32_t info);                 /*!< send CANopen generic emergency message */
 volatile uint32_t CO_timer1ms = 0U;                 /*!< Global variable increments each millisecond */
 volatile sig_atomic_t CO_endProgram = 0;            /*!< Signal handler: controls the end of CAN processing thread*/
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
         CO_errExit("Program init - SIGINIT handler creation failed");
     if (signal(SIGTERM, sigHandler) == SIG_ERR)
         CO_errExit("Program init - SIGTERM handler creation failed");
-    spdlog::info("Starting CANopen device with Node ID {}\n", nodeId);
+    spdlog::info("Starting CANopen device with Node ID {}", nodeId);
 
     //Set synch signal period (in us)
     CO_OD_RAM.communicationCyclePeriod=CANUpdateLoopPeriodInms*1000;
