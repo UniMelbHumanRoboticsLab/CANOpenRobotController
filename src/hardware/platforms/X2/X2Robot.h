@@ -26,6 +26,16 @@
 
 #include <chrono>
 #include <thread>
+
+// Logger
+#include "spdlog/helper/LogHelper.h"
+
+#ifdef SIM
+#include "ros/ros.h"
+#include "controller_manager_msgs/SwitchController.h"
+#include "std_msgs/Float64MultiArray.h"
+#include "sensor_msgs/JointState.h"
+#endif
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      *
@@ -64,6 +74,23 @@ class X2Robot : public Robot {
 
     //Todo: generalise sensors
     Eigen::VectorXd interactionForces_;
+
+    #ifdef SIM
+    ros::NodeHandle* nodeHandle_;
+
+    ros::Publisher positionCommandPublisher_;
+    ros::Publisher velocityCommandPublisher_;
+    ros::Publisher torqueCommandPublisher_;
+    ros::Subscriber jointStateSubscriber_;
+    ros::ServiceClient controllerSwitchClient_;
+
+    std_msgs::Float64MultiArray positionCommandMsg_;
+    std_msgs::Float64MultiArray velocityCommandMsg_;
+    std_msgs::Float64MultiArray torqueCommandMsg_;
+    controller_manager_msgs::SwitchController controllerSwitchMsg_;
+
+    void jointStateCallback(const sensor_msgs::JointState& msg);
+    #endif
 
    public:
     /**
@@ -201,5 +228,17 @@ class X2Robot : public Robot {
        * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
        */
     void updateRobot();
+
+    #ifdef SIM
+    /**
+       * \brief method to pass the nodeHandle. Only available in SIM mode
+       */
+    void setNodeHandle(ros::NodeHandle& nodeHandle);
+    /**
+       * \brief Initialize ROS services, publisher ans subscribers
+      */
+    void initialiseROS();
+    #endif
+
 };
 #endif /*EXOROBOT_H*/

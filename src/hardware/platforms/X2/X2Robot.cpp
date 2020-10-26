@@ -43,7 +43,17 @@ X2Robot::~X2Robot() {
     freeMemory();
     spdlog::debug("X2Robot deleted");
 }
+#ifdef SIM
+void X2Robot::initialiseROS() {
+    controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("/x2/controller_manager/switch_controller");
 
+    positionCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/position_controller/command", 10);
+    velocityCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/velocity_controller/command", 10);
+    torqueCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/torque_controller/command", 10);
+
+    jointStateSubscriber_ = nodeHandle_->subscribe("/x2/joint_states", 1, &X2Robot::jointStateCallback, this);
+}
+#endif
 bool X2Robot::initPositionControl() {
     spdlog::debug("Initialising Position Control on all joints ");
     bool returnValue = true;
@@ -62,6 +72,22 @@ bool X2Robot::initPositionControl() {
     for (auto p : joints) {
         p->enable();
     }
+
+#ifdef SIM
+    controllerSwitchMsg_.request.start_controllers = {"position_controller"};
+    controllerSwitchMsg_.request.stop_controllers = {"velocity_controller", "torque_controller"};
+    controllerSwitchMsg_.request.strictness = 1;
+    controllerSwitchMsg_.request.start_asap = true;
+    controllerSwitchMsg_.request.timeout = 0.0;
+
+    if(controllerSwitchClient_.call(controllerSwitchMsg_)){
+        spdlog::info("Switched to position controller");
+    }else {
+        spdlog::error("Failed switching to position controller");
+        returnValue = false;
+    }
+#endif
+
     return returnValue;
 }
 
@@ -83,6 +109,22 @@ bool X2Robot::initVelocityControl() {
     for (auto p : joints) {
         p->enable();
     }
+
+#ifdef SIM
+    controllerSwitchMsg_.request.start_controllers = {"velocity_controller"};
+    controllerSwitchMsg_.request.stop_controllers = {"position_controller", "torque_controller"};
+    controllerSwitchMsg_.request.strictness = 1;
+    controllerSwitchMsg_.request.start_asap = true;
+    controllerSwitchMsg_.request.timeout = 0.0;
+
+    if(controllerSwitchClient_.call(controllerSwitchMsg_)){
+        spdlog::info("Switched to velocity controller");
+    }else {
+        spdlog::error("Failed switching to velocity controller");
+        returnValue = false;
+    }
+#endif
+
     return returnValue;
 }
 
@@ -104,6 +146,22 @@ bool X2Robot::initTorqueControl() {
     for (auto p : joints) {
         p->enable();
     }
+
+#ifdef SIM
+    controllerSwitchMsg_.request.start_controllers = {"torque_controller"};
+    controllerSwitchMsg_.request.stop_controllers = {"position_controller", "velocity_controller"};
+    controllerSwitchMsg_.request.strictness = 1;
+    controllerSwitchMsg_.request.start_asap = true;
+    controllerSwitchMsg_.request.timeout = 0.0;
+
+    if(controllerSwitchClient_.call(controllerSwitchMsg_)){
+        spdlog::info("Switched to torque controller");
+    }else {
+        spdlog::error("Failed switching to torque controller");
+        returnValue = false;
+    }
+#endif
+
     return returnValue;
 }
 
@@ -122,6 +180,18 @@ setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
         }
         i++;
     }
+
+#ifdef SIM
+    std::vector<double> positionVector(X2_NUM_JOINTS);
+
+    for(int i = 0; i<X2_NUM_JOINTS; i++){
+        positionVector[i] = positions[i];
+    }
+
+    positionCommandMsg_.data = positionVector;
+    positionCommandPublisher_.publish(positionCommandMsg_);
+#endif
+
     return returnValue;
 }
 
@@ -140,6 +210,18 @@ setMovementReturnCode_t X2Robot::setVelocity(Eigen::VectorXd velocities) {
         }
         i++;
     }
+
+#ifdef SIM
+    std::vector<double> velocityVector(X2_NUM_JOINTS);
+
+    for(int i = 0; i<X2_NUM_JOINTS; i++){
+        velocityVector[i] = velocities[i];
+    }
+
+    velocityCommandMsg_.data = velocityVector;
+    velocityCommandPublisher_.publish(velocityCommandMsg_);
+#endif
+
     return returnValue;
 }
 
@@ -158,6 +240,18 @@ setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
         }
         i++;
     }
+
+#ifdef SIM
+    std::vector<double> torqueVector(X2_NUM_JOINTS);
+
+    for(int i = 0; i<X2_NUM_JOINTS; i++){
+        torqueVector[i] = torques[i];
+    }
+
+    torqueCommandMsg_.data = torqueVector;
+    torqueCommandPublisher_.publish(torqueCommandMsg_);
+#endif
+
     return returnValue;
 }
 
@@ -284,6 +378,10 @@ bool X2Robot::initialiseNetwork() {
             return false;
     }
 
+#ifdef SIM
+    initialiseROS();
+#endif
+
     return true;
 }
 bool X2Robot::initialiseInputs() {
@@ -296,6 +394,7 @@ bool X2Robot::initialiseInputs() {
 
     return true;
 }
+
 void X2Robot::freeMemory() {
     for (auto p : joints) {
         spdlog::debug("Delete Joint ID: {}", p->getId());
@@ -315,11 +414,21 @@ void X2Robot::updateRobot() {
     //TODO: generalise sensors update
     Robot::updateRobot();
 
-    if(interactionForces_.size()!=forceSensors.size()) {
-        interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
-    }
-    //Update values
-    for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
-        interactionForces_[i] = forceSensors[i]->getForce();
+}
+
+#ifdef SIM
+void X2Robot::setNodeHandle(ros::NodeHandle &nodeHandle) {
+
+    nodeHandle_ = &nodeHandle;
+}
+
+void X2Robot::jointStateCallback(const sensor_msgs::JointState &msg) {
+
+    for(int i = 0; i<X2_NUM_JOINTS; i++){
+        jointPositions_[i] = msg.position[i];
+        jointVelocities_[i] = msg.velocity[i];
+        jointTorques_[i] = msg.effort[i];
     }
 }
+
+#endif

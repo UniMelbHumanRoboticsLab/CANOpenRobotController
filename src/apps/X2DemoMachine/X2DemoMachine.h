@@ -57,9 +57,7 @@ public:
     IdleState *idleState;
     X2DemoState *x2DemoState;
 
-    X2Robot *robot; /*<!Pointer to the Robot*/
-
-    X2DemoMachineROS *x2DemoMachineRos_;
+//    X2DemoMachineROS *x2DemoMachineRos_;
 
 private:
     /**
@@ -69,6 +67,12 @@ private:
      * An events check function are defined in the .cpp file.
     */
     EventObject(StartExo) * startExo;
+
+    LogHelper logHelper_;
+
+    X2DemoMachineROS *x2DemoMachineRos_; /*<!Pointer to the ROS Class*/
+    X2Robot *robot_; /*<!Pointer to the Robot*/
+
 };
 
 
