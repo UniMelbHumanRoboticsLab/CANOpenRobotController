@@ -3,8 +3,8 @@
 ////////////////////////////////////
 #include "SittingDwn.h"
 void SittingDwn::entry(void) {
-    std::cout << "Sitting Down State Entered " << std::endl
-              << "===================" << std::endl
+    spdlog::info("Sitting Down State Entered ");
+    std::cout << "===================" << std::endl
               << " GREEN -> SIT DOWN " << std::endl
               << "===================" << std::endl;
     trajectoryGenerator->initialiseTrajectory(SIT, 1);
@@ -30,5 +30,5 @@ void SittingDwn::during(void) {
     }
 }
 void SittingDwn::exit(void) {
-    std::cout << "Sitting Down State Exited " << std::endl;
+    spdlog::info("Sitting Down State Exited ");
 }

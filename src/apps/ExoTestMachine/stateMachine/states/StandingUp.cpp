@@ -2,6 +2,7 @@
 
 // Negative bending control machine
 void StandingUp::entry(void) {
+    spdlog::info("Standing Up State Entered");
     std::cout << "===================" << std::endl
               << " GREEN -> STAND UP" << std::endl
               << "===================" << std::endl;
@@ -29,7 +30,5 @@ void StandingUp::during(void) {
     }
 }
 void StandingUp::exit(void) {
-    std::cout
-        << "Standing up motion State Exited"
-        << std::endl;
+    spdlog::info("Standing Up State Exited");
 }
