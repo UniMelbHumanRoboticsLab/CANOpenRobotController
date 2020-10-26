@@ -1,26 +1,25 @@
 #include "ExoRobot.h"
 
-#include "DebugMacro.h"
 
 ExoRobot::ExoRobot() : Robot() {
 }
 
 ExoRobot::~ExoRobot() {
-    DEBUG_OUT("Delete ExoRobot object begins")
+    spdlog::debug("Delete ExoRobot object begins");
     freeMemory();
 
     //    joints.clear();
     //    copleyDrives.clear();
-    DEBUG_OUT("ExoRobot deleted")
+    spdlog::debug("ExoRobot deleted");
 }
 
 bool ExoRobot::initPositionControl() {
-    DEBUG_OUT("Initialising Position Control on all joints ")
+    spdlog::debug("Initialising Position Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
         if (p->setMode(CM_POSITION_CONTROL, posControlMotorProfile) != CM_POSITION_CONTROL) {
             // Something back happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::error("Something bad happened");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -36,12 +35,12 @@ bool ExoRobot::initPositionControl() {
 }
 
 bool ExoRobot::initVelocityControl() {
-    DEBUG_OUT("Initialising Velocity Control on all joints ")
+    spdlog::debug("Initialising Velocity Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
         if (p->setMode(CM_VELOCITY_CONTROL) != CM_VELOCITY_CONTROL) {
             // Something back happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::error("Something bad happened");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -57,12 +56,12 @@ bool ExoRobot::initVelocityControl() {
 }
 
 bool ExoRobot::initTorqueControl() {
-    DEBUG_OUT("Initialising Torque Control on all joints ")
+    spdlog::debug("Initialising Torque Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
         if (p->setMode(CM_TORQUE_CONTROL) != CM_TORQUE_CONTROL) {
             // Something back happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::error("Something bad happened");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -170,7 +169,7 @@ bool ExoRobot::initialiseJoints() {
 }
 
 bool ExoRobot::initialiseNetwork() {
-    DEBUG_OUT("ExoRobot::initialiseNetwork()");
+    spdlog::debug("ExoRobot::initialiseNetwork()");
 
     bool status;
     for (auto joint : joints) {
@@ -188,15 +187,15 @@ bool ExoRobot::initialiseInputs() {
 
 void ExoRobot::freeMemory() {
     for (auto p : copleyDrives) {
-        DEBUG_OUT("Delete Drive Node: " << p->getNodeID())
+        spdlog::debug("Delete Drive Node: {}", p->getNodeID());
         delete p;
     }
     for (auto p : joints) {
-        DEBUG_OUT("Delete Joint ID: " << p->getId())
+        spdlog::debug("Delete Joint ID: {}", p->getId());
         delete p;
     }
     for (auto p : inputs) {
-        DEBUG_OUT("Deleting Input")
+        spdlog::debug("Deleting Input");
         delete p;
     }
 }

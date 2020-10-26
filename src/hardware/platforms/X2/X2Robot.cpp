@@ -1,6 +1,5 @@
 #include "X2Robot.h"
 
-#include "DebugMacro.h"
 
 /**
  * An enum type.
@@ -38,15 +37,11 @@ JointDrivePairs kneeJDP{
 ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
 X2Robot::X2Robot() : Robot() {
-    jointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    jointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    jointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    interactionForces_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
 }
 
 X2Robot::~X2Robot() {
     freeMemory();
-    DEBUG_OUT("X2Robot deleted")
+    spdlog::debug("X2Robot deleted");
 }
 #ifdef SIM
 void X2Robot::initialiseROS() {
@@ -60,12 +55,12 @@ void X2Robot::initialiseROS() {
 }
 #endif
 bool X2Robot::initPositionControl() {
-    DEBUG_OUT("Initialising Position Control on all joints ")
+    spdlog::debug("Initialising Position Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
         if (p->setMode(CM_POSITION_CONTROL, posControlMotorProfile) != CM_POSITION_CONTROL) {
             // Something back happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::error("Something bad happened");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -97,12 +92,12 @@ bool X2Robot::initPositionControl() {
 }
 
 bool X2Robot::initVelocityControl() {
-    DEBUG_OUT("Initialising Velocity Control on all joints ")
+    spdlog::debug("Initialising Velocity Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
         if (p->setMode(CM_VELOCITY_CONTROL, velControlMotorProfile) != CM_VELOCITY_CONTROL) {
             // Something back happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::error("Something bad happened");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -134,12 +129,12 @@ bool X2Robot::initVelocityControl() {
 }
 
 bool X2Robot::initTorqueControl() {
-    DEBUG_OUT("Initialising Torque Control on all joints ")
+    spdlog::debug("Initialising Torque Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
         if (p->setMode(CM_TORQUE_CONTROL) != CM_TORQUE_CONTROL) {
             // Something back happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::error("Something bad happened");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -176,11 +171,11 @@ setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
     for (auto p : joints) {
         setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
-            std::cout << "Joint ID " << p->getId() << ": is not in Position Control " << std::endl;
+            spdlog::error("Joint {} is not in Position Control ", p->getId());
             returnValue = INCORRECT_MODE;
         } else if (setPosCode != SUCCESS) {
             // Something bad happened
-            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            spdlog::error("Joint {} Unknown Error", p->getId());
             returnValue = UNKNOWN_ERROR;
         }
         i++;
@@ -206,11 +201,11 @@ setMovementReturnCode_t X2Robot::setVelocity(Eigen::VectorXd velocities) {
     for (auto p : joints) {
         setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setVelocity(velocities[i]);
         if (setPosCode == INCORRECT_MODE) {
-            std::cout << "Joint ID " << p->getId() << ": is not in Velocity Control " << std::endl;
+            spdlog::error("Joint {} is not in Velocity Control", p->getId());
             returnValue = INCORRECT_MODE;
         } else if (setPosCode != SUCCESS) {
             // Something bad happened
-            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            spdlog::error("Joint {} Unknown Error", p->getId());
             returnValue = UNKNOWN_ERROR;
         }
         i++;
@@ -236,11 +231,11 @@ setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
     for (auto p : joints) {
         setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setTorque(torques[i]);
         if (setPosCode == INCORRECT_MODE) {
-            std::cout << "Joint ID " << p->getId() << ": is not in Torque Control " << std::endl;
+            spdlog::error("Joint {} is not in Torque Control", p->getId());
             returnValue = INCORRECT_MODE;
         } else if (setPosCode != SUCCESS) {
             // Something bad happened
-            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            spdlog::error("Joint {} Unknown Error", p->getId());
             returnValue = UNKNOWN_ERROR;
         }
         i++;
@@ -260,40 +255,15 @@ setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
     return returnValue;
 }
 
-Eigen::VectorXd& X2Robot::getPosition() {
-#ifndef SIM
-    int i = 0;
-    for (auto p : joints) {
-        jointPositions_[i] = ((X2Joint *)p)->getPosition();
-        i++;
-    }
-#endif
-    return jointPositions_;
-}
-
-Eigen::VectorXd& X2Robot::getVelocity() {
-#ifndef SIM
-    int i = 0;
-    for (auto p : joints) {
-        jointVelocities_[i] = ((X2Joint *)p)->getVelocity();
-        i++;
-    }
-#endif
-    return jointVelocities_;
-}
-
-Eigen::VectorXd& X2Robot::getTorque() {
-#ifndef SIM
-    int i = 0;
-    for (auto p : joints) {
-        jointTorques_[i] = ((X2Joint *)p)->getTorque();
-        i++;
-    }
-#endif
-    return jointTorques_;
-}
 
 Eigen::VectorXd& X2Robot::getInteractionForce() {
+    //TODO: generalise sensors
+    //Initialise vector if not already done
+    if(interactionForces_.size()!=forceSensors.size()) {
+        interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
+    }
+
+    //Update values
     for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
         interactionForces_[i] = forceSensors[i]->getForce();
     }
@@ -308,10 +278,10 @@ bool X2Robot::calibrateForceSensors() {
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
     if (numberOfSuccess == X2_NUM_FORCE_SENSORS) {
-        DEBUG_OUT("[X2Robot::calibrateForceSensors]: Zeroing of force sensors are successfully completed.")
+        spdlog::debug("[X2Robot::calibrateForceSensors]: Zeroing of force sensors are successfully completed.");
         return true;
     } else {
-        DEBUG_OUT("[X2Robot::calibrateForceSensors]: Zeroing failed.")
+        spdlog::error("[X2Robot::calibrateForceSensors]: Zeroing failed.");
         return false;
     }
 }
@@ -332,7 +302,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
         desiredVelocity[i] = homingSpeed * homingDirection[i] / std::abs(homingDirection[i]);  // setting the desired velocity by using the direction
         time0 = std::chrono::steady_clock::now();
 
-        DEBUG_OUT("Homing Joint " << i << "...")
+        spdlog::debug("Homing Joint {} ...", i);
 
         while (success[i] == false &&
                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count() < maxTime * 1000) {
@@ -355,7 +325,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
         }
 
         if (success[i]) {
-            DEBUG_OUT("Homing Succeeded for Joint " << i << ".")
+            spdlog::debug("Homing Succeeded for Joint {} .", i);
             if (i == X2_LEFT_HIP || i == X2_RIGHT_HIP) {  // if it is a hip joint
 
                 // zeroing is done depending on the limits on the homing direction
@@ -373,7 +343,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
             }
 
         } else {
-            DEBUG_OUT("Homing Failed for Joint " << i << ".")
+            spdlog::error("Homing Failed for Joint {} .", i);
         }
     }
     // Checking if all commanded joint successfully homed
@@ -399,7 +369,7 @@ bool X2Robot::initialiseJoints() {
 }
 
 bool X2Robot::initialiseNetwork() {
-    DEBUG_OUT("X2Robot::initialiseNetwork()");
+    spdlog::debug("X2Robot::initialiseNetwork()");
 
     bool status;
     for (auto joint : joints) {
@@ -427,20 +397,23 @@ bool X2Robot::initialiseInputs() {
 
 void X2Robot::freeMemory() {
     for (auto p : joints) {
-        DEBUG_OUT("Delete Joint ID: " << p->getId())
+        spdlog::debug("Delete Joint ID: {}", p->getId());
         delete p;
     }
     for (auto p : motorDrives) {
-        DEBUG_OUT("Delete Drive Node: " << p->getNodeID())
+        spdlog::debug("Delete Drive Node: {}", p->getNodeID());
         delete p;
     }
     for (auto p : inputs) {
-        DEBUG_OUT("Deleting Input")
+        spdlog::debug("Deleting Input");
         delete p;
     }
 }
 void X2Robot::updateRobot() {
+
+    //TODO: generalise sensors update
     Robot::updateRobot();
+
 }
 
 #ifdef SIM

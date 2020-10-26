@@ -47,6 +47,7 @@
 #include "Standing.h"
 #include "StandingUp.h"
 
+
 /**
  * @brief Example implementation of a StateMachine for the ExoRobot class. States should implemented ExoTestState
  *
@@ -80,6 +81,8 @@ class ExoTestMachine : public StateMachine {
 
    protected:
     ExoRobot *robot; /*<!Pointer to the Robot*/
+
+    float test_val=42;
 
    private:
     /**

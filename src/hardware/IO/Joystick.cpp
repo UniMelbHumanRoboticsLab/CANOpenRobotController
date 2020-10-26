@@ -4,7 +4,7 @@ Joystick::Joystick() : initialised(false) {
     device = "/dev/input/js0";
     js = open(device, O_RDONLY | O_NONBLOCK);
     if (js == -1) {
-        std::cout /*cerr is banned*/ << "Could not open joystick (" << device << ")" << std::endl;
+        spdlog::info("Could not open joystick ({})", device);
     }
     else {
         initialised=true;

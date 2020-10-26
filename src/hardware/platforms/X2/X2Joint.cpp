@@ -1,21 +1,20 @@
 /**
  * @file X2Joint.cpp
  * @author Justin Fong
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2020-04-09
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 #include "X2Joint.h"
 
 #include <iostream>
 
-#include "DebugMacro.h"
 
 X2Joint::X2Joint(int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive) : Joint(jointID, jointMin, jointMax, drive) {
-    DEBUG_OUT("Joint Created, JOINT ID: " << this->id)
+    spdlog::debug("Joint Created, JOINT ID: {}", this->id);
     // Do nothing else
     JDSlope = (jdp.drivePosB - jdp.drivePosA) / (jdp.jointPosB - jdp.jointPosA);
     JDIntercept = jdp.drivePosA - JDSlope * jdp.jointPosA;
@@ -46,7 +45,7 @@ double X2Joint::driveUnitToJointTorque(int driveValue) {
 }
 
 bool X2Joint::initNetwork() {
-    DEBUG_OUT("Joint::initNetwork()")
+    spdlog::debug("Joint::initNetwork()");
     drive->start();
     if (drive->initPDOs()) {
         return true;

@@ -10,9 +10,6 @@
  */
 #include "Joint.h"
 
-
-#include "DebugMacro.h"
-
 Joint::Joint(int jointID, double jointMin, double jointMax, const std::string& n) : id(jointID), name(n), qMin(jointMin), qMax(jointMax), actuated(false) {
     position = 0;
     velocity = 0;
@@ -41,7 +38,7 @@ Joint::Joint(int jointID, double jointMin, double jointMax, double q0, Drive *jo
 }
 
 Joint::~Joint() {
-    DEBUG_OUT(" Joint object deleted")
+    spdlog::debug("Joint object deleted");
 }
 int Joint::getId() {
     return id;

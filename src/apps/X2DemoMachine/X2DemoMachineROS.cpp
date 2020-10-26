@@ -1,7 +1,6 @@
 #include "X2DemoMachineROS.h"
 
-X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot)
-{
+X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot) {
     robot_ = robot;
 }
 
@@ -10,19 +9,18 @@ X2DemoMachineROS::~X2DemoMachineROS() {
 }
 
 void X2DemoMachineROS::initialize() {
-    DEBUG_OUT("X2DemoMachineROS::init()")
-#ifndef SIM // if simulation, these will be published by Gazebo
+    spdlog::debug("X2DemoMachineROS::init()");
+#ifndef SIM  // if simulation, these will be published by Gazebo
     jointStatePublisher_ = nodeHandle_->advertise<sensor_msgs::JointState>("/x2/joint_states", 10);
     leftThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("/x2/left_thigh_wrench", 10);
     leftShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("/x2/left_shank_wrench", 10);
     rightThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("/x2/right_thigh_wrench", 10);
     rightShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("/x2/right_shank_wrench", 10);
 #endif
-
 }
 
 void X2DemoMachineROS::update() {
-#ifndef SIM // if simulation, these will be published by Gazebo
+#ifndef SIM  // if simulation, these will be published by Gazebo
     publishJointStates();
     publishInteractionForces();
 #endif
@@ -81,10 +79,8 @@ void X2DemoMachineROS::publishInteractionForces() {
     leftShankForcePublisher_.publish(leftShankForceMsg_);
     rightThighForcePublisher_.publish(rightThighForceMsg_);
     rightShankForcePublisher_.publish(rightShankForceMsg_);
-
 }
 
 void X2DemoMachineROS::setNodeHandle(ros::NodeHandle &nodeHandle) {
-
     nodeHandle_ = &nodeHandle;
 }

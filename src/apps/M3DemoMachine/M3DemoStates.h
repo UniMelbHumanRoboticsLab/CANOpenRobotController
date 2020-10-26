@@ -12,10 +12,8 @@
 #define M3DemoSTATE_H_DEF
 
 #include <time.h>
-
 #include <iostream>
 
-#include "DebugMacro.h"
 #include "RobotM3.h"
 #include "State.h"
 

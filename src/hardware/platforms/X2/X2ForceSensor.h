@@ -13,7 +13,6 @@
 #define SRC_X2FORCESENSOR_H
 
 #include "InputDevice.h"
-#include <DebugMacro.h>
 #include <CANopen.h>
 #include <CO_command.h>
 #include <sstream>

@@ -55,7 +55,8 @@ extern "C" {
 
 //Include custom state machine (defined in cmake)
 #include STATE_MACHINE_INCLUDE
-#include "stdio.h"
+
+#include "logging.h"
 
 #ifndef CO_APPLICATION_H
 #define CO_APPLICATION_H

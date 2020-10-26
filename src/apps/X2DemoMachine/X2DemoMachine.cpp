@@ -29,7 +29,7 @@ X2DemoMachine::X2DemoMachine() {
  *
  */
 void X2DemoMachine::init(int argc, char *argv[]) {
-    DEBUG_OUT("X2DemoMachine::init()")
+    spdlog::debug("X2DemoMachine::init()");
 
     ros::init(argc, argv, "x2_node", ros::init_options::NoSigintHandler);
     ros::NodeHandle nodeHandle;
