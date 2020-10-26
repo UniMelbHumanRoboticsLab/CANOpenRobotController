@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.3)
 project(CORC C CXX)
 
 #To cross-compile for Arm (BeagleBone) use the armhf toolchain:
-# cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake .. 
+# cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
 #To cross-compile with ROS support prepare a sysroot and pass it to cmake:
 # cmake -DCMAKE_SYSROOT=/path/to/sysroot/ -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
 # See doc for more details.
@@ -14,20 +14,22 @@ project(CORC C CXX)
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "M3Machining")
 #set (STATE_MACHINE_NAME "M3Chai")
-set (STATE_MACHINE_NAME "ExoTestMachine")
-#set (STATE_MACHINE_NAME "X2DemoMachine")
+#set (STATE_MACHINE_NAME "ExoTestMachine")
+set (STATE_MACHINE_NAME "X2DemoMachine")
 
-## Comment to use actual hardware, uncomment for a nor robot (virtual) app
+# Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT ON)
 
-## ROS Flag. set ON if you want to use ROS. Else, set OFF or comment
-#set(USE_ROS ON)
-
-################################################################################
-
+# ROS Flag. set ON if you want to use ROS. Else, set OFF.
+set(USE_ROS OFF)
 
 if(USE_ROS)
     add_definitions(-DUSEROS)
+endif()
+
+if(NO_ROBOT AND USE_ROS)
+	set(SIM ON)
+    add_definitions(-DSIM)
 endif()
 
 
@@ -77,7 +79,7 @@ list (APPEND INCLUDE_DIRS lib/)
 if(USE_ROS)
 	#ROS local compile: use catkin
 	if(NOT CMAKE_CROSSCOMPILING)
-	message("--catkin--")
+		message("--catkin--")
 		# Required ROS packages
 		find_package(catkin REQUIRED COMPONENTS
 				roscpp
@@ -85,7 +87,15 @@ if(USE_ROS)
 				std_msgs
 				sensor_msgs
 				geometry_msgs
-				)
+        )
+		if(SIM)
+			find_package(catkin REQUIRED COMPONENTS
+			controller_manager_msgs
+			cob_gazebo_ros_control
+			x2_description
+			)
+		endif()
+
 
 		catkin_package(
 				#  INCLUDE_DIRS include
@@ -147,7 +157,7 @@ find_package(Threads REQUIRED)
 ## Link non-ROS libraries
 target_link_libraries(${APP_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
-## Link ROS libraries 
+## Link ROS libraries
 if(USE_ROS)
 	target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
 endif()
