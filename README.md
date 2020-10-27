@@ -179,13 +179,7 @@ Running on the X2 Robot is very similar to the virutal CAN set up, with one adju
 explain me -->
 ## Next Steps
 ### Building a custom application with a custom state machine
-To create a custom application with custom state machine, two things must be done. 
-
-First, the source code itself must be developed, by deriving the StateMachine class can be to a custom one (see [here for details](doc/StateMachine.md)), named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. These must be placed in a dedicated subfolder in the apps folder with a consistent name (e.g. `MyCustomStateMachine` must be used for both the folder and the file names)
-
-Secondly, CMakeLists.txt must be edited and the entry `set (STATE_MACHINE_NAME "ExoTestMachine")` changed to `set (STATE_MACHINE_NAME "MyCustomStateMachine")`.
-
-That's it, simply use the same build procedure.
+See [this detailed explanation](doc/CustomApplication.md) for instructions to customise an application or derive your own.
 
 ### ROS Support
 See [here](doc/ROSApplication.md) for instructions on how to build and run a CORC app with ROS support.
