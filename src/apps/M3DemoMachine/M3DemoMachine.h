@@ -33,6 +33,8 @@
 class M3DemoMachine : public StateMachine {
    public:
     bool running = false;
+    std::chrono::steady_clock::time_point time_init; // initial time that machine started
+    double time_running; // time passed after initialisation in [s]
     /**
      *  \todo Pilot Parameters would be set in constructor here
      *

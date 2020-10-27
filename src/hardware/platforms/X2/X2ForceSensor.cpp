@@ -12,7 +12,7 @@ void X2ForceSensor::updateInput() {
 }
 
 bool X2ForceSensor::calibrate() {
-    DEBUG_OUT("[X2ForceSensor::calibrate]: Force Sensor " << sensorID << " Zeroing");
+    spdlog::debug("[X2ForceSensor::calibrate]: Force Sensor {} Zeroing", sensorID);
 
     std::stringstream sstream;
     char *returnMessage;
@@ -22,14 +22,14 @@ bool X2ForceSensor::calibrate() {
     char *SDO_Message = (char *)(strCommand.c_str());
     cancomm_socketFree(SDO_Message, &returnMessage);
     std::string retMsg = returnMessage;
-    DEBUG_OUT(retMsg)
+    spdlog::debug(retMsg);
 
     if (retMsg.find("ERROR") != std::string::npos) {
-        DEBUG_OUT("[X2ForceSensor::calibrate]: Force Sensor " << sensorID << " error occured during zeroing")
+        spdlog::error("[X2ForceSensor::calibrate]: Force Sensor {} error occured during zeroing", sensorID);
         return false;
     }
     else{
-        DEBUG_OUT("[X2ForceSensor::calibrate]: Force Sensor " << sensorID << " succesfully zeroed.")
+        spdlog::debug("[X2ForceSensor::calibrate]: Force Sensor {} succesfully zeroed.", sensorID);
         return true;
     }
 }

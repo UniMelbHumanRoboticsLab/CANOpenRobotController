@@ -12,8 +12,6 @@
 
 #include <iostream>
 
-#include "DebugMacro.h"
-
 JointM1::JointM1(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, KincoDrive *drive, const std::string& name): Joint(jointID, q_min, q_max, nullptr),
                                                                                                                                           sign(sign_), qMin(q_min), qMax(q_max), dqMin(dq_min), dqMax(dq_max), tauMin(tau_min), tauMax(tau_max){
 //    drive = new KincoDrive(jointID+1);
@@ -35,7 +33,7 @@ JointM1::JointM1(int jointID, double q_min, double q_max, short int sign_, doubl
     d2j_Trq = sign / Ipeak / 1.414 * motorTorqueConstant * reductionRatio;   // Drive to Joint unit conversion for torque
     j2d_Trq = sign * Ipeak * 1.414 / motorTorqueConstant / reductionRatio;   // Joint to Drive unit conversion for torque
 
-    DEBUG_OUT("MY JOINT ID: " << this->id)
+    spdlog::debug("MY JOINT ID: {}", this->id);
 }
 
 JointM1::~JointM1() {
@@ -43,7 +41,7 @@ JointM1::~JointM1() {
 }
 
 bool JointM1::initNetwork() {
-    DEBUG_OUT("JointM1::initNetwork()")
+    spdlog::debug("JointM1::initNetwork()");
     return drive->init(posControlMotorProfile);
 }
 
@@ -86,11 +84,11 @@ bool JointM1::updateValue() {
 
 setMovementReturnCode_t JointM1::safetyCheck() {
     if(velocity > dqMax  ||  velocity < dqMin) {
-        DEBUG_OUT(" Velocity out of bound: " << velocity);
+        spdlog::debug("Velocity out of bound:  {}", velocity);
         return OUTSIDE_LIMITS;
     }
     if(torque > tauMax  ||  torque < tauMin) {
-        DEBUG_OUT(" Torque out of bound: " << torque);
+        spdlog::debug("Torque out of bound:  {}", torque);
         return OUTSIDE_LIMITS;
     }
     return SUCCESS;
@@ -109,7 +107,7 @@ setMovementReturnCode_t JointM1::setPosition(double qd) {
 //            return SUCCESS;
         }
         else {
-            DEBUG_OUT(" Position out of bound: " << qd);
+            spdlog::debug("Position out of bound: {}", qd);
             return OUTSIDE_LIMITS;
         }
     }
@@ -167,19 +165,19 @@ setMovementReturnCode_t JointM1::setTorque(double taud) {
 void JointM1::errorMessage(setMovementReturnCode_t errorCode){
     switch(errorCode) {
         case SUCCESS:
-            DEBUG_OUT(" ActuatedJoint::Success");
+            spdlog::debug(" ActuatedJoint::Success");
             break; //optional
         case OUTSIDE_LIMITS:
-            DEBUG_OUT(" ActuatedJoint::Outside of limitations");
+            spdlog::debug(" ActuatedJoint::Outside of limitations");
             break; //optional
         case INCORRECT_MODE:
-            DEBUG_OUT(" ActuatedJoint::Incorrect mode");
+            spdlog::debug(" ActuatedJoint::Incorrect mode");
             break; //optional
         case NOT_CALIBRATED:
-            DEBUG_OUT(" ActuatedJoint::Not calibrated");
+            spdlog::debug(" ActuatedJoint::Not calibrated");
             break; //optional
         default : //Optional
-            DEBUG_OUT(" ActuatedJoint::Unknown error");
+            spdlog::debug(" ActuatedJoint::Unknown error");
     }
 }
 

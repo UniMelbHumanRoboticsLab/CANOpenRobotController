@@ -40,13 +40,13 @@ ExoTestMachine::ExoTestMachine() {
  *
  */
 void ExoTestMachine::init() {
-    DEBUG_OUT("ExoTestMachine::init()")
+    spdlog::debug("ExoTestMachine::init()");
     initialised = robot->initialise();
     running = true;
 }
 
 void ExoTestMachine::end() {
-    DEBUG_OUT("Ending ExoTestMachine")
+    spdlog::debug("Ending ExoTestMachine");
     delete robot;
 }
 
@@ -74,7 +74,7 @@ bool ExoTestMachine::StartButtonsPressed::check(void) {
 }
 bool ExoTestMachine::StartExo::check(void) {
     if (OWNER->robot->keyboard->getS() == true) {
-        std::cout << "LEAVING INIT and entering Sitting" << std::endl;
+        spdlog::info("LEAVING INIT and entering Sitting");
         return true;
     }
     return false;

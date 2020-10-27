@@ -15,7 +15,6 @@
 
 #include <iostream>
 
-#include "DebugMacro.h"
 #include "RobotM1.h"
 #include "State.h"
 

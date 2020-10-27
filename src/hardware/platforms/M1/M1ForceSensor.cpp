@@ -12,7 +12,7 @@ void M1ForceSensor::updateInput() {
 }
 
 bool M1ForceSensor::calibrate() {
-    DEBUG_OUT("[M1ForceSensor::calibrate]: Force Sensor " << sensorID << " Zeroing");
+    spdlog::debug("[M1ForceSensor::calibrate]: Force Sensor {} zeroing.", sensorID);
 
     std::stringstream sstream;
     char *returnMessage;
@@ -24,15 +24,16 @@ bool M1ForceSensor::calibrate() {
     char *SDO_Message = (char *)(strCommand.c_str());
     cancomm_socketFree(SDO_Message, &returnMessage);
     std::string retMsg = returnMessage;
-    DEBUG_OUT(retMsg)
+//    spdlog::debug(retMsg)
 
     usleep(2000);
     if (retMsg.find("ERROR") != std::string::npos) {
-        DEBUG_OUT("[M1ForceSensor::calibrate]: Force Sensor " << sensorID << " error occured during zeroing")
+//        DEBUG_OUT("[M1ForceSensor::calibrate]: Force Sensor " << sensorID << " error occured during zeroing")
+        spdlog::debug("[M1ForceSensor::calibrate]: Force Sensor {} error occured during zeroing.", sensorID);
         return false;
     }
     else{
-        DEBUG_OUT("[M1ForceSensor::calibrate]: Force Sensor " << sensorID << " succesfully zeroed.")
+        spdlog::debug("[M1ForceSensor::calibrate]: Force Sensor {} succesfully zeroed.", sensorID);
         return true;
     }
 }

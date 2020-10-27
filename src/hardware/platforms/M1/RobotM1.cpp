@@ -1,7 +1,5 @@
 #include "RobotM1.h"
 
-#include "DebugMacro.h"
-
 using namespace Eigen;
 
 // Moved to Robot.h - TMH
@@ -40,23 +38,24 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
 }
 
 RobotM1::~RobotM1() {
-    DEBUG_OUT("Delete RobotM1 object begins")
+    spdlog::debug(" Delete RobotM1 object begins");
+
     for (auto p : joints) {
-        DEBUG_OUT("Delete Joint ID: " << p->getId())
+        spdlog::debug(" Delete Joint ID: {}.", p->getId());
         delete p;
     }
     joints.clear();
     inputs.clear();
     delete keyboard;
     delete joystick;
-    DEBUG_OUT("RobotM1 deleted")
+    spdlog::debug("RobotM1 deleted");
 }
 
 bool RobotM1::initialiseJoints() {
     return true;
 }
 bool RobotM1::initialiseNetwork() {
-    DEBUG_OUT("RobotM1::initialiseNetwork()");
+    spdlog::debug("RobotM1::initialiseNetwork()");
 
     bool status;
     for (auto joint : joints) {
@@ -66,9 +65,9 @@ bool RobotM1::initialiseNetwork() {
     }
     //Give time to drives PDO initialisation
     //TODO: Parameterize the number of PDOs for situations like the one below
-    DEBUG_OUT("...");
+    spdlog::debug("...");
     for (uint i = 0; i < 5; i++) {
-        DEBUG_OUT(".");
+        spdlog::debug(".");
         usleep(10000);
     }
 
@@ -193,12 +192,12 @@ void RobotM1::printJointStatus() {
 }
 
 bool RobotM1::initMonitoring() {
-    DEBUG_OUT("Initialising monitoring all joints ")
+    spdlog::debug("Initialising monitoring all joints.");
     bool returnValue = true;
     for (auto p : joints) {
         if (((JointM1 *)p)->setMode(CM_POSITION_CONTROL, posControlMotorProfile) != CM_POSITION_CONTROL) {
             // Something bad happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::debug("Something bad happened.");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -214,13 +213,13 @@ bool RobotM1::initMonitoring() {
 }
 
 bool RobotM1::initPositionControl() {
-    DEBUG_OUT("Initialising Position Control on all joints ")
+    spdlog::debug("Initialising Position Control on all joints.");
     bool returnValue = true;
 
     for (auto p : joints) {
         if (((JointM1 *)p)->setMode(CM_POSITION_CONTROL, posControlMotorProfile) != CM_POSITION_CONTROL) {
             // Something bad happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::debug("Something bad happened.");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -236,12 +235,12 @@ bool RobotM1::initPositionControl() {
 }
 
 bool RobotM1::initVelocityControl() {
-    DEBUG_OUT("Initialising Velocity Control on all joints ")
+    spdlog::debug("Initialising Velocity Control on all joints.");
     bool returnValue = true;
     for (auto p : joints) {
         if (((JointM1 *)p)->setMode(CM_VELOCITY_CONTROL, posControlMotorProfile) != CM_VELOCITY_CONTROL) {
             // Something bad happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::debug("Something bad happened.");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
@@ -257,12 +256,12 @@ bool RobotM1::initVelocityControl() {
 }
 
 bool RobotM1::initTorqueControl() {
-    DEBUG_OUT("Initialising Torque Control on all joints ")
+    spdlog::debug("Initialising Torque Control on all joints.");
     bool returnValue = true;
     for (auto p : joints) {
         if (((JointM1 *)p)->setMode(CM_TORQUE_CONTROL) != CM_TORQUE_CONTROL) {
             // Something bad happened if were are here
-            DEBUG_OUT("Something bad happened")
+            spdlog::debug("Something bad happened.");
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()

@@ -1,7 +1,5 @@
 #include "Drive.h"
 
-#include "DebugMacro.h"
-
 Drive::Drive() {
     statusWord = 0;
     error = 0;
@@ -54,14 +52,14 @@ int Drive::stop() {
 
 
 bool Drive::setPos(int position) {
-    DEBUG_OUT("Drive " << this->NodeID << " Writing " << position << " to 0x607A");
-    *(&CO_OD_RAM.targetMotorPositions.motor1 + ((this->NodeID - 1))) = position;
+    spdlog::trace("Drive {} Writing {} to 0x607A", NodeID, position);
+    *(&CO_OD_RAM.targetMotorPositions.motor1 + (NodeID - 1)) = position;
     return true;
 }
 
 bool Drive::setVel(int velocity) {
-    DEBUG_OUT("Drive " << NodeID << " Writing " << velocity << " to 0x60FF");
-    *(&CO_OD_RAM.targetMotorVelocities.motor1 + ((this->NodeID - 1))) = velocity;
+    spdlog::trace("Drive {} Writing {} to 0x60FF", NodeID, velocity);
+    *(&CO_OD_RAM.targetMotorVelocities.motor1 + (NodeID - 1)) = velocity;
     return true;
 }
 
@@ -70,7 +68,7 @@ bool Drive::setTorque(int torque) {
     * \todo add setTorque to object dictionary for all drives
     *
     */
-    DEBUG_OUT("Drive " << NodeID << " Writing " <<  (short int)torque << " to 0x" << std::hex << OD_Addresses[TARGET_TOR]);
+    spdlog::trace("Drive {} Writing {} to 0x{}", NodeID, (short int)torque, OD_Addresses[TARGET_TOR]);
     *(&CO_OD_RAM.targetMotorTorques.motor1 + ((this->NodeID - 1))) = torque;
     return true;
 }
@@ -136,47 +134,47 @@ bool Drive::posControlConfirmSP() {
 }
 
 bool Drive::initPDOs() {
-    DEBUG_OUT("Drive::initPDOs")
+    spdlog::debug("Drive::initPDOs");
 
-    //DEBUG_OUT("Set up STATUS_WORD TPDO")
+    spdlog::debug("Set up STATUS_WORD TPDO");
     if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF))<0) {
-        std::cout /*cerr is banned*/ << "Set up STATUS_WORD TPDO FAILED on node" << NodeID  <<std::endl;
+        spdlog::error("Set up STATUS_WORD TPDO FAILED on node {}", NodeID);
         return false;
     }
 
-    //DEBUG_OUT("Set up ACTUAL_POS and ACTUAL_VEL TPDO")
+    spdlog::debug("Set up ACTUAL_POS and ACTUAL_VEL TPDO");
     if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 0x01))<0) {
-        std::cout /*cerr is banned*/ << "Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node" << NodeID <<std::endl;
+        spdlog::error("Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node {}", NodeID);
         return false;
     }
 
-    //DEBUG_OUT("Set up ACTUAL_TOR TPDO")
+    spdlog::debug("Set up ACTUAL_TOR TPDO");
     if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 0x01))<0) {
-        std::cout /*cerr is banned*/ << "Set up ACTUAL_TOR TPDO FAILED on node" << NodeID <<std::endl;
+        spdlog::error("Set up ACTUAL_TOR TPDO FAILED on node {}", NodeID);
         return false;
     }
 
-    //DEBUG_OUT("Set up CONTROL_WORD RPDO")
+    spdlog::debug("Set up CONTROL_WORD RPDO");
     if(sendSDOMessages(generateRPDOConfigSDO({CONTROL_WORD}, 1, 0xff))<0) {
-        std::cout /*cerr is banned*/ << "Set up CONTROL_WORD RPDO FAILED on node" << NodeID <<std::endl;
+        spdlog::error("Set up CONTROL_WORD RPDO FAILED on node {}", NodeID);
         return false;
     }
 
-    //DEBUG_OUT("Set up TARGET_POS RPDO")
+    spdlog::debug("Set up TARGET_POS RPDO");
     if(sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 2, 0xff))<0) {
-        std::cout /*cerr is banned*/ << "Set up TARGET_POS RPDO FAILED on node" << NodeID <<std::endl;
+        spdlog::error("Set up TARGET_POS RPDO FAILED on node {}", NodeID);
         return false;
     }
 
-    //DEBUG_OUT("Set up TARGET_VEL RPDO")
+    spdlog::debug("Set up TARGET_VEL RPDO");
     if(sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 3, 0xff))<0) {
-        std::cout /*cerr is banned*/ << "Set up ARGET_VEL RPDO FAILED on node" << NodeID <<std::endl;
+        spdlog::error("Set up ARGET_VEL RPDO FAILED on node {}", NodeID);
         return false;
     }
 
-    //DEBUG_OUT("Set up TARGET_TOR RPDO")
+    spdlog::debug("Set up TARGET_TOR RPDO");
     if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x00))<0) {
-        std::cout /*cerr is banned*/ << "Set up TARGET_TOR RPDO FAILED on node" << NodeID <<std::endl;
+        spdlog::error("Set up TARGET_TOR RPDO FAILED on node {}", NodeID);
         return false;
     }
 
@@ -184,7 +182,7 @@ bool Drive::initPDOs() {
 }
 
 bool Drive::setMotorProfile(motorProfile profile) {
-    DEBUG_OUT("Drive::initMotorProfile")
+    spdlog::debug("Drive::initMotorProfile");
 
     // Define Vector to be returned as part of this method
     std::vector<std::string> CANCommands;
@@ -207,7 +205,7 @@ bool Drive::setMotorProfile(motorProfile profile) {
     sstream.str(std::string());
 
     if(sendSDOMessages(CANCommands)<0) {
-        std::cout /*cerr is banned*/ << "Set up Velocity/Acceleration profile failed on node " << NodeID  <<std::endl;
+        spdlog::error("Set up Velocity/Acceleration profile failed on node {}", NodeID);
         return false;
     }
 
@@ -421,7 +419,7 @@ std::vector<std::string> Drive::generateTorqueControlConfigSDO() {
 int Drive::sendSDOMessages(std::vector<std::string> messages) {
     int successfulMessages = 0;
     for (auto strCommand : messages) {
-        DEBUG_OUT(strCommand)
+        spdlog::trace(strCommand);
 
 #ifndef NOROBOT
         // explicitly cast c++ string to from const char* to char* for use by cancomm function
@@ -437,18 +435,19 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
             successfulMessages++;
         }
         else {
-            std::cout /*cerr is banned*/ << "sendSDOMessage: ERROR:" << strCommand;
+            std::string errormsg = "sendSDOMessage: ERROR: " + strCommand;
             if(retMsg.find("0x")!=retMsg.npos) {
                 std::string error_code = retMsg.substr(retMsg.find("0x"), retMsg.npos);
-                std::cout /*cerr is banned*/ << " => " <<  SDO_Standard_Error[error_code] << " (" << error_code << ")" << std::endl;
+                errormsg += " => " +  SDO_Standard_Error[error_code] + " (" + error_code + ")";
             }
             else {
-                std::cout /*cerr is banned*/ << " => " << retMsg << std::endl;
+                errormsg += " => " + retMsg;
             }
+            spdlog::error(errormsg);
         }
-        DEBUG_OUT(retMsg)
+        spdlog::trace(retMsg);
 #else
-        DEBUG_OUT("VCAN OK no reply.")
+        spdlog::trace("VCAN OK no reply.");
         successfulMessages++;
 #endif
     }

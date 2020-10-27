@@ -15,7 +15,6 @@
 #include <iostream>
 #include <csignal> //For raise()
 
-#include "DebugMacro.h"
 #include "RobotM3.h"
 #include "State.h"
 #include "FLNL.h"

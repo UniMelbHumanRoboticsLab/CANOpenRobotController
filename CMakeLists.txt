@@ -20,13 +20,18 @@ set (PLATFORM_NAME "M1")
 set (STATE_MACHINE_NAME "M1DemoMachine")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT OFF)
+set(NO_ROBOT ON)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS OFF)
 
 if(USE_ROS)
-    add_definitions(-DUSEROS)
+	add_definitions(-DUSEROS)
+endif()
+
+if(NO_ROBOT AND USE_ROS)
+	set(SIM ON)
+    add_definitions(-DSIM)
 endif()
 
 
@@ -34,9 +39,9 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(USE_ROS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall " )
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall " )
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -static" )
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -static-libstdc++ -static-libgcc" )
 endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
@@ -44,7 +49,7 @@ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
 ## Flags (Release is the default)
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+	set(CMAKE_BUILD_TYPE Release)
 endif()
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -75,7 +80,7 @@ list (APPEND INCLUDE_DIRS lib/)
 if(USE_ROS)
 	#ROS local compile: use catkin
 	if(NOT CMAKE_CROSSCOMPILING)
-	message("--catkin--")
+		message("--catkin--")
 		# Required ROS packages
 		find_package(catkin REQUIRED COMPONENTS
 				roscpp
@@ -83,7 +88,15 @@ if(USE_ROS)
 				std_msgs
 				sensor_msgs
 				geometry_msgs
-				)
+        )
+		if(SIM)
+			find_package(catkin REQUIRED COMPONENTS
+			controller_manager_msgs
+			cob_gazebo_ros_control
+			x2_description
+			)
+		endif()
+
 
 		catkin_package(
 				#  INCLUDE_DIRS include

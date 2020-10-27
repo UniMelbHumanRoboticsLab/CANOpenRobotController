@@ -6,13 +6,11 @@
 
 #include <iostream>
 
-#include "DebugMacro.h"
-
 CopleyDrive::CopleyDrive(int NodeID) : Drive::Drive(NodeID) {
     this->NodeID = NodeID;
 }
 CopleyDrive::~CopleyDrive() {
-    DEBUG_OUT(" CopleyDrive Deleted ")
+    spdlog::debug("CopleyDrive Deleted");
 }
 
 bool CopleyDrive::init() {
@@ -20,7 +18,7 @@ bool CopleyDrive::init() {
 }
 
 bool CopleyDrive::initPosControl(motorProfile posControlMotorProfile) {
-    DEBUG_OUT("NodeID " << NodeID << " Initialising Position Control")
+    spdlog::debug("NodeID {} Initialising Position Control", NodeID);
 
     sendSDOMessages(generatePosControlConfigSDO(posControlMotorProfile));
     /**
@@ -31,7 +29,7 @@ bool CopleyDrive::initPosControl(motorProfile posControlMotorProfile) {
 }
 
 bool CopleyDrive::initVelControl(motorProfile velControlMotorProfile) {
-    DEBUG_OUT("NodeID " << NodeID << " Initialising Velocity Control")
+    spdlog::debug("NodeID {} Initialising Velocity Control", NodeID);
     /**
      * \todo create velControlMOTORPROFILE and test on exo
      * \todo Tune velocity loop gain index 0x2381 to optimize V control
@@ -42,7 +40,7 @@ bool CopleyDrive::initVelControl(motorProfile velControlMotorProfile) {
 }
 
 bool CopleyDrive::initTorqueControl() {
-    DEBUG_OUT("NodeID " << NodeID << " Initialising Torque Control")
+    spdlog::debug("NodeID {} Initialising Torque Control", NodeID);
     sendSDOMessages(generateTorqueControlConfigSDO());
 
     return true;
@@ -87,7 +85,7 @@ std::vector<std::string> CopleyDrive::generatePositionOffsetSDO(int offset) {
 }
 
 bool CopleyDrive::setPositionOffset(int offset) {
-    DEBUG_OUT("NodeID " << NodeID << " Setting Position Offset")
+    spdlog::debug("NodeID {} Setting Position Offset", NodeID);
 
     sendSDOMessages(generatePositionOffsetSDO(offset));
 

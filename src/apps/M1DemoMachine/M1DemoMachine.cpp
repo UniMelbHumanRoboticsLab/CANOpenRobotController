@@ -58,7 +58,7 @@ M1DemoMachine::~M1DemoMachine() {
  */
 
 void M1DemoMachine::init() {
-    DEBUG_OUT("M1DemoMachine::init()")
+    spdlog::debug("M1DemoMachine::init()");
     if(robot->initialise()) {
         initialised = true;
     }
