@@ -114,12 +114,12 @@ MyCustomStateMachine::MyCustomStateMachine() {
 ### Generic debug and information messages
   
 This log is organised in several level of priorities: TRACE < DEBUG < INFO < WARN < ERROR < CRITICAL which are used in the following cases:
-    - TRACE: reserved for CAN level information
-    - DEBUG: any execution information relevant for debug purpose only
-    - INFO: general execution information
-    - WARN: general unexpected execution information (little use)
-    - ERROR: any error not directly leading to termination
-    - CRITICAL: error leading to termination
+- TRACE: reserved for CAN level information
+- DEBUG: any execution information relevant for debug purpose only
+- INFO: general execution information
+- WARN: general unexpected execution information (little use)
+- ERROR: any error not directly leading to termination
+- CRITICAL: error leading to termination
     
 This log will produce outputs both on console (`cout`) and within a rotating log file (logs/CORC.log).
     
