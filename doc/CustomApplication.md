@@ -1,12 +1,12 @@
 # Building a custom application (with a custom state machine)
 
-Each CORC application is a dedicated state machine with its own states wic have access to your specific robot.
+Each CORC application is a dedicated state machine with its own states wich have access to your specific robot.
 
 ## Setup
 
 To create a custom application with custom state machine, two things must be done. 
 
-First, the source code itself must be developed, by deriving the StateMachine class can be to a custom one (see [here for details](doc/StateMachine.md)), named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. These must be placed in a dedicated subfolder in the apps folder with a consistent name (e.g. `MyCustomStateMachine` must be used for both the folder and the file names)
+First, the source code itself must be developed, by deriving the StateMachine class can be to a custom one, named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. These must be placed in a dedicated subfolder in the apps folder with a consistent name (e.g. `MyCustomStateMachine` must be used for both the folder and the file names)
 
 Secondly, CMakeLists.txt must be edited and the entry `set (STATE_MACHINE_NAME "ExoTestMachine")` changed to `set (STATE_MACHINE_NAME "MyCustomStateMachine")`.
 
@@ -54,7 +54,7 @@ MyCustomStateMachine::MyCustomStateMachine() {
     robot = new X2Robot(); //Create the robot object to be used by the state machine
 
     stateA = new StateAState(this, robot); //Create a StateA object
-    stateB = new StateBState(this, robot); //Create a StateA object
+    stateB = new StateBState(this, robot); //Create a StateB object
     
     ...
     
@@ -65,7 +65,7 @@ MyCustomStateMachine::MyCustomStateMachine() {
 ### Events and transitions
 
 Events are used to trigger transitions from one state to another. They could be based on a sensor trigger, timer, internale state... 
-Programmatically, CORC represents events as single method objects comprising as Boolean functions `virtual bool check()` which should return true when the transition(s) shoudl happen.
+Programmatically, CORC represents events as single method objects with a boolean method `virtual bool check()` which should return true when the transition(s) should happen.
 
 To create a new event:
 - Define a new event within your state machine class: `EventObject(AtoBevent_t) * AtoBevent;`
@@ -111,9 +111,9 @@ MyCustomStateMachine::MyCustomStateMachine() {
 
   CORC relies on [spdlog](https://github.com/gabime/spdlog) for all logging purpose. Two loggers are available:
   
-  ### Generic debug and information messages
+### Generic debug and information messages
   
-    This log is organised in several level of priorities: TRACE<DEBUG<INFO<WARN<ERROR<CRITICAL which are used in the following cases:
+    This log is organised in several level of priorities: TRACE < DEBUG < INFO < WARN < ERROR < CRITICAL which are used in the following cases:
     - TRACE: reserved for CAN level information
     - DEBUG: any execution information relevant for debug purpose only
     - INFO: general execution information
@@ -133,12 +133,12 @@ MyCustomStateMachine::MyCustomStateMachine() {
     ...
     spdlog::critical("Critical error log {} => {}", my_critical_value, my_other_critical_value);
     ```
-    these functions should be accessible at any point in CORC.
+    these functions are accessible at any point in CORC.
     
 > Note: Use this log wisely to not break the realtimness of the execution. It is also recommended to run CORC with a log level > INFO when trace and debug information are not required. For state logging, please prefere the dedicated logger described below.
   
   
-  ### State machine execution logging
+### State machine execution logging
   
   This log allows you to record the states of the robot, sensors or any other application specific information at every iteration in a dedicated file. The logger is accessible in the state machine and should be initialised as follows within the `MyCustomStateMachine::init()`
   
@@ -149,9 +149,10 @@ MyCustomStateMachine::MyCustomStateMachine() {
     logHelper.add(robot_->getTorque(), "JointTorques");
     logHelper.startLogger();
   ```
+  
   This example will log the robot joint positions, velocities and torques in `logs/logexample.csv` at every loop execution. 
   
-  References to values to log should all be registered (using 'logHelper.add()') before starting the logger ('logHelper.startLogger()') and these references should be valid during the entire statemachine execution.
+    The logger support any basic types and Eigen vectors. References to values to log should all be registered (using `logHelper.add()`) before starting the logger (`logHelper.startLogger()`) and these references should be valid during the entire statemachine execution.
   
   Additionnaly, the logger should be properly closed at the end of the state machine execution, within `MyCustomStateMachine::end()`:
   ```C++
@@ -159,7 +160,6 @@ MyCustomStateMachine::MyCustomStateMachine() {
        logHelper.endLog();
   ```
   
-  The logger support any basic types and Eigen vectors.
   
 > Note: implementation examples of this logger are available in the X2DemoMachine and M3DemoMachine.
 
