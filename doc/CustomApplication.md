@@ -127,12 +127,12 @@ When compiling your application you can select the desired logging level in [src
 `#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO` (recommended level) will produce only INFO, WARN, ERROR and CRITICAL outputs for example.
     
 To use this logger in your code, use one of the dedicated function depending on the desired level: 
-    ```C++
-    spdlog::trace("Trace log {}", my_value);
-    ...
-    spdlog::critical("Critical error log {} => {}", my_critical_value, my_other_critical_value);
-    ```
-    these functions are accessible at any point in CORC.
+```C++
+spdlog::trace("Trace log {}", my_value);
+...
+spdlog::critical("Critical error log {} => {}", my_critical_value, my_other_critical_value);
+```
+These functions are accessible at any point in CORC.
     
 > Note: Use this log wisely to not break the realtimness of the execution. It is also recommended to run CORC with a log level > INFO when trace and debug information are not required. For state logging, please prefere the dedicated logger described below.
   
