@@ -13,12 +13,12 @@ void X2DemoState::entry(void) {
 }
 void X2DemoState::during(void) {
 
-    float t_final = 3.0;
+    float t_final = 1.0;
 //    Eigen::VectorXd desiredPosition(X2_NUM_JOINTS);
     Eigen::VectorXd desiredVelocity(X2_NUM_JOINTS);
 //    Eigen::VectorXd desiredTorque(X2_NUM_JOINTS);
 
-    std::cout<<robot->getPosition()[3]*180.0/M_PI<<std::endl;
+    std::cout<<robot->getPosition()[1]*180.0/M_PI<<std::endl;
 
     double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
     if(time < t_final){
@@ -26,7 +26,7 @@ void X2DemoState::during(void) {
 //        desiredPosition << 0, 0, 0, time*M_PI/180.0*(100.0/3.0);
 //        robot->setPosition(desiredPosition);
 
-        desiredVelocity << 0, 0, 0, M_PI/180.0*(100.0/3.0);
+        desiredVelocity << 0, M_PI/180.0*(60.0/3.0), 0, 0;
         robot->setVelocity(desiredVelocity);
 
 //        desiredTorque << 0, 0, 0, time;

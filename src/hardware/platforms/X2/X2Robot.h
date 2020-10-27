@@ -90,6 +90,10 @@ class X2Robot : public Robot {
     controller_manager_msgs::SwitchController controllerSwitchMsg_;
 
     void jointStateCallback(const sensor_msgs::JointState& msg);
+
+    Eigen::VectorXd simJointPositions_;
+    Eigen::VectorXd simJointVelocities_;
+    Eigen::VectorXd simJointTorques_;
     #endif
 
    public:
@@ -100,7 +104,7 @@ class X2Robot : public Robot {
       */
     X2Robot();
     ~X2Robot();
-    Keyboard keyboard;
+    Keyboard* keyboard;
     std::vector<Drive *> motorDrives;
     std::vector<X2ForceSensor *> forceSensors;
 
@@ -166,6 +170,27 @@ class X2Robot : public Robot {
     * \return MovementCode representing success or failure of the application
     */
     setMovementReturnCode_t setTorque(Eigen::VectorXd torques);
+
+    /**
+    * \brief Get the latest joints position
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+    Eigen::VectorXd& getPosition();
+
+    /**
+    * \brief Get the latest joints velocity
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+    Eigen::VectorXd& getVelocity();
+
+    /**
+    * \brief Get the latest joints torque
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+    Eigen::VectorXd& getTorque();
 
     /**
     * \brief Get the interaction force from each force sensor
