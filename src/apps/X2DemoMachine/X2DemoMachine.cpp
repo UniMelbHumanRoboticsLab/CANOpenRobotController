@@ -3,7 +3,7 @@
 #define OWNER ((X2DemoMachine *)owner)
 
 X2DemoMachine::X2DemoMachine() {
-    robot = new X2Robot();
+    robot_ = new X2Robot();
     // Create PRE-DESIGNED State Machine events and state objects.
     startExo = new StartExo(this);
     /**f
@@ -12,43 +12,54 @@ X2DemoMachine::X2DemoMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    idleState = new IdleState(this, robot);
-    x2DemoState = new X2DemoState(this, robot);
+    idleState = new IdleState(this, robot_);
+    x2DemoState = new X2DemoState(this, robot_);
 
     NewTransition(idleState, startExo, x2DemoState);
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(idleState);
 
     // Create ros object
-    x2DemoMachineRos_ = new X2DemoMachineROS(robot);
+    x2DemoMachineRos_ = new X2DemoMachineROS(robot_);
 }
+
 /**
  * \brief start function for running any designed statemachine specific functions
  * for example initialising robot objects.
  *
  */
 void X2DemoMachine::init(int argc, char *argv[]) {
-    DEBUG_OUT("X2DemoMachine::init()")
-    initialised = robot->initialise();
-    DEBUG_OUT("X2DemoMachineROS::init()")
-    x2DemoMachineRos_->initialize(argc, argv);
+    spdlog::debug("X2DemoMachine::init()");
+
+    ros::init(argc, argv, "x2_node", ros::init_options::NoSigintHandler);
+    ros::NodeHandle nodeHandle;
+
+    // Pass nodeHandle to the classes that use ROS features
+    x2DemoMachineRos_->setNodeHandle(nodeHandle);
+
+#ifdef SIM
+    robot_->setNodeHandle(nodeHandle);
+#endif
+
+    initialised = robot_->initialise();
+    x2DemoMachineRos_->initialize();
     running = true;
     time0 = std::chrono::steady_clock::now();
 
-    logHelper.initLogger("test_logger", "logs/helperTrial.csv", LogFormat::CSV, true);
-    logHelper.add(time, "time");
-    logHelper.add(robot->getPosition(), "JointPositions");
-    logHelper.add(robot->getTorque(), "JointTorques");
-    logHelper.startLogger();
+    logHelper_.initLogger("test_logger", "logs/helperTrial.csv", LogFormat::CSV, true);
+    logHelper_.add(time, "time");
+    logHelper_.add(robot_->getPosition(), "JointPositions");
+    logHelper_.add(robot_->getTorque(), "JointTorques");
+    logHelper_.startLogger();
 }
 
 void X2DemoMachine::end() {
     if(initialised) {
-        logHelper.endLog();
+        logHelper_.endLog();
         currentState->exit();
-        robot->disable();
+        robot_->disable();
         delete x2DemoMachineRos_;
-        delete robot;
+        delete robot_;
     }
 }
 
@@ -56,7 +67,7 @@ void X2DemoMachine::end() {
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
 bool X2DemoMachine::StartExo::check(void) {
-    if (OWNER->robot->keyboard.getS() == true) {
+    if (OWNER->robot_->keyboard.getS() == true) {
         std::cout << "Pressed S!" << std::endl;
         return true;
     }
@@ -68,7 +79,7 @@ bool X2DemoMachine::StartExo::check(void) {
  *
  */
 void X2DemoMachine::hwStateUpdate(void) {
-    robot->updateRobot();
+    robot_->updateRobot();
 }
 
 void X2DemoMachine::update() {
@@ -77,5 +88,6 @@ void X2DemoMachine::update() {
 
     StateMachine::update();
     x2DemoMachineRos_->update();
-    logHelper.recordLogData();
+    logHelper_.recordLogData();
+    ros::spinOnce();
 }

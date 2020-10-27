@@ -2,6 +2,7 @@
 
 // Negative bending control machine
 void StandingUp::entry(void) {
+    spdlog::info("Standing Up State Entered");
     std::cout << "===================" << std::endl
               << " GREEN -> STAND UP" << std::endl
               << "===================" << std::endl;
@@ -19,17 +20,15 @@ void StandingUp::during(void) {
 
     /**
      *  /todo - Check if the GO button on the robot is pressed
-     * 
+     *
      */
     if (true) {
         currTrajProgress += elapsedSec;
-        DEBUG_OUT("Elapsed Time: " << currTrajProgress)
+        spdlog::debug("Elapsed Time: ", currTrajProgress);
 
         robot->setPosition(trajectoryGenerator->getSetPoint(currTrajProgress));
     }
 }
 void StandingUp::exit(void) {
-    std::cout
-        << "Standing up motion State Exited"
-        << std::endl;
+    spdlog::info("Standing Up State Exited");
 }

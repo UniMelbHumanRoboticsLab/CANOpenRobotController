@@ -20,8 +20,6 @@
 #include <iostream>
 #include <string>
 
-#include "DebugMacro.h"
-
 #include "X2Robot.h"
 #include "StateMachine.h"
 
@@ -59,9 +57,7 @@ public:
     IdleState *idleState;
     X2DemoState *x2DemoState;
 
-    X2Robot *robot; /*<!Pointer to the Robot*/
-
-    X2DemoMachineROS *x2DemoMachineRos_;
+//    X2DemoMachineROS *x2DemoMachineRos_;
 
 private:
     /**
@@ -72,7 +68,10 @@ private:
     */
     EventObject(StartExo) * startExo;
 
-    LogHelper logHelper;
+    LogHelper logHelper_;
+
+    X2DemoMachineROS *x2DemoMachineRos_; /*<!Pointer to the ROS Class*/
+    X2Robot *robot_; /*<!Pointer to the Robot*/
 
 };
 

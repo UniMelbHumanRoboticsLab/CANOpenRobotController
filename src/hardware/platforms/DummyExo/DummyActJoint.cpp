@@ -1,21 +1,18 @@
 /**
  * @file DummyActJoint.cpp
  * @author Justin Fong
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2020-04-09
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 #include "DummyActJoint.h"
 
-#include <iostream>
-
-#include "DebugMacro.h"
 
 DummyActJoint::DummyActJoint(int jointID, double jointMin, double jointMax, Drive *drive) : Joint(jointID, jointMin, jointMax, drive) {
-    DEBUG_OUT("MY JOINT ID: " << this->id)
+   spdlog::debug("MY JOINT ID: {}", id);
     // Do nothing else
 }
 
@@ -43,7 +40,7 @@ setMovementReturnCode_t DummyActJoint::setTorque(double desiredTorque) {
 }
 
 bool DummyActJoint::initNetwork() {
-    DEBUG_OUT("Joint::initNetwork()")
+    spdlog::debug("Joint::initNetwork()");
     drive->start();
     if (drive->initPDOs()) {
         return true;

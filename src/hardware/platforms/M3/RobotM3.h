@@ -198,9 +198,6 @@ class RobotM3 : public Robot {
     VM3 inverseKinematic(VM3 X);
     VM3 calculateGravityTorques();
 
-    VM3 getJointPosition();
-    VM3 getJointVelocity();
-    VM3 getJointTorque();
     VM3 getEndEffPosition();
     VM3 getEndEffVelocity();
     VM3 getEndEffForce();
@@ -212,7 +209,7 @@ class RobotM3 : public Robot {
     setMovementReturnCode_t setEndEffVelocity(VM3 dX);
     setMovementReturnCode_t setEndEffForce(VM3 F);
     setMovementReturnCode_t setEndEffForceWithCompensation(VM3 F, bool friction_comp=true);
-  
+
     void changeTool(M3Tool *new_tool) {endEffTool=new_tool; std::cout << "RobotM3::changeTool: new tool: " << endEffTool->name << std::endl;}
 };
 #endif /*RobotM3_H*/

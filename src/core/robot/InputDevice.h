@@ -16,7 +16,7 @@
 #define InputDevice_H_INCLUDED
 #include <iostream>
 
-#include "DebugMacro.h"
+#include "logging.h"
 
 /**
  * @brief Abstract class representing any input device to be used in a Robot object

@@ -4,6 +4,7 @@
 #include "Standing.h"
 
 void Standing::entry(void) {
+    spdlog::info("Standing State Entered");
     std::cout
         << "======================" << std::endl
         << " HIT W -> Sit DOWN" << std::endl
@@ -14,6 +15,5 @@ void Standing::during(void) {
 }
 
 void Standing::exit(void) {
-    std::cout
-        << "Standing State Exited" << std::endl;
+    spdlog::info("Standing State Exited");
 }
