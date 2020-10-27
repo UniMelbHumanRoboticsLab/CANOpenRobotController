@@ -27,8 +27,8 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
     qCalibration(0) = 0 * d2r;
 
     posControlMotorProfile.profileVelocity = 600.*512*10000/1875;
-    posControlMotorProfile.profileAcceleration = 2000.*65535*10000/4000000;
-    posControlMotorProfile.profileDeceleration = 2000.*65535*10000/4000000;
+    posControlMotorProfile.profileAcceleration = 500.*65535*10000/4000000;
+    posControlMotorProfile.profileDeceleration = 500.*65535*10000/4000000;
 
     joints.push_back(new JointM1(0, -100, 100, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0)));
 

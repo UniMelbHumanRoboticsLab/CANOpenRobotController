@@ -66,7 +66,7 @@ void Monitoring::exit(void) {
 
 //******************************* Demo state **************************
 void M1PositionTracking::entryCode(void) {
-    mode = 2;
+    mode = 4;
     robot->applyCalibration();
     switch(mode){
         case 1:
@@ -93,7 +93,7 @@ void M1PositionTracking::entryCode(void) {
             B = 0.01;
             dt = 0.01;
             Mass = 0.01;
-            gain = 2;
+            gain = 1;
             break;
         default:
             std::cout << "Wrong mode !" << std::endl;
@@ -183,13 +183,6 @@ void M1PositionTracking::velocityControl(void){
     {
         dq(0) = 0;
     }
-//    else if(iterations > 200 && iterations <= 400){
-//        dq(0) = 0;
-//    }
-//    else
-//    {
-//        iterations = 0;
-//    }
 
     if(robot->setJointVel(dq) != SUCCESS){
         std::cout << "Error: " << std::endl;
@@ -211,20 +204,22 @@ void M1PositionTracking::torqueControl(void){
 }
 
 void M1PositionTracking::admittanceControl(void){
-    tau = robot->getJointTor_s();
+    tau = (2*tau+robot->getJointTor_s())/3;
     if (tau(0) > 100 || tau(0) < -100){
         std::cout << "Torque sensor:: reading out of limits " << std::endl;
     }
     else
     {
+        B = 0.01;
+        Mass = 1;
         q = robot->getJointPos();
         dq = robot->getJointVel();
-//    B = 0;
+    B = 0;
         net_tau = tau(0) - Ks*q(0) - B*dq(0);
         acc = net_tau/Mass;
         dq(0) = dq(0) + gain*acc*dt;
 
-        if (iterations%5){
+        if (iterations%5==0){
             std::cout << std::dec << iterations << ": " << std::setprecision(2) << tau(0) << " ~ " << q(0) << " ~ " << dq(0)<< std::endl;
         }
         if (q(0) > 45 or q(0) <-45){
