@@ -1,4 +1,3 @@
-
 /**
  * \file Drive.h
  * \author Justin Fong
@@ -9,6 +8,7 @@
  * \version 0.1
  * \date 2020-04-07
  * \version 0.1
+ *
  * \copyright Copyright (c) 2020
  *
  */
@@ -23,7 +23,6 @@
 #include <map>
 #include <sstream>
 #include <vector>
-
 
 /**
  * Map of standard SDOs return error codes
@@ -53,20 +52,19 @@ static std::map<std::string, std::string> SDO_Standard_Error = {
     {"0x06090032", "Value range error: parameter value too small"},
     {"0x060A0023", "Resource not available"},
     {"0x08000021", "Access not possible due to local application"},
-    {"0x08000022", "Access not possible due to current device status"}
-};
-
+    {"0x08000022", "Access not possible due to current device status"}};
 
 /**
  * An enum type.
  * Constants representing the control mode of the drive
  */
 enum ControlMode {
-    UNCONFIGURED = 0,
-    POSITION_CONTROL = 1,
-    VELOCITY_CONTROL = 2,
-    TORQUE_CONTROL = 3,
-    ERROR = -1
+    CM_UNCONFIGURED = 0,
+    CM_POSITION_CONTROL = 1,
+    CM_VELOCITY_CONTROL = 2,
+    CM_TORQUE_CONTROL = 3,
+    CM_ERROR = -1,
+    CM_UNACTUATED_JOINT = -2
 };
 /**
  * An enum type.
@@ -77,7 +75,6 @@ enum DriveState {
     READY_TO_SWITCH_ON = 1,
     ENABLED = 2,
 };
-
 
 /**
  * An enum type
@@ -95,7 +92,6 @@ enum OD_Entry_t {
     TARGET_VEL = 12,
     TARGET_TOR = 13
 };
-
 
 /**
  * \brief struct to hold desired velocity, acceleration and deceleration values for a
@@ -129,7 +125,7 @@ class Drive {
         * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate, int sub_idx=0);
+    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate, int sub_idx = 0);
 
     /**
         * \brief Generates the list of commands required to configure RPDOs on the drives
@@ -140,7 +136,7 @@ class Drive {
         * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming, int sub_idx=0);
+    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming, int sub_idx = 0);
 
     /**
        *
@@ -158,6 +154,16 @@ class Drive {
 
     /**
        *
+       * \brief  Start the drive node and set the Position control in CANopen motor drive
+       *
+       *
+       * NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
+       *           https://www.can-cia.org/can-knowledge/canopen/cia402/
+       */
+    std::vector<std::string> generatePosControlConfigSDO();
+
+    /**
+       *
        * \brief  Generates the list of commands required to configure Velocity control in CANopen motor drive
        *
        *
@@ -171,6 +177,16 @@ class Drive {
        *           https://www.can-cia.org/can-knowledge/canopen/cia402/
        */
     std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
+
+    /**
+       *
+       * \brief  Start the drive node and set the Velcoity control in CANopen motor drive
+       *
+       *
+       * NOTE: More details on params and profiles can be found in the CANopne CiA 402 series specifications:
+       *           https://www.can-cia.org/can-knowledge/canopen/cia402/
+       */
+    std::vector<std::string> generateVelControlConfigSDO();
 
     /**
        *
@@ -243,7 +259,7 @@ class Drive {
         * \brief The mode in which the drive is currently configured
         *
         */
-    ControlMode controlMode = UNCONFIGURED;
+    ControlMode controlMode = CM_UNCONFIGURED;
 
    public:
     /**
@@ -253,24 +269,24 @@ class Drive {
     Drive();
 
     /**
-           * \brief Construct a new Drive object
-           *
-           * \param node_id the CANopen Node ID of this drive
-           */
+       * \brief Construct a new Drive object
+       *
+       * \param node_id the CANopen Node ID of this drive
+       */
     Drive(int node_id);
 
     /**
-           * \brief Destroy the Drive object
-           *
-           */
+       * \brief Destroy the Drive object
+       *
+       */
     virtual ~Drive();
 
     /**
-           * \brief Initialises the drive (SDO start message)
-           *
-           * \return True if successful, False if not
-           */
-    virtual bool Init() = 0;
+       * \brief Initialises the drive (SDO start message)
+       *
+       * \return True if successful, False if not
+       */
+    virtual bool init() = 0;
 
     /**
        * \brief Send NMT preop command to the drive node
@@ -310,6 +326,14 @@ class Drive {
     virtual bool initPDOs();
 
     /**
+           * \brief Initialises velocity and acceleration profiles (used by position and velocity controls) through SDOs write
+           *
+           * \return true if sucessfull
+           * \return false otherwise
+           */
+    virtual bool setMotorProfile(motorProfile profile);
+
+    /**
            * Sets the drive to Position control with set parameters (through SDO messages)
            *
            * Note: Should be overloaded to allow parameters to be set
@@ -319,7 +343,8 @@ class Drive {
            * \return true if successful
            * \return false if not
            */
-    virtual bool initPosControl(motorProfile posControlMotorProfile) = 0;
+    virtual bool initPosControl(motorProfile posControlMotorProfile) { return false; };
+    virtual bool initPosControl() { return false; };
 
     /**
            * Sets the drive to Velocity control with default parameters (through SDO messages)
@@ -329,7 +354,8 @@ class Drive {
            * \return true if successful
            * \return false if not
            */
-    virtual bool initVelControl(motorProfile velControlMotorProfile) = 0;
+    virtual bool initVelControl(motorProfile velControlMotorProfile) { return false; };
+    virtual bool initVelControl() { return false; };
 
     /**
            * Sets the drive to Torque control with default parameters (through SDO messages)
@@ -339,7 +365,7 @@ class Drive {
            * \return true if successful
            * \return false if not
            */
-    virtual bool initTorqueControl() = 0;
+    virtual bool initTorqueControl() { return false; };
 
     /**
            * Updates the internal representation of the state of the drive
@@ -403,7 +429,7 @@ class Drive {
            * \return true if operation successful
            * \return false if operation unsuccessful
            */
-    virtual bool readyToSwitchOn();
+    virtual DriveState readyToSwitchOn();
 
     /**
            * \brief Sets the state of the drive to "enabled"
@@ -414,7 +440,7 @@ class Drive {
            * \return true if operation successful
            * \return false if operation unsuccessful
            */
-    virtual bool enable();
+    virtual DriveState enable();
 
     /**
            * \brief sets the state of the drive to "disabled"
@@ -425,7 +451,7 @@ class Drive {
            * \return true if operation successful
            * \return false if operation unsuccessful
            */
-    virtual bool disable();
+    virtual DriveState disable();
 
     /**
         * \brief Flips Bit 4 of Control Word (0x6041) - A new set point is only confirmed if the transition is from 0 to 1
@@ -447,7 +473,7 @@ class Drive {
         *
         * \return controlMode
         */
-    virtual ControlMode getControlMode(){return controlMode;};
+    virtual ControlMode getControlMode() { return controlMode; };
 
     // CANOpen
     /**

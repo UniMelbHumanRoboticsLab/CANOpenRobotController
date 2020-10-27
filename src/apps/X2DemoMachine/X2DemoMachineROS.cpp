@@ -20,7 +20,7 @@ void X2DemoMachineROS::initialize(int argc, char *argv[]) {
 }
 
 void X2DemoMachineROS::update() {
-//    publishJointStates();
+    publishJointStates();
     publishInteractionForces();
     ros::spinOnce();
 }

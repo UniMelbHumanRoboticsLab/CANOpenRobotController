@@ -21,7 +21,6 @@
 #define ROBOT_H_INCLUDED
 #include <vector>
 
-#include "ActuatedJoint.h"
 #include "InputDevice.h"
 #include "Joint.h"
 
@@ -44,18 +43,17 @@ class Robot {
     std::vector<InputDevice *> inputs;
 
    public:
-    //////////////////////////
-    // Constructors
-    //////////////////////////
+    /** @name Constructors and Destructors */
+    //@{
     /**
     * \brief Default <code>Robot</code> constructor.
     */
     Robot();
-    ~Robot();
+    virtual ~Robot();
+    //@}
 
-    //////////////////////////
-    // Initialisation Functions
-    //////////////////////////
+    /** @name Initialisation Methods */
+    //@{
     /**
      * \brief Initialize memory for the designed <code>Robot</code> classes specific
      * <code>Joint</code> objects + sensors (if available) using the pure virtual initialiseJoints()
@@ -68,12 +66,12 @@ class Robot {
     bool initialise();
 
     /**
-     * \brief Stop the robot. Default behaviour does nothing.
+     * \brief Stop the robot: disable all actuated joints.
      *
      * \return true if successful
      * \return false if unsuccessful
      */
-    virtual bool stop();
+    virtual bool disable();
 
     /**
      * \brief Pure Virtual function, implemeted by robot designer with specified number of each concrete joint classes
@@ -99,10 +97,10 @@ class Robot {
      * \return false if unsuccessful
      */
     virtual bool initialiseNetwork() = 0;
+    //@}
 
-    //////////////////////////
-    // Core Update and State Functions
-    //////////////////////////
+    /** @name Core Update and State Methods */
+    //@{
     /**
     * \brief Update all of this <code>Robot<code> software joint positions
     * from object dictionary entries.
@@ -120,11 +118,11 @@ class Robot {
     *
     */
     void printJointStatus(int J_i);
+    //@}
 
-    //////////////////////////
-    // Core Control Functions
-    //////////////////////////
 
+    /** @name Core Control Methods */
+    //@{
     /**
     * @brief Initialises position control on this robot. Default function is to report failure
     *
@@ -172,10 +170,11 @@ class Robot {
     * @return MovementCode representing success or failure of the application
     */
     virtual setMovementReturnCode_t setTorque(std::vector<double> torques) { return INCORRECT_MODE; };
+    //@}
 
-    //////////////////////////
-    // Logging Functions
-    //////////////////////////
+
+    /** @name Logging methods */
+    //@{
     /**
      * /todo The default logging function has not yet been implemented.
      *
@@ -196,6 +195,7 @@ class Robot {
     *
     */
     bool closeLog();
+    //@}
 };
 
 #endif  //ROBOT_H

@@ -51,9 +51,12 @@ static int rt_thread_epoll_fd;          /*!< epoll file descriptor for rt thread
 static int rtControlPriority = 80;      /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
-static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
-const float controlLoopPeriodInms = 10; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 10; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 (or even 10) leads to unstable communication  */
+//static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
+//const float controlLoopPeriodInms = 10; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+//const float CANUpdateLoopPeriodInms = 10; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 (or even 10) leads to unstable communication  */
+const float controlLoopPeriodInms = 3; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 3; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
+
 
 /** @brief Task Timer used for the Control Loop*/
 struct period_info {
@@ -73,11 +76,11 @@ static void periodic_task_init(struct period_info *pinfo);
 static void wait_rest_of_period(struct period_info *pinfo);
 /* Forward declartion of CAN helper functions*/
 void configureCANopen(int nodeId, int rtPriority, int CANdevice0Index, char *CANdevice);
-void CO_errExit(char *msg);              /*!< CAN object error code and exit program*/
-void CO_error(const uint32_t info);      /*!< send CANopen generic emergency message */
-volatile uint32_t CO_timer1ms = 0U;      /*!< Global variable increments each millisecond */
-volatile sig_atomic_t CO_endProgram = 0; /*!< Signal handler: controls the end of CAN processing thread*/
-volatile sig_atomic_t endProgram = 0;    /*!< Signal handler: controls the end of application side (rt thread and main)*/
+void CO_errExit(char const *msg);                         /*!< CAN object error code and exit program*/
+void CO_error(const uint32_t info);                 /*!< send CANopen generic emergency message */
+volatile uint32_t CO_timer1ms = 0U;                 /*!< Global variable increments each millisecond */
+volatile sig_atomic_t CO_endProgram = 0;            /*!< Signal handler: controls the end of CAN processing thread*/
+volatile sig_atomic_t endProgram = 0;               /*!< Signal handler: controls the end of application side (rt thread and main)*/
 static void sigHandler(int sig) {
     endProgram = 1;
 }
@@ -97,7 +100,7 @@ int main(int argc, char *argv[]) {
     char CANdevice[10]="";
     int CANdevice0Index;
     //Rotate through list of interfaces and select first one existing and up
-    for(unsigned i=0; i<can_dev_number; i++) {
+    for(int i=0; i<can_dev_number; i++) {
         printf("%s: ", CANdeviceList[i]);
         //Check if interface exists
         CANdevice0Index = if_nametoindex(CANdeviceList[i]);/*map linux CAN interface to corresponding int index return zero if no interface exists.*/
@@ -106,19 +109,21 @@ int main(int argc, char *argv[]) {
             snprintf(operstate_filename, 254, "/sys/class/net/%s/operstate", CANdeviceList[i]);
             //Check if it's up
             FILE* operstate_f = fopen(operstate_filename, "r");
-            fscanf(operstate_f, "%s", &operstate_s);
-            printf("%s\n", operstate_s);
-            //Check if not "down" as will be "unknown" if up
-            if(strcmp(operstate_s, "down")!=0) {
-                snprintf(CANdevice, 9, "%s", CANdeviceList[i]);
-                printf("Using: %s (%d)\n", CANdeviceList[i], CANdevice0Index);
-                break;
-            }
-            else {
+            if(fscanf(operstate_f, "%s", &operstate_s)>0)
+            {
+                printf("%s\n", operstate_s);
+                //Check if not "down" as will be "unknown" if up
+                if(strcmp(operstate_s, "down")!=0) {
+                    snprintf(CANdevice, 9, "%s", CANdeviceList[i]);
+                    printf("Using: %s (%d)\n", CANdeviceList[i], CANdevice0Index);
+                    break;
+                } else {
+                    CANdevice0Index=0;
+                }
+            } else {
                 CANdevice0Index=0;
             }
-        }
-        else {
+        } else {
             printf("-\n");
         }
 
@@ -192,7 +197,7 @@ int main(int argc, char *argv[]) {
                 param.sched_priority = rtPriority;
                 if (pthread_setschedparam(rt_thread_id, SCHED_FIFO, &param) != 0){
 #ifndef USEROS
-                    CO_errExit("Program init - rt_thread set scheduler failed");
+                    CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
 #else
                     ROS_ERROR("Program init - rt_thread set scheduler failed");
 #endif
@@ -207,7 +212,7 @@ int main(int argc, char *argv[]) {
                 paramc.sched_priority = rtControlPriority;
                 if (pthread_setschedparam(rt_control_thread_id, SCHED_FIFO, &paramc) != 0){
 #ifndef USEROS
-                    CO_errExit("Program init - rt_thread set scheduler failed");
+                    CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
 #else
                     ROS_ERROR("Program init - rt_thread set scheduler failed");
 #endif
@@ -223,7 +228,6 @@ int main(int argc, char *argv[]) {
             while (reset == CO_RESET_NOT && endProgram == 0) {
                 /* loop for normal program execution main epoll reading ******************************************/
                 int ready;
-                int first = 0;
                 struct epoll_event ev;
                 ready = epoll_wait(mainline_epoll_fd, &ev, 1, -1);
                 if (ready != 1) {
@@ -247,18 +251,15 @@ int main(int argc, char *argv[]) {
         /* program exit ***************************************************************/
         //End application first
         endProgram = 1;
-        usleep(100000); /*wait for end programm commands to be processed */
         if (pthread_join(rt_control_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }
-        app_programEnd();
+        usleep(500000); /*wait for last CAN commands to be processed if any */
         //End CAN communication processing
         CO_endProgram = 1;
-        usleep(100000); /*wait for threads to finish */
         if (pthread_join(rt_thread_id, NULL) != 0) {
             CO_errExit("Program end - pthread_join failed");
         }
-
         /* delete objects from memory */
         CANrx_taskTmr_close();
         taskMain_close();
@@ -310,36 +311,18 @@ static void *rt_thread(void *arg) {
 }
 /* Control thread function ********************************/
 static void *rt_control_thread(void *arg) {
-    // freopen("log.txt", "w", stdout);
-    std::ofstream logfile;
-    logfile.open("log.csv");
-    struct ros_arg_holder ros_args = *(struct ros_arg_holder *)arg;
-    /*Testing POSIX timer variables*/
-    struct timespec start, finish;
-    double elapsed, cpu_u;
     struct period_info pinfo;
     periodic_task_init(&pinfo);
-    app_programStart(ros_args.argc, ros_args.argv);
-    logfile
-        << "Loop_time_sec\n";
+    ros_arg_holder *ros_args = (ros_arg_holder*)arg;
+    app_programStart(ros_args->argc, ros_args->argv);
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);
     }
     while (endProgram == 0) {
-        /* Measuring WALL CLOCK controlloop execution time*/
-        clock_gettime(CLOCK_MONOTONIC, &start);
         app_programControlLoop();
         wait_rest_of_period(&pinfo);
-        clock_gettime(CLOCK_MONOTONIC, &finish);
-        elapsed = (finish.tv_sec - start.tv_sec);
-        elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
-        logfile
-            << elapsed
-            << "\n";
     }
-    if (readyToStart && endProgram != 0) {
-        logfile.close();
-    }
+    app_programEnd();
     return NULL;
 }
 /* Control thread time functions ********************************/
@@ -389,7 +372,7 @@ void configureCANopen(int nodeId, int rtPriority, int CANdevice0Index, char *CAN
         exit(EXIT_FAILURE);
     }
 };
-void CO_errExit(char *msg) {
+void CO_errExit(char const *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }

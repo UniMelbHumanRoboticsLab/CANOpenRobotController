@@ -26,16 +26,18 @@ bool Robot::initialise() {
         if (initialiseNetwork()) {
             if (initialiseInputs()) {
                 return true;
-            } else {
-                return false;
             }
         }
-    } else
-        return false;
+    }
+    return false;
 }
 
 
-bool Robot::stop() {
+bool Robot::disable() {
+    std::cout << "Disabling robot..." << std::endl;
+    for (auto p : joints) {
+        p->disable();
+    }
     return true;
 }
 
@@ -55,5 +57,5 @@ void Robot::printStatus() {
 }
 
 void Robot::printJointStatus(int J_i) {
-    joints[J_i]->getStatus();
+    joints[J_i]->printStatus();
 }

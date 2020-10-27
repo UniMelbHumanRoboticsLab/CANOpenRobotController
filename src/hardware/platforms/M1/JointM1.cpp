@@ -14,9 +14,9 @@
 
 #include "DebugMacro.h"
 
-JointM1::JointM1(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max): ActuatedJoint(jointID, q_min, q_max, nullptr),
+JointM1::JointM1(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, KincoDrive *drive, const std::string& name): Joint(jointID, q_min, q_max, nullptr),
                                                                                                                                           sign(sign_), qMin(q_min), qMax(q_max), dqMin(dq_min), dqMax(dq_max), tauMin(tau_min), tauMax(tau_max){
-    drive = new KincoDrive(jointID+1);
+//    drive = new KincoDrive(jointID+1);
     d2r = M_PIf64 / 180.;
     r2d = 180. / M_PIf64;
     // Define unchanging unit conversion properties
@@ -44,7 +44,7 @@ JointM1::~JointM1() {
 
 bool JointM1::initNetwork() {
     DEBUG_OUT("JointM1::initNetwork()")
-    return drive->Init();
+    return drive->init(posControlMotorProfile);
 }
 
 /***************************************************************************************/
@@ -104,7 +104,7 @@ setMovementReturnCode_t JointM1::setPosition(double qd) {
 //    DEBUG_OUT("JointM1::setPosition: " << qd)
     if(calibrated) {
         if(qd >= qMin  &&  qd <= qMax) {
-            return ActuatedJoint::setPosition(qd);
+            return Joint::setPosition(qd);
 //            drive->setPos(jointPositionToDriveUnit(qd+q0));
 //            return SUCCESS;
         }
@@ -135,7 +135,7 @@ setMovementReturnCode_t JointM1::setVelocity(double dqd) {
 
     //Capped velocity
     if(dqd>=dqMin && dqd<=dqMax) {
-        return ActuatedJoint::setVelocity(dqd);
+        return Joint::setVelocity(dqd);
 //        drive->setVel(jointVelocityToDriveUnit(dqd));
         return SUCCESS;
 
@@ -157,7 +157,7 @@ setMovementReturnCode_t JointM1::setTorque(double taud) {
     }
     //Capped torque
     if(taud >= tauMin  &&  taud <= tauMax) {
-        return ActuatedJoint::setTorque(taud);
+        return Joint::setTorque(taud);
     }
     else {
         return OUTSIDE_LIMITS;

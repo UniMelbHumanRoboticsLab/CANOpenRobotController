@@ -20,7 +20,6 @@
 #include "CopleyDrive.h"
 #include "Keyboard.h"
 #include "Robot.h"
-//#include "RobotParams.h"
 #include "X2Joint.h"
 #include "X2ForceSensor.h"
 #include <Eigen/Dense>
@@ -36,7 +35,7 @@
 #define X2_NUM_FORCE_SENSORS 4
 
 // Macros
-#define M_PI 3.14159265358979323846264338327950288
+//#define M_PI 3.14159265358979323846264338327950288 //Already defined in cmath
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
 
@@ -62,6 +61,11 @@ class X2Robot : public Robot {
      *
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
+    motorProfile velControlMotorProfile{0, 240000, 240000};
+    Eigen::VectorXd jointPositions_;
+    Eigen::VectorXd jointVelocities_;
+    Eigen::VectorXd jointTorques_;
+    Eigen::VectorXd interactionForces_;
 
    public:
     /**
@@ -143,28 +147,28 @@ class X2Robot : public Robot {
     *
     * \return Eigen::VectorXd a vector of actual joint positions
     */
-    Eigen::VectorXd getPosition();
+    Eigen::VectorXd& getPosition();
 
     /**
     * \brief Get the actual velocity of each joint
     *
     * \return Eigen::VectorXd a vector of actual joint positions
     */
-    Eigen::VectorXd getVelocity();
+    Eigen::VectorXd& getVelocity();
 
     /**
     * \brief Get the actual torque of each joint
     *
     * \return Eigen::VectorXd a vector of actual joint positions
     */
-    Eigen::VectorXd getTorque();
+    Eigen::VectorXd& getTorque();
 
     /**
     * \brief Get the interaction force from each force sensor
     *
     * \return Eigen::VectorXd a vector of interaction forces
     */
-    Eigen::VectorXd getInteractionForce();
+    Eigen::VectorXd& getInteractionForce();
 
     /**
     * \brief Calibrate force sensors
@@ -208,7 +212,6 @@ class X2Robot : public Robot {
     /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
        * Initialize each <code>Input</code> Object.
-
       */
     bool initialiseInputs();
     /**
@@ -221,10 +224,5 @@ class X2Robot : public Robot {
        * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
        */
     void updateRobot();
-    /**
-       * \brief Joint Limit Map between Joint value and min Degrees possible
-       * \param int Joint value
-       * \return double minDeg 
-       */
 };
 #endif /*EXOROBOT_H*/

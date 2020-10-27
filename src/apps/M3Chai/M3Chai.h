@@ -49,6 +49,7 @@ class M3Chai : public StateMachine {
      *
      */
     M3CalibState *calibState;
+    M3ChaiWaitForCommunication *waitForCommunicationState;
     M3ChaiCommunication *communicationState;
 
    protected:
@@ -57,6 +58,8 @@ class M3Chai : public StateMachine {
 
    private:
     EventObject(EndCalib) * endCalib;
+    EventObject(IsConnected) * isConnected;
+    EventObject(IsDisconnected) * isDisconnected;
 };
 
 #endif /*M3_SM_H*/

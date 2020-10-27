@@ -22,6 +22,7 @@
 #include "Joystick.h"
 #include "Robot.h"
 #include "M1ForceSensor.h"
+#include "KincoDrive.h"
 
 //typedef unsigned int uint;
 

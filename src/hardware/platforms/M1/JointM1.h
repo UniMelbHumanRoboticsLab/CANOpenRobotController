@@ -13,14 +13,14 @@
 
 #include <cmath>
 
-#include "ActuatedJoint.h"
+#include "Joint.h"
 #include "KincoDrive.h"
 
 /**
  * \brief M1 actuated joint, using Kinco drive.
  *
  */
-class JointM1 : public ActuatedJoint {
+class JointM1 : public Joint {
    private:
     double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
     double d2j_Pos, d2j_Vel, d2j_Trq, j2d_Pos, j2d_Vel, j2d_Trq;
@@ -31,6 +31,7 @@ class JointM1 : public ActuatedJoint {
 
     double Ipeak;                //Kinco FD123 peak current
     double motorTorqueConstant;  //SMC60S-0020 motor torque constant
+    KincoDrive *drive;
 
     /**
      * \brief Conversion between drive unit (encoder count) and joint unit (radian).
@@ -44,9 +45,10 @@ class JointM1 : public ActuatedJoint {
     int jointVelocityToDriveUnit(double jointValue);
     double driveUnitToJointTorque(int driveValue);
     int jointTorqueToDriveUnit(double jointValue);
+    motorProfile posControlMotorProfile{4000000, 240000, 240000};
 
    public:
-    JointM1(int jointID, double q_min, double q_max, short int sign_ = 1, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0);
+    JointM1(int jointID, double q_min, double q_max, short int sign_ = 1, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0, KincoDrive *drive = NULL, const std::string& name="");
     ~JointM1();
 
     bool updateValue();

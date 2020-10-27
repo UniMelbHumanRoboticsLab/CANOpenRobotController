@@ -50,4 +50,9 @@ do
   echo ${APP}
   scp -q ${APP} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${APP}
 done
+for APP in "$BUILD_FOLDER"*APP_NOROBOT
+do
+  echo ${APP}
+  scp -q ${APP} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${APP}
+done
 echo "done."

@@ -1,10 +1,9 @@
-
 /**
  *
  * \file RobotM3.h
  * \author Vincent Crocher
- * \version 0.1
- * \date 2020-06-16
+ * \version 0.2
+ * \date 2020-07-27
  * \copyright Copyright (c) 2020
  *
  * \brief  The<code> RobotM3</ code> class represents an M3 Robot.
@@ -23,35 +22,65 @@
 #include "Robot.h"
 
 
+typedef Eigen::Vector3d VM3; //! Convenience alias for double  Vector of length 3
+
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      *
      */
 
+typedef struct M3Tool
+{
+    M3Tool(double l, double m, std::string n="tool"):length(l),mass(m),name(n) {};
+    const double length; //Tool length from attachment
+    const double mass; //In kg
+    const std::string name;
+} M3Tool;
+
+//Classic tools attached to M3
+static M3Tool M3NoTool(0, .0, "No Tool"); //! Default handle with 3 rotational DoFs
+static M3Tool M3Handle(0.140, 0.720, "Handle"); //! Default handle with 3 rotational DoFs 0.465
+static M3Tool M3MachiningTool(0.060, 0.100, "Machining tool"); //!
+
 /**
  * \brief Implementation of the M3 robot class, representing an M3 using 3 JointM3 (and so Kinco drives).
  * model reference:
- *             2
- *      3       \
- *      /\       \(L2)
- * (L3)/  \       \
- *    /    \       \
- *   4      \      .\0
- *           \   .
- *          1\.  (L1)
+ *
+ *                              /\
+ *                            /-  \
+ *                          /-     \
+ *                        /-        \
+ *              (L4)    /-           \
+ *                    /-  \           \
+ *                  /-     \           \
+ *                 /        \           \ (L2)
+ *               /-          \           \
+ *           M3/-             \        M1 \
+ *           /-                \           \
+ *         /-                   \           \
+ *       /-                   M2 \           \
+ *     /-                         \           \
+ *+------+                         \           \
+ *| MTool|                          \           \
+ *+------+                           \         q1-  (L0)
+ *                                    \          -------
+ *                                     \    (L1)      q0
+ *                                    q2              |
+ *                                                    |
+ *                                                    |
+ *                                                    |
+ *
  *
  */
+
 class RobotM3 : public Robot {
    private:
-    /**
-     * \brief motor drive position control profile paramaters, user defined.
-     *
-     */
-    motorProfile posControlMotorProfile{4000000, 240000, 240000};
-    float LinkLengths[5] = {0.056, 0.15-0.015, 0.5, 0.465, 0.465+0.15-0.015};   /*!< Link lengths used for kniematic models (in m)*/
-    float LinkMasses[5] = {0, 0.450, 0.700, 0.200, 0.9};                        /*!< Link masses used for gravity compensation (in kg)*/
+    const std::vector<float> LinkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};   /*!< Link lengths used for kinematic models (in m), excluding tool*/
+    const std::vector<float> LinkMasses = {0, 0.450, 0.400, 0.100, .0};                  /*!< Link masses used for gravity compensation (in kg), excluding tool*/
 
-    Eigen::Vector3d qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
+    M3Tool *endEffTool; /*!< End-effector representation (transformation and mass) */
+
+    VM3 qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
 
     bool calibrated;
     double maxEndEffVel; /*!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.*/
@@ -92,14 +121,6 @@ class RobotM3 : public Robot {
        * \return false  If some or all joints fail the configuration
        */
     bool initTorqueControl();
-
-    /**
-       * \brief Send a stop command to all joint drives.
-       *
-       * \return true If all joints are stopped
-       * \return false  Otherwise
-       */
-    bool stop();
 
     /**
     * \brief Set the target positions for each of the joints
@@ -173,23 +194,25 @@ class RobotM3 : public Robot {
 
 
     Eigen::Matrix3d J();
-    Eigen::Vector3d directKinematic(Eigen::Vector3d q);
-    Eigen::Vector3d inverseKinematic(Eigen::Vector3d X);
-    Eigen::Vector3d calculateGravityTorques();
+    VM3 directKinematic(VM3 q);
+    VM3 inverseKinematic(VM3 X);
+    VM3 calculateGravityTorques();
 
-    Eigen::Vector3d getJointPos();
-    Eigen::Vector3d getJointVel();
-    Eigen::Vector3d getJointTor();
-    Eigen::Vector3d getEndEffPos();
-    Eigen::Vector3d getEndEffVel();
-    Eigen::Vector3d getEndEffFor();
+    VM3 getJointPosition();
+    VM3 getJointVelocity();
+    VM3 getJointTorque();
+    VM3 getEndEffPosition();
+    VM3 getEndEffVelocity();
+    VM3 getEndEffForce();
 
-    setMovementReturnCode_t setJointPos(Eigen::Vector3d q);
-    setMovementReturnCode_t setJointVel(Eigen::Vector3d q);
-    setMovementReturnCode_t setJointTor(Eigen::Vector3d tau);
-    setMovementReturnCode_t setEndEffPos(Eigen::Vector3d X);
-    setMovementReturnCode_t setEndEffVel(Eigen::Vector3d dX);
-    setMovementReturnCode_t setEndEffFor(Eigen::Vector3d F);
-    setMovementReturnCode_t setEndEffForWithCompensation(Eigen::Vector3d F);
+    setMovementReturnCode_t setJointPosition(VM3 q);
+    setMovementReturnCode_t setJointVelocity(VM3 q);
+    setMovementReturnCode_t setJointTorque(VM3 tau);
+    setMovementReturnCode_t setEndEffPosition(VM3 X);
+    setMovementReturnCode_t setEndEffVelocity(VM3 dX);
+    setMovementReturnCode_t setEndEffForce(VM3 F);
+    setMovementReturnCode_t setEndEffForceWithCompensation(VM3 F, bool friction_comp=true);
+  
+    void changeTool(M3Tool *new_tool) {endEffTool=new_tool; std::cout << "RobotM3::changeTool: new tool: " << endEffTool->name << std::endl;}
 };
 #endif /*RobotM3_H*/

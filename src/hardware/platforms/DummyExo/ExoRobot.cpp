@@ -18,19 +18,19 @@ bool ExoRobot::initPositionControl() {
     DEBUG_OUT("Initialising Position Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((ActuatedJoint *)p)->setMode(POSITION_CONTROL, posControlMotorProfile) != POSITION_CONTROL) {
+        if (p->setMode(CM_POSITION_CONTROL, posControlMotorProfile) != CM_POSITION_CONTROL) {
             // Something back happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
-        ((ActuatedJoint *)p)->readyToSwitchOn();
+        p->readyToSwitchOn();
     }
 
     // Pause for a bit to let commands go
     usleep(2000);
     for (auto p : joints) {
-        ((ActuatedJoint *)p)->enable();
+        p->enable();
     }
     return returnValue;
 }
@@ -39,19 +39,19 @@ bool ExoRobot::initVelocityControl() {
     DEBUG_OUT("Initialising Velocity Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((ActuatedJoint *)p)->setMode(VELOCITY_CONTROL) != VELOCITY_CONTROL) {
+        if (p->setMode(CM_VELOCITY_CONTROL) != CM_VELOCITY_CONTROL) {
             // Something back happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
-        ((ActuatedJoint *)p)->readyToSwitchOn();
+        p->readyToSwitchOn();
     }
 
     // Pause for a bit to let commands go
     usleep(2000);
     for (auto p : joints) {
-        ((ActuatedJoint *)p)->enable();
+        p->enable();
     }
     return returnValue;
 }
@@ -60,19 +60,19 @@ bool ExoRobot::initTorqueControl() {
     DEBUG_OUT("Initialising Torque Control on all joints ")
     bool returnValue = true;
     for (auto p : joints) {
-        if (((ActuatedJoint *)p)->setMode(TORQUE_CONTROL) != TORQUE_CONTROL) {
+        if (p->setMode(CM_TORQUE_CONTROL) != CM_TORQUE_CONTROL) {
             // Something back happened if were are here
             DEBUG_OUT("Something bad happened")
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
-        ((ActuatedJoint *)p)->readyToSwitchOn();
+        p->readyToSwitchOn();
     }
 
     // Pause for a bit to let commands go
     usleep(2000);
     for (auto p : joints) {
-        ((ActuatedJoint *)p)->enable();
+        p->enable();
     }
     return returnValue;
 }
@@ -185,6 +185,7 @@ bool ExoRobot::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
     return true;
 }
+
 void ExoRobot::freeMemory() {
     for (auto p : copleyDrives) {
         DEBUG_OUT("Delete Drive Node: " << p->getNodeID())
