@@ -151,7 +151,7 @@ These functions are accessible at any point in CORC.
   
   This example will log the robot joint positions, velocities and torques in `logs/logexample.csv` at every loop execution. 
   
-    The logger support any basic types and Eigen vectors. References to values to log should all be registered (using `logHelper.add()`) before starting the logger (`logHelper.startLogger()`) and these references should be valid during the entire statemachine execution.
+  The logger support any basic types and Eigen vectors. References to values to log should all be registered (using `logHelper.add()`) before starting the logger (`logHelper.startLogger()`) and these references should be valid during the entire statemachine execution.
   
   Additionnaly, the logger should be properly closed at the end of the state machine execution, within `MyCustomStateMachine::end()`:
   ```C++
