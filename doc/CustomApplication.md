@@ -113,7 +113,7 @@ MyCustomStateMachine::MyCustomStateMachine() {
   
 ### Generic debug and information messages
   
-    This log is organised in several level of priorities: TRACE < DEBUG < INFO < WARN < ERROR < CRITICAL which are used in the following cases:
+This log is organised in several level of priorities: TRACE < DEBUG < INFO < WARN < ERROR < CRITICAL which are used in the following cases:
     - TRACE: reserved for CAN level information
     - DEBUG: any execution information relevant for debug purpose only
     - INFO: general execution information
@@ -121,13 +121,12 @@ MyCustomStateMachine::MyCustomStateMachine() {
     - ERROR: any error not directly leading to termination
     - CRITICAL: error leading to termination
     
-    This log will produce outputs both on console (`cout`) and within a rotating log file (logs/CORC.log).
+This log will produce outputs both on console (`cout`) and within a rotating log file (logs/CORC.log).
     
-    When compiling your application you can select the desired logging level in [src/core/logging.h](../src/core/logging.h) by setting SPDLOG_ACTIVE_LEVEL to one of the above value:
+When compiling your application you can select the desired logging level in [src/core/logging.h](../src/core/logging.h) by setting SPDLOG_ACTIVE_LEVEL to one of the above value: 
+`#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO` (recommended level) will produce only INFO, WARN, ERROR and CRITICAL outputs for example.
     
-    `#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO` (recommended level) will produce only INFO, WARN, ERROR and CRITICAL outputs for example.
-    
-    To use this logger in your code, use one of the dedicated function depending on the desired level: 
+To use this logger in your code, use one of the dedicated function depending on the desired level: 
     ```C++
     spdlog::trace("Trace log {}", my_value);
     ...
