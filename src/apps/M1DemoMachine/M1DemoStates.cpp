@@ -176,7 +176,7 @@ void M1PositionTracking::velocityControl(void){
         std::cout << std::dec << iterations << ": " << q(0) << " - " << q(0) << std::endl;
     }
     // give velocity command for 5 s and check the position changes
-    if (iterations > 0 & iterations <= 500) {
+    if ((iterations > 0) & (iterations <= 500)) {
         dq(0) = magnitude;
     }
     else

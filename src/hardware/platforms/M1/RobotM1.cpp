@@ -31,8 +31,8 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
     joints.push_back(new JointM1(0, -100, 100, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0), new KincoDrive(1), "q1"));
 
     inputs.push_back(keyboard = new Keyboard());
-    inputs.push_back(joystick = new Joystick());
-    inputs.push_back(m1ForceSensor = new M1ForceSensor(1));
+//    inputs.push_back(joystick = new Joystick());
+//    inputs.push_back(m1ForceSensor = new M1ForceSensor(1));
 
     status = R_SUCCESS;
 }

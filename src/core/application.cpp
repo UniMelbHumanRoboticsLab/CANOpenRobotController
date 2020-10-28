@@ -38,6 +38,7 @@ void app_programStart(int argc, char *argv[]) {
 #else
     stateMachine.init(argc, argv);
 #endif
+    spdlog::info("statemachine init");
     stateMachine.activate();
 }
 
@@ -57,11 +58,13 @@ void app_programAsync(uint16_t timer1msDiffy) {
 }
 
 void app_programControlLoop(void) {
+    spdlog::info("CORC app update");
     if (stateMachine.running) {
-        stateMachine.update();
+        spdlog::info("CORC app update");
+//        stateMachine.update();
         stateMachine.hwStateUpdate();
     }
-    #ifdef TIMING_LOG
+#ifdef TIMING_LOG
     loopTimer.tick();
     #endif
 }
