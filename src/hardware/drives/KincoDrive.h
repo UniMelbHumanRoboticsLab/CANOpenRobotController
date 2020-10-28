@@ -59,7 +59,7 @@ class KincoDrive : public Drive {
          * \return false if not
          */
     bool initPosControl(motorProfile posControlMotorProfile);
-    bool initPosControl();
+//    bool initPosControl();
     /**
          * Sets the drive to Velocity control with default parameters (through SDO messages)
          *
@@ -69,7 +69,7 @@ class KincoDrive : public Drive {
          * \return false if not
          */
     bool initVelControl(motorProfile velControlMotorProfile);
-    bool initVelControl();
+//    bool initVelControl();
 
     /**
          * Sets the drive to Torque control with default parameters (through SDO messages)
@@ -115,9 +115,9 @@ class KincoDrive : public Drive {
     std::vector<std::string> writeSDOMessage(int address, int value);
     std::vector<std::string> readSDOMessage(int address, int len);
 
-//    std::vector<std::string> generatePosControlConfigSDO(motorProfile positionProfile);
-//    std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
-//    std::vector<std::string> generateTorqueControlConfigSDO();
+    std::vector<std::string> generatePosControlConfigSDO(motorProfile positionProfile);
+    std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
+    std::vector<std::string> generateTorqueControlConfigSDO();
     std::vector<std::string> generateResetErrorSDO();
 };
 

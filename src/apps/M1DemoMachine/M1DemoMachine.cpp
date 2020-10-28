@@ -3,26 +3,19 @@
 #define OWNER ((M1DemoMachine *)owner)
 
 M1DemoMachine::M1DemoMachine() {
-    spdlog::debug("M1DemoMachine::constructed()");
+    std::cout << "M1DemoMachine::constructed!" << std::endl;
     robot = new RobotM1();
-
     // Create PRE-DESIGNED State Machine state objects.
-//    demoState = new M1DemoState(this, robot);
-    //calibState = new M1CalibState(this, robot);
-    //standbyState = new M1MassCompensation(this, robot);
-    //endEffDemoState = new M1EndEffDemo(this, robot);
-    //impedanceState = new M1DemoImpedanceState(this, robot);
-    //timingState = new M1SamplingEstimationState(this, robot);
-    //endCalib = new EndCalib(this);
+    demoState = new M1DemoState(this, robot);
     idleState = new IdleState(this, robot);
-//    monitorState = new Monitoring( this, robot);
-//    positionTracking = new M1PositionTracking(this, robot);
+    monitorState = new Monitoring( this, robot);
+    positionTracking = new M1PositionTracking(this, robot);
 
     // Create PRE-DESIGNED State Machine events objects.
-//    event2Demo = new Event2Demo(this);
-//    event2Monitor = new Event2Monitor(this);
-//    event2Idle = new Event2Idle(this);
-//    event2Pos = new Event2Pos(this);
+    event2Demo = new Event2Demo(this);
+    event2Monitor = new Event2Monitor(this);
+    event2Idle = new Event2Idle(this);
+    event2Pos = new Event2Pos(this);
 
     /**
      * \brief add a tranisition object to the arch list of the first state in the NewTransition MACRO.
@@ -30,14 +23,14 @@ M1DemoMachine::M1DemoMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-//    NewTransition(idleState, event2Demo, demoState);
-//    NewTransition(demoState, event2Idle, idleState);
-//
-//    NewTransition(idleState, event2Monitor, monitorState);
-//    NewTransition(monitorState, event2Idle, idleState);
-//
-//    NewTransition(idleState, event2Pos, positionTracking);
-//    NewTransition(positionTracking, event2Idle, idleState);
+    NewTransition(idleState, event2Demo, demoState);
+    NewTransition(demoState, event2Idle, idleState);
+
+    NewTransition(idleState, event2Monitor, monitorState);
+    NewTransition(monitorState, event2Idle, idleState);
+
+    NewTransition(idleState, event2Pos, positionTracking);
+    NewTransition(positionTracking, event2Idle, idleState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(idleState);
@@ -45,6 +38,9 @@ M1DemoMachine::M1DemoMachine() {
 
 M1DemoMachine::~M1DemoMachine() {
     delete demoState;
+    delete idleState;
+    delete monitorState;
+    delete positionTracking;
     delete robot;
 }
 
@@ -55,7 +51,7 @@ M1DemoMachine::~M1DemoMachine() {
  */
 
 void M1DemoMachine::init() {
-    spdlog::debug("M1DemoMachine::init()");
+    std::cout << "M1DemoMachine::init()" << std::endl;
     if(robot->initialise()) {
         initialised = true;
     }
@@ -84,6 +80,8 @@ void M1DemoMachine::end() {
  *
  */
 void M1DemoMachine::hwStateUpdate(void) {
+//    spdlog::debug("hw/**/StateUpdate!");
+//    std::cout << "M1DemoMachine::hwStateUpdate()" << std::endl;
     robot->updateRobot();
 }
 

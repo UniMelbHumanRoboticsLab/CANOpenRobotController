@@ -35,7 +35,6 @@ void IdleState::during(void) {
 //        double *x = new double[3]{0, 1, 2}; //Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
 //        chaiServer->Send(x);
 //    }
-
 }
 
 void IdleState::exit(void) {
@@ -46,9 +45,10 @@ void IdleState::exit(void) {
 
 //******************************* Monitoring **************************
 void Monitoring::entry(void) {
+    std::cout << "Enter monitoring ... " << std::endl;
     robot->applyCalibration();
     robot->initMonitoring();
-    robot->m1ForceSensor->calibrate();
+//    robot->m1ForceSensor->calibrate();
 }
 
 void Monitoring::during(void) {
@@ -61,12 +61,13 @@ void Monitoring::during(void) {
 
 void Monitoring::exit(void) {
     robot->stop();
-    std::cout << "Idle State Exited" << std::endl;
+    std::cout << "Monitoring State Exited" << std::endl;
 }
 
 //******************************* Demo state **************************
 void M1PositionTracking::entryCode(void) {
-    mode = 4;
+    std::cout << "Enter Position tracking!" << std::endl;
+    mode = 1;
     robot->applyCalibration();
     switch(mode){
         case 1:
@@ -131,6 +132,7 @@ void M1PositionTracking::duringCode(void) {
 }
 
 void M1PositionTracking::exitCode(void) {
+    std::cout << "Exit Position tracking!" << std::endl;
     switch(mode) {
         case 1:
             robot->setJointPos(JointVec::Zero());
@@ -233,6 +235,7 @@ void M1PositionTracking::admittanceControl(void){
 
 //******************************* Demo state **************************
 void M1DemoState::entryCode(void) {
+    std::cout << "Enter Demo tracking!" << std::endl;
     robot->applyCalibration();
     robot->initPositionControl();
     //robot->initVelocityControl();
@@ -335,225 +338,3 @@ void M1DemoState::exitCode(void) {
     robot->setJointPos(JointVec::Zero());
 //    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
 }
-
-/*
-void M1CalibState::entryCode(void) {
-    calibDone=false;
-    for(unsigned int i=0; i<3; i++) {
-        stop_reached_time[i] = .0;
-        at_stop[i] = false;
-    }
-    robot->decalibrate();
-    robot->initTorqueControl();
-    std::cout << "Calibrating (keep clear)...";
-}
-//Move slowly on each joint until max force detected
-void M1CalibState::duringCode(void) {
-    Eigen::Vector3d tau(0, 0, 0);
-
-    //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
-    Eigen::Vector3d vel=robot->getJointVel();
-    double b = 3.;
-    for(unsigned int i=0; i<3; i++) {
-        tau(i) = std::min(std::max(2 - b * vel(i), .0), 2.);
-        if(stop_reached_time(i)>0.5) {
-            at_stop[i]=true;
-        }
-        if(vel(i)<0.01) {
-            stop_reached_time(i) += dt;
-        }
-    }
-
-    //Switch to gravity control when done
-    if(robot->isCalibrated()) {
-        robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
-        robot->printJointStatus();
-        calibDone=true; //Trigger event
-    }
-    else {
-        //If all joints are calibrated
-        if(at_stop[0] && at_stop[1] && at_stop[2]) {
-            robot->applyCalibration();
-            std::cout << "OK." << std::endl;
-        }
-        else {
-            robot->setJointTor(tau);
-        }
-    }
-}
-void M1CalibState::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
-}
-
-
-
-
-
-void M1MassCompensation::entryCode(void) {
-
-    std::cout << "Press S to decrease mass (-100g), W to increase (+100g)." << mass << std::endl;
-}
-void M1MassCompensation::duringCode(void) {
-
-    //Smooth transition in case a mass is set at startup
-    double settling_time = 3.0;
-    double t=elapsedTime>settling_time?1.0:elapsedTime/settling_time;
-
-    //Bound mass to +-5kg
-    if(mass>5.0) {
-        mass = 5;
-    }
-    if(mass<-5) {
-        mass = -5;
-    }
-
-    //Apply corresponding force
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,t*mass*9.8));
-
-    //Mass controllable through keyboard inputs
-    if(robot->keyboard->getS()) {
-        mass -=0.1;
-        std::cout << "Mass: " << mass << std::endl;
-    }
-    if(robot->keyboard->getW()) {
-        mass +=0.1;
-        std::cout << "Mass: " << mass << std::endl;
-    }
-}
-void M1MassCompensation::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
-}
-
-
-
-
-
-void M1EndEffDemo::entryCode(void) {
-    robot->initVelocityControl();
-}
-void M1EndEffDemo::duringCode(void) {
-    Eigen::Vector3d dX(0,0,0);
-
-    if(elapsedTime<1.0)
-    {
-        //Go towards the center
-        dX={-0.1,0.1,0.1};
-    }
-    else {
-        //Joystick driven
-        for(unsigned int i=0; i<3; i++) {
-            dX(i)=robot->joystick->getAxis(i)/2.;
-        }
-    }
-
-    //Apply
-    robot->setEndEffVel(dX);
-
-    if(iterations%20==1) {
-        robot->printStatus();
-    }
-}
-void M1EndEffDemo::exitCode(void) {
-    robot->setEndEffVel(Eigen::Vector3d(0,0,0));
-}
-
-
-
-
-
-
-void M1DemoImpedanceState::entryCode(void) {
-    robot->initTorqueControl();
-    std::cout << "Press Q to select reference point, S/W to tune K gain and A/D for D gain" << std::endl;
-}
-void M1DemoImpedanceState::duringCode(void) {
-
-    //Select start point
-    if(robot->keyboard->getQ()) {
-        Xi=robot->getEndEffPos();
-        init=true;
-    }
-
-    //K tuning
-    if(robot->keyboard->getS()) {
-        k -= 5;
-        std::cout << "K=" << k << " D=" << d<< std::endl;
-    }
-    if(robot->keyboard->getW()) {
-        k += 5;
-        std::cout << "K=" << k << " D=" << d<< std::endl;
-    }
-    Eigen::Matrix3d K = k*Eigen::Matrix3d::Identity();
-
-    //D tuning
-    if(robot->keyboard->getD()) {
-        d -= 1;
-        std::cout << "K=" << k << " D=" << d<< std::endl;
-    }
-    if(robot->keyboard->getA()) {
-        d += 1;
-        std::cout << "K=" << k << " D=" << d<< std::endl;
-    }
-    Eigen::Matrix3d D = d*Eigen::Matrix3d::Identity();
-
-    //Apply impedance control
-    if(init) {
-        std::cout << "K=" << k << " D=" << d << " => F=" << impedance(K, Eigen::Matrix3d::Zero(), Xi, robot->getEndEffPos(), robot->getEndEffVel()).transpose() << " N" <<std::endl;
-        robot->setEndEffForWithCompensation(impedance(K, D, Xi, robot->getEndEffPos(), robot->getEndEffVel()));
-    }
-    else {
-        robot->setEndEffForWithCompensation(Eigen::Vector3d(0,0,0));
-    }
-}
-void M1DemoImpedanceState::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
-}
-
-
-
-
-
-void M1SamplingEstimationState::entryCode(void) {
-    robot->initTorqueControl();
-    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
-    std::cout << "Move robot around while estimating time" << std::endl;
-}
-void M1SamplingEstimationState::duringCode(void) {
-    //Apply gravity compensation
-    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
-
-    //Save dt
-    if(iterations<nb_samples) {
-        //Do some math for fun
-        Eigen::Matrix3d K = 2.36*Eigen::Matrix3d::Identity();
-        Eigen::Matrix3d D = 0.235*Eigen::Matrix3d::Identity();
-        impedance(K, Eigen::Matrix3d::Zero(), Eigen::Vector3d(-0.5, 0.23, 0.65), robot->getEndEffPos(), robot->getEndEffVel()).transpose();
-        robot->J().inverse()*Eigen::Vector3d::Zero()+2*robot->inverseKinematic(Eigen::Vector3d(-0.5, 0, 0));
-
-        //Get time and actual value read from CAN to get sampling rate
-        dts[iterations] = dt;
-        dX[iterations] = robot->getEndEffVel().norm();
-        if(dX[iterations-1]!=dX[iterations]){ //Value has actually been updated
-            new_value++;
-        }
-    }
-    else if(iterations==nb_samples) {
-        std::cout << "Done." <<std::endl;
-        double dt_avg=0;
-        double dt_max=0;
-        double dt_min=50000;
-        for(unsigned int i=0; i<nb_samples; i++) {
-            dt_avg+=dts[i]/(double)nb_samples;
-            if(dts[i]>dt_max)
-                dt_max=dts[i];
-            if(i>1 && dts[i]<dt_min)
-                dt_min=dts[i];
-        }
-        std::cout<< std::dec<<std::setprecision(3) << "Loop time (min, avg, max): " << dt_min*1000 << " < " << dt_avg*1000 << " < " << dt_max*1000 << " (ms). Actual CAN sampling: " << nb_samples*dt_avg / (double) new_value*1000 <<  std::endl;
-    }
-}
-void M1SamplingEstimationState::exitCode(void) {
-    robot->setEndEffForWithCompensation(Eigen::Vector3d::Zero());
-
-}
-*/

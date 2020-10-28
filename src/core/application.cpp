@@ -34,11 +34,12 @@ void app_programStart(int argc, char *argv[]) {
     spdlog::info("Running in NOROBOT (virtual) mode.");
 #endif // NOROBOT
 #ifndef USEROS
+    spdlog::info("stateMachine.init();");
     stateMachine.init();
 #else
     stateMachine.init(argc, argv);
 #endif
-    spdlog::info("statemachine init");
+    spdlog::info(" stateMachine.activate()");
     stateMachine.activate();
 }
 
@@ -58,10 +59,9 @@ void app_programAsync(uint16_t timer1msDiffy) {
 }
 
 void app_programControlLoop(void) {
-    spdlog::info("CORC app update");
     if (stateMachine.running) {
-        spdlog::info("CORC app update");
-//        stateMachine.update();
+//        spdlog::info("CORC app update");
+        stateMachine.update();
         stateMachine.hwStateUpdate();
     }
 #ifdef TIMING_LOG

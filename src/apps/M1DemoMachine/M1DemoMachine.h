@@ -25,6 +25,8 @@
 
 // State Classes
 #include "M1DemoStates.h"
+#include "spdlog/helper/LogHelper.h"
+#include "logging.h"
 
 /**
  * @brief Example implementation of a StateMachine for the M1Robot class. States should implemented M1DemoState
