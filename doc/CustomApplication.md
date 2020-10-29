@@ -1,6 +1,6 @@
 # Building a custom application (with a custom state machine)
 
-Each CORC application is a dedicated state machine with its own states wich have access to your specific robot.
+Each CORC application is a dedicated state machine with its own states which have access to your specific robot.
 
 ## Setup
 
@@ -19,11 +19,13 @@ That's it, simply use the same build procedure.
 
 ## State machine structure and custom states and transitions
  
-   CORC provides a structured way to build event driven Finite State Machines.
+CORC provides a structured way to build event driven Finite State Machines.
 
-   The execution flow of a typical state machine with two states A and B is shown on this diagram and detailed below.
+The execution flow of a typical state machine with two states A and B is shown on this diagram and detailed below.
    
    ![CORC State Machine Diagram](img/CORCStateMachineExecutionDiagram.png)
+   
+Yellow parts highlights the methods which needs to be overriden with custom application code whereas Green blocks represents transitions that needs to be setup.
 
 ### States
 
@@ -113,27 +115,26 @@ MyCustomStateMachine::MyCustomStateMachine() {
   
 ### Generic debug and information messages
   
-    This log is organised in several level of priorities: TRACE < DEBUG < INFO < WARN < ERROR < CRITICAL which are used in the following cases:
-    - TRACE: reserved for CAN level information
-    - DEBUG: any execution information relevant for debug purpose only
-    - INFO: general execution information
-    - WARN: general unexpected execution information (little use)
-    - ERROR: any error not directly leading to termination
-    - CRITICAL: error leading to termination
+This log is organised in several level of priorities: TRACE < DEBUG < INFO < WARN < ERROR < CRITICAL which are used in the following cases:
+- TRACE: reserved for CAN level information
+- DEBUG: any execution information relevant for debug purpose only
+- INFO: general execution information
+- WARN: general unexpected execution information (little use)
+- ERROR: any error not directly leading to termination
+- CRITICAL: error leading to termination
     
-    This log will produce outputs both on console (`cout`) and within a rotating log file (logs/CORC.log).
+This log will produce outputs both on console (`cout`) and within a rotating log file (logs/CORC.log).
     
-    When compiling your application you can select the desired logging level in [src/core/logging.h](../src/core/logging.h) by setting SPDLOG_ACTIVE_LEVEL to one of the above value:
+When compiling your application you can select the desired logging level in [src/core/logging.h](../src/core/logging.h) by setting SPDLOG_ACTIVE_LEVEL to one of the above value: 
+`#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO` (recommended level) will produce only INFO, WARN, ERROR and CRITICAL outputs for example.
     
-    `#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO` (recommended level) will produce only INFO, WARN, ERROR and CRITICAL outputs for example.
-    
-    To use this logger in your code, use one of the dedicated function depending on the desired level: 
-    ```C++
-    spdlog::trace("Trace log {}", my_value);
-    ...
-    spdlog::critical("Critical error log {} => {}", my_critical_value, my_other_critical_value);
-    ```
-    these functions are accessible at any point in CORC.
+To use this logger in your code, use one of the dedicated function depending on the desired level: 
+```C++
+spdlog::trace("Trace log {}", my_value);
+...
+spdlog::critical("Critical error log {} => {}", my_critical_value, my_other_critical_value);
+```
+These functions are accessible at any point in CORC.
     
 > Note: Use this log wisely to not break the realtimness of the execution. It is also recommended to run CORC with a log level > INFO when trace and debug information are not required. For state logging, please prefere the dedicated logger described below.
   
@@ -150,9 +151,9 @@ MyCustomStateMachine::MyCustomStateMachine() {
     logHelper.startLogger();
   ```
   
-  This example will log the robot joint positions, velocities and torques in `logs/logexample.csv` at every loop execution. 
+This example will log the robot joint positions, velocities and torques in `logs/logexample.csv` at every loop execution. 
   
-    The logger support any basic types and Eigen vectors. References to values to log should all be registered (using `logHelper.add()`) before starting the logger (`logHelper.startLogger()`) and these references should be valid during the entire statemachine execution.
+The logger support any basic types and Eigen vectors. References to values to log should all be registered (using `logHelper.add()`) before starting the logger (`logHelper.startLogger()`) and these references should be valid during the entire statemachine execution.
   
   Additionnaly, the logger should be properly closed at the end of the state machine execution, within `MyCustomStateMachine::end()`:
   ```C++

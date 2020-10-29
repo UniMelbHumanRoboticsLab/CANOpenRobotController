@@ -36,5 +36,4 @@ void init_logging(const char * filename = "logs/CORC.log");
 //Development use to log loop timing
 //#define TIMING_LOG
 
-
 #endif
