@@ -37,11 +37,17 @@ JointDrivePairs kneeJDP{
 ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
 X2Robot::X2Robot() : Robot() {
+#ifdef SIM
+    simJointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    simJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    simJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+#endif
 }
 
 X2Robot::~X2Robot() {
     freeMemory();
     spdlog::debug("X2Robot deleted");
+
 }
 #ifdef SIM
 void X2Robot::initialiseROS() {
@@ -255,6 +261,29 @@ setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
     return returnValue;
 }
 
+Eigen::VectorXd & X2Robot::getPosition() {
+#ifndef SIM
+    return Robot::getPosition();
+#else
+    return simJointPositions_;
+#endif
+}
+
+Eigen::VectorXd & X2Robot::getVelocity() {
+#ifndef SIM
+    return Robot::getVelocity();
+#else
+    return simJointVelocities_;
+#endif
+}
+
+Eigen::VectorXd & X2Robot::getTorque() {
+#ifndef SIM
+    return Robot::getTorque();
+#else
+    return simJointTorques_;
+#endif
+}
 
 Eigen::VectorXd& X2Robot::getInteractionForce() {
     //TODO: generalise sensors
@@ -278,7 +307,7 @@ bool X2Robot::calibrateForceSensors() {
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
     if (numberOfSuccess == X2_NUM_FORCE_SENSORS) {
-        spdlog::debug("[X2Robot::calibrateForceSensors]: Zeroing of force sensors are successfully completed.");
+        spdlog::info("[X2Robot::calibrateForceSensors]: Zeroing of force sensors are successfully completed.");
         return true;
     } else {
         spdlog::error("[X2Robot::calibrateForceSensors]: Zeroing failed.");
@@ -385,7 +414,7 @@ bool X2Robot::initialiseNetwork() {
     return true;
 }
 bool X2Robot::initialiseInputs() {
-    inputs.push_back(&keyboard);
+    inputs.push_back(keyboard = new Keyboard());
 
     for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
         forceSensors.push_back(new X2ForceSensor(id));
@@ -423,11 +452,10 @@ void X2Robot::setNodeHandle(ros::NodeHandle &nodeHandle) {
 }
 
 void X2Robot::jointStateCallback(const sensor_msgs::JointState &msg) {
-
     for(int i = 0; i<X2_NUM_JOINTS; i++){
-        jointPositions_[i] = msg.position[i];
-        jointVelocities_[i] = msg.velocity[i];
-        jointTorques_[i] = msg.effort[i];
+        simJointPositions_[i] = msg.position[i];
+        simJointVelocities_[i] = msg.velocity[i];
+        simJointTorques_[i] = msg.effort[i];
     }
 }
 

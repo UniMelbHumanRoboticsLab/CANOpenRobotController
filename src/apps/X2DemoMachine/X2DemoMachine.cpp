@@ -67,7 +67,7 @@ void X2DemoMachine::end() {
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
 bool X2DemoMachine::StartExo::check(void) {
-    if (OWNER->robot_->keyboard.getS() == true) {
+    if (OWNER->robot_->keyboard->getS() == true) {
         std::cout << "Pressed S!" << std::endl;
         return true;
     }
