@@ -29,10 +29,10 @@ Yellow parts highlights the methods which needs to be overriden with custom appl
 
 ### States
 
-   Each state is a custom class, derived from the generic `State`. It contains three main methods which should be overidden to include your custom code:
-   - `virtual void entry()` which is called once when entering the state
-   - `virtual void during())` which is called repeatidly by the main control loop and which manage the normal control execution. The code within this state should be executable within less time than the sampling period.
-   - `virtual void exit()` which is called once when exiting the state (either by transition or when program ends).
+Each state is a custom class, derived from the generic `State`. It contains three main methods which should be overidden to include your custom code:
+- `virtual void entry()` which is called once when entering the state
+- `virtual void during())` which is called repeatidly by the main control loop and which manage the normal control execution. The code within this state should be executable within less time than the sampling period.
+- `virtual void exit()` which is called once when exiting the state (either by transition or when program ends).
 
 For example the SittingDown class in the ExoTestmachine:
 
@@ -141,7 +141,7 @@ These functions are accessible at any point in CORC.
   
 ### State machine execution logging
   
-  This log allows you to record the states of the robot, sensors or any other application specific information at every iteration in a dedicated file. The logger is accessible in the state machine and should be initialised as follows within the `MyCustomStateMachine::init()`
+This log allows you to record the states of the robot, sensors or any other application specific information at every iteration in a dedicated file. The logger is accessible in the state machine and should be initialised as follows within the `MyCustomStateMachine::init()`
   
   ```C++
     logHelper.initLogger("test_logger", "logs/logexample.csv", LogFormat::CSV, true);
@@ -160,8 +160,8 @@ The logger support any basic types and Eigen vectors. References to values to lo
     if(logHelper.isStarted())
        logHelper.endLog();
   ```
-  
-  
+
+
 > Note: implementation examples of this logger are available in the X2DemoMachine and M3DemoMachine.
 
 
