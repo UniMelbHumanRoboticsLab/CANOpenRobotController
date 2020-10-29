@@ -33,6 +33,11 @@ class StateMachine {
      */
     StateMachine(void);
     /**
+     * \brief Default destructor
+     *
+     */
+    virtual ~StateMachine(){};
+    /**
      * \brief Sets the current state. Note: No check made
      *
      * \param i Pointer to the desired current state.
@@ -61,7 +66,13 @@ class StateMachine {
     virtual void update(void);
 
     /**
-     * \brief End the current state
+     * \brief Custom initialisation of the state machine
+     *
+     */
+    virtual void init(void) = 0;
+
+    /**
+     * \brief End the state machine execution state
      *
      */
     virtual void end(void) = 0;

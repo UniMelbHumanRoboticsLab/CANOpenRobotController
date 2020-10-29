@@ -87,14 +87,12 @@ static void sigHandler(int sig) {
 int main(int argc, char *argv[]) {
     //Initialise console and file logging. Name file can be specified if required (see logging.h)
     init_logging();
-    spdlog::info("===============================================");
-    spdlog::info("============ Start logging session ============");
 
     /* TODO : MOVE bellow definitionsTO SOME KIND OF CANobject, struct or the like*/
     CO_NMT_reset_cmd_t reset = CO_RESET_NOT;
     bool_t firstRun = true;
     bool_t rebootEnable = false; /*!< Configurable by use case */  // TODO: DO WE EVER RESET? OR NEED TO?
-    int nodeId = NODEID;                                           /*!< CAN Network NODEID */
+    int nodeId = NODEID; /*!< CAN Network NODEID */
 
     int can_dev_number=6;
     char CANdeviceList[can_dev_number][10] = {"vcan0\0", "can0\0", "can1\0", "can2\0", "can3\0", "can4\0"};    /*!< linux CAN device interface for app to bind to: change to can1 for bbb, can0 for BBAI vcan0 for virtual can*/
