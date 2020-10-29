@@ -2,7 +2,7 @@
  * \file logging.h
  * \author Vincent Crocher
  * \brief Main logging function used to log trace, debug and error outputs
- * \version 0.1
+ * \version 0.2
  * \date 2020-10-14
  * \copyright Copyright (c) 2020
  *
@@ -11,7 +11,7 @@
 #define LOGGING_H_INCLUDED
 
 //Select logging level between: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL or OFF
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 
     //For logging and output use either the following functions:
     //spdlog::trace("Test trace {}", my_value);
@@ -35,6 +35,5 @@ void init_logging(const char * filename = "logs/CORC.log");
 
 //Development use to log loop timing
 //#define TIMING_LOG
-
 
 #endif
