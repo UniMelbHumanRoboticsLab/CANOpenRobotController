@@ -146,25 +146,6 @@ void RobotM1::updateRobot() {
 
 setMovementReturnCode_t RobotM1::safetyCheck() {
     //End-effector safeties if calibrated
-//    if (calibrated) {
-//        if (getEndEffVel().norm() > maxEndEffVel) {
-//            std::cout /*cerr is banned*/ << "M1: Max velocity reached (" << getEndEffVel().norm() << "m.s-1)!" << std::endl;
-//            return OUTSIDE_LIMITS;
-//        }
-//        //if(getEndEffFor().norm()>maxEndEffForce) {
-//        //   std::cout /*cerr is banned*/ << "M1: Max force reached (" << getEndEffFor().norm() << "N)!" << std::endl;
-//        //   return OUTSIDE_LIMITS;
-//        //}
-//    }
-//    //otherwise basic joint safeties
-//    else {
-//        for (uint i = 0; i < nJoints; i++) {    // Error found, YW
-//            if (((JointM1 *)joints[i])->safetyCheck() != SUCCESS) {
-//                std::cout /*cerr is banned*/ << "M1: Joint " << i << " safety triggered!" << std::endl;
-//                return OUTSIDE_LIMITS;
-//            }
-//        }
-//    }
     for (uint i = 0; i < nJoints; i++) {    // Error found, YW
         if (((JointM1 *)joints[i])->safetyCheck() != SUCCESS) {
             std::cout /*cerr is banned*/ << "M1: Joint " << i << " safety triggered!" << std::endl;

@@ -54,11 +54,6 @@ class M1DemoMachine : public StateMachine {
     M1DemoState *demoState;
     Monitoring *monitorState;
     M1PositionTracking *positionTracking;
-//    M1CalibState *calibState;
-//    M1MassCompensation *standbyState;
-//    M1EndEffDemo *endEffDemoState;
-//    M1DemoImpedanceState *impedanceState;
-//    M1SamplingEstimationState *timingState;
 
    protected:
     RobotM1 *robot; /*<!Pointer to the Robot*/

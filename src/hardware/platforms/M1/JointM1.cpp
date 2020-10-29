@@ -44,9 +44,10 @@ JointM1::~JointM1() {
 bool JointM1::initNetwork() {
 //    spdlog::debug("JointM1::initNetwork()");
     std::cout << "JointM1::initNetwork()" << std::endl;
-//    return drive->init(posControlMotorProfile);
-    bool status = ((KincoDrive *)drive)->init();
-    return status;
+    return drive->init();
+    return drive->init(posControlMotorProfile);
+//    bool status = ((KincoDrive *)drive)->init();
+//    return status;
 
 }
 
@@ -131,10 +132,6 @@ setMovementReturnCode_t JointM1::setVelocity(double dqd) {
             dqd = 0;
         }
     }
-//    int driveValue = drive->getVel();
-//    DEBUG_OUT("driveValue : " << driveValue);
-//    DEBUG_OUT("driveValue/encoder/60 : " <<  std::setprecision(3) << 1.0*driveValue/encoderCounts/60);
-//    DEBUG_OUT("driveValue/encoder/60/reductionRatio : " <<  std::setprecision(3) << 1.0*driveValue/encoderCounts/60/reductionRatio);
 
     //Capped velocity
     if(dqd>=dqMin && dqd<=dqMax) {

@@ -5,6 +5,7 @@
 M1DemoMachine::M1DemoMachine() {
     std::cout << "M1DemoMachine::constructed!" << std::endl;
     robot = new RobotM1();
+
     // Create PRE-DESIGNED State Machine state objects.
     demoState = new M1DemoState(this, robot);
     idleState = new IdleState(this, robot);

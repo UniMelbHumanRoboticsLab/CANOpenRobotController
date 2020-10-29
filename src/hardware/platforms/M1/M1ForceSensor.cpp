@@ -24,7 +24,6 @@ bool M1ForceSensor::calibrate() {
     char *SDO_Message = (char *)(strCommand.c_str());
     cancomm_socketFree(SDO_Message, &returnMessage);
     std::string retMsg = returnMessage;
-//    spdlog::debug(retMsg)
 
     usleep(2000);
     if (retMsg.find("ERROR") != std::string::npos) {
