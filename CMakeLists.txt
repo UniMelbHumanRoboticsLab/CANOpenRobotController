@@ -23,6 +23,13 @@ set(NO_ROBOT ON)
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS OFF)
 
+# Select logging level
+#SPDLOG_LEVEL_DEBUG
+#set(SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG)
+################################################################################
+
+
+
 if(USE_ROS)
 	add_definitions(-DUSEROS)
 endif()
