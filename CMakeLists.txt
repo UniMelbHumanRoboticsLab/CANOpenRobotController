@@ -23,9 +23,14 @@ set(NO_ROBOT ON)
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS OFF)
 
-# Select logging level
-#SPDLOG_LEVEL_DEBUG
-#set(SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG)
+# Select desired logging level
+#set(CORC_LOGGING_LEVEL TRACE) #Shows every message including CAN level operation
+#set(CORC_LOGGING_LEVEL DEBUG)
+set(CORC_LOGGING_LEVEL INFO) #Recommended level in normal operation
+#set(CORC_LOGGING_LEVEL WARN)
+#set(CORC_LOGGING_LEVEL ERROR)
+#set(CORC_LOGGING_LEVEL CRITICAL)
+#set(CORC_LOGGING_LEVEL OFF)
 ################################################################################
 
 
@@ -38,6 +43,8 @@ if(NO_ROBOT AND USE_ROS)
 	set(SIM ON)
     add_definitions(-DSIM)
 endif()
+
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_${CORC_LOGGING_LEVEL})
 
 
 ## Compile as C++11

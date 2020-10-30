@@ -2,8 +2,8 @@
  * \file logging.cpp
  * \author Vincent Crocher
  * \brief Main logging function used to log trace, debug and error outputs
- * \version 0.2
- * \date 2020-10-14
+ * \version 0.3
+ * \date 2020-10-30
  * \copyright Copyright (c) 2020
  *
  */
