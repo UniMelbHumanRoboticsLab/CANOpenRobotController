@@ -1,6 +1,7 @@
 # Building a custom application (with a custom state machine)
 
-Each CORC application is a dedicated state machine with its own states wich have access to your specific robot.
+Each CORC application is a dedicated state machine with its own states which have access to your specific robot.
+
 
 ## Setup
 
@@ -18,19 +19,21 @@ That's it, simply use the same build procedure.
 
 
 ## State machine structure and custom states and transitions
- 
-   CORC provides a structured way to build event driven Finite State Machines.
 
-   The execution flow of a typical state machine with two states A and B is shown on this diagram and detailed below.
+CORC provides a structured way to build event driven Finite State Machines.
+
+The execution flow of a typical state machine with two states A and B is shown on this diagram and detailed below.
    
    ![CORC State Machine Diagram](img/CORCStateMachineExecutionDiagram.png)
+   
+Yellow parts highlights the methods which needs to be overriden with custom application code whereas Green blocks represents transitions that needs to be setup.
 
 ### States
 
-   Each state is a custom class, derived from the generic `State`. It contains three main methods which should be overidden to include your custom code:
-   - `virtual void entry()` which is called once when entering the state
-   - `virtual void during())` which is called repeatidly by the main control loop and which manage the normal control execution. The code within this state should be executable within less time than the sampling period.
-   - `virtual void exit()` which is called once when exiting the state (either by transition or when program ends).
+Each state is a custom class, derived from the generic `State`. It contains three main methods which should be overidden to include your custom code:
+- `virtual void entry()` which is called once when entering the state
+- `virtual void during())` which is called repeatidly by the main control loop and which manage the normal control execution. The code within this state should be executable within less time than the sampling period.
+- `virtual void exit()` which is called once when exiting the state (either by transition or when program ends).
 
 For example the SittingDown class in the ExoTestmachine:
 
@@ -123,8 +126,8 @@ This log is organised in several level of priorities: TRACE < DEBUG < INFO < WAR
     
 This log will produce outputs both on console (`cout`) and within a rotating log file (logs/CORC.log).
     
-When compiling your application you can select the desired logging level in [src/core/logging.h](../src/core/logging.h) by setting SPDLOG_ACTIVE_LEVEL to one of the above value: 
-`#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO` (recommended level) will produce only INFO, WARN, ERROR and CRITICAL outputs for example.
+When compiling your application you can select the desired logging level in the [CMakeLists.txt](../CMakeLists.txt) by setting CORC_LOGGING_LEVEL to one of the above value: 
+keeping `set(CORC_LOGGING_LEVEL INFO)` (recommended level) will produce only INFO, WARN, ERROR and CRITICAL outputs for example.
     
 To use this logger in your code, use one of the dedicated function depending on the desired level: 
 ```C++
@@ -139,7 +142,7 @@ These functions are accessible at any point in CORC.
   
 ### State machine execution logging
   
-  This log allows you to record the states of the robot, sensors or any other application specific information at every iteration in a dedicated file. The logger is accessible in the state machine and should be initialised as follows within the `MyCustomStateMachine::init()`
+This log allows you to record the states of the robot, sensors or any other application specific information at every iteration in a dedicated file. The logger is accessible in the state machine and should be initialised as follows within the `MyCustomStateMachine::init()`
   
   ```C++
     logHelper.initLogger("test_logger", "logs/logexample.csv", LogFormat::CSV, true);
@@ -148,18 +151,17 @@ These functions are accessible at any point in CORC.
     logHelper.add(robot_->getTorque(), "JointTorques");
     logHelper.startLogger();
   ```
+
+This example will log the robot joint positions, velocities and torques in `logs/logexample.csv` at every loop execution. 
   
-  This example will log the robot joint positions, velocities and torques in `logs/logexample.csv` at every loop execution. 
+The logger support any basic types and Eigen vectors. References to values to log should all be registered (using `logHelper.add()`) before starting the logger (`logHelper.startLogger()`) and these references should be valid during the entire statemachine execution.
   
-  The logger support any basic types and Eigen vectors. References to values to log should all be registered (using `logHelper.add()`) before starting the logger (`logHelper.startLogger()`) and these references should be valid during the entire statemachine execution.
-  
-  Additionnaly, the logger should be properly closed at the end of the state machine execution, within `MyCustomStateMachine::end()`:
+Additionnaly, the logger should be properly closed at the end of the state machine execution, within `MyCustomStateMachine::end()`:
   ```C++
     if(logHelper.isStarted())
        logHelper.endLog();
   ```
-  
-  
+
 > Note: implementation examples of this logger are available in the X2DemoMachine and M3DemoMachine.
 
 
@@ -172,4 +174,4 @@ Additionnal third-party libraries required in your code can either directly be p
 
 ### ROS
 
-To use ROS in your application, see this [specific page](ROSApplication.md).
+To use ROS in your application, see this [specific page](Simulation.md).

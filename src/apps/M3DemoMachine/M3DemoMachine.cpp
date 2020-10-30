@@ -77,6 +77,7 @@ void M3DemoMachine::end() {
             logHelper.endLog();
         currentState->exit();
         robot->disable();
+
     }
 }
 

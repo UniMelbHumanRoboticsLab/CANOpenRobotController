@@ -254,7 +254,7 @@ public:
         }
     }
     void endLog(){
-        spdlog::drop_all();
+        spdlog::drop(loggerName_);
     }
 };
 

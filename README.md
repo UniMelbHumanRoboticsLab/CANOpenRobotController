@@ -182,7 +182,7 @@ explain me -->
 See [this detailed explanation](doc/CustomApplication.md) for instructions to customise an application or derive your own.
 
 ### ROS Support
-See [here](doc/ROSApplication.md) for instructions on how to build and run a CORC app with ROS support.
+See [here](doc/Simulation.md) for instructions on how to build and run a CORC app with ROS support.
 
 ## Developer Information
 
