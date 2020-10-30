@@ -10,7 +10,7 @@ project(CORC C CXX)
 
 ## Select the application by setting the state machine to use
 #(it should be the class name and have corresponding header naming in a corresponding folder)
-# If your application use ROS, don't forget to change the flag bellow to.
+# If your application use ROS, don't forget to change the flag bellow too.
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "M3Machining")
 #set (STATE_MACHINE_NAME "M3Chai")
@@ -23,17 +23,10 @@ set(NO_ROBOT ON)
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS OFF)
 
-# Select desired logging level
-#set(CORC_LOGGING_LEVEL TRACE) #Shows every message including CAN level operation
-#set(CORC_LOGGING_LEVEL DEBUG)
-set(CORC_LOGGING_LEVEL INFO) #Recommended level in normal operation
-#set(CORC_LOGGING_LEVEL WARN)
-#set(CORC_LOGGING_LEVEL ERROR)
-#set(CORC_LOGGING_LEVEL CRITICAL)
-#set(CORC_LOGGING_LEVEL OFF)
+# Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL OFF)
+# INFO is the recommended level in normal operation
+set(CORC_LOGGING_LEVEL INFO) 
 ################################################################################
-
-
 
 if(USE_ROS)
 	add_definitions(-DUSEROS)
