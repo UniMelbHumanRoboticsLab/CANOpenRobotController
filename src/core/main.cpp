@@ -88,6 +88,17 @@ int main(int argc, char *argv[]) {
     //Initialise console and file logging. Name file can be specified if required (see logging.h)
     init_logging();
 
+    //Check if running with root privilege
+    if(getuid() != 0) {
+        //Fallback to standard non RT thread
+        rtPriority = -1;
+        rtControlPriority = -1;
+        spdlog::warn("Running without root privilege: using non-RT priority threads");
+    }
+    else {
+        spdlog::info("Running with root privilege: using RT priority threads");
+    }
+
     /* TODO : MOVE bellow definitionsTO SOME KIND OF CANobject, struct or the like*/
     CO_NMT_reset_cmd_t reset = CO_RESET_NOT;
     bool_t firstRun = true;
@@ -194,11 +205,7 @@ int main(int argc, char *argv[]) {
                 struct sched_param param;
                 param.sched_priority = rtPriority;
                 if (pthread_setschedparam(rt_thread_id, SCHED_FIFO, &param) != 0){
-#ifndef USEROS
                     CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
-#else
-                    ROS_ERROR("Program init - rt_thread set scheduler failed");
-#endif
                 }
             }
             /* Create control_thread */
@@ -209,11 +216,7 @@ int main(int argc, char *argv[]) {
                 struct sched_param paramc;
                 paramc.sched_priority = rtControlPriority;
                 if (pthread_setschedparam(rt_control_thread_id, SCHED_FIFO, &paramc) != 0){
-#ifndef USEROS
                     CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
-#else
-                    ROS_ERROR("Program init - rt_thread set scheduler failed");
-#endif
                 }
             }
             /* start CAN */
