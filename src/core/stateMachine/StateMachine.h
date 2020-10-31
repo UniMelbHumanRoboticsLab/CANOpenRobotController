@@ -69,7 +69,8 @@ class StateMachine {
      * \brief Custom initialisation of the state machine
      *
      */
-    virtual void init(void) = 0;
+    virtual void init(int argc, char *argv[]);
+    virtual void init(void);
 
     /**
      * \brief End the state machine execution state
