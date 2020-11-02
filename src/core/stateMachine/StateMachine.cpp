@@ -38,6 +38,3 @@ void StateMachine::update(void) {
     if(logHelper.isStarted() && logHelper.isInitialised())
         logHelper.recordLogData();
 }
-
-void StateMachine::init() {}
-void StateMachine::init(int argc, char **argv) {}
