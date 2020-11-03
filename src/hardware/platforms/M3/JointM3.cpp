@@ -27,7 +27,7 @@ setMovementReturnCode_t JointM3::safetyCheck() {
 
 setMovementReturnCode_t JointM3::setPosition(double qd) {
     if (calibrated) {
-        if (qd >= qMin && qd <= qMax) {
+        if (qd >= qMin && qd <= qMax && std::isfinite(qd)) {
             return Joint::setPosition(qd);
         } else {
             return OUTSIDE_LIMITS;
@@ -48,7 +48,7 @@ setMovementReturnCode_t JointM3::setVelocity(double dqd) {
         }
     }
     //Caped velocity
-    if (dqd >= dqMin && dqd <= dqMax) {
+    if (dqd >= dqMin && dqd <= dqMax && std::isfinite(dqd)) {
         return Joint::setVelocity(dqd);
     } else {
         return OUTSIDE_LIMITS;
@@ -66,7 +66,7 @@ setMovementReturnCode_t JointM3::setTorque(double taud) {
         }
     }
     //Caped torque
-    if (taud >= tauMin && taud <= tauMax) {
+    if (taud >= tauMin && taud <= tauMax && std::isfinite(taud)) {
         return Joint::setTorque(taud);
     } else {
         return OUTSIDE_LIMITS;
