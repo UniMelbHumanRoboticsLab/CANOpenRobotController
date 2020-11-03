@@ -2,9 +2,6 @@
 
 using namespace Eigen;
 
-// Moved to Robot.h - TMH
-short int sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
-
 RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce(60) {
     // Conversion factors between degrees and radians
     d2r = M_PIf64 / 180.;

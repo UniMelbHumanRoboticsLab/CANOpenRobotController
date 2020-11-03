@@ -16,12 +16,10 @@ project(CORC C CXX)
 #set (STATE_MACHINE_NAME "M3Chai")
 #set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
-set (PLATFORM_NAME "M1")
-#set (STATE_MACHINE_NAME "M1TestMachine")
 set (STATE_MACHINE_NAME "M1DemoMachine")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT OFF)
+set(NO_ROBOT ON)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS OFF)
@@ -63,8 +61,8 @@ endif()
 
 
 ## Get all source and header files (only the target app folder is included)
-file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/IO/*.cpp" "src/hardware/IO/*.c" "src/hardware/drives/*.cpp" "src/hardware/drives/*.c" "src/hardware/platforms/${PLATFORM_NAME}/*.cpp" "src/hardware/platforms/${PLATFORM_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.cpp")
-file(GLOB_RECURSE HEADERS "src/core/*.h" "src/hardware/IO/*.h" "src/hardware/drives/*.h" "src/hardware/platforms/${PLATFORM_NAME}/*.h" "src/apps/${STATE_MACHINE_NAME}/*.h")
+file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "src/apps/${STATE_MACHINE_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.cpp")
+file(GLOB_RECURSE HEADERS "src/core/*.h" "src/hardware/*.h" "src/apps/${STATE_MACHINE_NAME}/*.h")
 
 ## Set every folder containing .h file as include directory
 set (INCLUDE_DIRS "")
@@ -75,7 +73,6 @@ endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
 ## Add libraries headers
 list (APPEND INCLUDE_DIRS lib/)
-
 
 ## Add ROS dependencies
 if(USE_ROS)
