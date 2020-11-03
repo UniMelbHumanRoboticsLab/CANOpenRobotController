@@ -14,9 +14,9 @@
 
 #include <time.h>
 
+#include <Eigen/Dense>
 #include <cmath>
 #include <vector>
-
 
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
@@ -39,7 +39,7 @@ class DummyTrajectoryGenerator {
     std::vector<double[2]> endPoints;
     Trajectory currTraj = SIT;
     double trajTime = 2;
-    int numJoints = 6;
+    int numJoints = 4;
     double lastProgress = 0;
 
     /** Parameters associated with Trajectory Progression */
@@ -69,7 +69,7 @@ class DummyTrajectoryGenerator {
      *
      * \return vector<double>
      */
-    std::vector<double> getSetPoint(double time);
+    Eigen::VectorXd getSetPoint(double time);
 
     /**
      * \brief Check if the trajectory has been completed based on last elapsed time

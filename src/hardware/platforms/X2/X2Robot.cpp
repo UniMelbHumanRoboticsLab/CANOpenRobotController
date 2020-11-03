@@ -1,6 +1,5 @@
 #include "X2Robot.h"
 
-
 /**
  * An enum type.
  * Joint Index for the 4 joints (note, CANopen NODEID = this + 1)
@@ -37,7 +36,7 @@ JointDrivePairs kneeJDP{
 ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
 X2Robot::X2Robot() : Robot() {
-#ifdef SIM
+#ifdef NOROBOT
     simJointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
@@ -47,7 +46,6 @@ X2Robot::X2Robot() : Robot() {
 X2Robot::~X2Robot() {
     freeMemory();
     spdlog::debug("X2Robot deleted");
-
 }
 #ifdef SIM
 void X2Robot::initialiseROS() {
@@ -86,9 +84,9 @@ bool X2Robot::initPositionControl() {
     controllerSwitchMsg_.request.start_asap = true;
     controllerSwitchMsg_.request.timeout = 0.0;
 
-    if(controllerSwitchClient_.call(controllerSwitchMsg_)){
+    if (controllerSwitchClient_.call(controllerSwitchMsg_)) {
         spdlog::info("Switched to position controller");
-    }else {
+    } else {
         spdlog::error("Failed switching to position controller");
         returnValue = false;
     }
@@ -123,9 +121,9 @@ bool X2Robot::initVelocityControl() {
     controllerSwitchMsg_.request.start_asap = true;
     controllerSwitchMsg_.request.timeout = 0.0;
 
-    if(controllerSwitchClient_.call(controllerSwitchMsg_)){
+    if (controllerSwitchClient_.call(controllerSwitchMsg_)) {
         spdlog::info("Switched to velocity controller");
-    }else {
+    } else {
         spdlog::error("Failed switching to velocity controller");
         returnValue = false;
     }
@@ -160,9 +158,9 @@ bool X2Robot::initTorqueControl() {
     controllerSwitchMsg_.request.start_asap = true;
     controllerSwitchMsg_.request.timeout = 0.0;
 
-    if(controllerSwitchClient_.call(controllerSwitchMsg_)){
+    if (controllerSwitchClient_.call(controllerSwitchMsg_)) {
         spdlog::info("Switched to torque controller");
-    }else {
+    } else {
         spdlog::error("Failed switching to torque controller");
         returnValue = false;
     }
@@ -190,12 +188,14 @@ setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
 #ifdef SIM
     std::vector<double> positionVector(X2_NUM_JOINTS);
 
-    for(int i = 0; i<X2_NUM_JOINTS; i++){
+    for (int i = 0; i < X2_NUM_JOINTS; i++) {
         positionVector[i] = positions[i];
     }
 
     positionCommandMsg_.data = positionVector;
     positionCommandPublisher_.publish(positionCommandMsg_);
+#elif NOROBOT
+    simJointPositions_ = positions;
 #endif
 
     return returnValue;
@@ -220,7 +220,7 @@ setMovementReturnCode_t X2Robot::setVelocity(Eigen::VectorXd velocities) {
 #ifdef SIM
     std::vector<double> velocityVector(X2_NUM_JOINTS);
 
-    for(int i = 0; i<X2_NUM_JOINTS; i++){
+    for (int i = 0; i < X2_NUM_JOINTS; i++) {
         velocityVector[i] = velocities[i];
     }
 
@@ -250,7 +250,7 @@ setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
 #ifdef SIM
     std::vector<double> torqueVector(X2_NUM_JOINTS);
 
-    for(int i = 0; i<X2_NUM_JOINTS; i++){
+    for (int i = 0; i < X2_NUM_JOINTS; i++) {
         torqueVector[i] = torques[i];
     }
 
@@ -261,34 +261,34 @@ setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
     return returnValue;
 }
 
-Eigen::VectorXd & X2Robot::getPosition() {
-#ifndef SIM
+Eigen::VectorXd &X2Robot::getPosition() {
+#ifndef NOROBOT
     return Robot::getPosition();
 #else
     return simJointPositions_;
 #endif
 }
 
-Eigen::VectorXd & X2Robot::getVelocity() {
-#ifndef SIM
+Eigen::VectorXd &X2Robot::getVelocity() {
+#ifndef NOROBOT
     return Robot::getVelocity();
 #else
     return simJointVelocities_;
 #endif
 }
 
-Eigen::VectorXd & X2Robot::getTorque() {
-#ifndef SIM
+Eigen::VectorXd &X2Robot::getTorque() {
+#ifndef NOROBOT
     return Robot::getTorque();
 #else
     return simJointTorques_;
 #endif
 }
 
-Eigen::VectorXd& X2Robot::getInteractionForce() {
+Eigen::VectorXd &X2Robot::getInteractionForce() {
     //TODO: generalise sensors
     //Initialise vector if not already done
-    if(interactionForces_.size()!=forceSensors.size()) {
+    if (interactionForces_.size() != forceSensors.size()) {
         interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
     }
 
@@ -439,20 +439,17 @@ void X2Robot::freeMemory() {
     }
 }
 void X2Robot::updateRobot() {
-
     //TODO: generalise sensors update
     Robot::updateRobot();
-
 }
 
 #ifdef SIM
 void X2Robot::setNodeHandle(ros::NodeHandle &nodeHandle) {
-
     nodeHandle_ = &nodeHandle;
 }
 
 void X2Robot::jointStateCallback(const sensor_msgs::JointState &msg) {
-    for(int i = 0; i<X2_NUM_JOINTS; i++){
+    for (int i = 0; i < X2_NUM_JOINTS; i++) {
         simJointPositions_[i] = msg.position[i];
         simJointVelocities_[i] = msg.velocity[i];
         simJointTorques_[i] = msg.effort[i];
