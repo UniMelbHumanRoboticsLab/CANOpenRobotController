@@ -64,10 +64,12 @@ bool RobotM3::initialiseNetwork() {
             usleep(10000);
             joint_ready = ((joint->getDriveStatus() & 0x01) == 0x01);
         }
+        #ifndef NOROBOT
         if (!joint_ready) {
             spdlog::error("M3: Failed to enable joint {} (status: {})", n, joint->getDriveStatus());
             return false;
         }
+        #endif
         n++;
     }
     printJointStatus();

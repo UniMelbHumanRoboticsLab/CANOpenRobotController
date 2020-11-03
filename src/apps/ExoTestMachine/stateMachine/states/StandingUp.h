@@ -1,8 +1,8 @@
 /**
  * /file StandingUp.h
  * /author Justin Fong
- * /version 0.1
- * /date 2020-05-07
+ * /version 0.2
+ * /date 2020-11-3
  * 
  * @copyright Copyright (c) 2020
  * 
@@ -40,7 +40,7 @@ class StandingUp : public ExoTestState {
      */
     void during(void);
     void exit(void);
-    StandingUp(StateMachine *m, ExoRobot *exo, DummyTrajectoryGenerator *tg, const char *name = NULL) : ExoTestState(m, exo, tg, name){};
+    StandingUp(StateMachine *m, X2Robot *exo, DummyTrajectoryGenerator *tg, const char *name = NULL) : ExoTestState(m, exo, tg, name){};
 };
 
 #endif

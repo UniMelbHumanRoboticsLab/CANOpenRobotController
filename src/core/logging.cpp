@@ -2,8 +2,8 @@
  * \file logging.cpp
  * \author Vincent Crocher
  * \brief Main logging function used to log trace, debug and error outputs
- * \version 0.1
- * \date 2020-10-14
+ * \version 0.3
+ * \date 2020-10-30
  * \copyright Copyright (c) 2020
  *
  */
@@ -52,7 +52,11 @@ void init_logging(const char * filename)
     sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
     sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(filename, 1024 * 1024 * 50, 1));
     //Register this two sinks logger as main logger
-    std::shared_ptr<spdlog::logger> main_logger = std::make_shared<spdlog::logger>("CORC log", begin(sinks), end(sinks));
+    std::shared_ptr<spdlog::logger> main_logger = std::make_shared<spdlog::logger>("CORC", begin(sinks), end(sinks));
     spdlog::initialize_logger(main_logger);
     spdlog::set_default_logger(main_logger);
+
+
+    spdlog::info("===============================================");
+    spdlog::info("============ Start logging session ============");
 }

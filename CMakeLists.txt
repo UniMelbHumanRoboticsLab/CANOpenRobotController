@@ -10,7 +10,7 @@ project(CORC C CXX)
 
 ## Select the application by setting the state machine to use
 #(it should be the class name and have corresponding header naming in a corresponding folder)
-# If your application use ROS, don't forget to change the flag bellow to.
+# If your application use ROS, don't forget to change the flag bellow too.
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "M3Machining")
 #set (STATE_MACHINE_NAME "M3Chai")
@@ -24,6 +24,11 @@ set(NO_ROBOT ON)
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS OFF)
 
+# Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL OFF)
+# INFO is the recommended level in normal operation
+set(CORC_LOGGING_LEVEL INFO) 
+################################################################################
+
 if(USE_ROS)
 	add_definitions(-DUSEROS)
 endif()
@@ -32,6 +37,8 @@ if(NO_ROBOT AND USE_ROS)
 	set(SIM ON)
     add_definitions(-DSIM)
 endif()
+
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_${CORC_LOGGING_LEVEL})
 
 
 ## Compile as C++11

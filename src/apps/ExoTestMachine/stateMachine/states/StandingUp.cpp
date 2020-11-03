@@ -24,7 +24,7 @@ void StandingUp::during(void) {
      */
     if (true) {
         currTrajProgress += elapsedSec;
-        spdlog::debug("Elapsed Time: ", currTrajProgress);
+        spdlog::debug("Elapsed Time: {}", currTrajProgress);
 
         robot->setPosition(trajectoryGenerator->getSetPoint(currTrajProgress));
     }

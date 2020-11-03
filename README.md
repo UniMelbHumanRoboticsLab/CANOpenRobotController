@@ -2,7 +2,7 @@
 
 CORC is a free and open source robotic development software stack, written in C++.
 
-The project has been under development at the University of Melbourne in partnership with Fourier Intelligence. The project was developed to run on an X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform.
+The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform. The repository is currently also includes code which has been run on the ArmMotus M1 and M3 rehabilitation devices, and using desktop or laptop Ubuntu installations. 
 
 > Note (12/5/2020): At this stage, this software has not been tested on physical hardware due to lab access limitations due to COVID-19.
 
@@ -182,7 +182,7 @@ explain me -->
 See [this detailed explanation](doc/CustomApplication.md) for instructions to customise an application or derive your own.
 
 ### ROS Support
-See [here](doc/ROSApplication.md) for instructions on how to build and run a CORC app with ROS support.
+See [here](doc/Simulation.md) for instructions on how to build and run a CORC app with ROS support.
 
 ## Developer Information
 

@@ -91,14 +91,23 @@ static void sigHandler(int sig) {
 int main(int argc, char *argv[]) {
     //Initialise console and file logging. Name file can be specified if required (see logging.h)
     init_logging();
-    spdlog::info("===============================================");
-    spdlog::info("============ Start logging session ============");
+
+    //Check if running with root privilege
+    if(getuid() != 0) {
+        //Fallback to standard non RT thread
+        rtPriority = -1;
+        rtControlPriority = -1;
+        spdlog::warn("Running without root privilege: using non-RT priority threads");
+    }
+    else {
+        spdlog::info("Running with root privilege: using RT priority threads");
+    }
 
     /* TODO : MOVE bellow definitionsTO SOME KIND OF CANobject, struct or the like*/
     CO_NMT_reset_cmd_t reset = CO_RESET_NOT;
     bool_t firstRun = true;
     bool_t rebootEnable = false; /*!< Configurable by use case */  // TODO: DO WE EVER RESET? OR NEED TO?
-    int nodeId = NODEID;                                           /*!< CAN Network NODEID */
+    int nodeId = NODEID; /*!< CAN Network NODEID */
 
     int can_dev_number=6;
     char CANdeviceList[can_dev_number][10] = {"vcan0\0", "can0\0", "can1\0", "can2\0", "can3\0", "can4\0"};    /*!< linux CAN device interface for app to bind to: change to can1 for bbb, can0 for BBAI vcan0 for virtual can*/
@@ -200,11 +209,7 @@ int main(int argc, char *argv[]) {
                 struct sched_param param;
                 param.sched_priority = rtPriority;
                 if (pthread_setschedparam(rt_thread_id, SCHED_FIFO, &param) != 0){
-#ifndef USEROS
                     CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
-#else
-                    ROS_ERROR("Program init - rt_thread set scheduler failed");
-#endif
                 }
             }
             /* Create control_thread */
@@ -215,11 +220,7 @@ int main(int argc, char *argv[]) {
                 struct sched_param paramc;
                 paramc.sched_priority = rtControlPriority;
                 if (pthread_setschedparam(rt_control_thread_id, SCHED_FIFO, &paramc) != 0){
-#ifndef USEROS
                     CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
-#else
-                    ROS_ERROR("Program init - rt_thread set scheduler failed");
-#endif
                 }
             }
             /* start CAN */
