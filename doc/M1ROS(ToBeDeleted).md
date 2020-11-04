@@ -27,11 +27,6 @@ $ sudo apt-get update
 $ sudo apt-get install python-catkin-tools
 ```
 
-Install ros_control:
-```bash
-$ sudo apt-get install ros-melodic-ros-control ros-melodic-ros-controllers
-```
-
 ## Build
 
 Create a catkin workspace if you don't have one yet:
@@ -45,6 +40,7 @@ Clone CORC and the required packages into your workspace:
 ```bash
 $ cd ~/catkin_ws/src
 $ git clone github.com/ywen3/CANOpenRobotController.git
+$ git checkout devel/M1_ROS
 ```
 
 Make sure `USE_ROS` flag is set to `ON` in CMakeLists.txt:
