@@ -35,6 +35,9 @@ M1DemoMachine::M1DemoMachine() {
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(idleState);
+
+    // Create ros object
+    m1DemoMachineRos_ = new M1DemoMachineROS(robot);
 }
 
 M1DemoMachine::~M1DemoMachine() {
@@ -51,8 +54,15 @@ M1DemoMachine::~M1DemoMachine() {
  *
  */
 
-void M1DemoMachine::init() {
+void M1DemoMachine::init(int argc, char *argv[]) {
     std::cout << "M1DemoMachine::init()" << std::endl;
+
+    ros::init(argc, argv, "m1_node", ros::init_options::NoSigintHandler);
+    ros::NodeHandle nodeHandle;
+
+    // Pass nodeHandle to the classes that use ROS features
+    m1DemoMachineRos_->setNodeHandle(nodeHandle);
+
     if(robot->initialise()) {
         initialised = true;
     }
@@ -62,12 +72,17 @@ void M1DemoMachine::init() {
         std::raise(SIGTERM); //Clean exit
     }
     running = true;
+
+    m1DemoMachineRos_->initialize();
+
 }
 
 void M1DemoMachine::end() {
     if(initialised) {
         currentState->exit();
         robot->stop();
+        delete m1DemoMachineRos_;
+        delete robot;
     }
 }
 
@@ -84,6 +99,8 @@ void M1DemoMachine::hwStateUpdate(void) {
 //    spdlog::debug("hw/**/StateUpdate!");
 //    std::cout << "M1DemoMachine::hwStateUpdate()" << std::endl;
     robot->updateRobot();
+    m1DemoMachineRos_->update();
+    ros::spinOnce();
 }
 
 ////////////////////////////////////////////////////////////////

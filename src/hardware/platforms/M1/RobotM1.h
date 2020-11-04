@@ -24,6 +24,8 @@
 #include "M1ForceSensor.h"
 #include "KincoDrive.h"
 
+#define M1_NUM_JOINTS 1
+
 //typedef unsigned int uint;
 
 // System description constants

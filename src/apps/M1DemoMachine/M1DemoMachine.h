@@ -28,6 +28,8 @@
 #include "spdlog/helper/LogHelper.h"
 #include "logging.h"
 
+#include "M1DemoMachineROS.h"
+
 /**
  * @brief Example implementation of a StateMachine for the M1Robot class. States should implemented M1DemoState
  *
@@ -41,7 +43,7 @@ class M1DemoMachine : public StateMachine {
      */
     M1DemoMachine();
     ~M1DemoMachine();
-    void init();
+    void init(int argc, char *argv[]);
     void end();
 
     void hwStateUpdate();
@@ -57,6 +59,7 @@ class M1DemoMachine : public StateMachine {
 
    protected:
     RobotM1 *robot; /*<!Pointer to the Robot*/
+    M1DemoMachineROS *m1DemoMachineRos_; /*<!Pointer to the ROS Class*/
 
    private:
     EventObject(Event2Demo) * event2Demo;
