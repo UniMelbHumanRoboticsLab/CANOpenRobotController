@@ -13,7 +13,7 @@ void IdleState::entry(void) {
             << "==================================" << std::endl
             << std::endl
             << "========================" << std::endl
-            << " PRESS X to start monitoring" << std::endl
+            << " PRESS X to start zeroing" << std::endl
             << " PRESS S to start demo state" << std::endl
             << " PRESS A to start position control" << std::endl
             << "========================" << std::endl;
@@ -30,6 +30,43 @@ void IdleState::exit(void) {
 //    delete chaiServer;
 //    robot->stop();
     std::cout << "Idle State Exited" << std::endl;
+}
+
+//******************************* Calibration **************************
+void Calibration::entry(void) {
+    std::cout << "Enter calibration ... " << std::endl;
+    robot->applyCalibration();
+    robot->initVelocityControl();
+    robot->m1ForceSensor->calibrate();
+    cal_velocity = -15;   // degree per second
+}
+
+void Calibration::during(void) {
+    dq=robot->getJointVel();
+    tau = robot->getJointTor_s();
+    JointVec dq_t;
+    dq_t(0) = cal_velocity;
+    if(robot->setJointVel(dq_t) != SUCCESS){
+        std::cout << "Error: " << std::endl;
+    }
+    if (dq(0) <= 5 & tau(0) >= 10){
+        cal_velocity = 0;
+//        std::cout << "Calibration done!" << std::endl;
+    }
+    else
+    {
+        robot->printJointStatus();
+    }
+}
+
+void Calibration::exit(void) {
+    robot->applyCalibration();
+    robot->initPositionControl();
+    q(0) = 16;
+    if(robot->setJointPos(q) != SUCCESS){
+        std::cout << "Error: " << std::endl;
+    }
+    std::cout << "Calibration state exited" << std::endl;
 }
 
 //******************************* Monitoring **************************

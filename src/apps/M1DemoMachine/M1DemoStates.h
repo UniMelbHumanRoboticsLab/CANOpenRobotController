@@ -123,7 +123,7 @@ public:
 };
 
 /**
- * \brief Monitoring State for the X2DemoMachine
+ * \brief Monitoring State for the X1DemoMachine
  *
  * State holds until event triggers its exit, and runs initPositionControl on exit
  * Control of transition is independent of this class and is defined in X2DemoMachine.
@@ -138,6 +138,28 @@ public:
     void exit(void);
     Monitoring(StateMachine *m, RobotM1 *exo, const char *name = NULL) : State(m, name), robot(exo){};
     long int iterations;
+};
+
+/**
+ * \brief Monitoring State for the X1DemoMachine
+ *
+ * State holds until event triggers its exit, and runs initPositionControl on exit
+ * Control of transition is independent of this class and is defined in X2DemoMachine.
+ *
+ */
+class Calibration : public State {
+    RobotM1 *robot;
+
+public:
+    void entry(void);
+    void during(void);
+    void exit(void);
+    Calibration(StateMachine *m, RobotM1 *exo, const char *name = NULL) : State(m, name), robot(exo){};
+    long int iterations;
+    JointVec q;     //positive dorsi flexion
+    JointVec dq;
+    JointVec tau;
+    double cal_velocity;
 };
 
 class M1DemoState : public M1TimedState {

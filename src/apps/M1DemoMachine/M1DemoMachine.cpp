@@ -9,7 +9,8 @@ M1DemoMachine::M1DemoMachine() {
     // Create PRE-DESIGNED State Machine state objects.
     demoState = new M1DemoState(this, robot);
     idleState = new IdleState(this, robot);
-    monitorState = new Monitoring( this, robot);
+    monitorState = new Monitoring(this, robot);
+    calibrationState = new Calibration( this, robot);
     positionTracking = new M1PositionTracking(this, robot);
 
     // Create PRE-DESIGNED State Machine events objects.
@@ -27,8 +28,8 @@ M1DemoMachine::M1DemoMachine() {
     NewTransition(idleState, event2Demo, demoState);
     NewTransition(demoState, event2Idle, idleState);
 
-    NewTransition(idleState, event2Monitor, monitorState);
-    NewTransition(monitorState, event2Idle, idleState);
+    NewTransition(idleState, event2Monitor, calibrationState);
+    NewTransition(calibrationState, event2Idle, idleState);
 
     NewTransition(idleState, event2Pos, positionTracking);
     NewTransition(positionTracking, event2Idle, idleState);

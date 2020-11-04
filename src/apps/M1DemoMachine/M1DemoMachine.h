@@ -53,6 +53,7 @@ class M1DemoMachine : public StateMachine {
     IdleState *idleState;
     M1DemoState *demoState;
     Monitoring *monitorState;
+    Calibration *calibrationState;
     M1PositionTracking *positionTracking;
 
    protected:
