@@ -31,7 +31,7 @@ class JointM1 : public Joint {
 
     double Ipeak;                //Kinco FD123 peak current
     double motorTorqueConstant;  //SMC60S-0020 motor torque constant
-    KincoDrive *drive;
+//    KincoDrive *drive;
 
     /**
      * \brief Conversion between drive unit (encoder count) and joint unit (radian).

@@ -15,7 +15,7 @@
 JointM1::JointM1(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, KincoDrive *kincoDrive, const std::string& name): Joint(jointID, q_min, q_max, kincoDrive, name),
                                                                                                                                           sign(sign_), qMin(q_min), qMax(q_max), dqMin(dq_min), dqMax(dq_max), tauMin(tau_min), tauMax(tau_max){
 //    drive = new KincoDrive(jointID+1);
-    drive = kincoDrive;
+//    drive = kincoDrive;
     d2r = M_PIf64 / 180.;
     r2d = 180. / M_PIf64;
     // Define unchanging unit conversion properties
@@ -45,7 +45,7 @@ bool JointM1::initNetwork() {
 //    spdlog::debug("JointM1::initNetwork()");
     std::cout << "JointM1::initNetwork()" << std::endl;
     return drive->init();
-    return drive->init(posControlMotorProfile);
+//    return drive->init(posControlMotorProfile);
 //    bool status = ((KincoDrive *)drive)->init();
 //    return status;
 

@@ -32,7 +32,7 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
 
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
-//    inputs.push_back(m1ForceSensor = new M1ForceSensor(1));
+    inputs.push_back(m1ForceSensor = new M1ForceSensor(1));
 
     status = R_SUCCESS;
 }
@@ -55,7 +55,7 @@ bool RobotM1::initialiseJoints() {
     return true;
 }
 bool RobotM1::initialiseNetwork() {
-    std::cout << "RobotM1::initialiseNetwork()" << std::endl;
+//    std::cout << "RobotM1::initialiseNetwork()" << std::endl;
 
     bool status;
     for (auto joint : joints) {
@@ -70,10 +70,11 @@ bool RobotM1::initialiseNetwork() {
         spdlog::debug(".");
         usleep(10000);
     }
-    std::cout << "RobotM1::initialiseNetwork() end" << std::endl;
+//    std::cout << "RobotM1::initialiseNetwork() end" << std::endl;
 
     return true;
 }
+
 bool RobotM1::initialiseInputs() {
     /*nothing to do*/
 //    inputs.push_back(&keyboard);
@@ -100,15 +101,15 @@ void RobotM1::applyCalibration() {
     calibrated = true;
 }
 
-//bool RobotM1::calibrateForceSensors() {
-//    if(m1ForceSensor->calibrate()){
-//        DEBUG_OUT("[RobotM1::calibrateForceSensors]: Zeroing of force sensors are successfully completed.");
-//        return true;
-//    } else{
-//        DEBUG_OUT("[RobotM1::calibrateForceSensors]: Zeroing failed.");
-//        return false;
-//    }
-//}
+bool RobotM1::calibrateForceSensors() {
+    if(m1ForceSensor->calibrate()){
+        spdlog::debug("[RobotM1::calibrateForceSensors]: Zeroing of force sensors are successfully completed.");
+        return true;
+    } else{
+        spdlog::debug("[RobotM1::calibrateForceSensors]: Zeroing failed.");
+        return false;
+    }
+}
 
 //Eigen::VectorXd X2Robot::getInteractionForce() {
 //    Eigen::VectorXd actualInteractionForces(X2_NUM_FORCE_SENSORS);
@@ -133,7 +134,7 @@ void RobotM1::updateRobot() {
         q(i) = ((JointM1 *)joints[i])->getPosition();
         dq(i) = ((JointM1 *)joints[i])->getVelocity();
         tau(i) = ((JointM1 *)joints[i])->getTorque();
-//        tau_s(i) = m1ForceSensor[i].getForce();
+        tau_s(i) = m1ForceSensor[i].getForce();
     }
 //    std::cout << "safety check" << std::endl; // YW debug
     if (safetyCheck() != SUCCESS) {
@@ -191,7 +192,7 @@ bool RobotM1::initMonitoring() {
     // Pause for a bit to let commands go
     usleep(2000);
     for (auto p : joints) {
-        ((JointM1 *)p)->enable();
+        ((JointM1 *)p)->disable();
     }
     return returnValue;
 }

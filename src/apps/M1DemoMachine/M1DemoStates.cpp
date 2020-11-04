@@ -37,7 +37,7 @@ void Monitoring::entry(void) {
     std::cout << "Enter monitoring ... " << std::endl;
     robot->applyCalibration();
     robot->initMonitoring();
-//    robot->m1ForceSensor->calibrate();
+    robot->m1ForceSensor->calibrate();
 }
 
 void Monitoring::during(void) {
@@ -225,11 +225,13 @@ void M1PositionTracking::admittanceControl(void){
 }
 
 //******************************* Demo state **************************
+//
 void M1DemoState::entryCode(void) {
     std::cout << "Enter Demo tracking!" << std::endl;
+
     robot->applyCalibration();
     robot->initPositionControl();
-    freq = 0.1;
+    freq = 0.5;
     counter = 1;
 //    qi(0) = 45;
 //    robot->setJointPos(qi);

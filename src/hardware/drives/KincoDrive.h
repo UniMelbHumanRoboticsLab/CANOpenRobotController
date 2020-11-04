@@ -116,8 +116,8 @@ class KincoDrive : public Drive {
     std::vector<std::string> readSDOMessage(int address, int len);
 
     std::vector<std::string> generatePosControlConfigSDO(motorProfile positionProfile);
-    std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
-    std::vector<std::string> generateTorqueControlConfigSDO();
+//    std::vector<std::string> generateVelControlConfigSDO(motorProfile velocityProfile);
+//    std::vector<std::string> generateTorqueControlConfigSDO();
     std::vector<std::string> generateResetErrorSDO();
 };
 
