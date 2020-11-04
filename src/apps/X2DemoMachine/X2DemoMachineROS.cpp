@@ -11,11 +11,11 @@ X2DemoMachineROS::~X2DemoMachineROS() {
 void X2DemoMachineROS::initialize() {
     spdlog::debug("X2DemoMachineROS::init()");
 #ifndef SIM  // if simulation, these will be published by Gazebo
-    jointStatePublisher_ = nodeHandle_->advertise<sensor_msgs::JointState>("/x2/joint_states", 10);
-    leftThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("/x2/left_thigh_wrench", 10);
-    leftShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("/x2/left_shank_wrench", 10);
-    rightThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("/x2/right_thigh_wrench", 10);
-    rightShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("/x2/right_shank_wrench", 10);
+    jointStatePublisher_ = nodeHandle_->advertise<sensor_msgs::JointState>("joint_states", 10);
+    leftThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("left_thigh_wrench", 10);
+    leftShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("left_shank_wrench", 10);
+    rightThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("right_thigh_wrench", 10);
+    rightShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("right_shank_wrench", 10);
 #endif
 }
 

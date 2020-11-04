@@ -31,8 +31,8 @@ X2DemoMachine::X2DemoMachine() {
 void X2DemoMachine::init(int argc, char *argv[]) {
     spdlog::debug("X2DemoMachine::init()");
 
-    ros::init(argc, argv, "x2_node", ros::init_options::NoSigintHandler);
-    ros::NodeHandle nodeHandle;
+    ros::init(argc, argv, "x2", ros::init_options::NoSigintHandler);
+    ros::NodeHandle nodeHandle("~");
 
     // Pass nodeHandle to the classes that use ROS features
     x2DemoMachineRos_->setNodeHandle(nodeHandle);
