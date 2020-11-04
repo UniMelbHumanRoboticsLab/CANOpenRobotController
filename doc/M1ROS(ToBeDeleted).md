@@ -66,7 +66,20 @@ $ source devel/setup.bash
 ## Run
 On real robot:
 ```bash
+$ roscore
+```
+On a different terminal:
+```bash
 $ rosrun CORC M1DemoMachine_APP
 ```
 
+#### Verify the node is created and Joint states are published
+You should see m1_node after running:
+```bash
+$ rosnode list 
+```
+You should see joint pos/vel/torque:
+```bash
+$ rostopic echo /m1/joint_states
+```
 
