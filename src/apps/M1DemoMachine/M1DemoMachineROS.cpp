@@ -11,7 +11,7 @@ M1DemoMachineROS::~M1DemoMachineROS() {
 void M1DemoMachineROS::initialize() {
     spdlog::debug("M1DemoMachineROS::init()");
 //#ifndef SIM  // if simulation, these will be published by Gazebo
-    jointStatePublisher_ = nodeHandle_->advertise<sensor_msgs::JointState>("/m1/joint_states", 10);
+    jointStatePublisher_ = nodeHandle_->advertise<sensor_msgs::JointState>("joint_states", 10);
 //    interactionWrenchPublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("/M1/interaction_wrench", 10);
 //#endif
 }

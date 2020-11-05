@@ -57,8 +57,8 @@ M1DemoMachine::~M1DemoMachine() {
 void M1DemoMachine::init(int argc, char *argv[]) {
     std::cout << "M1DemoMachine::init()" << std::endl;
 
-    ros::init(argc, argv, "m1_node", ros::init_options::NoSigintHandler);
-    ros::NodeHandle nodeHandle;
+    ros::init(argc, argv, "m1", ros::init_options::NoSigintHandler);
+    ros::NodeHandle nodeHandle("~");
 
     // Pass nodeHandle to the classes that use ROS features
     m1DemoMachineRos_->setNodeHandle(nodeHandle);
