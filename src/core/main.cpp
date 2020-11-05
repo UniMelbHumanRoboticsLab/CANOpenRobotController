@@ -113,6 +113,7 @@ int main(int argc, char *argv[]) {
             spdlog::info("CAN argument found: {}", argv[i+1]);
             strcpy(CANdeviceList[0], argv[i+1]); // coppy the argument to the first element of CANdeviceList
             can_dev_number = 1; // set can_dev_number to 1 so that other devices are not checked
+            break;
         }
     }
     char CANdevice[10]="";
