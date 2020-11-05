@@ -92,6 +92,7 @@ if(USE_ROS)
 				roscpp
 				rospy
 				std_msgs
+				std_srvs
 				sensor_msgs
 				geometry_msgs
         )

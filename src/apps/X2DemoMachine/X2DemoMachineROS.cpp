@@ -17,6 +17,8 @@ void X2DemoMachineROS::initialize() {
     rightThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("right_thigh_wrench", 10);
     rightShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("right_shank_wrench", 10);
 #endif
+    startExoService_ = nodeHandle_->advertiseService("start_exo", &X2DemoMachineROS::startExoServiceCallback, this);
+    startExoTriggered_ = false;
 }
 
 void X2DemoMachineROS::update() {
@@ -83,4 +85,10 @@ void X2DemoMachineROS::publishInteractionForces() {
 
 void X2DemoMachineROS::setNodeHandle(ros::NodeHandle &nodeHandle) {
     nodeHandle_ = &nodeHandle;
+}
+
+bool X2DemoMachineROS::startExoServiceCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
+    startExoTriggered_ = true;
+    res.success = true;
+    return true;
 }
