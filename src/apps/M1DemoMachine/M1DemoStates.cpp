@@ -14,8 +14,8 @@ void IdleState::entry(void) {
             << std::endl
             << "========================" << std::endl
             << " PRESS X to start monitoring" << std::endl
-            << " PRESS S to start demo state" << std::endl
-            << " PRESS A to start position control" << std::endl
+//            << " PRESS S to start demo state" << std::endl
+//            << " PRESS A to start position control" << std::endl
             << "========================" << std::endl;
 }
 

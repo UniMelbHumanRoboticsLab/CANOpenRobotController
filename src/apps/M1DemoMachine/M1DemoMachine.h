@@ -53,19 +53,19 @@ class M1DemoMachine : public StateMachine {
      *
      */
     IdleState *idleState;
-    M1DemoState *demoState;
+//    M1DemoState *demoState;
     Monitoring *monitorState;
-    M1PositionTracking *positionTracking;
+//    M1PositionTracking *positionTracking;
 
    protected:
     RobotM1 *robot; /*<!Pointer to the Robot*/
     M1DemoMachineROS *m1DemoMachineRos_; /*<!Pointer to the ROS Class*/
 
    private:
-    EventObject(Event2Demo) * event2Demo;
+//    EventObject(Event2Demo) * event2Demo;
     EventObject(Event2Monitor) * event2Monitor;
     EventObject(Event2Idle) * event2Idle;
-    EventObject(Event2Pos) * event2Pos;
+//    EventObject(Event2Pos) * event2Pos;
 //    EventObject(EndCalib) * endCalib;
 };
 
