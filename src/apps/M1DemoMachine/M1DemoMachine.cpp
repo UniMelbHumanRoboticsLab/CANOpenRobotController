@@ -95,13 +95,13 @@ void M1DemoMachine::hwStateUpdate(void) {
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
-bool M1DemoMachine::Event2Demo::check(void) {
-    if (OWNER->robot->keyboard->getS() == true) {
-        std::cout << "Pressed S!" << std::endl;
-        return true;
-    }
-    return false;
-}
+//bool M1DemoMachine::Event2Demo::check(void) {
+//    if (OWNER->robot->keyboard->getS() == true) {
+//        std::cout << "Pressed S!" << std::endl;
+//        return true;
+//    }
+//    return false;
+//}
 
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
@@ -128,10 +128,10 @@ bool M1DemoMachine::Event2Idle::check(void) {
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
-bool M1DemoMachine::Event2Pos::check(void) {
-    if (OWNER->robot->keyboard->getA() == true) {
-//        std::cout << "Pressed A!" << std::endl;
-        return true;
-    }
-    return false;
-}
+//bool M1DemoMachine::Event2Pos::check(void) {
+//    if (OWNER->robot->keyboard->getA() == true) {
+////        std::cout << "Pressed A!" << std::endl;
+//        return true;
+//    }
+//    return false;
+//}
