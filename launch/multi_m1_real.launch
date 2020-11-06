@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- CORC M1_X -->
+    <node name="m1_x" pkg="CORC" type="M1DemoMachine_APP" output="screen"/>
+
+    <!-- CORC M1_Y -->
+    <node name="m1_y" pkg="CORC" type="M1DemoMachine_APP" output="screen"/>
+
+</launch>

@@ -31,8 +31,8 @@ X2DemoMachine::X2DemoMachine() {
 void X2DemoMachine::init(int argc, char *argv[]) {
     spdlog::debug("X2DemoMachine::init()");
 
-    ros::init(argc, argv, "x2_node", ros::init_options::NoSigintHandler);
-    ros::NodeHandle nodeHandle;
+    ros::init(argc, argv, "x2", ros::init_options::NoSigintHandler);
+    ros::NodeHandle nodeHandle("~");
 
     // Pass nodeHandle to the classes that use ROS features
     x2DemoMachineRos_->setNodeHandle(nodeHandle);
@@ -67,8 +67,9 @@ void X2DemoMachine::end() {
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
 bool X2DemoMachine::StartExo::check(void) {
-    if (OWNER->robot_->keyboard->getS() == true) {
-        std::cout << "Pressed S!" << std::endl;
+    if (OWNER->robot_->keyboard->getS() == true || OWNER->x2DemoMachineRos_->startExoTriggered_) {
+        spdlog::info("Exo started!");
+        OWNER->x2DemoMachineRos_->startExoTriggered_ = false;
         return true;
     }
     return false;

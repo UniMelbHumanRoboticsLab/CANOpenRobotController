@@ -49,13 +49,13 @@ X2Robot::~X2Robot() {
 }
 #ifdef SIM
 void X2Robot::initialiseROS() {
-    controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("/x2/controller_manager/switch_controller");
+    controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
 
-    positionCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/position_controller/command", 10);
-    velocityCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/velocity_controller/command", 10);
-    torqueCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("/x2/torque_controller/command", 10);
+    positionCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("position_controller/command", 10);
+    velocityCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("velocity_controller/command", 10);
+    torqueCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("torque_controller/command", 10);
 
-    jointStateSubscriber_ = nodeHandle_->subscribe("/x2/joint_states", 1, &X2Robot::jointStateCallback, this);
+    jointStateSubscriber_ = nodeHandle_->subscribe("joint_states", 1, &X2Robot::jointStateCallback, this);
 }
 #endif
 bool X2Robot::initPositionControl() {
