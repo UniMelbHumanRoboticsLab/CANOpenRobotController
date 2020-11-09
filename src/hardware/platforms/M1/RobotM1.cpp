@@ -204,14 +204,14 @@ bool RobotM1::initPositionControl() {
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
-//        ((JointM1 *)p)->readyToSwitchOn();
+        ((JointM1 *)p)->readyToSwitchOn();
     }
 
-    // Pause for a bit to let commands go
-//    usleep(2000);
-//    for (auto p : joints) {
-//        ((JointM1 *)p)->enable();
-//    }
+//     Pause for a bit to let commands go
+    usleep(2000);
+    for (auto p : joints) {
+        ((JointM1 *)p)->enable();
+    }
     return returnValue;
 }
 

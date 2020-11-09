@@ -24,7 +24,8 @@
 #include "StateMachine.h"
 
 // State Classes
-#include "M1DemoStates.h"
+#include "states/M1DemoStates.h"
+#include "states/MultiControllerState.h"
 #include "spdlog/helper/LogHelper.h"
 #include "logging.h"
 
@@ -52,19 +53,20 @@ class M1DemoMachine : public StateMachine {
      * Pointers to the relevant states - initialised in init
      *
      */
-    IdleState *idleState;
+    MultiControllerState *multiControllerState_;
+//    IdleState *idleState;
 //    M1DemoState *demoState;
-    Monitoring *monitorState;
+//    Monitoring *monitorState;
 //    M1PositionTracking *positionTracking;
 
    protected:
-    RobotM1 *robot; /*<!Pointer to the Robot*/
+    RobotM1 *robot_; /*<!Pointer to the Robot*/
     M1DemoMachineROS *m1DemoMachineRos_; /*<!Pointer to the ROS Class*/
 
    private:
 //    EventObject(Event2Demo) * event2Demo;
-    EventObject(Event2Monitor) * event2Monitor;
-    EventObject(Event2Idle) * event2Idle;
+//    EventObject(Event2Monitor) * event2Monitor;
+//    EventObject(Event2Idle) * event2Idle;
 //    EventObject(Event2Pos) * event2Pos;
 //    EventObject(EndCalib) * endCalib;
 };

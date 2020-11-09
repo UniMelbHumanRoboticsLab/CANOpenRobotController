@@ -25,6 +25,7 @@
 #include "KincoDrive.h"
 
 #define M1_NUM_JOINTS 1
+#define M1_NUM_INTERACTION 1
 
 //typedef unsigned int uint;
 

@@ -167,19 +167,19 @@ setMovementReturnCode_t JointM1::setTorque(double taud) {
 void JointM1::errorMessage(setMovementReturnCode_t errorCode){
     switch(errorCode) {
         case SUCCESS:
-            spdlog::debug(" ActuatedJoint::Success");
+            spdlog::error(" ActuatedJoint::Success");
             break; //optional
         case OUTSIDE_LIMITS:
-            spdlog::debug(" ActuatedJoint::Outside of limitations");
+            spdlog::error(" ActuatedJoint::Outside of limitations");
             break; //optional
         case INCORRECT_MODE:
-            spdlog::debug(" ActuatedJoint::Incorrect mode");
+            spdlog::error(" ActuatedJoint::Incorrect mode");
             break; //optional
         case NOT_CALIBRATED:
-            spdlog::debug(" ActuatedJoint::Not calibrated");
+            spdlog::error(" ActuatedJoint::Not calibrated");
             break; //optional
         default : //Optional
-            spdlog::debug(" ActuatedJoint::Unknown error");
+            spdlog::error(" ActuatedJoint::Unknown error");
     }
 }
 

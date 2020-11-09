@@ -4,37 +4,20 @@
 
 M1DemoMachine::M1DemoMachine() {
     std::cout << "M1DemoMachine::constructed!" << std::endl;
-    robot = new RobotM1();
 
-    // Create PRE-DESIGNED State Machine state objects.
-    idleState = new IdleState(this, robot);
-    monitorState = new Monitoring( this, robot);
-
-    // Create PRE-DESIGNED State Machine events objects.
-    event2Monitor = new Event2Monitor(this);
-    event2Idle = new Event2Idle(this);
-
-    /**
-     * \brief add a tranisition object to the arch list of the first state in the NewTransition MACRO.
-     * Effectively creating a statemachine transition from State A to B in the event of event c.
-     * NewTranstion(State A,Event c, State B)
-     *
-     */
-
-    NewTransition(idleState, event2Monitor, monitorState);
-    NewTransition(monitorState, event2Idle, idleState);
-
-    //Initialize the state machine with first state of the designed state machine, using baseclass function.
-    StateMachine::initialize(idleState);
+    // create robot
+    robot_ = new RobotM1();
 
     // Create ros object
-    m1DemoMachineRos_ = new M1DemoMachineROS(robot);
+    m1DemoMachineRos_ = new M1DemoMachineROS(robot_);
+
 }
 
 M1DemoMachine::~M1DemoMachine() {
-    delete idleState;
-    delete monitorState;
-    delete robot;
+    currentState->exit();
+    robot_->disable();
+    delete m1DemoMachineRos_;
+    delete robot_;
 }
 
 /**
@@ -52,7 +35,13 @@ void M1DemoMachine::init(int argc, char *argv[]) {
     // Pass nodeHandle to the classes that use ROS features
     m1DemoMachineRos_->setNodeHandle(nodeHandle);
 
-    if(robot->initialise()) {
+    // Create states with ROS features // This should be created after ros::init()
+    multiControllerState_ = new MultiControllerState(this, robot_, m1DemoMachineRos_);
+
+    //Initialize the state machine with first state of the designed state machine, using baseclass function.
+    StateMachine::initialize(multiControllerState_);
+
+    if(robot_->initialise()) {
         initialised = true;
     }
     else {
@@ -63,21 +52,16 @@ void M1DemoMachine::init(int argc, char *argv[]) {
     running = true;
 
     m1DemoMachineRos_->initialize();
-
 }
 
 void M1DemoMachine::end() {
     if(initialised) {
         currentState->exit();
-        robot->stop();
+        robot_->stop();
         delete m1DemoMachineRos_;
-        delete robot;
+        delete robot_;
     }
 }
-
-////////////////////////////////////////////////////////////////
-// Events ------------------------------------------------------
-///////////////////////////////////////////////////////////////
 
 /**
  * \brief Statemachine to hardware interface method. Run any hardware update methods
@@ -87,7 +71,7 @@ void M1DemoMachine::end() {
 void M1DemoMachine::hwStateUpdate(void) {
 //    spdlog::debug("hw/**/StateUpdate!");
 //    std::cout << "M1DemoMachine::hwStateUpdate()" << std::endl;
-    robot->updateRobot();
+    robot_->updateRobot();
     m1DemoMachineRos_->update();
     ros::spinOnce();
 }
@@ -106,24 +90,24 @@ void M1DemoMachine::hwStateUpdate(void) {
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
-bool M1DemoMachine::Event2Monitor::check(void) {
-    if (OWNER->robot->keyboard->getX() == true) {
-        std::cout << "Pressed S!" << std::endl;
-        return true;
-    }
-    return false;
-}
+//bool M1DemoMachine::Event2Monitor::check(void) {
+//    if (OWNER->robot->keyboard->getX() == true) {
+//        std::cout << "Pressed S!" << std::endl;
+//        return true;
+//    }
+//    return false;
+//}
 
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
-bool M1DemoMachine::Event2Idle::check(void) {
-    if (OWNER->robot->keyboard->getQ() == true) {
-        std::cout << "Pressed Q!" << std::endl;
-        return true;
-    }
-    return false;
-}
+//bool M1DemoMachine::Event2Idle::check(void) {
+//    if (OWNER->robot->keyboard->getQ() == true) {
+//        std::cout << "Pressed Q!" << std::endl;
+//        return true;
+//    }
+//    return false;
+//}
 
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
