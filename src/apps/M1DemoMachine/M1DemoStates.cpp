@@ -73,8 +73,11 @@ void Calibration::exit(void) {
 void Monitoring::entry(void) {
     std::cout << "Enter monitoring ... " << std::endl;
     robot->applyCalibration();
-    robot->initMonitoring();
+    //robot->initMonitoring();
     robot->m1ForceSensor->calibrate();
+    robot->initPositionControl();
+    q(0) = 90;
+    robot->setJointPos(q);
 }
 
 void Monitoring::during(void) {

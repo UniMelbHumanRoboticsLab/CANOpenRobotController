@@ -138,6 +138,7 @@ public:
     void exit(void);
     Monitoring(StateMachine *m, RobotM1 *exo, const char *name = NULL) : State(m, name), robot(exo){};
     long int iterations;
+    JointVec q;     //positive dorsi flexion
 };
 
 /**

@@ -25,8 +25,8 @@ M1DemoMachine::M1DemoMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    NewTransition(idleState, event2Demo, demoState);
-    NewTransition(demoState, event2Idle, idleState);
+    NewTransition(idleState, event2Demo, monitorState);
+    NewTransition(monitorState, event2Idle, idleState);
 
     NewTransition(idleState, event2Monitor, calibrationState);
     NewTransition(calibrationState, event2Idle, idleState);
