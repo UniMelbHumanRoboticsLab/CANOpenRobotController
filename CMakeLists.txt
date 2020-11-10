@@ -106,7 +106,7 @@ if(USE_ROS)
 		endif()
 
 		generate_dynamic_reconfigure_options(
-				cfg/dynamic_params.cfg
+				config/dynamic_params.cfg
 		)
 
 

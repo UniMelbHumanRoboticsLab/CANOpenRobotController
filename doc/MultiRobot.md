@@ -1,6 +1,6 @@
 # Run a ROS application with catkin and simulation in Gazebo
 
-This document describes how to set up the environment to run a CORC app with ROS support. It is assumed that the target and host are the same (no cross-compilation).
+This document describes how to control multiple robots simultaneously.
 
 This is written for M1 only, and is supported on Ubuntu 18.04 and with ROS Melodic. 
 
@@ -36,18 +36,16 @@ $ cd ~/catkin_ws/
 $ catkin build
 ```
 
-Clone CORC and the required packages into your workspace:
+Clone CORC and the required packages into your workspace. If you don't have access, email `baris.kucuktabak@u.northwestern.edu`
 ```bash
 $ cd ~/catkin_ws/src
 $ git clone github.com/ywen3/CANOpenRobotController.git
+$ git clone git@github.com:emekBaris/multi_robot_interaction.git
 $ git checkout devel/M1_ROS
 ```
 
 Make sure `USE_ROS` flag is set to `ON` in CMakeLists.txt:
 ```set(USE_ROS ON)```
-
-If you will test on the real robot:
-```set(NO_ROBOT OFF)```
 
 Set your state machine that uses ROS (e.g., M1DemoMachine):
 ```set (STATE_MACHINE_NAME "M1DemoMachine")```
@@ -60,22 +58,10 @@ $ source devel/setup.bash
 ```
 
 ## Run
-On real robot:
+In `multi_m1_real.launch`, set robot's namespaces and CAN devices. Then, execute:
 ```bash
-$ roscore
-```
-On a different terminal:
-```bash
-$ rosrun CORC M1DemoMachine_APP
+$ roslaunch CORC multi_m1_real.launch
 ```
 
-#### Verify the node is created and Joint states are published
-You should see m1_node after running:
-```bash
-$ rosnode list 
-```
-You should see joint pos/vel/torque:
-```bash
-$ rostopic echo /m1/joint_states
-```
+
 
