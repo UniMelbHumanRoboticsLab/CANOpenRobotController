@@ -70,10 +70,6 @@ class X2Robot : public Robot {
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
     motorProfile velControlMotorProfile{0, 240000, 240000};
-    Eigen::VectorXd jointPositions_;
-    Eigen::VectorXd jointVelocities_;
-    Eigen::VectorXd jointTorques_;
-    Eigen::VectorXd interactionForces_;
 
     //Todo: generalise sensors
     Eigen::VectorXd interactionForces_;
