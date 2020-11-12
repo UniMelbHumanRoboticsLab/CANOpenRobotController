@@ -46,16 +46,25 @@ void X2DemoMachine::init(int argc, char *argv[]) {
     running = true;
     time0 = std::chrono::steady_clock::now();
 
-    logHelper_.initLogger("test_logger", "logs/helperTrial.csv", LogFormat::CSV, true);
-    logHelper_.add(time, "time");
-    logHelper_.add(robot_->getPosition(), "JointPositions");
-    logHelper_.add(robot_->getTorque(), "JointTorques");
-    logHelper_.startLogger();
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    std::stringstream logFileName;
+    logFileName << "spdlogs/" << std::put_time(&tm, "%d-%m-%Y_%H:%M:%S") << ".csv";
+
+    logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
+    logHelper.add(time, "time");
+    logHelper.add(x2DemoState->mode_, "mode");
+    logHelper.add(robot_->getPosition(), "JointPositions");
+    logHelper.add(robot_->getVelocity(), "JointVelocities");
+    logHelper.add(robot_->getTorque(), "JointTorques");
+    logHelper.add(x2DemoState->getDesiredJointTorques(), "DesiredJointTorques");
+//    logHelper.add(robot_->getInteractionForce(), "InteractionForces");
+    logHelper.startLogger();
 }
 
 void X2DemoMachine::end() {
     if(initialised) {
-        logHelper_.endLog();
+        logHelper.endLog();
         currentState->exit();
         robot_->disable();
         delete x2DemoMachineRos_;
@@ -89,6 +98,5 @@ void X2DemoMachine::update() {
 
     StateMachine::update();
     x2DemoMachineRos_->update();
-    logHelper_.recordLogData();
     ros::spinOnce();
 }

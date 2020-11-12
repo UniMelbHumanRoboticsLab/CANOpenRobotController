@@ -68,8 +68,6 @@ private:
     */
     EventObject(StartExo) * startExo;
 
-    LogHelper logHelper_;
-
     X2DemoMachineROS *x2DemoMachineRos_; /*<!Pointer to the ROS Class*/
     X2Robot *robot_; /*<!Pointer to the Robot*/
 
