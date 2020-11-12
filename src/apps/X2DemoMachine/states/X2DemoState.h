@@ -19,10 +19,6 @@
 #include <iomanip>
 #include <chrono>
 #include <math.h>
-#include <fstream>
-#include <string>
-
-#include "spdlog/helper/LogHelper.h"
 
 /**
  * \brief Demo State for the X2DemoMachine
@@ -40,46 +36,6 @@ public:
 
 private:
     std::chrono::steady_clock::time_point time0;
-    std::ofstream logJoint, logTime;
-    void log();
-    void initializeLogger(int bufferSize);
-    void updateLogElements();
-
-    LogHelper logHelper;
-
-    int controller_type = 4;
-
-    bool logSaved = false;
-
-    double inputHistory_[2] = {0,0};
-    double outputHistory_[2] = {0,0};
-    double t_step = 0.0025;
-
-    double m = 5;
-    double b = 2;
-
-    Eigen::VectorXd jointPositions_;
-    Eigen::VectorXd jointVelocities_;
-    Eigen::VectorXd jointTorques_;
-    Eigen::VectorXd desiredJointVelocities_;
-    Eigen::VectorXd desiredJointTorques_;
-    Eigen::VectorXd interactionForces_;
-    double time;
-
-    bool move = false;
-    double timeStop;
-
-    double static_fric;
-    double dynamic_const_fric;
-    double vel_theresh;
-    double J;
-    double virtMassRatio;
-    double feedForwardTorque;
-    double feedBackTorque;
-    double M;
-    double c0;
-    double c1;
-
 };
 
 #endif
