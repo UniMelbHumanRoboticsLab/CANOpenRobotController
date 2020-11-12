@@ -254,6 +254,8 @@ class X2Robot : public Robot {
        */
     void updateRobot();
 
+    Eigen::VectorXd getFeedForwardTorque(int motionIntend);
+
 #ifdef SIM
     /**
        * \brief method to pass the nodeHandle. Only available in SIM mode

@@ -443,6 +443,32 @@ void X2Robot::updateRobot() {
     Robot::updateRobot();
 }
 
+Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
+
+    //todo: proper definition as member variable
+    float m = 2.3852; // mass of shank + foot
+    float s = 0.3192; // distance between knee and CoM(shank + foot)
+    float I = 2.1898; // mass moment of inertia
+    float c0 = 4.6959; // viscous fric constant
+    float c1 = 2.0; // coulomb friction const
+
+    float coulombFriction;
+    const float velTreshold = 3*M_PI/180.0; // [rad/s]
+
+    // todo generalized 4 Dof Approach
+    if(abs(jointVelocities_[1]) > velTreshold){ // if in motion
+        coulombFriction = c1*jointVelocities_[1]/abs(jointVelocities_[1]);
+    }else { // if static
+        coulombFriction = c1*motionIntend/abs(motionIntend);
+    }
+
+    Eigen::VectorXd ffTorque(X2_NUM_JOINTS);
+    ffTorque[1] = m*s*9.81*sin(jointPositions_[1] - jointPositions_[0]) + coulombFriction + c0*jointVelocities_[1];
+
+    return ffTorque;
+
+}
+
 #ifdef SIM
 void X2Robot::setNodeHandle(ros::NodeHandle &nodeHandle) {
     nodeHandle_ = &nodeHandle;
