@@ -33,8 +33,8 @@ enum LogFormat {
  */
 class LogElementBase{
 public:
-    virtual std::string getName() {};
-    virtual std::string getValue() {};
+    virtual std::string getName() = 0;
+    virtual std::string getValue() = 0;
 
 };
 
@@ -44,7 +44,6 @@ public:
  * \param name name of the variable
  *
  */
-
 template <typename ValueType_>
 class LogElement : public LogElementBase{
 
@@ -78,7 +77,7 @@ private:
     }
 
     /**
-     * \brief If the variable is scalar, returns the name such that name_1, name_2, name_3...
+     * \brief If the variable is not scalar, returns the name such that name_1, name_2, name_3...
      *
      */
     template <typename T>
@@ -106,7 +105,7 @@ private:
     }
 
     /**
-     * \brief If the variable is scalar, returns the name such that name_1, name_2, name_3...
+     * \brief If the variable is not scalar, returns the value such that value_1, value_2, value_3...
      *
      */
     template <typename T>
@@ -119,9 +118,7 @@ private:
             valueStr += std::to_string((*((ValueType_*)ptr_))[i]);
 
             if(i!= sizeOfVar-1) valueStr += ", ";
-
         }
-
         return valueStr;
     }
 };
@@ -130,7 +127,6 @@ private:
  * \brief Helper class that allows easier use of spdlog.
  *
  */
-
 class LogHelper {
 
 private:
@@ -159,7 +155,7 @@ public:
     }
 
     /**
-    * \brief Initialize the logger
+    * \brief Initialize an asynchronous logger
     *
     * \param loggerName name of the logger
     * \param fileName file name to create the log document
@@ -184,6 +180,24 @@ public:
     }
 
     /**
+    * \brief Is initialised?
+    *
+    * \return true if logger is initialised, false otherwise
+    */
+    bool isInitialised() {
+        return isInitialized_;
+    }
+
+    /**
+    * \brief Is started?
+    *
+    * \return true if logger is started, false otherwise
+    */
+    bool isStarted() {
+        return isStarted_;
+    }
+
+    /**
      * \brief Start the logger. Generates the header based on the added variables
      *
      */
@@ -193,24 +207,30 @@ public:
             return false;
         }
         else{
-            std::string headerMsg = "";
-            for(int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their names
+            if(vectorOfLogElements.size()>0){
+                std::string headerMsg = "";
+                for(unsigned int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their names
+                    headerMsg += vectorOfLogElements[i]->getName();
 
-                headerMsg += vectorOfLogElements[i]->getName();
-
-                // either a coma or new line comes
-                if(i != vectorOfLogElements.size()-1){
-                    headerMsg += ", ";
+                    // either a coma or new line comes
+                    if(i != vectorOfLogElements.size()-1){
+                        headerMsg += ", ";
+                    }
                 }
-
+                spdlog::info("Starting logger {} ({})", loggerName_, headerMsg);
+                spdlog::get(loggerName_)->info(headerMsg);
+                isStarted_ = true;
+                return true;
             }
-            spdlog::get(loggerName_)->info(headerMsg);
-            isStarted_ = true;
-            return true;
+            else {
+                isStarted_ = false;
+                return false;
+            }
         }
     }
+
     /**
-     * \brief Records the values of the added variables at the intant the function is called.
+     * \brief Records the values of the added variables at the instant the function is called.
      *
      */
     bool recordLogData(){
@@ -220,7 +240,7 @@ public:
         }
         else{
             std::string valueMsg = "";
-            for(int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their values
+            for(unsigned int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their values
 
                 valueMsg += vectorOfLogElements[i]->getValue();
 
@@ -234,7 +254,7 @@ public:
         }
     }
     void endLog(){
-        spdlog::drop_all();
+        spdlog::drop(loggerName_);
     }
 };
 

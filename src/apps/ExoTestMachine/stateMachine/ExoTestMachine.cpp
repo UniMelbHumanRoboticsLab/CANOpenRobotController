@@ -5,7 +5,7 @@
 
 ExoTestMachine::ExoTestMachine() {
     trajectoryGenerator = new DummyTrajectoryGenerator(6);
-    robot = new ExoRobot();
+    robot = new X2Robot();
 
     // Create PRE-DESIGNED State Machine events and state objects.
     isAPressed = new IsAPressed(this);
@@ -40,14 +40,22 @@ ExoTestMachine::ExoTestMachine() {
  *
  */
 void ExoTestMachine::init() {
-    DEBUG_OUT("ExoTestMachine::init()")
+    spdlog::debug("ExoTestMachine::init()");
     initialised = robot->initialise();
     running = true;
+
+    // Initialising the data logger
+    time0 = std::chrono::steady_clock::now();
+    dataLogger.initLogger("test_logger", "logs/testLog.csv", LogFormat::CSV, true);
+    dataLogger.add(time, "time");
+    dataLogger.add(robot->getPosition(), "JointPositions");
+    dataLogger.startLogger();
 }
 
 void ExoTestMachine::end() {
-    DEBUG_OUT("Ending ExoTestMachine")
-    robot->~ExoRobot();
+    spdlog::debug("Ending ExoTestMachine");
+    dataLogger.endLog();
+    delete robot;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -74,7 +82,7 @@ bool ExoTestMachine::StartButtonsPressed::check(void) {
 }
 bool ExoTestMachine::StartExo::check(void) {
     if (OWNER->robot->keyboard->getS() == true) {
-        std::cout << "LEAVING INIT and entering Sitting" << std::endl;
+        spdlog::info("LEAVING INIT and entering Sitting");
         return true;
     }
     return false;
@@ -99,4 +107,19 @@ bool ExoTestMachine::StartSit::check(void) {
  */
 void ExoTestMachine::hwStateUpdate(void) {
     robot->updateRobot();
+}
+
+/**
+ * \brief Statemachine update: overloaded to include logging
+ *
+ */
+void ExoTestMachine::update() {
+    // Update time (used for log)
+    time = (std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::steady_clock::now() - time0)
+                .count()) /
+           1e6;
+    spdlog::debug("Update()");
+    StateMachine::update();
+    dataLogger.recordLogData();
 }

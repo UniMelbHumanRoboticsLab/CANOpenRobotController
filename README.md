@@ -2,7 +2,7 @@
 
 CORC is a free and open source robotic development software stack, written in C++.
 
-The project has been under development at the University of Melbourne in partnership with Fourier Intelligence. The project was developed to run on an X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform.
+The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform. The repository is currently also includes code which has been run on the ArmMotus M1 and M3 rehabilitation devices, and using desktop or laptop Ubuntu installations. 
 
 > Note (12/5/2020): At this stage, this software has not been tested on physical hardware due to lab access limitations due to COVID-19.
 
@@ -179,13 +179,10 @@ Running on the X2 Robot is very similar to the virutal CAN set up, with one adju
 explain me -->
 ## Next Steps
 ### Building a custom application with a custom state machine
-To create a custom application with custom state machine, two things must be done. 
+See [this detailed explanation](doc/CustomApplication.md) for instructions to customise an application or derive your own.
 
-First, the source code itself must be developed, by deriving the StateMachine class can be to a custom one (see [here for details](doc/StateMachine.md)), named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. These must be placed in a dedicated subfolder in the apps folder with a consistent name (e.g. `MyCustomStateMachine` must be used for both the folder and the file names)
-
-Secondly, CMakeLists.txt must be edited and the entry `set (STATE_MACHINE_NAME "ExoTestMachine")` changed to `set (STATE_MACHINE_NAME "MyCustomStateMachine")`.
-
-That's it, simply use the same build procedure.
+### ROS Support
+See [here](doc/Simulation.md) for instructions on how to build and run a CORC app with ROS support.
 
 ## Developer Information
 
@@ -194,10 +191,18 @@ That's it, simply use the same build procedure.
 - Project Repository: https://github.com/capstonealex/exo
 - CANopen Socket: https://github.com/CANopenNode/CANopenSocket
 
-Feel free to contact fong.j[at]unimelb.edu.au with questions or suggestions for continuing development.
+
+## Contributors
+The following individuals have made contributions to CORC:
+
+- William Campbell
+- Vincent Crocher
+- Emek Barış Küçüktabak 
+- Justin Fong
+
+Please contact fong.j[at]unimelb.edu.au with questions or suggestions for continuing development, or if you wish to be more involved in the planning/organisation of CORC.
 
 ## License
-
 ​
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 ​

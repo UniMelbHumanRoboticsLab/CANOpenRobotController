@@ -3,9 +3,9 @@
 ////////////////////////////////////
 #include "Sitting.h"
 void Sitting::entry() {
+    spdlog::info("Sitting State Entered");
     //READ TIME OF MAIN
-    std::cout << "Sitting State Entered at Time:" << std::endl
-              << "=======================" << std::endl
+    std::cout << "=======================" << std::endl
               << " HIT W to begin standing up" << std::endl
               << "=======================" << std::endl
               << std::endl;
@@ -13,6 +13,5 @@ void Sitting::entry() {
 void Sitting::during() {
 }
 void Sitting::exit() {
-    std::cout
-        << "Sitting State Exited" << std::endl;
+    spdlog::info("Sitting State Exited");
 }

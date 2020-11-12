@@ -10,31 +10,26 @@
  */
 #include "Joint.h"
 
-#include <iostream>
-
-#include "DebugMacro.h"
-
-Joint::Joint(int jointID, double jointMin, double jointMax) : id(jointID), qMin(jointMin), qMax(jointMax), actuated(false) {
+Joint::Joint(int jointID, double jointMin, double jointMax, const std::string& n) : id(jointID), name(n), qMin(jointMin), qMax(jointMax), actuated(false) {
     position = 0;
     velocity = 0;
     torque = 0;
 }
 
-Joint::Joint(int jointID, double jointMin, double jointMax, double q0) : id(jointID), qMin(jointMin), qMax(jointMax), actuated(false) {
+Joint::Joint(int jointID, double jointMin, double jointMax, double q0, const std::string& n) : id(jointID), name(n), qMin(jointMin), qMax(jointMax), actuated(false) {
     position = q0;
     velocity = 0;
     torque = 0;
 }
 
-Joint::Joint(int jointID, double jointMin, double jointMax, Drive *jointDrive) : id(jointID), qMin(jointMin), qMax(jointMax), actuated(true) {
+Joint::Joint(int jointID, double jointMin, double jointMax, Drive *jointDrive, const std::string& n) : id(jointID), name(n), qMin(jointMin), qMax(jointMax), actuated(true) {
     position = 0;
     velocity = 0;
     torque = 0;
     this->drive = jointDrive;
-    calibrated = false;
 }
 
-Joint::Joint(int jointID, double jointMin, double jointMax, double q0, Drive *jointDrive) : id(jointID), qMin(jointMin), qMax(jointMax), actuated(true) {
+Joint::Joint(int jointID, double jointMin, double jointMax, double q0, Drive *jointDrive, const std::string& n) : id(jointID), name(n), qMin(jointMin), qMax(jointMax), actuated(true) {
     position = q0;
     velocity = 0;
     torque = 0;
@@ -43,7 +38,7 @@ Joint::Joint(int jointID, double jointMin, double jointMax, double q0, Drive *jo
 }
 
 Joint::~Joint() {
-    DEBUG_OUT(" Joint object deleted")
+    spdlog::debug("Joint object deleted");
 }
 int Joint::getId() {
     return id;
@@ -60,7 +55,7 @@ double Joint::getTorque() {
 }
 
 void Joint::printStatus() {
-    std::cout << "Joint ID " << id << " @ pos " << getPosition() << " deg" << std::endl;
+    std::cout << "Joint " << name << "(ID " << id << ") @ pos " << getPosition() << " deg" << std::endl;
 }
 
 // Methods if joint is actuated
@@ -119,13 +114,18 @@ ControlMode Joint::setMode(ControlMode driveMode_) {
 
 setMovementReturnCode_t Joint::setPosition(double desQ) {
     if (actuated) {
-        if (driveMode == CM_POSITION_CONTROL) {
-            drive->setPos(jointPositionToDriveUnit(desQ + q0));
-            drive->posControlConfirmSP();
-            return SUCCESS;
-        } else {
-            // Replace once complete
-            return INCORRECT_MODE;
+        if (std::isfinite(desQ)) {
+            if (driveMode == CM_POSITION_CONTROL) {
+                drive->setPos(jointPositionToDriveUnit(desQ + q0));
+                drive->posControlConfirmSP();
+                return SUCCESS;
+            } else {
+                return INCORRECT_MODE;
+            }
+        }
+        else {
+            spdlog::error("Joint {} set position to incorrect value ({})", id, desQ);
+            return OUTSIDE_LIMITS;
         }
     }
     return UNACTUATED_JOINT;
@@ -133,12 +133,16 @@ setMovementReturnCode_t Joint::setPosition(double desQ) {
 
 setMovementReturnCode_t Joint::setVelocity(double velocity) {
     if (actuated) {
-        if (driveMode == CM_VELOCITY_CONTROL) {
-            drive->setVel(jointVelocityToDriveUnit(velocity));
-            return SUCCESS;
+        if (std::isfinite(velocity)) {
+            if (driveMode == CM_VELOCITY_CONTROL) {
+                drive->setVel(jointVelocityToDriveUnit(velocity));
+                return SUCCESS;
+            } else {
+                return INCORRECT_MODE;
+            }
         } else {
-            // Replace once complete
-            return INCORRECT_MODE;
+            spdlog::error("Joint {} set velocity to incorrect value ({})", id, velocity);
+            return OUTSIDE_LIMITS;
         }
     }
     return UNACTUATED_JOINT;
@@ -146,11 +150,17 @@ setMovementReturnCode_t Joint::setVelocity(double velocity) {
 
 setMovementReturnCode_t Joint::setTorque(double torque) {
     if (actuated) {
-        if (driveMode == CM_TORQUE_CONTROL) {
-            drive->setTorque(jointTorqueToDriveUnit(torque));
-            return SUCCESS;
+        if (std::isfinite(torque)) {
+            if (driveMode == CM_TORQUE_CONTROL) {
+                drive->setTorque(jointTorqueToDriveUnit(torque));
+                return SUCCESS;
+            }
+            return INCORRECT_MODE;
         }
-        return INCORRECT_MODE;
+        else {
+            spdlog::error("Joint {} set torque to incorrect value ({})", id, torque);
+            return OUTSIDE_LIMITS;
+        }
     }
     return UNACTUATED_JOINT;
 }

@@ -8,7 +8,7 @@
  */
 #include "application.h"
 
-#include "DebugMacro.h"
+
 #ifdef TIMING_LOG
 #include "LoopTiming.h"
 LoopTiming loopTimer;
@@ -21,6 +21,7 @@ LoopTiming loopTimer;
 
 STATE_MACHINE_TYPE stateMachine;
 
+
 /*For master-> node SDO message sending*/
 #define CO_COMMAND_SDO_BUFFER_SIZE 100000
 #define STRING_BUFFER_SIZE (CO_COMMAND_SDO_BUFFER_SIZE * 4 + 100)
@@ -28,9 +29,9 @@ char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
-    printf("app_Program Start \n");
+    spdlog::info("CORC Start application");
 #ifdef NOROBOT
-    printf("Running in NOROBOT (virtual) mode.\n");
+    spdlog::info("Running in NOROBOT (virtual) mode.");
 #endif // NOROBOT
 #ifndef USEROS
     stateMachine.init();
@@ -46,8 +47,7 @@ void app_communicationReset(void) {
 /******************************************************************************/
 void app_programEnd(void) {
     stateMachine.end();
-    printf("app_programEnd \n");
-
+    spdlog::info("CORC End application");
     #ifdef TIMING_LOG
     loopTimer.end();
     #endif

@@ -169,7 +169,7 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-void CO_errExit(char *msg);
+void CO_errExit(char const *msg);
 
 /* Request CAN configuration or normal mode */
 void CO_CANsetConfigurationMode(int32_t fdSocket);

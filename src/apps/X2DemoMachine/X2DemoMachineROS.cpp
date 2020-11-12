@@ -8,21 +8,24 @@ X2DemoMachineROS::~X2DemoMachineROS() {
     ros::shutdown();
 }
 
-void X2DemoMachineROS::initialize(int argc, char *argv[]) {
-    ros::init(argc, argv, "x2_node", ros::init_options::NoSigintHandler);
-    ros::NodeHandle nodeHandle;
-
-    jointStatePublisher_ = nodeHandle.advertise<sensor_msgs::JointState>("joint_states", 10);
-    leftThighForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("left_thigh_wrench", 10);
-    leftShankForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("left_shank_wrench", 10);
-    rightThighForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("right_thigh_wrench", 10);
-    rightShankForcePublisher_ = nodeHandle.advertise<geometry_msgs::WrenchStamped>("right_shank_wrench", 10);
+void X2DemoMachineROS::initialize() {
+    spdlog::debug("X2DemoMachineROS::init()");
+#ifndef SIM  // if simulation, these will be published by Gazebo
+    jointStatePublisher_ = nodeHandle_->advertise<sensor_msgs::JointState>("joint_states", 10);
+    leftThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("left_thigh_wrench", 10);
+    leftShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("left_shank_wrench", 10);
+    rightThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("right_thigh_wrench", 10);
+    rightShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("right_shank_wrench", 10);
+#endif
+    startExoService_ = nodeHandle_->advertiseService("start_exo", &X2DemoMachineROS::startExoServiceCallback, this);
+    startExoTriggered_ = false;
 }
 
 void X2DemoMachineROS::update() {
+#ifndef SIM  // if simulation, these will be published by Gazebo
     publishJointStates();
     publishInteractionForces();
-    ros::spinOnce();
+#endif
 }
 
 void X2DemoMachineROS::publishJointStates() {
@@ -78,5 +81,14 @@ void X2DemoMachineROS::publishInteractionForces() {
     leftShankForcePublisher_.publish(leftShankForceMsg_);
     rightThighForcePublisher_.publish(rightThighForceMsg_);
     rightShankForcePublisher_.publish(rightShankForceMsg_);
+}
 
+void X2DemoMachineROS::setNodeHandle(ros::NodeHandle &nodeHandle) {
+    nodeHandle_ = &nodeHandle;
+}
+
+bool X2DemoMachineROS::startExoServiceCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
+    startExoTriggered_ = true;
+    res.success = true;
+    return true;
 }

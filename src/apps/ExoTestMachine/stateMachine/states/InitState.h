@@ -2,8 +2,8 @@
  * /file InitState.h
  * /author Justin Fong
  * /brief Concrete implementation of ExoTestState
- * /version 0.1
- * /date 2020-05-07
+ * /version 0.2
+ * /date 2020-11-3
  * 
  * @copyright Copyright (c) 2020
  * 
@@ -25,7 +25,7 @@ class InitState : public ExoTestState {
     void entry(void);
     void during(void);
     void exit(void);
-    InitState(StateMachine *m, ExoRobot *exo, DummyTrajectoryGenerator *tg, const char *name = NULL) : ExoTestState(m, exo, tg, name){};
+    InitState(StateMachine *m, X2Robot *exo, DummyTrajectoryGenerator *tg, const char *name = NULL) : ExoTestState(m, exo, tg, name){};
 };
 
 #endif

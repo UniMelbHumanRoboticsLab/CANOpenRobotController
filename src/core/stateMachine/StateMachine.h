@@ -16,7 +16,10 @@
 
 class State;
 
+#include "logging.h"
 #include "State.h"
+#include "spdlog/helper/LogHelper.h"
+
 /**
  * @ingroup stateMachine
  * \brief Abstract class representing a state machine. Includes a number of State and Transition objects
@@ -29,6 +32,11 @@ class StateMachine {
      *
      */
     StateMachine(void);
+    /**
+     * \brief Default destructor
+     *
+     */
+    virtual ~StateMachine(){};
     /**
      * \brief Sets the current state. Note: No check made
      *
@@ -58,7 +66,17 @@ class StateMachine {
     virtual void update(void);
 
     /**
-     * \brief End the current state
+     * \brief Custom initialisation of the state machine
+     *
+     */
+    #ifndef USEROS
+    virtual void init(void) = 0;
+    #else
+    virtual void init(int argc, char *argv[]) = 0;
+    #endif
+
+    /**
+     * \brief End the state machine execution state
      *
      */
     virtual void end(void) = 0;
@@ -71,6 +89,12 @@ class StateMachine {
     State *currentState;
 
     bool initialised = false;
+
+    /**
+     * \brief Custom spdlogger allowing to conveniently log Eigen Vectors (among other things)
+     * Required to be initialised in the derived state machine init()
+     */
+    LogHelper logHelper;
 };
 
 /**

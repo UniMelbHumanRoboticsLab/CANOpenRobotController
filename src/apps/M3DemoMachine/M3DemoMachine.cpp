@@ -50,24 +50,34 @@ M3DemoMachine::~M3DemoMachine() {
  * for example initialising robot objects.
  *
  */
-
 void M3DemoMachine::init() {
-    DEBUG_OUT("M3DemoMachine::init()")
+    spdlog::debug("M3DemoMachine::init()");
     if(robot->initialise()) {
         initialised = true;
+        logHelper.initLogger("M3DemoMachineLog", "logs/M3DemoMachine.csv", LogFormat::CSV, true);
+        logHelper.add(time_running, "Time (s)");
+        logHelper.add(robot->getPosition(), "JointPositions");
+        logHelper.add(robot->getVelocity(), "JointVelocities");
+        logHelper.add(robot->getTorque(), "JointTorques");
+        logHelper.startLogger();
     }
     else {
         initialised = false;
-        std::cout /*cerr is banned*/ << "Failed robot initialisation. Exiting..." << std::endl;
+        spdlog::critical("Failed robot initialisation. Exiting...");
         std::raise(SIGTERM); //Clean exit
     }
     running = true;
+    time_init = std::chrono::steady_clock::now();
+    time_running = 0;
 }
 
 void M3DemoMachine::end() {
     if(initialised) {
+        if(logHelper.isStarted())
+            logHelper.endLog();
         currentState->exit();
-        robot->stop();
+        robot->disable();
+
     }
 }
 
@@ -81,11 +91,10 @@ void M3DemoMachine::end() {
  *
  */
 void M3DemoMachine::hwStateUpdate(void) {
+    time_running = (std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now() - time_init).count()) / 1e6;
     robot->updateRobot();
 }
-
-
-
 
 
 

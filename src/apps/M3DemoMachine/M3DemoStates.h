@@ -12,10 +12,8 @@
 #define M3DemoSTATE_H_DEF
 
 #include <time.h>
-
 #include <iostream>
 
-#include "DebugMacro.h"
 #include "RobotM3.h"
 #include "State.h"
 
@@ -93,7 +91,7 @@ class M3TimedState : public State {
     double lastTime;            /*<! Time of last during() call (in seconds since state init())*/
     double elapsedTime;         /*<! Time since state init() in seconds*/
     double dt;                  /*<! Time between last two during() calls (in seconds)*/
-    long int iterations;
+    unsigned long int iterations;
 };
 
 
@@ -106,7 +104,7 @@ class M3DemoState : public M3TimedState {
     void duringCode(void);
     void exitCode(void);
 
-    V3 qi, Xi;
+    VM3 qi, Xi;
 };
 
 
@@ -127,7 +125,7 @@ class M3CalibState : public M3TimedState {
     bool isCalibDone() {return calibDone;}
 
    private:
-     V3 stop_reached_time;
+     VM3 stop_reached_time;
      bool at_stop[3];
      bool calibDone=false;
 
@@ -181,12 +179,12 @@ class M3DemoImpedanceState : public M3TimedState {
     void exitCode(void);
 
    private:
-    V3 Xi;
+    VM3 Xi;
     double k = 700;     //! Impedance proportional gain (spring)
     double d = 2;       //! Impedance derivative gain (damper)
     bool init=false;
 
-    int nb_samples=10000;
+    unsigned int nb_samples=10000;
     double dts[10000];
     double dX[10000];
     int new_value;
@@ -212,8 +210,8 @@ class M3DemoPathState : public M3TimedState {
     double k = 600;                 //! Impedance proportional gain (spring)
     double d = 6;                   //! Impedance derivative gain (damper)
     double viscous_assistance=15;   //! Viscous assistance along path
-    V3 Xi;
-    V3 Xf={-0.4, 0, 0};              //! Path target point
+    VM3 Xi;
+    VM3 Xf={-0.4, 0, 0};              //! Path target point
 };
 
 
@@ -234,9 +232,9 @@ class M3DemoMinJerkPosition: public M3TimedState {
     static const unsigned int TrajNbPts=4;
     unsigned int TrajPtIdx=0;
     double startTime;
-    V3 TrajPt[TrajNbPts]={V3(-0.55, 0, 0), V3(-0.7, 0, -0.2), V3(-0.7, 0.1, -0.1), V3(-0.7, -0.1, -0.1)};
+    VM3 TrajPt[TrajNbPts]={VM3(-0.55, 0, 0), VM3(-0.7, 0, -0.2), VM3(-0.7, 0.1, -0.1), VM3(-0.7, -0.1, -0.1)};
     double TrajTime[TrajNbPts]={5, 3, 0.5, 0.5};
-    V3 Xi, Xf;
+    VM3 Xi, Xf;
     double T;
     float k_i=1.; //Integral gain
 };
@@ -257,7 +255,7 @@ class M3SamplingEstimationState : public M3TimedState {
     void exitCode(void);
 
    private:
-    int nb_samples=10000;
+    unsigned int nb_samples=10000;
     double dts[10000];
     double dX[10000];
     int new_value;

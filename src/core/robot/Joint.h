@@ -12,6 +12,7 @@
 #define JOINT_H_INCLUDED
 #include <iomanip>
 #include <iostream>
+#include <cstring>
 
 #include "Drive.h"
 /** @defgroup Joint Joint Module
@@ -55,6 +56,10 @@ class Joint {
      * but this is not managed by the joint class.
      */
     const int id;
+    /**
+     * Joint name. Used primarily for debug display and ROS state publishing (if applicable).
+     */
+    const std::string name;
     /**
      * The current state of the joint (i.e. the value), to be returned in SI units.
      */
@@ -116,7 +121,7 @@ class Joint {
       * \param jointValue The joint value to be converted
       * \return int The equivalent drive value for the given joint value
       */
-    virtual int jointPositionToDriveUnit(double jointValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
+    virtual int jointPositionToDriveUnit(double jointValue) { if(actuated){spdlog::error("Joint::error: using default conversion drive to joint units!");} return 0; };
 
     /**
       * \brief Converts from the drive value to the equivalent value for the joint position
@@ -131,7 +136,7 @@ class Joint {
       * \param driveValue The drive value to be converted
       * \return The equivalent joint value for the given drive value
       */
-    virtual double driveUnitToJointPosition(int driveValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
+    virtual double driveUnitToJointPosition(int driveValue) { if(actuated){spdlog::error("Joint::error: using default conversion drive to joint units!");} return 0; };
 
     /**
       * \brief Converts from the joint velocity value to the equivalent value for the drive
@@ -147,7 +152,7 @@ class Joint {
       * \param jointValue The joint value to be converted
       * \return int The equivalent drive value for the given joint value
       */
-    virtual int jointVelocityToDriveUnit(double jointValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
+    virtual int jointVelocityToDriveUnit(double jointValue) { if(actuated){spdlog::error("Joint::error: using default conversion drive to joint units!");} return 0; };
 
     /**
       * \brief Converts from the drive value to the equivalent value for the joint position
@@ -162,7 +167,7 @@ class Joint {
       * \param driveValue The drive value to be converted
       * \return The equivalent joint value for the given drive value
       */
-    virtual double driveUnitToJointVelocity(int driveValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
+    virtual double driveUnitToJointVelocity(int driveValue) { if(actuated){spdlog::error("Joint::error: using default conversion drive to joint units!");} return 0; };
 
     /**
       * \brief Converts from the joint torque value to the equivalent value for the drive
@@ -178,7 +183,7 @@ class Joint {
       * \param jointValue The joint value to be converted
       * \return int The equivalent drive value for the given joint value
       */
-    virtual int jointTorqueToDriveUnit(double jointValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
+    virtual int jointTorqueToDriveUnit(double jointValue) { if(actuated){spdlog::error("Joint::error: using default conversion drive to joint units!");} return 0; };
 
     /**
       * \brief Converts from the drive value to the equivalent value for the joint position
@@ -193,7 +198,7 @@ class Joint {
       * \param driveValue The drive value to be converted
       * \return The equivalent joint value for the given drive value
       */
-    virtual double driveUnitToJointTorque(int driveValue) { if(actuated){std::cout /*cerr is banned*/ << "Joint::error: using default conversion drive to joint units!" << std::endl;} return 0; };
+    virtual double driveUnitToJointTorque(int driveValue) { if(actuated){spdlog::error("Joint::error: using default conversion drive to joint units!");} return 0; };
 
     /**
     * @brief Fetches the joint position from the hardware (e.g. Drive) and converts to joint units
@@ -229,7 +234,7 @@ class Joint {
      * @param jointMin The minimum allowable value for this joint (below this will cause an error)
      * @param jointMax The maximum allowable value for this joint (above this will cause an error)
      */
-    Joint(int jointID, double jointMin, double jointMax);
+    Joint(int jointID, double jointMin, double jointMax, const std::string& name="");
 
     /**
      * @brief Construct a new Joint object
@@ -239,7 +244,7 @@ class Joint {
      * @param jointMax The maximum allowable value for this joint (above this will cause an error)
      * @param q0 Initial value for the position
      */
-    Joint(int jointID, double jointMin, double jointMax, double q0);
+    Joint(int jointID, double jointMin, double jointMax, double q0, const std::string& name="");
 
     /**
      * @brief Construct a new Joint object
@@ -249,7 +254,7 @@ class Joint {
      * @param jointMax The maximum allowable value for this joint (above this will cause an error)
      * @param jointDrive A pointer to the drive object (if this joint is actuated)
      */
-    Joint(int jointID, double jointMin, double jointMax, Drive *jointDrive);
+    Joint(int jointID, double jointMin, double jointMax, Drive *jointDrive, const std::string& name="");
 
     /**
      * @brief Construct a new Joint object
@@ -260,7 +265,7 @@ class Joint {
      * @param q0 Initial value for the position
      * @param jointDrive A pointer to the drive object (if this joint is actuated)
      */
-    Joint(int jointID, double jointMin, double jointMax, double q0, Drive *jointDrive);
+    Joint(int jointID, double jointMin, double jointMax, double q0, Drive *jointDrive, const std::string& name="");
     /**
      * @brief Destroy the Joint object
      *

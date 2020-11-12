@@ -13,14 +13,14 @@ void M3CalibState::entryCode(void) {
     }
     robot->decalibrate();
     robot->initTorqueControl();
-    std::cout << "Calibrating (keep clear)...";
+    spdlog::info("Calibrating (keep clear)...");
 }
 //Move slowly on each joint until max force detected
 void M3CalibState::duringCode(void) {
     Eigen::Vector3d tau(0, 0, 0);
 
     //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
-    Eigen::Vector3d vel=robot->getJointVelocity();
+    VM3 vel=robot->getVelocity();
     double b = 3.;
     for(unsigned int i=0; i<3; i++) {
         tau(i) = std::min(std::max(2 - b * vel(i), .0), 2.);
@@ -42,7 +42,7 @@ void M3CalibState::duringCode(void) {
         //If all joints are calibrated
         if(at_stop[0] && at_stop[1] && at_stop[2]) {
             robot->applyCalibration();
-            std::cout << "OK." << std::endl;
+            spdlog::info("Calibrating: OK.");
         }
         else {
             robot->setJointTorque(tau);
@@ -57,20 +57,20 @@ void M3CalibState::exitCode(void) {
 
 
 void M3ChaiWaitForCommunication::entryCode(void) {
-    robot->setEndEffForceWithCompensation(V3::Zero());
+    robot->setEndEffForceWithCompensation(VM3::Zero());
 }
 void M3ChaiWaitForCommunication::duringCode(void) {
     //Simply transparent mode while not connected
-    robot->setEndEffForceWithCompensation(V3(0,0,0));
+    robot->setEndEffForceWithCompensation(VM3(0,0,0));
 
     //Attempt to reconnect (wait for client incoming connection)
     chaiServer->Reconnect();
 
     if(iterations%100==0)
-        std::cout /*cerr is banned*/ << "M3ChaiCommunication: Wait for connection" << std::endl;
+        spdlog::info("M3ChaiCommunication: Wait for connection");
 }
 void M3ChaiWaitForCommunication::exitCode(void) {
-    robot->setEndEffForceWithCompensation(V3(0,0,0));
+    robot->setEndEffForceWithCompensation(VM3(0,0,0));
 }
 
 
@@ -88,11 +88,11 @@ void M3ChaiCommunication::duringCode(void) {
             double force[3];
             chaiServer->GetReceivedValues(force);
             lastReceivedTime = elapsedTime;
-            F=V3(-force[0], force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
+            F=VM3(-force[0], force[1], force[2]);//Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
         } else if(elapsedTime-lastReceivedTime>watchDogTime) {
             //Watchdog: If no fresh values for more than 10ms, fallback
-            F=V3::Zero();
-            std::cout /*cerr is banned*/ << "M3ChaiCommunication: No new value received from client in last " << watchDogTime*1000. << "ms: fallback."  << std::endl;
+            F=VM3::Zero();
+            spdlog::warn("M3ChaiCommunication: No new value received from client in last {} ms: fallback.", watchDogTime*1000.);
         }
 
         //Anyway send values
@@ -103,24 +103,22 @@ void M3ChaiCommunication::duringCode(void) {
     }
     else {
         if(iterations%100==0)
-            std::cout /*cerr is banned*/ << "M3ChaiCommunication: Reconnecting" << std::endl;
+            spdlog::warn("M3ChaiCommunication: Reconnecting");
         //Simply transparent mode while not connected
-        F=V3::Zero();
+        F=VM3::Zero();
         //Attempt to reconnect (wait for client incoming connection)
         chaiServer->Reconnect();
     }
 
     //Apply requested force on top of device gravity compensation
     if(robot->setEndEffForceWithCompensation(F)!=SUCCESS) {
-         std::cout /*cerr is banned*/ << "M3ChaiCommunication: Error applying force (";
-         robot->printJointStatus();
-         std::cout /*cerr is banned*/  << ")" << std::endl;
+         spdlog::error("M3ChaiCommunication: Error applying force");
     }
 
     if(iterations%100==0)
         std::cout << F.transpose() << " X=" << X.transpose() << std::endl;
 }
 void M3ChaiCommunication::exitCode(void) {
-    robot->setEndEffForceWithCompensation(V3(0,0,0));
+    robot->setEndEffForceWithCompensation(VM3(0,0,0));
     chaiServer->Disconnect();
 }

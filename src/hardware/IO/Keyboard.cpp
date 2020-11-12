@@ -12,12 +12,12 @@ Keyboard::Keyboard() {
     noecho.c_lflag = noecho.c_lflag ^ ECHO;
     /* set the terminal */
     tcsetattr(STDIN_FILENO, TCSANOW, &noecho);
-    DEBUG_OUT("Keyboard object created, echo disabled");
+    spdlog::debug("Keyboard object created, echo disabled");
 }
 Keyboard::~Keyboard() {
     /* restore the terminal settings */
     tcsetattr(STDIN_FILENO, TCSANOW, &original);
-    DEBUG_OUT("Keyboard object deleted, echo enabled");
+    spdlog::debug("Keyboard object deleted, echo enabled");
 };
 void Keyboard::updateInput() {
     // usleep(1);

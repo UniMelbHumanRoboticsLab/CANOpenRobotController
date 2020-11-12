@@ -1,32 +1,40 @@
 
 /**
- * 
+ *
  * \file X2Robot.h
- * \author Justin Fong 
+ * \author Justin Fong
  * \version 0.1
  * \date 2020-05-17
  * \copyright Copyright (c) 2020
- * 
+ *
  * \breif  The<code> X2Robot</ code> class is defined to interface with Fourier Intelligence's X2 (or H4)
- * ExoMotus products. 
+ * ExoMotus products.
  *
  */
 
 #ifndef X2ROBOT_H_INCLUDED
 #define X2ROBOT_H_INCLUDED
 
+#include <Eigen/Dense>
+#include <chrono>
 #include <map>
+#include <thread>
 
 #include "CopleyDrive.h"
 #include "Keyboard.h"
 #include "Robot.h"
-//#include "RobotParams.h"
-#include "X2Joint.h"
 #include "X2ForceSensor.h"
-#include <Eigen/Dense>
+#include "X2Joint.h"
 
-#include <chrono>
-#include <thread>
+// Logger
+#include "spdlog/helper/LogHelper.h"
+
+#ifdef SIM
+#include "controller_manager_msgs/SwitchController.h"
+#include "ros/ros.h"
+#include "sensor_msgs/JointState.h"
+#include "std_msgs/Float64MultiArray.h"
+#endif
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      *
@@ -36,7 +44,6 @@
 #define X2_NUM_FORCE_SENSORS 4
 
 // Macros
-#define M_PI 3.14159265358979323846264338327950288
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
 
@@ -68,6 +75,31 @@ class X2Robot : public Robot {
     Eigen::VectorXd jointTorques_;
     Eigen::VectorXd interactionForces_;
 
+    //Todo: generalise sensors
+    Eigen::VectorXd interactionForces_;
+
+#ifdef SIM
+    ros::NodeHandle* nodeHandle_;
+
+    ros::Publisher positionCommandPublisher_;
+    ros::Publisher velocityCommandPublisher_;
+    ros::Publisher torqueCommandPublisher_;
+    ros::Subscriber jointStateSubscriber_;
+    ros::ServiceClient controllerSwitchClient_;
+
+    std_msgs::Float64MultiArray positionCommandMsg_;
+    std_msgs::Float64MultiArray velocityCommandMsg_;
+    std_msgs::Float64MultiArray torqueCommandMsg_;
+    controller_manager_msgs::SwitchController controllerSwitchMsg_;
+
+    void jointStateCallback(const sensor_msgs::JointState& msg);
+#endif
+#ifdef NOROBOT
+    Eigen::VectorXd simJointPositions_;
+    Eigen::VectorXd simJointVelocities_;
+    Eigen::VectorXd simJointTorques_;
+#endif
+
    public:
     /**
       * \brief Default <code>ExoRobot</code> constructor.
@@ -76,9 +108,9 @@ class X2Robot : public Robot {
       */
     X2Robot();
     ~X2Robot();
-    Keyboard keyboard;
-    std::vector<Drive *> motorDrives;
-    std::vector<X2ForceSensor *> forceSensors;
+    Keyboard* keyboard;
+    std::vector<Drive*> motorDrives;
+    std::vector<X2ForceSensor*> forceSensors;
 
     // /**
     //  * \brief Timer Variables for moving through trajectories
@@ -144,23 +176,23 @@ class X2Robot : public Robot {
     setMovementReturnCode_t setTorque(Eigen::VectorXd torques);
 
     /**
-    * \brief Get the actual position of each joint
+    * \brief Get the latest joints position
     *
-    * \return Eigen::VectorXd a vector of actual joint positions
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
     */
     Eigen::VectorXd& getPosition();
 
     /**
-    * \brief Get the actual velocity of each joint
+    * \brief Get the latest joints velocity
     *
-    * \return Eigen::VectorXd a vector of actual joint positions
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
     */
     Eigen::VectorXd& getVelocity();
 
     /**
-    * \brief Get the actual torque of each joint
+    * \brief Get the latest joints torque
     *
-    * \return Eigen::VectorXd a vector of actual joint positions
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
     */
     Eigen::VectorXd& getTorque();
 
@@ -189,7 +221,7 @@ class X2Robot : public Robot {
     * \return bool success of homing
     */
     bool homing(std::vector<int> homingDirection = std::vector<int>(X2_NUM_JOINTS, 1), float thresholdTorque = 45.0,
-                float delayTime = 0.2, float homingSpeed = 5*M_PI/180.0, float maxTime = 30.0);
+                float delayTime = 0.2, float homingSpeed = 5 * M_PI / 180.0, float maxTime = 30.0);
 
     /**
    * Determine if the currently generated trajectory is complete.
@@ -213,7 +245,6 @@ class X2Robot : public Robot {
     /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
        * Initialize each <code>Input</code> Object.
-
       */
     bool initialiseInputs();
     /**
@@ -221,16 +252,21 @@ class X2Robot : public Robot {
        */
     void freeMemory();
     /**
-       * \brief update current state of the robot, including input and output devices. 
-       * Overloaded Method from the Robot Class. 
+       * \brief update current state of the robot, including input and output devices.
+       * Overloaded Method from the Robot Class.
        * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
        */
     void updateRobot();
-    /**
-       * \brief disable the drives of the X2 robot
-       * \return bool
-       */
-    bool disable();
 
+#ifdef SIM
+    /**
+       * \brief method to pass the nodeHandle. Only available in SIM mode
+       */
+    void setNodeHandle(ros::NodeHandle& nodeHandle);
+    /**
+       * \brief Initialize ROS services, publisher ans subscribers
+      */
+    void initialiseROS();
+#endif
 };
 #endif /*EXOROBOT_H*/

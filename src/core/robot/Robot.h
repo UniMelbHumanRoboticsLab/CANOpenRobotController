@@ -1,6 +1,6 @@
 /**
  * \file Robot.h
- * \author William Campbell
+ * \author William Campbell, Justin Fong, Vincent Crocher
  * \brief  The <code>Robot</code> class is a abstract class which is a software representation of a Robot
  * with a flexible representation in terms of number of joints, number of sensors and type of I/O
  * the real world or virtual robot has. The class specificall represents a robot with an underlying
@@ -8,9 +8,8 @@
  * Implementations have been designed <code>ExoRobot<code> under CANOpen protocol, however others
  * may be implemented by future developers.
  *
- * \version 0.1
- * \date 2020-04-09
- * \version 0.1
+ * \version 0.2
+ * \date 2020-10-14
  * \copyright Copyright (c) 2020
  */
 /**
@@ -20,6 +19,7 @@
 #ifndef ROBOT_H_INCLUDED
 #define ROBOT_H_INCLUDED
 #include <vector>
+#include <Eigen/Dense>
 
 #include "InputDevice.h"
 #include "Joint.h"
@@ -39,22 +39,24 @@ class Robot {
     *
     */
     std::vector<Joint *> joints;
-
     std::vector<InputDevice *> inputs;
 
+    Eigen::VectorXd jointPositions_;
+    Eigen::VectorXd jointVelocities_;
+    Eigen::VectorXd jointTorques_;
+
    public:
-    //////////////////////////
-    // Constructors
-    //////////////////////////
+    /** @name Constructors and Destructors */
+    //@{
     /**
     * \brief Default <code>Robot</code> constructor.
     */
     Robot();
-    ~Robot();
+    virtual ~Robot();
+    //@}
 
-    //////////////////////////
-    // Initialisation Functions
-    //////////////////////////
+    /** @name Initialisation Methods */
+    //@{
     /**
      * \brief Initialize memory for the designed <code>Robot</code> classes specific
      * <code>Joint</code> objects + sensors (if available) using the pure virtual initialiseJoints()
@@ -67,12 +69,12 @@ class Robot {
     bool initialise();
 
     /**
-     * \brief Stop the robot. Default behaviour does nothing.
+     * \brief Stop the robot: disable all actuated joints.
      *
      * \return true if successful
      * \return false if unsuccessful
      */
-    virtual bool stop();
+    virtual bool disable();
 
     /**
      * \brief Pure Virtual function, implemeted by robot designer with specified number of each concrete joint classes
@@ -98,16 +100,37 @@ class Robot {
      * \return false if unsuccessful
      */
     virtual bool initialiseNetwork() = 0;
+    //@}
 
-    //////////////////////////
-    // Core Update and State Functions
-    //////////////////////////
+    /** @name Core Update and State Methods */
+    //@{
     /**
     * \brief Update all of this <code>Robot<code> software joint positions
     * from object dictionary entries.
     *
     */
     virtual void updateRobot();
+
+    /**
+    * \brief Get the latest joints position
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+    Eigen::VectorXd& getPosition();
+
+    /**
+    * \brief Get the latest joints velocity
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+    Eigen::VectorXd& getVelocity();
+
+    /**
+    * \brief Get the latest joints torque
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+    Eigen::VectorXd& getTorque();
 
     /**
     * \brief print out status of robot and all of its joints
@@ -119,11 +142,11 @@ class Robot {
     *
     */
     void printJointStatus(int J_i);
+    //@}
 
-    //////////////////////////
-    // Core Control Functions
-    //////////////////////////
 
+    /** @name Core Control Methods */
+    //@{
     /**
     * @brief Initialises position control on this robot. Default function is to report failure
     *
@@ -171,10 +194,12 @@ class Robot {
     * @return MovementCode representing success or failure of the application
     */
     virtual setMovementReturnCode_t setTorque(std::vector<double> torques) { return INCORRECT_MODE; };
+    //@}
 
-    //////////////////////////
-    // Logging Functions
-    //////////////////////////
+
+
+    /** @name Logging methods */
+    //@{
     /**
      * /todo The default logging function has not yet been implemented.
      *
@@ -195,6 +220,7 @@ class Robot {
     *
     */
     bool closeLog();
+    //@}
 };
 
 #endif  //ROBOT_H

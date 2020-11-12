@@ -1,6 +1,7 @@
 #include "InitState.h"
 
 void InitState::entry(void) {
+    spdlog::info("InitState Entered");
     std::cout
         << "==================================" << std::endl
         << " WELCOME TO THE TEST STATE MACHINE" << std::endl
@@ -14,5 +15,5 @@ void InitState::during(void) {
 }
 void InitState::exit(void) {
     robot->initPositionControl();
-    std::cout << "Initialise State Exited" << std::endl;
+    spdlog::info("InitState Exited");
 }
