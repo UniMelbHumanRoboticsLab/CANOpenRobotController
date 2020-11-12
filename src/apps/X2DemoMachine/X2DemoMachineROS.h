@@ -15,6 +15,7 @@
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <std_msgs/String.h>
+#include <std_srvs/Trigger.h>
 
 #include "X2Robot.h"
 #include "ros/ros.h"  // This state machine requires ROS
@@ -30,12 +31,15 @@ class X2DemoMachineROS {
     void initialize();
     void setNodeHandle(ros::NodeHandle& nodeHandle);
 
+    bool startExoTriggered_;
+
    private:
     ros::Publisher jointStatePublisher_;
     ros::Publisher leftThighForcePublisher_;
     ros::Publisher leftShankForcePublisher_;
     ros::Publisher rightThighForcePublisher_;
     ros::Publisher rightShankForcePublisher_;
+    ros::ServiceServer startExoService_;
 
     sensor_msgs::JointState jointStateMsg_;
     geometry_msgs::WrenchStamped leftThighForceMsg_;
@@ -43,6 +47,10 @@ class X2DemoMachineROS {
     geometry_msgs::WrenchStamped rightThighForceMsg_;
     geometry_msgs::WrenchStamped rightShankForceMsg_;
     X2Robot *robot_;
+
+    bool startExoServiceCallback(std_srvs::Trigger::Request& req,
+                                 std_srvs::Trigger::Response& res);
+
 
     ros::NodeHandle* nodeHandle_;
 };
