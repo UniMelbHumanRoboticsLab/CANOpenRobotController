@@ -16,9 +16,15 @@ void MultiControllerState::during(void) {
 
     if(controller_mode_ == 1){  // zero torque mode
         robot_->setJointTor(m1DemoMachineRos_->jointTorqueCommand_);
+//        std::cout<<robot_->getJointPos()<<std::endl;
     }
     else if(controller_mode_ == 2){ // follow position commands
         robot_->setJointPos(m1DemoMachineRos_->jointPositionCommand_);
+//        std::cout<<m1DemoMachineRos_->jointPositionCommand_<<std::endl;
+    }
+    else if(controller_mode_ == 3){ // follow torque commands
+        robot_->setJointTor(m1DemoMachineRos_->jointTorqueCommand_);
+//        std::cout<<m1DemoMachineRos_->jointPositionCommand_<<std::endl;
     }
 }
 void MultiControllerState::exit(void) {
@@ -31,6 +37,7 @@ void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config,
 
     if(controller_mode_ == 1) robot_->initTorqueControl();
     if(controller_mode_ == 2) robot_->initPositionControl();
+    if(controller_mode_ == 3) robot_->initTorqueControl();
 
     return;
 }
