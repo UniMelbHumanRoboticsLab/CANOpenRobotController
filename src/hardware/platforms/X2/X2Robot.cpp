@@ -446,12 +446,19 @@ void X2Robot::updateRobot() {
 Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
 
     //todo: proper definition as member variable
-    float m = 2.3852; // mass of shank + foot
-    float s = 0.3192; // distance between knee and CoM(shank + foot)
-    float I = 2.1898; // mass moment of inertia
-    float c0 = 4.6959; // viscous fric constant
-    float c1 = 2.0; // coulomb friction const
+//    float m = 2.3852; // mass of shank + foot
+//    float s = 0.3192; // distance between knee and CoM(shank + foot)
+//    float I = 2.1898; // mass moment of inertia
+//    float c0 = 4.6959; // viscous fric constant
+//    float c1 = 2.0; // coulomb friction const
 
+    float m = 2.3922; // mass of shank + foot
+    float s = 0.3199; // distance between knee and CoM(shank + foot)
+    float I = 2.1868; // mass moment of inertia
+    float c0 = 4.1373; // viscous fric constant
+    float c1 = 2.5; // coulomb friction const
+
+    
     float coulombFriction;
     const float velTreshold = 3*M_PI/180.0; // [rad/s]
 
