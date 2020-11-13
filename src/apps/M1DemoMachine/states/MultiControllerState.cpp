@@ -15,7 +15,7 @@ void MultiControllerState::entry(void) {
 void MultiControllerState::during(void) {
 
     if(controller_mode_ == 1){  // zero torque mode
-        robot_->setJointTor(m1DemoMachineRos_->jointTorqueCommand_);
+        robot_->setJointTor(Eigen::VectorXd::Zero(M1_NUM_JOINTS));
 //        std::cout<<robot_->getJointPos()<<std::endl;
     }
     else if(controller_mode_ == 2){ // follow position commands
@@ -24,7 +24,6 @@ void MultiControllerState::during(void) {
     }
     else if(controller_mode_ == 3){ // follow torque commands
         robot_->setJointTor(m1DemoMachineRos_->jointTorqueCommand_);
-//        std::cout<<m1DemoMachineRos_->jointPositionCommand_<<std::endl;
     }
 }
 void MultiControllerState::exit(void) {

@@ -64,6 +64,8 @@ class M1DemoMachine : public StateMachine {
     M1DemoMachineROS *m1DemoMachineRos_; /*<!Pointer to the ROS Class*/
 
    private:
+    std::chrono::steady_clock::time_point time0_; // initial time that machine started
+    double time_; // time passed after tim0 in [s]
 //    EventObject(Event2Demo) * event2Demo;
 //    EventObject(Event2Monitor) * event2Monitor;
 //    EventObject(Event2Idle) * event2Idle;

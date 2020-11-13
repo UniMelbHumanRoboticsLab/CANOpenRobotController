@@ -35,8 +35,8 @@ public:
     MultiControllerState(StateMachine *m, RobotM1 *exo, M1DemoMachineROS *m1DemoMachineRos, const char *name = NULL) :
                         State(m, name), robot_(exo), m1DemoMachineRos_(m1DemoMachineRos){};
 
-private:
     int controller_mode_;
+private:
     // dynamic reconfigure server and callback
     dynamic_reconfigure::Server<CORC::dynamic_paramsConfig> server_;
     void dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level);

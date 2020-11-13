@@ -52,6 +52,21 @@ void M1DemoMachine::init(int argc, char *argv[]) {
     running = true;
 
     m1DemoMachineRos_->initialize();
+    time0_ = std::chrono::steady_clock::now();
+
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    std::stringstream logFileName;
+    logFileName << "spdlogs/m1/" << std::put_time(&tm, "%d-%m-%Y_%H:%M:%S") << ".csv";
+
+    logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
+    logHelper.add(time_, "time");
+    logHelper.add(multiControllerState_->controller_mode_, "mode");
+    logHelper.add(robot_->getPosition(), "JointPositions");
+    logHelper.add(robot_->getVelocity(), "JointVelocities");
+    logHelper.add(robot_->getTorque(), "JointTorques");
+    logHelper.add(m1DemoMachineRos_->jointTorqueCommand_, "DesiredJointTorques");
+    logHelper.startLogger();
 }
 
 void M1DemoMachine::end() {
@@ -73,6 +88,8 @@ void M1DemoMachine::hwStateUpdate(void) {
 //    std::cout << "M1DemoMachine::hwStateUpdate()" << std::endl;
     robot_->updateRobot();
     m1DemoMachineRos_->update();
+    time_ = (std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now() - time0_).count()) / 1e6;
     ros::spinOnce();
 }
 
