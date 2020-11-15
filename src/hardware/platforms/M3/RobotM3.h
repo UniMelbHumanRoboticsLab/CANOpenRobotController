@@ -85,6 +85,11 @@ class RobotM3 : public Robot {
     double maxEndEffVel; /*!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.*/
     double maxEndEffForce; /*!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated. */
 
+    Eigen::VectorXd endEffPositions;
+    Eigen::VectorXd endEffVelocities;
+    Eigen::VectorXd endEffForces;
+    Eigen::VectorXd interactionForces;
+
    public:
     /**
       * \brief Default <code>RobotM3</code> constructor.
@@ -200,6 +205,10 @@ class RobotM3 : public Robot {
     VM3 getEndEffPosition();
     VM3 getEndEffVelocity();
     VM3 getEndEffForce();
+    Eigen::VectorXd& getEndEffPositionRef();
+    Eigen::VectorXd& getEndEffVelocityRef();
+    Eigen::VectorXd& getEndEffForceRef();
+    Eigen::VectorXd& getInteractionForceRef();
 
     setMovementReturnCode_t setJointPosition(VM3 q);
     setMovementReturnCode_t setJointVelocity(VM3 q);

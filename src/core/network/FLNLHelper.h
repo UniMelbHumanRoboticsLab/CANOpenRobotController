@@ -46,9 +46,9 @@ class FLNLHelper
 			//Start server and wait for incoming connection
 			FLNLServer.Connect(ip.c_str(), port);
 			
-			registerState(robot->getPosition());
-			registerState(robot->getVelocity());
-			registerState(robot->getTorque());
+			registerState(robot->getEndEffPositionRef());
+			registerState(robot->getEndEffVelocityRef());
+			registerState(robot->getInteractionForceRef());
 			
 			spdlog::info("Initialised network communication server ({}) for M3 robot (state size: {})", ip, stateValues.size());
 		}

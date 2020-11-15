@@ -26,12 +26,13 @@ M3DemoMachine::M3DemoMachine() {
      *
      */
      NewTransition(calibState, endCalib, standbyState);
-     NewTransition(standbyState, goToNextState, pathState);
-     NewTransition(pathState, goToNextState, minJerkState);
-     NewTransition(minJerkState, goToNextState, timingState);
-     NewTransition(timingState, goToNextState, endEffDemoState);
+     NewTransition(standbyState, goToNextState, minJerkState);
+     NewTransition(minJerkState, goToNextState, endEffDemoState);
      NewTransition(endEffDemoState, goToNextState, impedanceState);
      NewTransition(impedanceState, goToNextState, pathState);
+     NewTransition(pathState, goToNextState, timingState);
+     NewTransition(timingState, goToNextState, standbyState);
+
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(calibState);
@@ -57,7 +58,7 @@ void M3DemoMachine::init() {
         logHelper.add(robot->getVelocity(), "JointVelocities");
         logHelper.add(robot->getTorque(), "JointTorques");
         logHelper.startLogger();
-        UIserver = new FLNLHelper(robot, "192.168.6.2");
+        UIserver = new FLNLHelper(robot, "192.168.7.2");
         UIserver->registerState(time_running);
     }
     else {
