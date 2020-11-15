@@ -22,6 +22,7 @@
 
 #include "RobotM3.h"
 #include "StateMachine.h"
+#include "FLNLHelper.h"
 
 // State Classes
 #include "M3DemoStates.h"
@@ -61,13 +62,11 @@ class M3DemoMachine : public StateMachine {
 
    protected:
     RobotM3 *robot; /*<!Pointer to the Robot*/
+    FLNLHelper *UIserver; /*<! Pointer to communication server*/
 
    private:
     EventObject(EndCalib) * endCalib;
-    EventObject(GoToState1) * goToState1;
-    EventObject(GoToState2) * goToState2;
-    EventObject(GoToState3) * goToState3;
-    EventObject(GoToState4) * goToState4;
+    EventObject(GoToNextState) * goToNextState;
 };
 
 #endif /*M3_SM_H*/

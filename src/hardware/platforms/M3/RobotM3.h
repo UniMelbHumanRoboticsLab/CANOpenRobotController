@@ -14,7 +14,6 @@
 #define RobotM3_H_INCLUDED
 
 #include <map>
-#include <Eigen/Dense>
 
 #include "JointM3.h"
 #include "Keyboard.h"

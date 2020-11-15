@@ -288,7 +288,7 @@ Eigen::VectorXd & X2Robot::getTorque() {
 Eigen::VectorXd& X2Robot::getInteractionForce() {
     //TODO: generalise sensors
     //Initialise vector if not already done
-    if(interactionForces_.size()!=forceSensors.size()) {
+    if((unsigned int)interactionForces_.size()!=forceSensors.size()) {
         interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
     }
 
