@@ -18,6 +18,7 @@ void X2DemoMachineROS::initialize() {
     rightShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("right_shank_wrench", 10);
 #endif
     startExoService_ = nodeHandle_->advertiseService("start_exo", &X2DemoMachineROS::startExoServiceCallback, this);
+    calibrateForceSensorsService_ = nodeHandle_->advertiseService("calibrate_force_sensors", &X2DemoMachineROS::calibrateForceSensorsCallback, this);
     startExoTriggered_ = false;
 }
 
@@ -90,5 +91,11 @@ void X2DemoMachineROS::setNodeHandle(ros::NodeHandle &nodeHandle) {
 bool X2DemoMachineROS::startExoServiceCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
     startExoTriggered_ = true;
     res.success = true;
+    return true;
+}
+
+bool X2DemoMachineROS::calibrateForceSensorsCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
+
+    res.success = robot_->calibrateForceSensors();
     return true;
 }

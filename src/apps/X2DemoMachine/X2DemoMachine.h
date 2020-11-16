@@ -34,6 +34,9 @@
 
 class X2DemoMachine : public StateMachine {
 
+    X2DemoMachineROS *x2DemoMachineRos_; /*<!Pointer to the ROS Class*/
+    X2Robot *robot_; /*<!Pointer to the Robot*/
+
 public:
     bool running = false;
     std::chrono::steady_clock::time_point time0; // initial time that machine started
@@ -67,9 +70,6 @@ private:
      * An events check function are defined in the .cpp file.
     */
     EventObject(StartExo) * startExo;
-
-    X2DemoMachineROS *x2DemoMachineRos_; /*<!Pointer to the ROS Class*/
-    X2Robot *robot_; /*<!Pointer to the Robot*/
 
 };
 

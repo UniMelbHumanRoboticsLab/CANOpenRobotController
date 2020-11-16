@@ -40,6 +40,7 @@ class X2DemoMachineROS {
     ros::Publisher rightThighForcePublisher_;
     ros::Publisher rightShankForcePublisher_;
     ros::ServiceServer startExoService_;
+    ros::ServiceServer calibrateForceSensorsService_;
 
     sensor_msgs::JointState jointStateMsg_;
     geometry_msgs::WrenchStamped leftThighForceMsg_;
@@ -49,6 +50,9 @@ class X2DemoMachineROS {
     X2Robot *robot_;
 
     bool startExoServiceCallback(std_srvs::Trigger::Request& req,
+                                 std_srvs::Trigger::Response& res);
+
+    bool calibrateForceSensorsCallback(std_srvs::Trigger::Request& req,
                                  std_srvs::Trigger::Response& res);
 
 
