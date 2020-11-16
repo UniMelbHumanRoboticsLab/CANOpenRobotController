@@ -33,6 +33,7 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
     inputs.push_back(m1ForceSensor = new M1ForceSensor(1));
+    mode = 0;
 
     status = R_SUCCESS;
 }
@@ -216,6 +217,7 @@ bool RobotM1::initPositionControl() {
 //    for (auto p : joints) {
 //        ((JointM1 *)p)->enable();
 //    }
+    mode = 1;
     return returnValue;
 }
 
@@ -237,6 +239,7 @@ bool RobotM1::initVelocityControl() {
     for (auto p : joints) {
         ((JointM1 *)p)->enable();
     }
+    mode = 2;
     return returnValue;
 }
 
@@ -258,6 +261,7 @@ bool RobotM1::initTorqueControl() {
     for (auto p : joints) {
         ((JointM1 *)p)->enable();
     }
+    mode = 3;
     return returnValue;
 }
 
@@ -366,7 +370,7 @@ JointVec RobotM1::getJointTor() {
     return tau;
 }
 
-JointVec RobotM1::getJointTor_s() {
+JointVec& RobotM1::getJointTor_s() {
     return tau_s;
 }
 

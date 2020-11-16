@@ -56,6 +56,10 @@ class M1DemoMachine : public StateMachine {
     Calibration *calibrationState;
     M1PositionTracking *positionTracking;
 
+    // for logger
+    std::chrono::steady_clock::time_point time0; // initial time that machine started
+    double time; // time passed after tim0 in [s]
+
    protected:
     RobotM1 *robot; /*<!Pointer to the Robot*/
 
@@ -64,6 +68,8 @@ class M1DemoMachine : public StateMachine {
     EventObject(Event2Monitor) * event2Monitor;
     EventObject(Event2Idle) * event2Idle;
     EventObject(Event2Pos) * event2Pos;
+
+    LogHelper logHelper_;
 //    EventObject(EndCalib) * endCalib;
 };
 

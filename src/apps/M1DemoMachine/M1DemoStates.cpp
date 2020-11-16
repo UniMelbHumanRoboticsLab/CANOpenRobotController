@@ -101,38 +101,10 @@ void M1PositionTracking::entryCode(void) {
     // set mode to 2 for velocity control test
     // set mode to 3 for torque control test
     // set mode to 4 for admittance control
+    cycle = 0;
+    counter = 0;
     robot->applyCalibration();
-    switch(mode){
-        case 1:
-            robot->initPositionControl();
-            freq = 0.5;
-            counter = 1;
-            magnitude = 20;
-            break;
-        case 2:
-            robot->initVelocityControl();
-//            robot->admittanceControl();
-            freq = 0.2;
-            magnitude = 8;   // degree per second
-            break;
-        case 3:
-            robot->initTorqueControl();
-            freq = 0.2;
-            magnitude = 0.04;   // degree per second
-            break;
-        case 4:
-            robot->initVelocityControl();
-            robot->m1ForceSensor->calibrate();
-            Ks = 0;
-            B = 0.01;
-            dt = 0.01;
-            Mass = 0.01;
-            gain = 1;
-            break;
-        default:
-            std::cout << "Wrong mode !" << std::endl;
-    }
-
+    initMode(mode);
 }
 
 void M1PositionTracking::duringCode(void) {
@@ -140,27 +112,23 @@ void M1PositionTracking::duringCode(void) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
         robot->printJointStatus();
     }
+    counter = counter + 1;
 
     if(robot->status != R_SUCCESS){
         status = false;
         std::cout << "Robot error !" << std::endl;
     }
-
-    switch(mode){
-        case 1:
-            positionControl();
-            break;
-        case 2:
-            velocityControl();
-            break;
-        case 3:
-            torqueControl();
-            break;
-        case 4:
-            admittanceControl();
-            break;
-        default:
-            std::cout << "Wrong mode !" << std::endl;
+    control(mode);
+    if(cycle == 5)
+    {
+        mode = mode + 1;
+        cycle = 0;
+        counter = 0;
+        initMode(mode);
+    }
+    if(mode > 4)
+    {
+        mode = 4;
     }
 }
 
@@ -185,14 +153,89 @@ void M1PositionTracking::exitCode(void) {
     robot->stop();
 }
 
+void M1PositionTracking::initMode(int mode_t){
+    mode = mode_t;
+    switch(mode_t){
+        case 1:
+            robot->initPositionControl();
+            freq = 0.5;
+            counter = 1;
+            magnitude = 20;
+            break;
+        case 2:
+            robot->initVelocityControl();
+//            robot->admittanceControl();
+            freq = 0.2;
+            magnitude = 20;   // degree per second
+            break;
+        case 3:
+            robot->initTorqueControl();
+            freq = 0.2;
+            magnitude = 0.7;   // torque
+            break;
+        case 4:
+            robot->initVelocityControl();
+            robot->m1ForceSensor->calibrate();
+            Ks = 0;
+            B = 0.01;
+            dt = 0.01;
+            Mass = 0.01;
+            gain = 1;
+            break;
+        default:
+            std::cout << "Wrong mode !" << std::endl;
+    }
+}
+
+void M1PositionTracking::control(int mode_t){
+    switch(mode_t){
+        case 1:
+            positionControl();
+            break;
+        case 2:
+            velocityControl();
+            break;
+        case 3:
+            torqueControl();
+            break;
+        case 4:
+            admittanceControl();
+            break;
+        default:
+            std::cout << "Wrong mode !" << std::endl;
+    }
+}
+
 void M1PositionTracking::positionControl(void){
     q=robot->getJointPos();
     std::cout << q(0) << " <-> ";
 //    q(0) = magnitude*sin(2*M_PI*freq*iterations/100);
-    if (iterations <= 1000){
-        q(0) = 90;
+    if(dir) // positive direction
+    {
+        if(q(0)<90)
+        {
+            q(0) = 90;
+        }
+        else
+        {
+            dir = false;
+        }
     }
+    else // negative direction
+    {
+        if(q(0)>0)
+        {
+            q(0) = 0;
+        }
+        else
+        {
+            dir = true;
+            cycle = cycle + 1;
+        }
+    }
+
     std::cout << q(0) << std::endl;
+    // set joint position
     if(robot->setJointPos(q) != SUCCESS){
         std::cout << "Error: " << std::endl;
     }
@@ -202,21 +245,45 @@ void M1PositionTracking::velocityControl(void){
     dq=robot->getJointVel();
 //    dq(0) = magnitude*sin(2*M_PI*freq*iterations/100);
 //     velocity control, differential velocity and command velocity
-
     q=robot->getJointPos();
-    if (iterations%100 ==0)
+
+    if(dir) // positive direction
     {
-        std::cout << std::dec << iterations << ": " << q(0) << " - " << q(0) << std::endl;
+        if(q(0) < 90)
+        {
+            dq(0) = magnitude;
+        }
+        else
+        {
+            dq(0) = 0;
+            dir = false;
+        }
     }
-    // give velocity command for 5 s and check the position changes
-    if ((iterations > 0) & (iterations <= 500)) {
-        dq(0) = magnitude;
-    }
-    else
+    else // negative direction
     {
-        dq(0) = 0;
+        if(q(0) > 0)
+        {
+            dq(0) = -magnitude;
+        }
+        else
+        {
+            dq(0) = 0;
+            dir = true;
+            magnitude = magnitude + 10;
+            cycle = cycle + 1;
+        }
     }
 
+    // give velocity command for 5 s and check the position changes
+//    if ((iterations > 0) & (iterations <= 500)) {
+//        dq(0) = magnitude;
+//    }
+//    else
+//    {
+//        dq(0) = 0;
+//    }
+
+    // set joint velocity
     if(robot->setJointVel(dq) != SUCCESS){
         std::cout << "Error: " << std::endl;
     }
@@ -224,9 +291,47 @@ void M1PositionTracking::velocityControl(void){
 
 void M1PositionTracking::torqueControl(void){
     tau=robot->getJointTor();
-    tau(0) = magnitude*sin(2*M_PI*freq*iterations/100);
+    std::cout << std::dec << counter << ": current tau " << tau(0);
+//    tau(0) = magnitude*sin(2*M_PI*freq*counter/100);
     q=robot->getJointPos();
-    std::cout << std::dec << iterations << ": " << tau(0) << " - " << q(0) << std::endl;
+    std::cout << " - command tau " << tau(0) << " - theta " << q(0) << std::endl;
+
+    if(dir) // positive direction
+    {
+        if(q(0) < 90)
+        {
+            tau(0) = tau(0) + 0.1;
+        }
+        else
+        {
+            tau(0) = 0;
+            dir = false;
+        }
+    }
+    else // negative direction
+    {
+        if(q(0) > 0)
+        {
+            tau(0) = tau(0) - 0.1;
+        }
+        else
+        {
+            tau(0) = 0;
+            dir = true;
+            cycle = cycle + 1;
+        }
+    }
+
+    // set max tau
+    if(tau(0) > 3)
+    {
+        tau(0) = 3;
+    }
+    else if (tau(0) < -3)
+    {
+        tau(0) = -3;
+    }
+
 //    tau(0) = magnitude;
 //    if (iterations == 6000){
 //        magnitude = 0;

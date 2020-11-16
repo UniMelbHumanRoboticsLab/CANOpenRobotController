@@ -93,6 +93,7 @@ public:
     Joystick *joystick;
     M1ForceSensor *m1ForceSensor;
     RobotState status;
+    int mode;
 
     bool initMonitoring();
     /**
@@ -207,7 +208,7 @@ public:
     JointVec getJointPos();
     JointVec getJointVel();
     JointVec getJointTor();
-    JointVec getJointTor_s();
+    JointVec& getJointTor_s();
 //    EndEffVec getEndEffPos();
 //    EndEffVec getEndEffVel();
 //    EndEffVec getEndEffFor();

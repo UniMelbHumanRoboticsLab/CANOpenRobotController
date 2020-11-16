@@ -53,20 +53,31 @@ M1DemoMachine::~M1DemoMachine() {
  */
 
 void M1DemoMachine::init() {
-//    std::cout << "M1DemoMachine::init()" << std::endl;
+    spdlog::debug("M1DemoMachine::init()");
     if(robot->initialise()) {
         initialised = true;
+        logHelper_.initLogger("M1DemoMachineLog", "logs/M1DemoMachine.csv", LogFormat::CSV, true);
+        logHelper_.add(time, "time (s)");
+        logHelper_.add(robot->getPosition(), "JointPositions");
+        logHelper_.add(robot->getVelocity(), "JointVelocities");
+        logHelper_.add(robot->getTorque(), "MotorTorques");
+        logHelper_.add(robot->getJointTor_s(), "JointTorques_s");
+        logHelper_.add(robot->mode, "control_mode");
+        logHelper_.startLogger();
     }
     else {
         initialised = false;
         std::cout /*cerr is banned*/ << "Failed robot initialisation. Exiting..." << std::endl;
         std::raise(SIGTERM); //Clean exit
     }
+
     running = true;
+    time0 = std::chrono::steady_clock::now();
 }
 
 void M1DemoMachine::end() {
     if(initialised) {
+        logHelper_.endLog();
         currentState->exit();
         robot->stop();
     }
@@ -84,7 +95,11 @@ void M1DemoMachine::end() {
 void M1DemoMachine::hwStateUpdate(void) {
 //    spdlog::debug("hw/**/StateUpdate!");
 //    std::cout << "M1DemoMachine::hwStateUpdate()" << std::endl;
+    time = (std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now() - time0).count()) / 1e6;
+
     robot->updateRobot();
+    logHelper_.recordLogData();
 }
 
 ////////////////////////////////////////////////////////////////

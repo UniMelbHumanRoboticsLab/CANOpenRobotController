@@ -192,6 +192,8 @@ public:
     void entryCode(void);
     void duringCode(void);
     void exitCode(void);
+    void initMode(int mode_t);
+    void control(int mode_t);
     void positionControl(void);
     void velocityControl(void);
     void torqueControl(void);
@@ -215,7 +217,10 @@ public:
     double counter;
     bool status = true;
     int mode = 1;
+    int cycle = 0;
+    bool dir = true;
     double magnitude = 20;
+
 //    Eigen::Matrix<float, 1, 1> qi, Xi;
 };
 
