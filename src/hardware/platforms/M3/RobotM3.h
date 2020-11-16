@@ -71,7 +71,6 @@ static M3Tool M3MachiningTool(0.060, 0.100, "Machining tool"); //!
  *
  *
  */
-
 class RobotM3 : public Robot {
    private:
     const std::vector<float> LinkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};   /*!< Link lengths used for kinematic models (in m), excluding tool*/
