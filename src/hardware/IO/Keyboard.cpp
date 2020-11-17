@@ -11,7 +11,7 @@ Keyboard::Keyboard() {
     /* turn off full duplex */
     noecho.c_lflag = noecho.c_lflag ^ ECHO;
     /* set the terminal */
-    tcsetattr(STDIN_FILENO, TCSANOW, &noecho);
+//    tcsetattr(STDIN_FILENO, TCSANOW, &noecho);
     spdlog::debug("Keyboard object created, echo disabled");
 }
 Keyboard::~Keyboard() {

@@ -95,6 +95,7 @@ if(USE_ROS)
 				std_srvs
 				sensor_msgs
 				geometry_msgs
+				dynamic_reconfigure
         )
 		if(SIM)
 			find_package(catkin REQUIRED COMPONENTS
@@ -104,11 +105,22 @@ if(USE_ROS)
 			)
 		endif()
 
+		generate_dynamic_reconfigure_options(
+				config/x2_dynamic_params.cfg
+		)
+
 
 		catkin_package(
 				#  INCLUDE_DIRS include
 				#  LIBRARIES x2
-				#  CATKIN_DEPENDS roscpp rospy std_msgs
+			  CATKIN_DEPENDS
+				roscpp
+				rospy
+				std_msgs
+				std_srvs
+				sensor_msgs
+				geometry_msgs
+				dynamic_reconfigure
 				#  DEPENDS system_lib
 		)
 
@@ -168,6 +180,9 @@ target_link_libraries(${APP_NAME} ${CMAKE_THREAD_LIBS_INIT})
 ## Link ROS libraries
 if(USE_ROS)
 	target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
+
+	# make sure configure headers are built before any node using them
+	add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
 endif()
 
 

@@ -29,7 +29,7 @@ bool X2ForceSensor::calibrate() {
         return false;
     }
     else{
-        spdlog::debug("[X2ForceSensor::calibrate]: Force Sensor {} succesfully zeroed.", sensorID);
+        spdlog::info("[X2ForceSensor::calibrate]: Force Sensor {} succesfully zeroed.", sensorID);
         return true;
     }
 }
@@ -42,7 +42,8 @@ double X2ForceSensor::getForce() {
 
 double X2ForceSensor::sensorValueToNewton(int sensorValue) {
 
-    return -(sensorValue-1500.0)*0.1606; //
+    // todo: take back angle into account
+    return (sensorValue-1500.0)*0.246;
 
 }
 
