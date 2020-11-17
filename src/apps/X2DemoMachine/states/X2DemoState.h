@@ -52,6 +52,8 @@ private:
     Eigen::VectorXd desiredJointVelocities_;
     Eigen::VectorXd desiredJointTorques_;
 
+    double virtualMassRatio_;
+
 };
 
 #endif
