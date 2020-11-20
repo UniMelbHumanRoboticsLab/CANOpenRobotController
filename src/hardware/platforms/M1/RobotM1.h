@@ -216,6 +216,7 @@ public:
     setMovementReturnCode_t setJointPos(JointVec pos);
     setMovementReturnCode_t setJointVel(JointVec vel);
     setMovementReturnCode_t setJointTor(JointVec tor);
+    JointVec compensateJointTor(JointVec tor);
 //    setMovementReturnCode_t setEndEffPos(EndEffVec X);
 //    setMovementReturnCode_t setEndEffVel(EndEffVec dX);
 //    setMovementReturnCode_t setEndEffFor(EndEffVec F);

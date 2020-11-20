@@ -211,6 +211,7 @@ public:
     double gain;
     double acc;
 
+
     EndEffVec Xi;
     bool flag = true;
     double freq;
@@ -220,6 +221,7 @@ public:
     int cycle = 0;
     bool dir = true;
     double magnitude = 20;
+    double step;
 
 //    Eigen::Matrix<float, 1, 1> qi, Xi;
 };
