@@ -50,12 +50,14 @@ Make sure `USE_ROS` flag is set to `ON` in CMakeLists.txt:
 Set your state machine that uses ROS (e.g., M1DemoMachine):
 ```set (STATE_MACHINE_NAME "M1DemoMachine")```
 
-Build CORC:
+Build CORC and `multi_robot_interaction` package:
 ```bash
 $ cd ~/catkin_ws
 $ catkin build CORC
+$ catkin build multi_robot_interaction
 $ source devel/setup.bash
 ```
+`multi_robot_interaction` is not declared as dependency, yet. So, it should be built separetely.
 
 ## Run
 In `multi_m1_real.launch`, set robot's namespaces and CAN devices. Then, execute:

@@ -16,10 +16,10 @@ project(CORC C CXX)
 #set (STATE_MACHINE_NAME "M3Chai")
 #set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
-set (STATE_MACHINE_NAME "M1DemoMachine")
+set (STATE_MACHINE_NAME "MultiM1Machine")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT OFF)
+set(NO_ROBOT ON)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS ON)
@@ -94,7 +94,7 @@ if(USE_ROS)
 				std_srvs
 				sensor_msgs
 				geometry_msgs
-				multi_robot_interaction
+#				multi_robot_interaction
 				dynamic_reconfigure
         )
 		if(SIM)
@@ -106,7 +106,7 @@ if(USE_ROS)
 		endif()
 
 		generate_dynamic_reconfigure_options(
-				config/dynamic_params.cfg
+				config/m1_dynamic_params.cfg
 		)
 
 
@@ -120,7 +120,7 @@ if(USE_ROS)
 					std_srvs
 					sensor_msgs
 					geometry_msgs
-					multi_robot_interaction
+#					multi_robot_interaction
 					dynamic_reconfigure
 				#  DEPENDS system_lib
 		)
@@ -167,8 +167,7 @@ if(NO_ROBOT)
 endif()
 add_executable(${APP_NAME}
 				${SOURCES}
-		src/apps/M1TestMachine/M1TestMachine.cpp src/apps/M1TestMachine/M1TestMachine.h)
-
+		       )
 
 ## Includes
 target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})

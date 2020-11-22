@@ -6,10 +6,10 @@
     <arg name="name_spaces" default="[$(arg robot_name_1), $(arg robot_name_2)]"/>
 
     <!-- CORC M1_X -->
-    <node name="$(arg robot_name_1)" pkg="CORC" type="M1DemoMachine_APP" output="screen" args="-can can0"/>
+    <node name="$(arg robot_name_1)" pkg="CORC" type="MultiM1Machine" output="screen" args="-can can0"/>
 
     <!-- CORC M1_Y -->
-    <node name="$(arg robot_name_2)" pkg="CORC" type="M1DemoMachine_APP" output="screen" args="-can can1"/>
+    <node name="$(arg robot_name_2)" pkg="CORC" type="MultiM1Machine" output="screen" args="-can can1"/>
 
     <!-- multi_robot_interaction -->
     <node name="multi_robot_interaction" pkg="multi_robot_interaction" type="multi_robot_interaction" output="screen">
@@ -18,7 +18,7 @@
     </node>
 
     <!-- rqt_gui -->
-    <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" output="screen" respawn="true">
+    <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" output="screen" respawn="false">
     </node>
 
 </launch>
