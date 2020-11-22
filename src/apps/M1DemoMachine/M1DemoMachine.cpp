@@ -3,21 +3,47 @@
 #define OWNER ((M1DemoMachine *)owner)
 
 M1DemoMachine::M1DemoMachine() {
-    std::cout << "M1DemoMachine::constructed!" << std::endl;
+//    std::cout << "M1DemoMachine::constructed!" << std::endl;
+    robot = new RobotM1();
 
-    // create robot
-    robot_ = new RobotM1();
+    // Create PRE-DESIGNED State Machine state objects.
+    demoState = new M1DemoState(this, robot);
+    idleState = new IdleState(this, robot);
+    monitorState = new Monitoring(this, robot);
+    calibrationState = new Calibration( this, robot);
+    positionTracking = new M1PositionTracking(this, robot);
 
-    // Create ros object
-    m1DemoMachineRos_ = new M1DemoMachineROS(robot_);
+    // Create PRE-DESIGNED State Machine events objects.
+    event2Demo = new Event2Demo(this);
+    event2Monitor = new Event2Monitor(this);
+    event2Idle = new Event2Idle(this);
+    event2Pos = new Event2Pos(this);
 
+    /**
+     * \brief add a tranisition object to the arch list of the first state in the NewTransition MACRO.
+     * Effectively creating a statemachine transition from State A to B in the event of event c.
+     * NewTranstion(State A,Event c, State B)
+     *
+     */
+    NewTransition(idleState, event2Demo, monitorState);
+    NewTransition(monitorState, event2Idle, idleState);
+
+    NewTransition(idleState, event2Monitor, calibrationState);
+    NewTransition(calibrationState, event2Idle, idleState);
+
+    NewTransition(idleState, event2Pos, positionTracking);
+    NewTransition(positionTracking, event2Idle, idleState);
+
+    //Initialize the state machine with first state of the designed state machine, using baseclass function.
+    StateMachine::initialize(idleState);
 }
 
 M1DemoMachine::~M1DemoMachine() {
-    currentState->exit();
-    robot_->disable();
-    delete m1DemoMachineRos_;
-    delete robot_;
+    delete demoState;
+    delete idleState;
+    delete monitorState;
+    delete positionTracking;
+    delete robot;
 }
 
 /**
@@ -26,57 +52,40 @@ M1DemoMachine::~M1DemoMachine() {
  *
  */
 
-void M1DemoMachine::init(int argc, char *argv[]) {
-    std::cout << "M1DemoMachine::init()" << std::endl;
-
-    ros::init(argc, argv, "m1", ros::init_options::NoSigintHandler);
-    ros::NodeHandle nodeHandle("~");
-
-    // Pass nodeHandle to the classes that use ROS features
-    m1DemoMachineRos_->setNodeHandle(nodeHandle);
-
-    // Create states with ROS features // This should be created after ros::init()
-    multiControllerState_ = new MultiControllerState(this, robot_, m1DemoMachineRos_);
-
-    //Initialize the state machine with first state of the designed state machine, using baseclass function.
-    StateMachine::initialize(multiControllerState_);
-
-    if(robot_->initialise()) {
+void M1DemoMachine::init() {
+    spdlog::debug("M1DemoMachine::init()");
+    if(robot->initialise()) {
         initialised = true;
+        logHelper_.initLogger("M1DemoMachineLog", "logs/M1DemoMachine.csv", LogFormat::CSV, true);
+        logHelper_.add(time, "time (s)");
+        logHelper_.add(robot->getPosition(), "JointPositions");
+        logHelper_.add(robot->getVelocity(), "JointVelocities");
+        logHelper_.add(robot->getTorque(), "MotorTorques");
+        logHelper_.add(robot->getJointTor_s(), "JointTorques_s");
+        logHelper_.add(robot->mode, "control_mode");
+        logHelper_.startLogger();
     }
     else {
         initialised = false;
         std::cout /*cerr is banned*/ << "Failed robot initialisation. Exiting..." << std::endl;
         std::raise(SIGTERM); //Clean exit
     }
+
     running = true;
-
-    m1DemoMachineRos_->initialize();
-    time0_ = std::chrono::steady_clock::now();
-
-    auto t = std::time(nullptr);
-    auto tm = *std::localtime(&t);
-    std::stringstream logFileName;
-    logFileName << "spdlogs/m1/" << std::put_time(&tm, "%d-%m-%Y_%H:%M:%S") << ".csv";
-
-    logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
-    logHelper.add(time_, "time");
-    logHelper.add(multiControllerState_->controller_mode_, "mode");
-    logHelper.add(robot_->getPosition(), "JointPositions");
-    logHelper.add(robot_->getVelocity(), "JointVelocities");
-    logHelper.add(robot_->getTorque(), "JointTorques");
-    logHelper.add(m1DemoMachineRos_->jointTorqueCommand_, "DesiredJointTorques");
-    logHelper.startLogger();
+    time0 = std::chrono::steady_clock::now();
 }
 
 void M1DemoMachine::end() {
     if(initialised) {
+        logHelper_.endLog();
         currentState->exit();
-        robot_->stop();
-        delete m1DemoMachineRos_;
-        delete robot_;
+        robot->stop();
     }
 }
+
+////////////////////////////////////////////////////////////////
+// Events ------------------------------------------------------
+///////////////////////////////////////////////////////////////
 
 /**
  * \brief Statemachine to hardware interface method. Run any hardware update methods
@@ -86,53 +95,53 @@ void M1DemoMachine::end() {
 void M1DemoMachine::hwStateUpdate(void) {
 //    spdlog::debug("hw/**/StateUpdate!");
 //    std::cout << "M1DemoMachine::hwStateUpdate()" << std::endl;
-    robot_->updateRobot();
-    m1DemoMachineRos_->update();
-    time_ = (std::chrono::duration_cast<std::chrono::microseconds>(
-            std::chrono::steady_clock::now() - time0_).count()) / 1e6;
-    ros::spinOnce();
+    time = (std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now() - time0).count()) / 1e6;
+
+    robot->updateRobot();
+    logHelper_.recordLogData();
 }
 
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
-//bool M1DemoMachine::Event2Demo::check(void) {
-//    if (OWNER->robot->keyboard->getS() == true) {
-//        std::cout << "Pressed S!" << std::endl;
-//        return true;
-//    }
-//    return false;
-//}
+bool M1DemoMachine::Event2Demo::check(void) {
+    if (OWNER->robot->keyboard->getS() == true) {
+        std::cout << "Pressed S!" << std::endl;
+        return true;
+    }
+    return false;
+}
 
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
-//bool M1DemoMachine::Event2Monitor::check(void) {
-//    if (OWNER->robot->keyboard->getX() == true) {
-//        std::cout << "Pressed S!" << std::endl;
-//        return true;
-//    }
-//    return false;
-//}
+bool M1DemoMachine::Event2Monitor::check(void) {
+    if (OWNER->robot->keyboard->getX() == true) {
+        std::cout << "Pressed S!" << std::endl;
+        return true;
+    }
+    return false;
+}
 
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
-//bool M1DemoMachine::Event2Idle::check(void) {
-//    if (OWNER->robot->keyboard->getQ() == true) {
-//        std::cout << "Pressed Q!" << std::endl;
-//        return true;
-//    }
-//    return false;
-//}
+bool M1DemoMachine::Event2Idle::check(void) {
+    if (OWNER->robot->keyboard->getQ() == true) {
+        std::cout << "Pressed Q!" << std::endl;
+        return true;
+    }
+    return false;
+}
 
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
-//bool M1DemoMachine::Event2Pos::check(void) {
-//    if (OWNER->robot->keyboard->getA() == true) {
-////        std::cout << "Pressed A!" << std::endl;
-//        return true;
-//    }
-//    return false;
-//}
+bool M1DemoMachine::Event2Pos::check(void) {
+    if (OWNER->robot->keyboard->getA() == true) {
+//        std::cout << "Pressed A!" << std::endl;
+        return true;
+    }
+    return false;
+}
