@@ -44,8 +44,10 @@ double M1ForceSensor::getForce() {
 }
 
 double M1ForceSensor::sensorValueToNewton(int sensorValue) {
-
-    return (sensorValue-1500.0); // /4.0 todo: change after sensor experimentation
+    if(sensorValue > 1000)
+        return (sensorValue-1500.0);
+    else
+        return sensorValue; // /4.0 todo: change after sensor experimentation
 //    return sensorValue*4.0; // /4.0 todo: change after sensor experimentation
 
 }

@@ -83,6 +83,8 @@ class RobotM1 : public Robot {
     double maxEndEffVel; /*!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.*/
     double maxEndEffForce; /*!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated. */
 
+    short int sign(double val);
+
 public:
     /**
       * \brief Default <code>RobotM1</code> constructor.
@@ -96,6 +98,7 @@ public:
     Joystick *joystick;
     M1ForceSensor *m1ForceSensor;
     RobotState status;
+    int mode;
 
     bool initMonitoring();
     /**
@@ -210,7 +213,7 @@ public:
     JointVec getJointPos();
     JointVec getJointVel();
     JointVec getJointTor();
-    JointVec getJointTor_s();
+    JointVec& getJointTor_s();
 //    EndEffVec getEndEffPos();
 //    EndEffVec getEndEffVel();
 //    EndEffVec getEndEffFor();
@@ -218,6 +221,7 @@ public:
     setMovementReturnCode_t setJointPos(JointVec pos);
     setMovementReturnCode_t setJointVel(JointVec vel);
     setMovementReturnCode_t setJointTor(JointVec tor);
+    JointVec compensateJointTor(JointVec tor);
 //    setMovementReturnCode_t setEndEffPos(EndEffVec X);
 //    setMovementReturnCode_t setEndEffVel(EndEffVec dX);
 //    setMovementReturnCode_t setEndEffFor(EndEffVec F);

@@ -29,7 +29,8 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
 
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
-//    inputs.push_back(m1ForceSensor = new M1ForceSensor(1));
+    inputs.push_back(m1ForceSensor = new M1ForceSensor(1));
+    mode = 0;
 
     status = R_SUCCESS;
 }
@@ -52,7 +53,7 @@ bool RobotM1::initialiseJoints() {
     return true;
 }
 bool RobotM1::initialiseNetwork() {
-    std::cout << "RobotM1::initialiseNetwork()" << std::endl;
+//    std::cout << "RobotM1::initialiseNetwork()" << std::endl;
 
     bool status;
     for (auto joint : joints) {
@@ -67,10 +68,11 @@ bool RobotM1::initialiseNetwork() {
         spdlog::debug(".");
         usleep(10000);
     }
-    std::cout << "RobotM1::initialiseNetwork() end" << std::endl;
+//    std::cout << "RobotM1::initialiseNetwork() end" << std::endl;
 
     return true;
 }
+
 bool RobotM1::initialiseInputs() {
     /*nothing to do*/
 //    inputs.push_back(&keyboard);
@@ -97,15 +99,15 @@ void RobotM1::applyCalibration() {
     calibrated = true;
 }
 
-//bool RobotM1::calibrateForceSensors() {
-//    if(m1ForceSensor->calibrate()){
-//        DEBUG_OUT("[RobotM1::calibrateForceSensors]: Zeroing of force sensors are successfully completed.");
-//        return true;
-//    } else{
-//        DEBUG_OUT("[RobotM1::calibrateForceSensors]: Zeroing failed.");
-//        return false;
-//    }
-//}
+bool RobotM1::calibrateForceSensors() {
+    if(m1ForceSensor->calibrate()){
+        spdlog::debug("[RobotM1::calibrateForceSensors]: Zeroing of force sensors are successfully completed.");
+        return true;
+    } else{
+        spdlog::debug("[RobotM1::calibrateForceSensors]: Zeroing failed.");
+        return false;
+    }
+}
 
 //Eigen::VectorXd X2Robot::getInteractionForce() {
 //    Eigen::VectorXd actualInteractionForces(X2_NUM_FORCE_SENSORS);
@@ -130,7 +132,7 @@ void RobotM1::updateRobot() {
         q(i) = ((JointM1 *)joints[i])->getPosition();
         dq(i) = ((JointM1 *)joints[i])->getVelocity();
         tau(i) = ((JointM1 *)joints[i])->getTorque();
-//        tau_s(i) = m1ForceSensor[i].getForce();
+        tau_s(i) = m1ForceSensor[i].getForce();
     }
 //    std::cout << "safety check" << std::endl; // YW debug
     if (safetyCheck() != SUCCESS) {
@@ -188,7 +190,7 @@ bool RobotM1::initMonitoring() {
     // Pause for a bit to let commands go
     usleep(2000);
     for (auto p : joints) {
-        ((JointM1 *)p)->enable();
+        ((JointM1 *)p)->disable();
     }
     return returnValue;
 }
@@ -204,14 +206,15 @@ bool RobotM1::initPositionControl() {
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
-        ((JointM1 *)p)->readyToSwitchOn();
+//        ((JointM1 *)p)->readyToSwitchOn();
     }
 
-//     Pause for a bit to let commands go
-    usleep(2000);
-    for (auto p : joints) {
-        ((JointM1 *)p)->enable();
-    }
+    // Pause for a bit to let commands go
+//    usleep(2000);
+//    for (auto p : joints) {
+//        ((JointM1 *)p)->enable();
+//    }
+    mode = 1;
     return returnValue;
 }
 
@@ -233,6 +236,7 @@ bool RobotM1::initVelocityControl() {
     for (auto p : joints) {
         ((JointM1 *)p)->enable();
     }
+    mode = 2;
     return returnValue;
 }
 
@@ -254,6 +258,7 @@ bool RobotM1::initTorqueControl() {
     for (auto p : joints) {
         ((JointM1 *)p)->enable();
     }
+    mode = 3;
     return returnValue;
 }
 
@@ -362,7 +367,7 @@ JointVec RobotM1::getJointTor() {
     return tau;
 }
 
-JointVec RobotM1::getJointTor_s() {
+JointVec& RobotM1::getJointTor_s() {
     return tau_s;
 }
 
@@ -375,8 +380,29 @@ setMovementReturnCode_t RobotM1::setJointVel(JointVec vel_d) {
 }
 
 setMovementReturnCode_t RobotM1::setJointTor(JointVec tor_d) {
+    tor_d = compensateJointTor(tor_d);
     return applyTorque(tor_d);
 }
+
+
+JointVec RobotM1::compensateJointTor(JointVec tor){
+    double f_s = 1.4;
+    double f_d = 0.5;
+    double inertia_c = 0.12;
+    if(abs(dq(0))<0.05)
+    {
+        tor(0) = tor(0) + f_s*sign(tor(0)) + f_d*dq(0)+inertia_c*sin(q(0));
+//        tor(0) = tor(0) + f_s*sign(tor(0))+ f_d*dq(0)+inertia_c*sin(q(0));
+
+    }
+    else
+    {
+        tor(0) = tor(0) + f_s*sign(dq(0))+ f_d*dq(0)+inertia_c*sin(q(0));
+    }
+    return tor;
+}
+
+short RobotM1::sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
 
 /*
 EndEffVec RobotM1::getEndEffPos() {
