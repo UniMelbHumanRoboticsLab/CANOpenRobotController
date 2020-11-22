@@ -74,9 +74,9 @@ void X2DemoMachineROS::publishInteractionForces() {
     rightShankForceMsg_.header.frame_id = "right_upper_shank_sensor";
 
     leftThighForceMsg_.wrench.force.z = interactionForces[0];
-    leftShankForceMsg_.wrench.force.z = -interactionForces[1];
+    leftShankForceMsg_.wrench.force.z = interactionForces[1];
     rightThighForceMsg_.wrench.force.z = interactionForces[2];
-    rightShankForceMsg_.wrench.force.z = -interactionForces[3];
+    rightShankForceMsg_.wrench.force.z = interactionForces[3];
 
     leftThighForcePublisher_.publish(leftThighForceMsg_);
     leftShankForcePublisher_.publish(leftShankForceMsg_);

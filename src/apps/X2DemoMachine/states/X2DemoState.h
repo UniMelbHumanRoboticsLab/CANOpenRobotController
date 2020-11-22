@@ -43,6 +43,7 @@ public:
 
     Eigen::VectorXd& getDesiredJointTorques();
     int controller_mode_;
+    double virtualMassRatio_;
 private:
     std::chrono::steady_clock::time_point time0;
 
@@ -51,8 +52,6 @@ private:
 
     Eigen::VectorXd desiredJointVelocities_;
     Eigen::VectorXd desiredJointTorques_;
-
-    double virtualMassRatio_;
 
 };
 

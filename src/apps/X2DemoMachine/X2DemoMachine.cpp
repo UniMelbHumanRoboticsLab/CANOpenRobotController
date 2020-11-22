@@ -37,7 +37,6 @@ void X2DemoMachine::init(int argc, char *argv[]) {
     // Create states with ROS features // This should be created after ros::init()
     StateMachine::initialize(x2DemoState);
 
-
 #ifdef SIM
     robot_->setNodeHandle(nodeHandle);
 #endif
@@ -55,10 +54,12 @@ void X2DemoMachine::init(int argc, char *argv[]) {
     logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
     logHelper.add(time, "time");
     logHelper.add(x2DemoState->controller_mode_, "mode");
+    logHelper.add(x2DemoState->virtualMassRatio_, "virtualMassRatio");
     logHelper.add(robot_->getPosition(), "JointPositions");
     logHelper.add(robot_->getVelocity(), "JointVelocities");
     logHelper.add(robot_->getTorque(), "JointTorques");
     logHelper.add(robot_->getInteractionForce()[1], "InteractionForce");
+
 //    logHelper.add(x2DemoState->getDesiredJointTorques(), "DesiredJointTorques");
 //    logHelper.add(robot_->getInteractionForce(), "InteractionForces");
     logHelper.startLogger();
