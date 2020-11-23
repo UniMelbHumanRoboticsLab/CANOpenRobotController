@@ -478,7 +478,7 @@ Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
         coulombFriction = c1*motionIntend/abs(motionIntend);
     }
 
-    Eigen::VectorXd ffTorque(X2_NUM_JOINTS);
+    Eigen::VectorXd ffTorque = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     ffTorque[1] = m*s*9.81*sin(jointPositions_[1] - jointPositions_[0]) + coulombFriction + c0*jointVelocities_[1];
 
     return ffTorque;

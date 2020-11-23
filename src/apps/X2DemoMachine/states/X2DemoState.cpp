@@ -44,25 +44,27 @@ void X2DemoState::during(void) {
 
     } else if(controller_mode_ == 4){ // virtual mass controller
 
-        Eigen::VectorXd feedBackTorque = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-        double J = 0.1; // distance between knee joint and force sensor
-
-        int motionIntend;
-        if(robot_->getPosition()[1]>M_PI/4.0) motionIntend = -1;
-        else motionIntend = 1;
-
-        feedBackTorque[1] = (1.0/virtualMassRatio_-1)*J*robot_->getInteractionForce()[1];
-        desiredJointTorques_ = robot_->getFeedForwardTorque(motionIntend) + feedBackTorque;
-        robot_->setTorque(desiredJointTorques_);
-        std::cout<<"force: "<<robot_->getInteractionForce()[1]<<std::endl;
-        std::cout<<"ff: "<<robot_->getFeedForwardTorque(motionIntend)[1]<<std::endl;
-        std::cout<<"fb: "<<feedBackTorque[1]<<std::endl;
-        std::cout<<"total: "<<desiredJointTorques_[1]<<std::endl;
-        std::cout<<"***************"<<std::endl;
+//        Eigen::VectorXd feedBackTorque = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+//        double J = 0.1; // distance between knee joint and force sensor
+//
+//        int motionIntend;
+//        if(robot_->getPosition()[1]>M_PI/4.0) motionIntend = -1;
+//        else motionIntend = 1;
+//
+//        feedBackTorque[1] = (1.0/virtualMassRatio_-1)*J*robot_->getInteractionForce()[1];
+//        desiredJointTorques_ = robot_->getFeedForwardTorque(motionIntend) + feedBackTorque;
+//        robot_->setTorque(desiredJointTorques_);
+//        std::cout<<"force: "<<robot_->getInteractionForce()[1]<<std::endl;
+//        std::cout<<"ff: "<<robot_->getFeedForwardTorque(motionIntend)[1]<<std::endl;
+//        std::cout<<"fb: "<<feedBackTorque[1]<<std::endl;
+//        std::cout<<"total: "<<desiredJointTorques_[1]<<std::endl;
+//        std::cout<<"***************"<<std::endl;
     }
 }
 
 void X2DemoState::exit(void) {
+    robot_->initTorqueControl();
+    robot_->setTorque(Eigen::VectorXd::Zero(X2_NUM_JOINTS));
     std::cout << "Example State Exited" << std::endl;
 }
 
