@@ -28,7 +28,7 @@ class FLNLHelper
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
             
-            spdlog::info("Initialised default network communication server ({}) ", ip);
+            spdlog::info("Initialised default network communication server ({}:{}) ", ip, port);
         }
         
         /**
@@ -40,11 +40,14 @@ class FLNLHelper
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
             
+            initTime = std::chrono::steady_clock::now();
+            
+            registerState(runningTime);
             registerState(robot->getPosition());
             registerState(robot->getVelocity());
             registerState(robot->getTorque());
             
-            spdlog::info("Initialised network communication server ({}) for default robot (state size: {})", ip, stateValues.size());
+            spdlog::info("Initialised network communication server ({}:{}) for default robot (state size: {})", ip, port, stateValues.size());
         }
         
         /**
@@ -56,16 +59,22 @@ class FLNLHelper
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
             
+            initTime = std::chrono::steady_clock::now();
+            
+            registerState(runningTime);
             registerState(robot->getEndEffPositionRef());
             registerState(robot->getEndEffVelocityRef());
             registerState(robot->getInteractionForceRef());
             
-            spdlog::info("Initialised network communication server ({}) for M3 robot (state size: {})", ip, stateValues.size());
+            spdlog::info("Initialised network communication server ({}:{}) for M3 robot (state size: {})", ip, port, stateValues.size());
         }
         
-        
+        /**
+        * \brief Default destructor also closing connection
+        */
         ~FLNLHelper(){
-            FLNLServer.Disconnect();
+            if(FLNLServer.IsConnected())
+                FLNLServer.Disconnect();
         }
         
         
@@ -110,6 +119,10 @@ class FLNLHelper
         * \brief Send registerd state values
         */
         void sendState() {
+            //Update time
+            runningTime = (std::chrono::duration_cast<std::chrono::microseconds>(
+                            std::chrono::steady_clock::now() - initTime).count()) / 1e6;
+            
             //Prepare vector of values to send
             int k=0;
             for(unsigned int i=0; i<stateReferences.size(); i++) {
@@ -188,7 +201,8 @@ class FLNLHelper
         std::vector<void*> stateReferences;             //!< Hodling references of values to send (double, vector<double> or eigen vector)
         std::vector<std::size_t> stateReferencesType;   //!< Holding hash_code of typeinfo for further retrieval of type
         std::vector<double> stateValues;                //!< All state double values to be sent
-    
+        std::chrono::steady_clock::time_point initTime;
+        double runningTime = 0;                         //!< Time since initialisation in s
 };
 
 

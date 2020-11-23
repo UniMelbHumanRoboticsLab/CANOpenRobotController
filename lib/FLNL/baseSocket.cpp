@@ -30,7 +30,8 @@ baseSocket::baseSocket():
     ReceivedCmd=new char[CMD_SIZE+1];
     ReceivedCmdParams=new double[MaxNbValues];
 
-    pthread_mutex_init(&received_mutex, NULL);
+    pthread_mutex_init(&ReceivedMutex, NULL);
+    pthread_mutex_init(&ReceivedCmdMutex, NULL);
 
 #ifdef WINDOWS
     WSADATA WSAData;
@@ -41,7 +42,8 @@ baseSocket::baseSocket():
 //! Destructor releasing memory and closing the socket
 baseSocket::~baseSocket() {
     Disconnect();
-    pthread_mutex_destroy(&received_mutex);
+    pthread_mutex_destroy(&ReceivedMutex);
+    pthread_mutex_destroy(&ReceivedCmdMutex);
     delete[] ReceivedValues;
     delete[] ReceivedCmd;
     delete[] ReceivedCmdParams;
@@ -60,16 +62,19 @@ int baseSocket::Disconnect() {
     pthread_cancel(ReceivingThread);
     Connected=false;
 
-    int ret=close(Socket);
-    if(ret==0) {
-        printf("FLNL::Disconnected.\n");
-#ifdef WINDOWS
-        WSACleanup();
-#endif
-    } else {
-        printf("FLNL::Error closing connection.\n");
+    int ret=0;
+    if(Socket>0) {
+        ret=close(Socket);
+        if(ret==0) {
+            Socket = -1;
+            printf("FLNL::Disconnected.\n");
+    #ifdef WINDOWS
+            WSACleanup();
+    #endif
+        } else {
+            printf("FLNL::Error closing connection.\n");
+        }
     }
-
     return ret;
 }
 
@@ -93,9 +98,8 @@ unsigned char Checksum(unsigned char *full_message)
     }
     return command_hash;
 }
-
-
 /*#################################################################################################################*/
+
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 /*###############################################   SENDING METHODS   #############################################*/
@@ -195,13 +199,15 @@ bool baseSocket::IsReceivedValues() {
 //! \param A reference to a vector to store values
 //! \return The number of values received (size of vals)
 int baseSocket::GetReceivedValues(std::vector<double> &vals) {
-    pthread_mutex_lock(&received_mutex);
-    if(vals.size()!=NbReceivedValues)
-        vals.resize(NbReceivedValues);
+    pthread_mutex_lock(&ReceivedMutex);
+    {
+        if(vals.size()!=NbReceivedValues)
+            vals.resize(NbReceivedValues);
 
-    for(unsigned int i=0; i<NbReceivedValues; i++)
-        vals[i]=ReceivedValues[i];
-    pthread_mutex_unlock(&received_mutex);
+        for(unsigned int i=0; i<NbReceivedValues; i++)
+            vals[i]=ReceivedValues[i];
+    }
+    pthread_mutex_unlock(&ReceivedMutex);
 
     IsValues=false;
 
@@ -219,13 +225,17 @@ bool baseSocket::IsReceivedCmd() {
 //! \param A reference to a vector to store command parameters
 //! \return The number of parameters received (size of params)
 int baseSocket::GetReceivedCmd(std::string &cmd, std::vector<double> &params) {
-    if(params.size()!=NbReceivedCmdParams)
-        params.resize(NbReceivedCmdParams);
+    pthread_mutex_lock(&ReceivedCmdMutex);
+    {
+        if(params.size()!=NbReceivedCmdParams)
+            params.resize(NbReceivedCmdParams);
 
-    for(unsigned int i=0; i<NbReceivedCmdParams; i++)
-        params[i]=ReceivedCmdParams[i];
+        for(unsigned int i=0; i<NbReceivedCmdParams; i++)
+            params[i]=ReceivedCmdParams[i];
 
-    cmd.assign(ReceivedCmd);
+        cmd.assign(ReceivedCmd);
+    }
+    pthread_mutex_unlock(&ReceivedCmdMutex);
 
     IsCmd=false;
 
@@ -258,12 +268,17 @@ void * receiving(void * c) {
                 //then use it as a command
                 unsigned short int nb_params = local->FullMessageIn[1];
                 if(nb_params<=local->MaxNbValues) {
-                    //Process
-                    local->NbReceivedCmdParams = nb_params;
-                    memcpy(local->ReceivedCmd, &local->FullMessageIn[2], CMD_SIZE);
-                    local->ReceivedCmd[CMD_SIZE]='\0';
-                    //parameters
-                    memcpy(local->ReceivedCmdParams, &local->FullMessageIn[2+CMD_SIZE], nb_params*sizeof(double));
+                    pthread_mutex_lock(&local->ReceivedCmdMutex);
+                    pthread_cleanup_push(unlock_mutex, (void *)&local->ReceivedCmdMutex); //Ensure that mutex will be unlock on thread cancelation (disconnect)
+                    {
+                        //Process
+                        local->NbReceivedCmdParams = nb_params;
+                        memcpy(local->ReceivedCmd, &local->FullMessageIn[2], CMD_SIZE);
+                        local->ReceivedCmd[CMD_SIZE]='\0';
+                        //parameters
+                        memcpy(local->ReceivedCmdParams, &local->FullMessageIn[2+CMD_SIZE], nb_params*sizeof(double));
+                    }
+                    pthread_cleanup_pop(1); //unlock mutex
                     local->IsCmd=true;
                 }
                 #ifdef VERBOSE
@@ -279,10 +294,12 @@ void * receiving(void * c) {
             else if(local->FullMessageIn[0]==local->InitValueCode && cksum_ok) {
                 unsigned short int nb_values = local->FullMessageIn[1];
                 if(nb_values<=local->MaxNbValues) {
-                    pthread_mutex_lock(&local->received_mutex);
-                    pthread_cleanup_push(unlock_mutex, (void *)&local->received_mutex); //Ensure that mutex will be unlock on thread cancelation (disconnect)
-                    local->NbReceivedValues = nb_values;
-                    memcpy(local->ReceivedValues, &local->FullMessageIn[2], nb_values*sizeof(double));
+                    pthread_mutex_lock(&local->ReceivedMutex);
+                    pthread_cleanup_push(unlock_mutex, (void *)&local->ReceivedMutex); //Ensure that mutex will be unlock on thread cancelation (disconnect)
+                    {
+                        local->NbReceivedValues = nb_values;
+                        memcpy(local->ReceivedValues, &local->FullMessageIn[2], nb_values*sizeof(double));
+                    }
                     pthread_cleanup_pop(1); //unlock mutex
                     local->IsValues=true;
                 }

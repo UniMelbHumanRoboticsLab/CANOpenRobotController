@@ -59,7 +59,6 @@ void M3DemoMachine::init() {
         logHelper.add(robot->getTorque(), "JointTorques");
         logHelper.startLogger();
         UIserver = new FLNLHelper(robot, "192.168.7.2");
-        UIserver->registerState(time_running);
     }
     else {
         initialised = false;

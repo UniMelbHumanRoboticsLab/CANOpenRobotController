@@ -1,18 +1,12 @@
 /*! \mainpage FLNL client/server library documentation
  *
  *  \section intro_sec Inroduction
- *  This documentation describes the different classes of a network client/server library. This library ables to send double values between two systems (a client and a server). <BR>
- * A server have to be created in a first time, waiting for a connection. Then a client on a remote machine could connect to it (with ip address) and so the communication could began.<BR>
- * The library could be compiled under Linux and Windows (choose the corresponding target in Code::Blocks project).
+ *  This documentation describes the different classes of the FLNL client/server library. This library ables to send and receive double values and simple commands between two systems (a client and a server) in a RT fashion (no buffering).<BR>
+ *  The library depends on pthread and uses BSD sockets. It can be compiled for Windows and Linux.
  *
- *  \subsection sub_linux Linux
- *  For Linux the project generates the file libFLNL.so in the unix directory.
- *  \subsection sub_win Windows
- *  For Windows the project generates the files libFLNL.a and libFLNL.dll in the win directory.
- * <BR>
  *
  *  \section contact Contact
- *  vincent.crocher@unimelb.edu.au
+ *  vcrocher@unimelb.edu.au
  *  <BR><BR>
  *
  */
@@ -21,7 +15,7 @@
  * \file FLNL.h
  * \brief Network classes declaration
  * \author Vincent Crocher
- * \version 1.1
+ * \version 1.2
  * \date November 2020
  *
  *
@@ -57,10 +51,13 @@
     #include <pthread.h>
 #endif
 
-#define MESSAGE_SIZE 255 //Messages (frame) size in bytes
-#define EXPECTED_DOUBLE_SIZE 8 //Size expected for the doubles: will be checked at startup and should be same on server and client size
-#define CMD_SIZE 4 //Commands length in chars
+#define MESSAGE_SIZE 255        //!< Messages (frame) size in bytes
+#define EXPECTED_DOUBLE_SIZE 8  //!< Size expected for the doubles: will be checked at startup and should be same on server and client size
+#define CMD_SIZE 4              //!< Commands length in chars
 //#define VERBOSE //Talkative ? (connection, every missed message...)
+
+const double HANDSHAKE_VALUE = 42.0+M_PI;
+const std::string HANDSHAKE_CMD("Hand");
 
 void * receiving(void *c);
 
@@ -118,7 +115,8 @@ class baseSocket
         char * ReceivedCmd;
         double * ReceivedCmdParams;
         bool IsCmd;
-        pthread_mutex_t received_mutex;                         //!< Mutex protecting read/writes to received values
+        pthread_mutex_t ReceivedMutex;                          //!< Mutex protecting read/writes to received values
+        pthread_mutex_t ReceivedCmdMutex;                       //!< Mutex protecting read/writes to received cmds
         pthread_t ReceivingThread;                              //!< Receiving pthread
 
     private:
