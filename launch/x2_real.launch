@@ -14,7 +14,10 @@
   </node>
 
   <!-- rviz will enable us to see the robot -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find x2_description)/rviz/view_robot.rviz"/>
+<!--  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find x2_description)/rviz/view_robot.rviz"/>-->
+
+  <!-- rqt_gui-->
+  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" />
 
   <!-- rviz will enable us to see the robot -->
   <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" output="screen" />

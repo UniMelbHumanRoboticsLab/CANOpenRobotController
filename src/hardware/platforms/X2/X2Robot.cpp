@@ -294,7 +294,8 @@ Eigen::VectorXd &X2Robot::getInteractionForce() {
 
     // todo: proper assignment somewhere else.
     Eigen::VectorXd cuffWeights(X2_NUM_JOINTS);
-    cuffWeights << 3.69, 3.69, 3.69, 3.69;
+//    cuffWeights << 3.69, 3.69, 3.69, 3.69; // X2_A
+    cuffWeights << 3.88, 3.88, 3.88, 3.88; // // X2_B
 
     //todo: add compensation for thigh sensors
     Eigen::VectorXd cuffCompensation = Eigen::VectorXd::Zero(X2_NUM_JOINTS);

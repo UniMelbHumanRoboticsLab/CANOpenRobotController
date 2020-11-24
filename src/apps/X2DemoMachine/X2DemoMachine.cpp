@@ -49,7 +49,7 @@ void X2DemoMachine::init(int argc, char *argv[]) {
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);
     std::stringstream logFileName;
-    logFileName << "spdlogs/x2/" << std::put_time(&tm, "%d-%m-%Y_%H:%M:%S") << ".csv";
+    logFileName << "spdlogs/x2_b/" << std::put_time(&tm, "%d-%m-%Y_%H-%M-%S") << ".csv";
 
     logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
     logHelper.add(time, "time");

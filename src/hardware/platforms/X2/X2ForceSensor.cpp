@@ -43,7 +43,9 @@ double X2ForceSensor::getForce() {
 double X2ForceSensor::sensorValueToNewton(int sensorValue) {
 
     // todo: take back angle into account
-    return (sensorValue-1500.0)*0.246;
+//    float scaleFactor = 0.246; // X2_A
+    float scaleFactor = 0.194; // X2_B
+    return (sensorValue-1500.0)*scaleFactor;
 
 }
 
