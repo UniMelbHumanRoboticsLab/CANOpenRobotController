@@ -40,6 +40,7 @@ void X2DemoState::during(void) {
         else motionIntend = 1;
 
         desiredJointTorques_ = robot_->getFeedForwardTorque(motionIntend);
+        std::cout<<desiredJointTorques_<<std::endl;
         robot_->setTorque(desiredJointTorques_);
 
     } else if(controller_mode_ == 4){ // virtual mass controller

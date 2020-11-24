@@ -455,21 +455,36 @@ void X2Robot::updateRobot() {
 Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
 
     //todo: proper definition as member variable
+    // X2_A
 //    float m = 2.3852; // mass of shank + foot
 //    float s = 0.3192; // distance between knee and CoM(shank + foot)
 //    float I = 2.1898; // mass moment of inertia
 //    float c0 = 4.6959; // viscous fric constant
 //    float c1 = 2.0; // coulomb friction const
 
-    float m = 2.3922; // mass of shank + foot
-    float s = 0.3199; // distance between knee and CoM(shank + foot)
-    float I = 2.1868; // mass moment of inertia
-    float c0 = 4.1373; // viscous fric constant
-    float c1 = 2.5; // coulomb friction const
+    // X2_A
+//    float m = 2.3922; // mass of shank + foot
+//    float s = 0.3199; // distance between knee and CoM(shank + foot)
+//    float I = 2.1868; // mass moment of inertia
+//    float c0 = 4.1373; // viscous fric constant
+//    float c1 = 2.5; // coulomb friction const
 
-    
+    // X2_B
+//    float m = 2.4540; // mass of shank + foot
+//    float s = 0.3269; // distance between knee and CoM(shank + foot)
+//    float I = 2.2132; // mass moment of inertia
+//    float c0 = 5.5612; // viscous fric constant
+//    float c1 = 3.1000; // coulomb friction const
+
+    // X2_B
+    float m = 2.4604; // mass of shank + foot
+    float s = 0.3276; // distance between knee and CoM(shank + foot)
+    float I = 2.2107; // mass moment of inertia
+    float c0 = 5.0404; // viscous fric constant
+    float c1 = 3.5000; // coulomb friction const
+
     float coulombFriction;
-    const float velTreshold = 3*M_PI/180.0; // [rad/s]
+    const float velTreshold = 2*M_PI/180.0; // [rad/s]
 
     // todo generalized 4 Dof Approach
     if(abs(jointVelocities_[1]) > velTreshold){ // if in motion
