@@ -70,9 +70,17 @@ class FLNLHelper
         }
         
         /**
+        * \brief Close existing connection
+        */
+        void closeConnection {
+            if(FLNLServer.IsConnected())
+                FLNLServer.Disconnect();
+        }
+        
+        /**
         * \brief Default destructor also closing connection
         */
-        ~FLNLHelper(){
+        ~FLNLHelper() {
             if(FLNLServer.IsConnected())
                 FLNLServer.Disconnect();
         }
@@ -119,39 +127,42 @@ class FLNLHelper
         * \brief Send registerd state values
         */
         void sendState() {
-            //Update time
-            runningTime = (std::chrono::duration_cast<std::chrono::microseconds>(
-                            std::chrono::steady_clock::now() - initTime).count()) / 1e6;
             
-            //Prepare vector of values to send
-            int k=0;
-            for(unsigned int i=0; i<stateReferences.size(); i++) {
-                //Get current values (based on type)
-                if(stateReferencesType[i] == doubleType) {
-                    stateValues[k]=*((double*)stateReferences[i]);
-                    k++;
-                }
-                else if (stateReferencesType[i] == stdVectorType){
-                    std::vector<double>* sv = static_cast<std::vector<double>*>(stateReferences[i]);
-                    for(unsigned int j=0; j<sv->size(); j++) {
-                        stateValues[k]=(*sv)[j];
+            if(FLNLServer.IsConnected()) {
+                //Update time
+                runningTime = (std::chrono::duration_cast<std::chrono::microseconds>(
+                                std::chrono::steady_clock::now() - initTime).count()) / 1e6;
+                
+                //Prepare vector of values to send
+                int k=0;
+                for(unsigned int i=0; i<stateReferences.size(); i++) {
+                    //Get current values (based on type)
+                    if(stateReferencesType[i] == doubleType) {
+                        stateValues[k]=*((double*)stateReferences[i]);
                         k++;
                     }
-                }
-                else if (stateReferencesType[i] == EigenVectorType){
-                    Eigen::VectorXd* ev = static_cast<Eigen::VectorXd*>(stateReferences[i]);
-                    for(int j=0; j<ev->size(); j++) {
-                        stateValues[k]=(*ev)[j];
-                        k++;
+                    else if (stateReferencesType[i] == stdVectorType){
+                        std::vector<double>* sv = static_cast<std::vector<double>*>(stateReferences[i]);
+                        for(unsigned int j=0; j<sv->size(); j++) {
+                            stateValues[k]=(*sv)[j];
+                            k++;
+                        }
+                    }
+                    else if (stateReferencesType[i] == EigenVectorType){
+                        Eigen::VectorXd* ev = static_cast<Eigen::VectorXd*>(stateReferences[i]);
+                        for(int j=0; j<ev->size(); j++) {
+                            stateValues[k]=(*ev)[j];
+                            k++;
+                        }
+                    }
+                    else {
+                        //Not supported type
+                        return;
                     }
                 }
-                else {
-                    //Not supported type
-                    return;
-                }
+                //Send it
+                FLNLServer.Send(stateValues);
             }
-            //Send it
-            FLNLServer.Send(stateValues);
         }
         
         /**

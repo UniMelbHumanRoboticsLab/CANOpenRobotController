@@ -61,8 +61,8 @@ class M3DemoMachine : public StateMachine {
     M3SamplingEstimationState *timingState;
 
    protected:
-    RobotM3 *robot; /*<!Pointer to the Robot*/
-    FLNLHelper *UIserver; /*<! Pointer to communication server*/
+    RobotM3 *robot;         /*!< Pointer to the Robot*/
+    FLNLHelper *UIserver;   /*!< Pointer to communication server*/
 
    private:
     EventObject(EndCalib) * endCalib;
