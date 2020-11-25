@@ -72,7 +72,7 @@ class FLNLHelper
         /**
         * \brief Close existing connection
         */
-        void closeConnection {
+        void closeConnection() {
             if(FLNLServer.IsConnected())
                 FLNLServer.Disconnect();
         }
