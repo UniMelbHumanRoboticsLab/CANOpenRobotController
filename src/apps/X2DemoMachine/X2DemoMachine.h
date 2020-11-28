@@ -71,6 +71,8 @@ private:
     */
     EventObject(StartExo) * startExo;
 
+    std::string robotName_; // robot name(obtained from node name)
+
 };
 
 

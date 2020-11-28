@@ -37,6 +37,10 @@ void X2DemoMachine::init(int argc, char *argv[]) {
     // Create states with ROS features // This should be created after ros::init()
     StateMachine::initialize(x2DemoState);
 
+    // Get robot name from the node name
+    robotName_ = ros::this_node::getName();
+    robotName_.erase(0,1); // erase the first character which is '/'
+
 #ifdef SIM
     robot_->setNodeHandle(nodeHandle);
 #endif
@@ -49,8 +53,9 @@ void X2DemoMachine::init(int argc, char *argv[]) {
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);
     std::stringstream logFileName;
-    logFileName << "spdlogs/x2_b/" << std::put_time(&tm, "%d-%m-%Y_%H-%M-%S") << ".csv";
 
+    logFileName << "spdlogs/" << robotName_<< std::put_time(&tm, "/%d-%m-%Y_%H-%M-%S") << ".csv";
+    
     logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
     logHelper.add(time, "time");
     logHelper.add(x2DemoState->controller_mode_, "mode");
