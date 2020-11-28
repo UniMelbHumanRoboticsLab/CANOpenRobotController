@@ -17,6 +17,7 @@ void X2DemoMachineROS::initialize() {
     rightThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("right_thigh_wrench", 10);
     rightShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("right_shank_wrench", 10);
 #endif
+    interactionForceCommandSubscriber_ = nodeHandle_->subscribe("interaction_effort_commands", 1, &X2DemoMachineROS::interactionForceCommandCallback, this);
     startExoService_ = nodeHandle_->advertiseService("start_exo", &X2DemoMachineROS::startExoServiceCallback, this);
     calibrateForceSensorsService_ = nodeHandle_->advertiseService("calibrate_force_sensors", &X2DemoMachineROS::calibrateForceSensorsCallback, this);
     startExoTriggered_ = false;
@@ -98,4 +99,10 @@ bool X2DemoMachineROS::calibrateForceSensorsCallback(std_srvs::Trigger::Request 
 
     res.success = robot_->calibrateForceSensors();
     return true;
+}
+
+void X2DemoMachineROS::interactionForceCommandCallback(const std_msgs::Float64MultiArray &msg) {
+    for(int i=0; i<X2_NUM_JOINTS; i++){
+        interactionForceCommand_[i] = msg.data[i];
+    }
 }

@@ -4,23 +4,21 @@
   <!-- load the urdf into the parameter server -->
   <param name="robot_description" command="$(find xacro)/xacro '$(find x2_description)/urdf/x2_fixed_base.urdf.xacro'"/>
 
+  <arg name="robot_name" default="x2_A"/>
+
   <!-- CORC -->
-  <node name="x2" pkg="CORC" type="X2DemoMachine_APP" output="screen" args="-can can0"/>
+  <node name="$(arg robot_name)" pkg="CORC" type="X2DemoMachine_APP" output="screen" args="-can can0"/>
 
   <!-- The robot_state_publisher reads the urdf from /robot_description parameter
        and listens to joint information on the /joint_states topic -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
-  <remap from="/joint_states" to="/x2/joint_states" />
+  <remap from="/joint_states" to="/$(arg robot_name)/joint_states" />
   </node>
 
   <!-- rviz will enable us to see the robot -->
-<!--  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find x2_description)/rviz/view_robot.rviz"/>-->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find x2_description)/rviz/view_robot.rviz"/>
 
   <!-- rqt_gui-->
   <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" />
-
-  <!-- rviz will enable us to see the robot -->
-  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" output="screen" />
-
 
 </launch>
