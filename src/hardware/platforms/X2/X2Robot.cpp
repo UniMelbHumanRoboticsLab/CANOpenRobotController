@@ -41,6 +41,7 @@ X2Robot::X2Robot() : Robot() {
     simJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 #endif
+    robotName_ = "x2";
 }
 
 X2Robot::~X2Robot() {
@@ -292,19 +293,14 @@ Eigen::VectorXd &X2Robot::getInteractionForce() {
         interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
     }
 
-    // todo: proper assignment somewhere else.
-    Eigen::VectorXd cuffWeights(X2_NUM_JOINTS);
-//    cuffWeights << 3.69, 3.69, 3.69, 3.69; // X2_A
-    cuffWeights << 3.88, 3.88, 3.88, 3.88; // // X2_B
-
     //todo: add compensation for thigh sensors
     Eigen::VectorXd cuffCompensation = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    cuffCompensation[1] = cuffWeights[1] * sin(getPosition()[1] - getPosition()[0]);
-    cuffCompensation[3] = cuffWeights[3] * sin(getPosition()[3] - getPosition()[2]);
+    cuffCompensation[1] = cuffWeights_[1] * sin(getPosition()[1] - getPosition()[0]);
+    cuffCompensation[3] = cuffWeights_[3] * sin(getPosition()[3] - getPosition()[2]);
 
     //Update values
     for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
-        interactionForces_[i] = forceSensors[i]->getForce() + cuffCompensation[i];
+        interactionForces_[i] = forceSensorValueToNewton(forceSensors[i]->getForce(), i) + cuffCompensation[i];
     }
     return interactionForces_;
 }
@@ -323,6 +319,12 @@ bool X2Robot::calibrateForceSensors() {
         spdlog::error("[X2Robot::calibrateForceSensors]: Zeroing failed.");
         return false;
     }
+}
+
+double X2Robot::forceSensorValueToNewton(int sensorValue, int sensorId) {
+
+    return (sensorValue-1500.0)*forceSensorScaleFactor_[sensorId];
+
 }
 
 bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, float delayTime,
@@ -404,6 +406,8 @@ bool X2Robot::initialiseJoints() {
         }
     }
 
+    initializeRobotParams(robotName_);
+
     return true;
 }
 
@@ -434,6 +438,67 @@ bool X2Robot::initialiseInputs() {
     return true;
 }
 
+void X2Robot::initializeRobotParams(std::string robotName) {
+
+    //todo: better representation for 4 DoF. Didn't like this
+    m_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    s_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    I_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    c0_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    c1_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    cuffWeights_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    forceSensorScaleFactor_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+
+    if(robotName_ == "x2_A"){
+        // X2_A
+//        m_[1] = 2.3852; // mass of shank + foot
+//        s_[1] = 0.3192; // distance between knee and CoM(shank + foot)
+//        I_[1] = 2.1898; // mass moment of inertia
+//        c0_[1] = 4.6959; // viscous fric constant
+//        c1_[1] = 2.0; // coulomb friction const
+
+        // X2_A
+        m_[1] = 2.3922; // mass of shank + foot
+        s_[1] = 0.3199; // distance between knee and CoM(shank + foot)
+        I_[1] = 2.1868; // mass moment of inertia
+        c0_[1] = 4.1373; // viscous fric constant
+        c1_[1] = 2.5; // coulomb friction const
+
+        cuffWeights_ << 3.69, 3.69, 3.69, 3.69; // X2_A
+        // todo: find other calibration parameters
+        forceSensorScaleFactor_ << 0, 0.246, 0, 0; // X2_A
+    }
+    else if(robotName_ == "x2_B") {
+        // X2_B exp
+//        m_[1] = 2.4540; // mass of shank + foot
+//        s_[1] = 0.3269; // distance between knee and CoM(shank + foot)
+//        I_[1] = 2.2132; // mass moment of inertia
+//        c0_[1] = 5.5612; // viscous fric constant
+//        c1_[1] = 3.1000; // coulomb friction const
+
+        // X2_B exp
+        m_[1] = 2.4604; // mass of shank + foot
+        s_[1] = 0.3276; // distance between knee and CoM(shank + foot)
+        I_[1] = 2.2107; // mass moment of inertia
+        c0_[1] = 5.0404; // viscous fric constant
+        c1_[1] = 3.5000; // coulomb friction const
+
+        // X2_B exp
+//        m_[1] = 2.4614; // mass of shank + foot
+//        s_[1] = 0.3305; // distance between knee and CoM(shank + foot)
+//        I_[1] = 2.2048; // mass moment of inertia
+//        c0_[1] = 4.0548; // viscous fric constant
+//        c1_[1] = 4.2571; // coulomb friction const
+
+        cuffWeights_ << 3.88, 3.88, 3.88, 3.88; // // X2_B
+        // todo: find other calibration parameters
+        forceSensorScaleFactor_ << 0, 0.194, 0, 0; // X2_B
+    }
+    else{
+        spdlog::warn("parameters of robot '{}' is unknown. All parameters are set to zero", robotName_);
+    }
+}
+
 void X2Robot::freeMemory() {
     for (auto p : joints) {
         spdlog::debug("Delete Joint ID: {}", p->getId());
@@ -454,51 +519,25 @@ void X2Robot::updateRobot() {
 }
 
 Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
-
-    //todo: proper definition as member variable
-    // X2_A
-//    float m = 2.3852; // mass of shank + foot
-//    float s = 0.3192; // distance between knee and CoM(shank + foot)
-//    float I = 2.1898; // mass moment of inertia
-//    float c0 = 4.6959; // viscous fric constant
-//    float c1 = 2.0; // coulomb friction const
-
-    // X2_A
-//    float m = 2.3922; // mass of shank + foot
-//    float s = 0.3199; // distance between knee and CoM(shank + foot)
-//    float I = 2.1868; // mass moment of inertia
-//    float c0 = 4.1373; // viscous fric constant
-//    float c1 = 2.5; // coulomb friction const
-
-    // X2_B
-//    float m = 2.4540; // mass of shank + foot
-//    float s = 0.3269; // distance between knee and CoM(shank + foot)
-//    float I = 2.2132; // mass moment of inertia
-//    float c0 = 5.5612; // viscous fric constant
-//    float c1 = 3.1000; // coulomb friction const
-
-    // X2_B
-    float m = 2.4604; // mass of shank + foot
-    float s = 0.3276; // distance between knee and CoM(shank + foot)
-    float I = 2.2107; // mass moment of inertia
-    float c0 = 5.0404; // viscous fric constant
-    float c1 = 3.5000; // coulomb friction const
-
     float coulombFriction;
-    const float velTreshold = 2*M_PI/180.0; // [rad/s]
+    const float velTreshold = 3*M_PI/180.0; // [rad/s]
 
     // todo generalized 4 Dof Approach
     if(abs(jointVelocities_[1]) > velTreshold){ // if in motion
-        coulombFriction = c1*jointVelocities_[1]/abs(jointVelocities_[1]);
+        coulombFriction = c1_[1]*jointVelocities_[1]/abs(jointVelocities_[1]);
     }else { // if static
-        coulombFriction = c1*motionIntend/abs(motionIntend);
+        coulombFriction = c1_[1]*motionIntend/abs(motionIntend);
     }
 
     Eigen::VectorXd ffTorque = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    ffTorque[1] = m*s*9.81*sin(jointPositions_[1] - jointPositions_[0]) + coulombFriction + c0*jointVelocities_[1];
+    ffTorque[1] = m_[1]*s_[1]*9.81*sin(jointPositions_[1] - jointPositions_[0]) + coulombFriction + c0_[1]*jointVelocities_[1];
 
     return ffTorque;
 
+}
+
+void X2Robot::setRobotName(std::string robotName) {
+    robotName_ = robotName;
 }
 
 #ifdef SIM

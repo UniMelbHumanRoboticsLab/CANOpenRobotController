@@ -45,6 +45,7 @@ void X2DemoMachine::init(int argc, char *argv[]) {
     robot_->setNodeHandle(nodeHandle);
 #endif
 
+    robot_->setRobotName(robotName_);
     initialised = robot_->initialise();
     x2DemoMachineRos_->initialize();
     running = true;
@@ -55,7 +56,7 @@ void X2DemoMachine::init(int argc, char *argv[]) {
     std::stringstream logFileName;
 
     logFileName << "spdlogs/" << robotName_<< std::put_time(&tm, "/%d-%m-%Y_%H-%M-%S") << ".csv";
-    
+
     logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
     logHelper.add(time, "time");
     logHelper.add(x2DemoState->controller_mode_, "mode");

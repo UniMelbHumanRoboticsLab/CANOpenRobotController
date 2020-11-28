@@ -48,7 +48,6 @@ public:
 
 private:
     int sensorID;
-    double sensorValueToNewton(int sensorValue);
     double forceReading;
 
 };

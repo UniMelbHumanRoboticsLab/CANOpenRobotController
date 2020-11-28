@@ -65,14 +65,28 @@ struct ExoJointLimits {
 class X2Robot : public Robot {
    private:
     /**
+
      * \brief motor drive position control profile paramaters, user defined.
      *
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
     motorProfile velControlMotorProfile{0, 240000, 240000};
 
+    Eigen::VectorXd m_; // masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
+    Eigen::VectorXd s_; // length from previous joint to CoM [m]
+    Eigen::VectorXd I_; // mass moment of inertia of left thigh, left shank+foot, right thigh, right shank+foot [kg.m^2]
+    Eigen::VectorXd c0_; // viscous fric constant of joints [N.s]
+    Eigen::VectorXd c1_; // coulomb friction const of joints [N.m]
+    Eigen::VectorXd cuffWeights_; // cuff Weights [N]
+    Eigen::VectorXd forceSensorScaleFactor_; // scale factor of force sensors [N/sensor output]
+
     //Todo: generalise sensors
     Eigen::VectorXd interactionForces_;
+
+    std::string robotName_;
+
+    void initializeRobotParams(std::string robotName);
+    double forceSensorValueToNewton(int sensorValue, int sensorId);
 
 #ifdef SIM
     ros::NodeHandle* nodeHandle_;
@@ -254,7 +268,17 @@ class X2Robot : public Robot {
        */
     void updateRobot();
 
+    /**
+       * \brief returns the feedforward torque to compensate for the gravitational and frictional elements
+       *
+       * \param motionIntend intended direction of the motion. Used to calculate the static friction
+       */
     Eigen::VectorXd getFeedForwardTorque(int motionIntend);
+
+    /**
+       * \brief returns the feedforward torque to compensate for the gravitational and frictional elements
+       */
+    void setRobotName(std::string robotName);
 
 #ifdef SIM
     /**

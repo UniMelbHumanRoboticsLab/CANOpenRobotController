@@ -8,7 +8,7 @@ X2ForceSensor::X2ForceSensor(int sensorID) {
 
 void X2ForceSensor::updateInput() {
 
-    forceReading = sensorValueToNewton(*(&CO_OD_RAM.actualSensorForces.sensor1 + sensorID));
+    forceReading = *(&CO_OD_RAM.actualSensorForces.sensor1 + sensorID);
 }
 
 bool X2ForceSensor::calibrate() {
@@ -39,14 +39,4 @@ double X2ForceSensor::getForce() {
     return forceReading;
 
 }
-
-double X2ForceSensor::sensorValueToNewton(int sensorValue) {
-
-    // todo: take back angle into account
-//    float scaleFactor = 0.246; // X2_A
-    float scaleFactor = 0.194; // X2_B
-    return (sensorValue-1500.0)*scaleFactor;
-
-}
-
 
