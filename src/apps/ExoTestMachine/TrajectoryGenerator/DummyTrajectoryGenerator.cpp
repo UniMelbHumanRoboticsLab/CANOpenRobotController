@@ -11,8 +11,8 @@
 
 #include "DummyTrajectoryGenerator.h"
 
-double sitting[6] = {90, 90, 90, 90, 0, 0};
-double standing[6] = {180, 180, 0, 0, 0, 0};
+double sitting[6] = {deg2rad(95), deg2rad(95), deg2rad(90), deg2rad(90), 0, 0};
+double standing[6] = {0, 0, 0, 0, 0, 0};
 
 DummyTrajectoryGenerator::DummyTrajectoryGenerator(int NumOfJoints) {
     numJoints = NumOfJoints;
@@ -40,24 +40,25 @@ bool DummyTrajectoryGenerator::initialiseTrajectory(Trajectory traj, double time
      * 
      * @return vector<double> 
      */
-std::vector<double> DummyTrajectoryGenerator::getSetPoint(double time) {
+
+Eigen::VectorXd DummyTrajectoryGenerator::getSetPoint(double time) {
     double progress = time / trajTime;
-    std::vector<double> angles;
+    Eigen::VectorXd angles(numJoints);
 
     if (currTraj == SIT) {
         for (int i = 0; i < numJoints; i++) {
             if (progress > 1) {
-                angles.push_back(sitting[i]);
+                angles(i) = sitting[i];
             } else {
-                angles.push_back(standing[i] + progress * (sitting[i] - standing[i]));
+                angles(i) = standing[i] + progress * (sitting[i] - standing[i]);
             }
         }
     } else {
         for (int i = 0; i < numJoints; i++) {
             if (progress > 1) {
-                angles.push_back(standing[i]);
+                angles(i) = standing[i];
             } else {
-                angles.push_back(sitting[i] + progress * (standing[i] - sitting[i]));
+                angles(i) = sitting[i] + progress * (standing[i] - sitting[i]);
             }
         }
     }

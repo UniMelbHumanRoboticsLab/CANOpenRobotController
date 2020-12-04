@@ -36,9 +36,9 @@
 #include <iostream>
 #include <string>
 
-#include "ExoRobot.h"
 #include "ExoTestState.h"
 #include "StateMachine.h"
+#include "X2Robot.h"
 
 // State Classes
 #include "InitState.h"
@@ -47,7 +47,6 @@
 #include "Standing.h"
 #include "StandingUp.h"
 
-
 /**
  * @brief Example implementation of a StateMachine for the ExoRobot class. States should implemented ExoTestState
  *
@@ -55,6 +54,11 @@
 class ExoTestMachine : public StateMachine {
    public:
     bool running = false;
+
+    // Timing variables for logging
+    std::chrono::steady_clock::time_point time0;  // initial time that machine started
+    double time;                                  // time passed after time0 in [s]
+
     /**
      *  \todo Pilot Parameters would be set in constructor here
      *
@@ -63,9 +67,11 @@ class ExoTestMachine : public StateMachine {
     void init();
     void end();
 
+    void update();
     void hwStateUpdate();
+
     State *gettCurState();
-    void initRobot(ExoRobot *rb);
+    void initRobot(X2Robot *rb);
     bool trajComplete;
     DummyTrajectoryGenerator *trajectoryGenerator;
 
@@ -80,9 +86,8 @@ class ExoTestMachine : public StateMachine {
     Standing *standing;
 
    protected:
-    ExoRobot *robot; /*<!Pointer to the Robot*/
-
-    float test_val=42;
+    X2Robot *robot;        /*<!Pointer to the Robot*/
+    LogHelper dataLogger;  // Logger
 
    private:
     /**

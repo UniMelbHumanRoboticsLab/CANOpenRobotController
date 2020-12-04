@@ -15,26 +15,25 @@
 #ifndef X2ROBOT_H_INCLUDED
 #define X2ROBOT_H_INCLUDED
 
+#include <Eigen/Dense>
+#include <chrono>
 #include <map>
+#include <thread>
 
 #include "CopleyDrive.h"
 #include "Keyboard.h"
 #include "Robot.h"
-#include "X2Joint.h"
 #include "X2ForceSensor.h"
-#include <Eigen/Dense>
-
-#include <chrono>
-#include <thread>
+#include "X2Joint.h"
 
 // Logger
 #include "spdlog/helper/LogHelper.h"
 
 #ifdef SIM
-#include "ros/ros.h"
 #include "controller_manager_msgs/SwitchController.h"
-#include "std_msgs/Float64MultiArray.h"
+#include "ros/ros.h"
 #include "sensor_msgs/JointState.h"
+#include "std_msgs/Float64MultiArray.h"
 #endif
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
@@ -75,7 +74,7 @@ class X2Robot : public Robot {
     //Todo: generalise sensors
     Eigen::VectorXd interactionForces_;
 
-    #ifdef SIM
+#ifdef SIM
     ros::NodeHandle* nodeHandle_;
 
     ros::Publisher positionCommandPublisher_;
@@ -90,11 +89,12 @@ class X2Robot : public Robot {
     controller_manager_msgs::SwitchController controllerSwitchMsg_;
 
     void jointStateCallback(const sensor_msgs::JointState& msg);
-
+#endif
+#ifdef NOROBOT
     Eigen::VectorXd simJointPositions_;
     Eigen::VectorXd simJointVelocities_;
     Eigen::VectorXd simJointTorques_;
-    #endif
+#endif
 
    public:
     /**
@@ -105,8 +105,8 @@ class X2Robot : public Robot {
     X2Robot();
     ~X2Robot();
     Keyboard* keyboard;
-    std::vector<Drive *> motorDrives;
-    std::vector<X2ForceSensor *> forceSensors;
+    std::vector<Drive*> motorDrives;
+    std::vector<X2ForceSensor*> forceSensors;
 
     // /**
     //  * \brief Timer Variables for moving through trajectories
@@ -217,7 +217,7 @@ class X2Robot : public Robot {
     * \return bool success of homing
     */
     bool homing(std::vector<int> homingDirection = std::vector<int>(X2_NUM_JOINTS, 1), float thresholdTorque = 45.0,
-                float delayTime = 0.2, float homingSpeed = 5*M_PI/180.0, float maxTime = 30.0);
+                float delayTime = 0.2, float homingSpeed = 5 * M_PI / 180.0, float maxTime = 30.0);
 
     /**
    * Determine if the currently generated trajectory is complete.
@@ -254,7 +254,7 @@ class X2Robot : public Robot {
        */
     void updateRobot();
 
-    #ifdef SIM
+#ifdef SIM
     /**
        * \brief method to pass the nodeHandle. Only available in SIM mode
        */
@@ -263,7 +263,6 @@ class X2Robot : public Robot {
        * \brief Initialize ROS services, publisher ans subscribers
       */
     void initialiseROS();
-    #endif
-
+#endif
 };
 #endif /*EXOROBOT_H*/

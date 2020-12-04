@@ -49,7 +49,7 @@
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find x2_description)/rviz/view_robot.rviz"/>
 
   <!-- CORC -->
-  <node name="x2_node" pkg="CORC" type="X2DemoMachine_APP_NOROBOT" output="screen"/> 
+  <node name="x2" pkg="CORC" type="X2DemoMachine_APP_NOROBOT" output="screen"/>
 
 </launch>
 

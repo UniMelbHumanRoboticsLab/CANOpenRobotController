@@ -2,14 +2,12 @@
 
 CORC is a free and open source robotic development software stack, written in C++.
 
-The project has been under development at the University of Melbourne in partnership with Fourier Intelligence. The project was developed to run on an X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform.
-
-> Note (12/5/2020): At this stage, this software has not been tested on physical hardware due to lab access limitations due to COVID-19.
+The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform. The repository currently also includes code which has been run on the ArmMotus M1 and M3 rehabilitation devices, and using desktop or laptop Ubuntu installations.
 
 ## The CANOpen Robot Controller project includes:
 
-- An extensible framework to represent multibody robotic systems.
-- An event driven state machine to develop custom applications (see [here](doc/StateMachine.md))
+- An extensible framework to represent multibody rigid robotic systems.
+- An event driven state machine to develop custom applications (see [here](doc/StateMachine.md)).
 - An implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers/sensors.
 - [Documentation](https://unimelb-human-robotics-lab.github.io//CANOpenRobotController/index.html)
 - Functional application examples.
@@ -30,7 +28,7 @@ The following instructions detail the building and testing of a simple test stat
 
 At the end of these instructions, you should be to compile and run this example CORC application, verifying that all development tools have been installed correctly. 
 
-### Before you start - Installation Instructions.
+### Before you start - Installation Instructions
 
 These instructions assume that you have a suitable test platform (i.e. a Target), and a workbench environment (i.e. a Host). It is suggested that the Target and Host you use for his guide are the platforms you intend to develop on for your own application.
 
@@ -59,7 +57,7 @@ $ git clone https://github.com/UniMelb-Human-Robotics-Lab/CANOpenRobotController
 This repository includes all the sources files required for this example. (If you are running Github Desktop, you can simply clone by using File > Clone Repository...)
 
 ### Building ExoTestMachine
-CMake is used to generate an appropriate makefile for CORC framework. By default, the generated makefile is configured to compile an executable `ExoTestMachine_APP` using the default C/C++ compilers. To generate a cross-compiled executable (suitable for running on a Beaglebone Black) using the following commands on the host:
+CMake is used to generate an appropriate makefile for CORC framework. By default, the generated makefile is configured to compile an executable `ExoTestMachine_APP` using the default C/C++ compilers. To generate a cross-compiled executable (suitable for running on a Beaglebone Black) use the following commands on the host:
 ```bash
 $ mkdir build
 $ cd build
@@ -91,7 +89,7 @@ Using an FTP Client on the Host (if you do not have one - or a preferred client,
 
 On the host, using the FTP client, transfer the build executable in `build/ExoTestMachine_APP`, along with the contents of the `initRobot` folder, to the Beaglebone.
 
-Alternatively, you can use the [script/uploadBB.sh](script/uploadBB.sh) to automatically upload the content of the script folder and the build/\*APP to the BeagleBone if you are developing on a Linux Machine. 
+Alternatively, you can use the [script/uploadBB.sh](script/uploadBB.sh) to automatically upload the content of the script folder and the build/\*APP to the BeagleBone through ssh. 
 
 > Note: The `initRobot` folder contains scripts for setting up the CAN interfaces that CORC uses for communication
 
@@ -206,12 +204,6 @@ The following individuals have made contributions to CORC:
 Please contact fong.j[at]unimelb.edu.au with questions or suggestions for continuing development, or if you wish to be more involved in the planning/organisation of CORC.
 
 ## License
-​
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
-​
-http://www.apache.org/licenses/LICENSE-2.0
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-​
-This program is distributed in the hope that it will be us
 
-<!-- ## Maintainers -->
