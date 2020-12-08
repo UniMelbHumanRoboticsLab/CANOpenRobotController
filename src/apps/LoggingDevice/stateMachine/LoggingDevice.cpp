@@ -29,7 +29,7 @@ LoggingDevice::LoggingDevice() {
 }
 
 void LoggingDevice::init() {
-    spdlog::info("LoggingDevice::init()");
+    spdlog::debug("LoggingDevice::init()");
     initialised = robot->initialise();
     running = true;
 

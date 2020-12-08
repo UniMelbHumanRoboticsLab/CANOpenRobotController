@@ -227,7 +227,6 @@ typedef domain_t CO_DOMAIN;
     UNSIGNED32 triggerTime;
 } OD_trace_t;
 
-
 /*******************************************************************************
    TYPE DEFINITIONS FOR OBJECT DICTIONARY INDEXES
 
