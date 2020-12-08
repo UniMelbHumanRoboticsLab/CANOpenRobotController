@@ -8,7 +8,6 @@
  */
 #include "application.h"
 
-
 #ifdef TIMING_LOG
 #include "LoopTiming.h"
 LoopTiming loopTimer;
@@ -19,20 +18,50 @@ LoopTiming loopTimer;
 #define STATE_MACHINE_TYPE ExoTestMachine
 #endif
 
+extern CO_OD_entry_t CO_OD[CO_OD_NoOfElements];
+
 STATE_MACHINE_TYPE stateMachine;
-
-
 /*For master-> node SDO message sending*/
 #define CO_COMMAND_SDO_BUFFER_SIZE 100000
 #define STRING_BUFFER_SIZE (CO_COMMAND_SDO_BUFFER_SIZE * 4 + 100)
 char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
+INTEGER16 ODtestthing = 0;
+
+CO_OD_entryRecord_t testRecord[7] = {
+    {(void *)&CO_OD_RAM.controlWords.numberOfMotors, 0x06, 0x1},
+    {(void *)&ODtestthing, 0xfe, 0x2},
+    {(void *)&CO_OD_RAM.controlWords.motor2, 0xfe, 0x2},
+    {(void *)&CO_OD_RAM.controlWords.motor3, 0xfe, 0x2},
+    {(void *)&CO_OD_RAM.controlWords.motor4, 0xfe, 0x2},
+    {(void *)&CO_OD_RAM.controlWords.motor5, 0xfe, 0x2},
+    {(void *)&CO_OD_RAM.controlWords.motor6, 0xfe, 0x2},
+};
+
+OD_RPDOCommunicationParameter_t RPDOcommPara = {0x2L, 0x0f2, 0xffL};
+OD_RPDOMappingParameter_t RPDOmapparam = {0x1L, 0x60410110L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L};
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
     spdlog::info("CORC Start application");
+
 #ifdef NOROBOT
     spdlog::info("Running in NOROBOT (virtual) mode.");
-#endif // NOROBOT
+#endif  // NOROBOT
+
+    CO_configure();
+    CO_OD[25].pData = (void *)&RPDOcommPara;
+    spdlog::info("ODTEST {} {} {}", CO_OD[25].index, CO_OD[25].attribute, CO_OD[25].pData);
+
+    CO_OD[25 + CO_NO_RPDO].pData = (void *)&RPDOmapparam;
+
+    //RPDOcommPara.COB_IDUsedByRPDO = 0x0f2;
+    //RPDOcommPara.transmissionType = 0xfeL;
+    //RPDOmapparam.numberOfMappedObjects = 0x1L;
+    //RPDOmapparam.mappedObject1 = 0x60410110L;
+
+    CO_OD[24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 92].pData = (void *)&testRecord;
+
+//CO_OD
 #ifndef USEROS
     stateMachine.init();
 #else
@@ -48,9 +77,9 @@ void app_communicationReset(void) {
 void app_programEnd(void) {
     stateMachine.end();
     spdlog::info("CORC End application");
-    #ifdef TIMING_LOG
+#ifdef TIMING_LOG
     loopTimer.end();
-    #endif
+#endif
 }
 /******************************************************************************/
 void app_programAsync(uint16_t timer1msDiffy) {
@@ -61,7 +90,8 @@ void app_programControlLoop(void) {
         stateMachine.update();
         stateMachine.hwStateUpdate();
     }
-    #ifdef TIMING_LOG
+    spdlog::info("ODTEST {}", ODtestthing);
+#ifdef TIMING_LOG
     loopTimer.tick();
-    #endif
+#endif
 }

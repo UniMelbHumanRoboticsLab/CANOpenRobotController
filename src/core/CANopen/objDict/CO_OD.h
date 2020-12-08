@@ -109,7 +109,7 @@ typedef domain_t CO_DOMAIN;
 /*******************************************************************************
    OBJECT DICTIONARY
 *******************************************************************************/
-#define CO_OD_NoOfElements 255
+#define CO_OD_NoOfElements (127 + CO_NO_RPDO * 2 + CO_NO_TPDO * 2)
 
 /*******************************************************************************
    TYPE DEFINITIONS FOR RECORDS
@@ -306,8 +306,8 @@ typedef domain_t CO_DOMAIN;
     INTEGER32 sensor2;
     INTEGER32 sensor3;
     INTEGER32 sensor4;
-//    INTEGER16 sensor5;
-//    INTEGER16 sensor6;
+    //    INTEGER16 sensor5;
+    //    INTEGER16 sensor6;
 } OD_actualSensorForces_t;
 
 /*******************************************************************************
@@ -3545,3 +3545,12 @@ extern struct sCO_OD_EEPROM CO_OD_EEPROM;
 #define OD_writeAnalogueOutput16Bit CO_OD_RAM.writeAnalogueOutput16Bit
 #define ODL_writeAnalogueOutput16Bit_arrayLength 8
 #define ODA_writeAnalogueOutput16Bit_output 0
+
+/**
+ * Configures the Objection Dictionary with blank PDOs.
+ *
+ * @return Success or failure of the configuration
+ */
+bool_t CO_configure(void);
+
+bool_t CO_OD_set_entry(uint16_t element_, uint16_t index_, uint8_t maxSubIndex_, uint16_t attribute_, uint16_t length_, void *pData_);
