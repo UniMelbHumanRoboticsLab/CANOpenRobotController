@@ -161,6 +161,7 @@ public:
     JointVec dq;
     JointVec tau;
     double cal_velocity;
+    double stages;
 };
 
 class M1DemoState : public M1TimedState {
@@ -202,6 +203,7 @@ public:
     JointVec q;     //positive dorsi flexion
     JointVec dq;
     JointVec tau;
+    JointVec tau_s;
 
     double Ks;
     double dt;
@@ -217,7 +219,8 @@ public:
     double freq;
     double counter;
     bool status = true;
-    int mode = 1;
+    int mode = 1;   // 1 for position control; 2 for velocity control; 3 for torque control; 4 for admittance control
+    int sub_mode = 1;
     int cycle = 0;
     bool dir = true;
     double magnitude = 20;

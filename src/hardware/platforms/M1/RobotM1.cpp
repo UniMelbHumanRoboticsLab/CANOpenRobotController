@@ -187,7 +187,7 @@ bool RobotM1::initMonitoring() {
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
-        ((JointM1 *)p)->readyToSwitchOn();
+//        ((JointM1 *)p)->readyToSwitchOn();
     }
 
     // Pause for a bit to let commands go
@@ -383,20 +383,21 @@ setMovementReturnCode_t RobotM1::setJointVel(JointVec vel_d) {
 }
 
 setMovementReturnCode_t RobotM1::setJointTor(JointVec tor_d) {
+    return applyTorque(tor_d);
+}
+
+setMovementReturnCode_t RobotM1::setJointTor_comp(JointVec tor_d) {
     tor_d = compensateJointTor(tor_d);
     return applyTorque(tor_d);
 }
 
-
 JointVec RobotM1::compensateJointTor(JointVec tor){
-    double f_s = 1.4;
-    double f_d = 0.5;
-    double inertia_c = 0.12;
+    double f_s = 1.57;
+    double f_d = 2.02;
+    double inertia_c = 0.24;
     if(abs(dq(0))<0.05)
     {
         tor(0) = tor(0) + f_s*sign(tor(0)) + f_d*dq(0)+inertia_c*sin(q(0));
-//        tor(0) = tor(0) + f_s*sign(tor(0))+ f_d*dq(0)+inertia_c*sin(q(0));
-
     }
     else
     {
