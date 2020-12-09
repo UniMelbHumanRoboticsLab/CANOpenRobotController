@@ -11,6 +11,8 @@
  */
 #include "Robot.h"
 
+short int sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
+
 Robot::Robot(){
     spdlog::debug("Robot object created");
 }

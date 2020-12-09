@@ -24,6 +24,9 @@
 #include "InputDevice.h"
 #include "Joint.h"
 
+
+short int sign(double val);
+
 /**
  * @ingroup Robot
  * \brief Abstract Class representing a robot. Includes vectors of Joint and InputDevice.

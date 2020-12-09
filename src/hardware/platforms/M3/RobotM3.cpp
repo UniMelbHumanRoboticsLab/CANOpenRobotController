@@ -2,7 +2,7 @@
 
 using namespace Eigen;
 
-short int sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
+//short int sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
 
 RobotM3::RobotM3() : Robot(),
                      endEffTool(&M3Handle),
