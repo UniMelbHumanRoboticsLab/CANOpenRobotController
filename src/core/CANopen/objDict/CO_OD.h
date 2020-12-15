@@ -934,7 +934,8 @@ extern OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO];
  *
  * @return Success or failure of the configuration
  */
-bool_t CO_configure(void);
+    bool_t
+    CO_configure(void);
 
 /**
  * Configures a single element in the object dictionary
