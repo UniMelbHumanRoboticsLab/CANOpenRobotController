@@ -51,6 +51,8 @@
    Dictionary Editor v0.6-xdd-alpha-81-gb562769
    DON'T EDIT THIS FILE MANUALLY !!!!
 *******************************************************************************/
+#ifndef CO_OD_H
+#define CO_OD_H
 
 #include "CO_driver.h"
 
@@ -3230,8 +3232,8 @@ struct sCO_OD_RAM {
     /*1029      */ UNSIGNED8 errorBehavior[6];
     /*1200      */ OD_SDOServerParameter_t SDOServerParameter[1];
     /*1280      */ OD_SDOClientParameter_t SDOClientParameter[1];
-    /*1400      */ OD_RPDOCommunicationParameter_t RPDOCommunicationParameter[32];
-    /*1600      */ OD_RPDOMappingParameter_t RPDOMappingParameter[32];
+    /*1400      */ //OD_RPDOCommunicationParameter_t RPDOCommunicationParameter[32];
+    /*1600      */ //OD_RPDOMappingParameter_t RPDOMappingParameter[32];
     /*1800      */ OD_TPDOCommunicationParameter_t TPDOCommunicationParameter[32];
     /*1a00      */ OD_TPDOMappingParameter_t TPDOMappingParameter[32];
     /*1f80      */ UNSIGNED32 NMTStartup;
@@ -3389,10 +3391,13 @@ extern struct sCO_OD_EEPROM CO_OD_EEPROM;
 #define OD_SDOClientParameter CO_OD_RAM.SDOClientParameter
 
 /*1400, Data Type: RPDOCommunicationParameter_t */
-#define OD_RPDOCommunicationParameter CO_OD_RAM.RPDOCommunicationParameter
+// Change to store the parameters in a dedicated array
+// #define OD_RPDOCommunicationParameter CO_OD_RAM.RPDOCommunicationParameter
+OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO];
 
 /*1600, Data Type: RPDOMappingParameter_t */
-#define OD_RPDOMappingParameter CO_OD_RAM.RPDOMappingParameter
+//#define OD_RPDOMappingParameter CO_OD_RAM.RPDOMappingParameter
+OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO];
 
 /*1800, Data Type: TPDOCommunicationParameter_t */
 #define OD_TPDOCommunicationParameter CO_OD_RAM.TPDOCommunicationParameter
@@ -3546,11 +3551,14 @@ extern struct sCO_OD_EEPROM CO_OD_EEPROM;
 #define ODL_writeAnalogueOutput16Bit_arrayLength 8
 #define ODA_writeAnalogueOutput16Bit_output 0
 
-/**
+    /**
  * Configures the Objection Dictionary with blank PDOs.
  *
  * @return Success or failure of the configuration
  */
-bool_t CO_configure(void);
+    bool_t
+    CO_configure(void);
 
 bool_t CO_OD_set_entry(uint16_t element_, uint16_t index_, uint8_t maxSubIndex_, uint16_t attribute_, uint16_t length_, void *pData_);
+
+#endif

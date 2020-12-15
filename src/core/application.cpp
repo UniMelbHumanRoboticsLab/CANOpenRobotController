@@ -38,8 +38,28 @@ CO_OD_entryRecord_t testRecord[7] = {
     {(void *)&CO_OD_RAM.controlWords.motor6, 0xfe, 0x2},
 };
 
-OD_RPDOCommunicationParameter_t RPDOcommPara = {0x2L, 0x0f2, 0xffL};
+OD_RPDOCommunicationParameter_t RPDOcommPara = {0x2L, 0x0faL, 0xffL};
+
+CO_OD_entryRecord_t PRDOCommEntry[3] = {
+    {(void *)&RPDOcommPara.maxSubIndex, 0x06, 0x1},
+    {(void *)&RPDOcommPara.COB_IDUsedByRPDO, 0x8e, 0x4},
+    {(void *)&RPDOcommPara.transmissionType, 0x0e, 0x1},
+};
+
 OD_RPDOMappingParameter_t RPDOmapparam = {0x1L, 0x60410110L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L};
+
+CO_OD_entryRecord_t RPDOmapparamEntry[9] = {
+    {(void *)&RPDOmapparam.numberOfMappedObjects, 0x0e, 0x1},
+    {(void *)&RPDOmapparam.mappedObject1, 0x8e, 0x4},
+    {(void *)&RPDOmapparam.mappedObject2, 0x8e, 0x4},
+    {(void *)&RPDOmapparam.mappedObject3, 0x8e, 0x4},
+    {(void *)&RPDOmapparam.mappedObject4, 0x8e, 0x4},
+    {(void *)&RPDOmapparam.mappedObject5, 0x8e, 0x4},
+    {(void *)&RPDOmapparam.mappedObject6, 0x8e, 0x4},
+    {(void *)&RPDOmapparam.mappedObject7, 0x8e, 0x4},
+    {(void *)&RPDOmapparam.mappedObject8, 0x8e, 0x4},
+};
+
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
     spdlog::info("CORC Start application");
@@ -49,18 +69,19 @@ void app_programStart(int argc, char *argv[]) {
 #endif  // NOROBOT
 
     CO_configure();
-    CO_OD[25].pData = (void *)&RPDOcommPara;
     spdlog::info("ODTEST {} {} {}", CO_OD[25].index, CO_OD[25].attribute, CO_OD[25].pData);
 
-    CO_OD[25 + CO_NO_RPDO].pData = (void *)&RPDOmapparam;
+    CO_OD[25].pData = (void *)&PRDOCommEntry;
+    spdlog::info("ODTEST {} {} {}", CO_OD[25].index, CO_OD[25].attribute, CO_OD[25].pData);
+
+    CO_OD[25 + CO_NO_RPDO].pData = (void *)&RPDOmapparamEntry;
 
     //RPDOcommPara.COB_IDUsedByRPDO = 0x0f2;
     //RPDOcommPara.transmissionType = 0xfeL;
     //RPDOmapparam.numberOfMappedObjects = 0x1L;
     //RPDOmapparam.mappedObject1 = 0x60410110L;
-
+    
     CO_OD[24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 92].pData = (void *)&testRecord;
-
 //CO_OD
 #ifndef USEROS
     stateMachine.init();
