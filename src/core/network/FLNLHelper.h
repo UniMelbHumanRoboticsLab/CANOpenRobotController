@@ -69,6 +69,25 @@ class FLNLHelper
             spdlog::info("Initialised network communication server ({}:{}) for M3 robot (state size: {})", ip, port, stateValues.size());
         }
         
+         /**
+        * \brief Dedicated constructor for M2 registering end effector state instead of joint ones
+        * \param ip: server (local) ip address to use
+        * \param port: communication port
+        */
+        FLNLHelper(RobotM2 * robot, std::string ip, int port = 2048) {
+            //Start server and wait for incoming connection
+            FLNLServer.Connect(ip.c_str(), port);
+            
+            initTime = std::chrono::steady_clock::now();
+            
+            registerState(runningTime);
+            registerState(robot->getEndEffPositionRef());
+            registerState(robot->getEndEffVelocityRef());
+            registerState(robot->getEndEffForceRef());
+            
+            spdlog::info("Initialised network communication server ({}:{}) for M2 robot (state size: {})", ip, port, stateValues.size());
+        }
+        
         /**
         * \brief Close existing connection
         */

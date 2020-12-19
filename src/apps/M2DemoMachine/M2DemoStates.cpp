@@ -40,7 +40,7 @@ void M2DemoState::duringCode(void) {
     if(iterations%100==1) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
         std::cout << elapsedTime << " ";
-        //robot->printJointStatus();
+        robot->printJointStatus();
         robot->printStatus();
     }
     robot->setEndEffForceWithCompensation(VM2::Zero());
@@ -183,6 +183,101 @@ void M2EndEffDemo::exitCode(void) {
     robot->setEndEffVelocity(VM2::Zero());
 }
 
+
+
+void M2ArcCircle::entryCode(void) {
+    robot->initVelocityControl();
+    //Initialise values (from network command) and sanity check
+    //theta_s =
+    //dTheta_t =
+    //radius =
+    //centerPt =
+
+
+    //Arc starting point
+    finished = false;
+    theta = theta_s;
+	startingPt[0]=centerPt[0]+radius*cos(theta_s*M_PI/180.);
+	startingPt[1]=centerPt[1]+radius*sin(theta_s*M_PI/180.);
+	//Initialise profile timing
+	double t_init = 1.0; //waiting time before movement starts (need to be at least 0.8 because drives have a lag...)
+	double t_end_accel = t_init + dTheta_t/ddTheta; //acceleration phase to reach constant angular velociy
+	double t_end_cstt = t_end_accel + (thetaRange-(dTheta_t*dTheta_t)/ddTheta)/dTheta_t; //constant angular velocity phase: ensure total range is theta_range
+	double t_end_decel = t_end_cstt + dTheta_t/ddTheta; //decelaration phase
+
+	//Define sign of movement based on starting angle
+	sign=1;
+	if(theta_s>90)
+		sign=-1;
+}
+void M2ArcCircle::duringCode(void) {
+
+    //Define velocity profile phase based on timing
+    double dTheta = 0;
+    VM2 dXd, Xd, dX;
+    double t = elapsedTime;
+    if(t<t_init)
+    {
+        dTheta=0;
+    }
+    else
+    {
+        if(t<t_end_accel)
+        {
+            //Acceleration phase
+            dTheta=(t-t_init)*ddTheta;
+        }
+        else
+        {
+            if(t<=t_end_cstt)
+            {
+                //Constant phase
+                dTheta=dTheta_t;
+            }
+            else
+            {
+                if(t<t_end_decel)
+                {
+                    //Deceleration phase
+                    dTheta=dTheta_t-(t-t_end_cstt)*ddTheta;
+                }
+                else
+                {
+                    //Profile finished
+                    dTheta=0;
+                    finished = true;
+                }
+            }
+        }
+    }
+    dTheta*=sign;
+
+    //Integrate to keep mobilisation angle
+    theta += dTheta*dt;
+
+    //Transform to end effector space
+    //desired velocity
+    dXd[0] = -radius*sin(theta*M_PI/180.)*dTheta*M_PI/180.;
+    dXd[1] = radius*cos(theta*M_PI/180.)*dTheta*M_PI/180.;
+    //desired position
+    Xd[0] = centerPt[0]+radius*cos(theta*M_PI/180.);
+    Xd[1] = centerPt[1]+radius*sin(theta*M_PI/180.);
+    //PI in velocity-position
+    float K=5.0;
+    dX = dXd + K*(Xd-robot->getEndEffPosition());
+
+
+    //Apply
+    robot->setEndEffVelocity(dX);
+
+    if(iterations%100==1) {
+        //std::cout << dXd.transpose() << "  ";
+        robot->printStatus();
+    }
+}
+void M2ArcCircle::exitCode(void) {
+    robot->setEndEffVelocity(VM2::Zero());
+}
 
 
 void M2DemoImpedanceState::entryCode(void) {

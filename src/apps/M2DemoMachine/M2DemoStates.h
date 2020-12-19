@@ -161,6 +161,33 @@ class M2EndEffDemo : public M2TimedState {
 };
 
 /**
+ * \brief End-effector arc circle trajectory (position over velocity)
+ *
+ */
+class M2ArcCircle : public M2TimedState {
+
+   public:
+    M2ArcCircle(StateMachine *m, RobotM2 *M2, const char *name = "M2 Arc Circle"):M2TimedState(m, M2, name){};
+
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
+
+   private:
+    bool finished;
+    double radius;
+    double theta_s;
+    double thetaRange;
+    double theta;
+    int sign;
+    double dTheta_t; //Movement target velocity (max of profile) in deg.s-1
+    double ddTheta=200; //in deg.s-2
+    VM2 centerPt;
+    VM2 startingPt;
+    double t_init, t_end_accel, t_end_cstt, t_end_decel;
+};
+
+/**
  * \brief Basic impedance control on a static point.
  *
  */

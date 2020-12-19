@@ -46,6 +46,8 @@ public:
     */
     double getForce();
 
+    bool isCalibrated(){ return calibrated; }
+
 private:
     int sensorID;
     double sensorValueToNewton(int sensorValue);

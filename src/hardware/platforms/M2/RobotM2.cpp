@@ -293,8 +293,12 @@ VM2 RobotM2::getEndEffVelocity() {
 }
 VM2 RobotM2::getEndEffForce() {
     VM2 Force;
-    for(unsigned int i=0; i< forceSensors.size(); i++)
-        Force[i]=forceSensors[i]->getForce();
+    for(unsigned int i=0; i< forceSensors.size(); i++) {
+        if(forceSensors[i]->isCalibrated())
+            Force[i]=forceSensors[i]->getForce();
+        else
+            Force[i]=std::nan("Not calibrated");
+    }
     return Force;
 }
 

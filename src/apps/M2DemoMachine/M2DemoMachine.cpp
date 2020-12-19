@@ -35,8 +35,8 @@ M2DemoMachine::M2DemoMachine() {
 
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
-    StateMachine::initialize(calibState);
-    //StateMachine::initialize(testState);
+    //StateMachine::initialize(calibState);
+    StateMachine::initialize(testState);
 }
 M2DemoMachine::~M2DemoMachine() {
     delete UIserver;
@@ -54,9 +54,9 @@ void M2DemoMachine::init() {
         initialised = true;
         logHelper.initLogger("M2DemoMachineLog", "logs/M2DemoMachine.csv", LogFormat::CSV, true);
         logHelper.add(time_running, "Time (s)");
-        logHelper.add(robot->getPosition(), "JointPositions");
-        logHelper.add(robot->getVelocity(), "JointVelocities");
-        logHelper.add(robot->getTorque(), "JointTorques");
+        logHelper.add(robot->getEndEffPositionRef(), "Position");
+        logHelper.add(robot->getEndEffVelocityRef(), "Velocity");
+        logHelper.add(robot->getEndEffForceRef(), "Force");
         logHelper.startLogger();
         UIserver = new FLNLHelper(robot, "192.168.7.2");
     }
