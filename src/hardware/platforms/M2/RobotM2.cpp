@@ -7,8 +7,8 @@ RobotM2::RobotM2() : Robot(),
                      maxEndEffVel(2),
                      maxEndEffForce(60) {
     //Define the robot structure: each joint with limits and drive: should be in constructor
-    double tau_max = 1.9 * 100;//TODO:reduction???????
-    joints.push_back(new JointM2(0, 0, 0.610, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new KincoDrive(1), "x"));
+    double tau_max = 1.9 * 166;
+    joints.push_back(new JointM2(0, 0, 0.625, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new KincoDrive(1), "x"));
     joints.push_back(new JointM2(1, 0, 0.440, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new KincoDrive(2), "y"));
 
     forceSensors.push_back(new M2ForceSensor(0));
@@ -137,7 +137,7 @@ void RobotM2::printStatus() {
     std::cout << std::endl;
 }
 void RobotM2::printJointStatus() {
-    std::cout << std::setprecision(1) << std::fixed;
+    std::cout << std::setprecision(3) << std::fixed;
     std::cout << "q=[ " << getPosition().transpose() << " ]\t";
     std::cout << "dq=[ " << getVelocity().transpose() << " ]\t";
     std::cout << "tau=[ " << getTorque().transpose() << " ]\t";
@@ -374,6 +374,8 @@ setMovementReturnCode_t RobotM2::setEndEffForce(VM2 F) {
     VM2 tau = J().transpose() * F;
     return setJointTorque(tau);
 }
+
+//TODO: turn to force control
 setMovementReturnCode_t RobotM2::setEndEffForceWithCompensation(VM2 F, bool friction_comp) {
     if (!calibrated) {
         return NOT_CALIBRATED;
@@ -385,7 +387,7 @@ setMovementReturnCode_t RobotM2::setEndEffForceWithCompensation(VM2 F, bool fric
     }
     VM2 tau_f(0, 0);                     //Friction compensation torque
     if (friction_comp) {
-        double alpha = 0.5, beta = 0.2, threshold = 0.000000;
+        double alpha = 8, beta = 1, threshold = 0.05;
         for (unsigned int i = 0; i < joints.size(); i++) {
             double dq = ((JointM2 *)joints[i])->getVelocity();
             if (abs(dq) > threshold) {

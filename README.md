@@ -87,13 +87,13 @@ Using an FTP Client on the Host (if you do not have one - or a preferred client,
 - **Username:** debian
 - **Password:** temppwd
 
-On the host, using the FTP client, transfer the build executable in `build/ExoTestMachine_APP`, along with the contents of the `initRobot` folder, to the Beaglebone.
+On the host, using the FTP client, transfer the build executable in `build/ExoTestMachine_APP`, along with the contents of the `script` folder, to the Beaglebone.
 
 Alternatively, you can use the [script/uploadBB.sh](script/uploadBB.sh) to automatically upload the content of the script folder and the build/\*APP to the BeagleBone through ssh. 
 
-> Note: The `initRobot` folder contains scripts for setting up the CAN interfaces that CORC uses for communication
+> Note: The `script` folder contains scripts for setting up the CAN interfaces that CORC uses for communication. In case you use a PEAK CAN USB device, make sure to either use the `initPCAN` script or to manually setup the CAN queue length to 1000 (`ifconfig can0 txqueuelen 1000`).
 
-**[DEPLOY-LOCAL]** This entire step is not required if you are running on your development machine - just note the location of your `ExoTestMachine_APP` and `initRobot` folder. 
+**[DEPLOY-LOCAL]** This entire step is not required if you are running on your development machine - just note the location of your `ExoTestMachine_APP` and `script` folder. 
 
 ## Run Virtual ExoTestMachine
 
@@ -118,12 +118,12 @@ This must be repeated for the `.sh` scripts as well.
 The CORC Application requires the a CAN device to send commands to. For this test, we create a virtual CAN device (so no hardware is required). To do this, initialise the Virtual CAN device to set up, bind to and run candump ([candump manpage](https://manpages.debian.org/testing/can-utils/candump.1.en.html)) on the VCAN interface using the `initVCAN` script. 
 
 ```bash
-$  cd initRobot
+$  cd script
 $  ./initVCAN.sh
 ```
 This initialises a virtual CAN interface, and prints the contents of the bus to the terminal window.
 
-> Note: This can be changed to use a non-virtual CAN interface, but this requires some minor changes to the code before compilation, and the use of the `X2_startCAN.sh` script instead.
+> Note: This can be changed to use a non-virtual CAN interface, but this requires some minor changes to the code before compilation, and the use of the `initCAN0.sh` script (or `initPCAN.sh` if you use a PEAK CAN USB device) instead.
 
 SSH into the BeagleBone in a second terminal window (**[DEPLOY-LOCAL]** or launch a second terminal) to launch the application:
 

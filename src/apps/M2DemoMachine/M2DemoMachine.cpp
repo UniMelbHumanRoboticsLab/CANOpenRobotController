@@ -35,8 +35,8 @@ M2DemoMachine::M2DemoMachine() {
 
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
-    //StateMachine::initialize(calibState);
-    StateMachine::initialize(testState);
+    StateMachine::initialize(calibState);
+    //StateMachine::initialize(testState);
 }
 M2DemoMachine::~M2DemoMachine() {
     delete UIserver;

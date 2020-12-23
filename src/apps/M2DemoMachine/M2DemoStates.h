@@ -104,7 +104,7 @@ class M2DemoState : public M2TimedState {
     void duringCode(void);
     void exitCode(void);
 
-    VM2 qi, Xi;
+    VM2 qi, Xi, tau;
 };
 
 

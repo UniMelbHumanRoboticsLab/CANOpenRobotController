@@ -26,7 +26,7 @@ class JointM2 : public Joint {
     const short int sign;
     const double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
     int encoderCounts = 10000;  //Encoder counts per turn
-    double reductionRatio = 100;//TODO:??????
+    double reductionRatio = 166;
 
     double Ipeak = 45.0;                 //Kinco FD123 peak current
     double motorTorqueConstant = 0.132;  //SMC60S-0020 motor torque constant

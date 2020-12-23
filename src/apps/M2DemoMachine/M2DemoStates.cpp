@@ -29,12 +29,13 @@ void M2DemoState::entryCode(void) {
     //robot->applyCalibration();
     //robot->initPositionControl();
     //robot->initVelocityControl();
-    //robot->initTorqueControl();
+    robot->initTorqueControl();
     qi=robot->getPosition();
     Xi=robot->getEndEffPosition();
     //robot->setJointVelocity(VM2::Zero());
     //robot->setEndEffForceWithCompensation(VM2::Zero(), false);
     robot->printJointStatus();
+    tau = VM2::Zero();
 }
 void M2DemoState::duringCode(void) {
     if(iterations%100==1) {
@@ -43,7 +44,7 @@ void M2DemoState::duringCode(void) {
         robot->printJointStatus();
         robot->printStatus();
     }
-    robot->setEndEffForceWithCompensation(VM2::Zero());
+    robot->setEndEffForceWithCompensation(tau, false);
     /*VM2 q = robot->getJointPos();
     q(1)=68*M_PI/180.-0.1*elapsedTime;*/
     //std::cout << q.transpose() <<std::endl;
@@ -74,7 +75,6 @@ void M2DemoState::duringCode(void) {
     //robot->setJointTor(robot->calculateGravityTorques());
 
 
-
     /*float k_i=1.;
     VM2 Xf(-0.4, 0, 0);
     VM2 Xd, dXd;
@@ -83,7 +83,6 @@ void M2DemoState::duringCode(void) {
     std::cout << (Xd-robot->getEndEffPosition()).norm() << std::endl;*/
 }
 void M2DemoState::exitCode(void) {
-    robot->setJointVelocity(VM2::Zero());
     robot->setEndEffForceWithCompensation(VM2::Zero());
 }
 
@@ -106,20 +105,20 @@ void M2CalibState::duringCode(void) {
 
     //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
     VM2 vel=robot->getVelocity();
-    double b = 3.;
+    double b = 3;
     for(unsigned int i=0; i<vel.size(); i++) {
-        tau(i) = std::min(std::max(2 - b * vel(i), .0), 2.);
-        if(stop_reached_time(i)>0.5) {
+        tau(i) = -std::min(std::max(20 - b * vel(i), .0), 20.);
+        if(stop_reached_time(i)>1) {
             at_stop[i]=true;
         }
-        if(vel(i)<0.01) {
+        if(abs(vel(i))<0.005) {
             stop_reached_time(i) += dt;
         }
     }
 
     //Switch to gravity control when done
     if(robot->isCalibrated()) {
-        robot->setEndEffForceWithCompensation(VM2::Zero());
+        robot->setEndEffForceWithCompensation(VM2::Zero(), false);
         calibDone=true; //Trigger event
     }
     else {
@@ -152,7 +151,11 @@ void M2Transparent::duringCode(void) {
     double t=elapsedTime>settling_time?1.0:elapsedTime/settling_time;
 
     //Apply corresponding force
-    robot->setEndEffForceWithCompensation(VM2::Zero());
+    robot->setEndEffForceWithCompensation(VM2::Zero(), true);
+
+    if(iterations%100==1) {
+        robot->printStatus();
+    }
 }
 void M2Transparent::exitCode(void) {
     robot->setEndEffForceWithCompensation(VM2::Zero());
