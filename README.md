@@ -182,6 +182,9 @@ See [this detailed explanation](doc/CustomApplication.md) for instructions to cu
 ### ROS Support
 See [here](doc/Simulation.md) for instructions on how to build and run a CORC app with ROS support.
 
+### Network communication
+See [here](doc/NetworkCommunication.md) for instructions on using libFLNL for communication.
+
 ## Developer Information
 
 - Detailed documentation: https://exoembedded.readthedocs.io/en/latest/

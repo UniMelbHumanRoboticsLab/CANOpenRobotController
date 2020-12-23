@@ -25,8 +25,6 @@ STATE_MACHINE_TYPE stateMachine;
 /*For master-> node SDO message sending*/
 #define CO_COMMAND_SDO_BUFFER_SIZE 100000
 #define STRING_BUFFER_SIZE (CO_COMMAND_SDO_BUFFER_SIZE * 4 + 100)
-char buf[STRING_BUFFER_SIZE];
-char ret[STRING_BUFFER_SIZE];
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
     spdlog::info("CORC Start application");
