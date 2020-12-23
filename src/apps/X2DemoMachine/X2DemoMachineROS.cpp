@@ -21,6 +21,7 @@ void X2DemoMachineROS::initialize() {
     startExoService_ = nodeHandle_->advertiseService("start_exo", &X2DemoMachineROS::startExoServiceCallback, this);
     calibrateForceSensorsService_ = nodeHandle_->advertiseService("calibrate_force_sensors", &X2DemoMachineROS::calibrateForceSensorsCallback, this);
     startExoTriggered_ = false;
+    interactionForceCommand_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 }
 
 void X2DemoMachineROS::update() {

@@ -71,15 +71,16 @@ class X2Robot : public Robot {
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
     motorProfile velControlMotorProfile{0, 240000, 240000};
-
+public:
     Eigen::VectorXd m_; // masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
     Eigen::VectorXd s_; // length from previous joint to CoM [m]
     Eigen::VectorXd I_; // mass moment of inertia of left thigh, left shank+foot, right thigh, right shank+foot [kg.m^2]
     Eigen::VectorXd c0_; // viscous fric constant of joints [N.s]
     Eigen::VectorXd c1_; // coulomb friction const of joints [N.m]
+    Eigen::VectorXd c2_; // friction const related to sqrt of vel
     Eigen::VectorXd cuffWeights_; // cuff Weights [N]
     Eigen::VectorXd forceSensorScaleFactor_; // scale factor of force sensors [N/sensor output]
-
+private:
     //Todo: generalise sensors
     Eigen::VectorXd interactionForces_;
 
@@ -276,9 +277,16 @@ class X2Robot : public Robot {
     Eigen::VectorXd getFeedForwardTorque(int motionIntend);
 
     /**
-       * \brief returns the feedforward torque to compensate for the gravitational and frictional elements
+       * \brief sets the Robot name. This name is used to choose the proper set of parameters
+       *
+       * \param std::string robotName name of the robot
        */
     void setRobotName(std::string robotName);
+
+    /**
+       * \brief get the robot name
+       */
+    std::string& getRobotName();
 
 #ifdef SIM
     /**

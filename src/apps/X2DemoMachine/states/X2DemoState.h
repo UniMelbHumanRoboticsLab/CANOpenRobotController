@@ -44,6 +44,8 @@ public:
     Eigen::VectorXd& getDesiredJointTorques();
     int controller_mode_;
     double virtualMassRatio_;
+    double desiredInteractionForce_;
+    double desiredJointAcceleration_;
 private:
     std::chrono::steady_clock::time_point time0;
 
@@ -52,7 +54,16 @@ private:
 
     Eigen::VectorXd desiredJointVelocities_;
     Eigen::VectorXd desiredJointTorques_;
-    double desiredInteractionForce_;
+
+
+
+    double inputHistory_[2] = {0,0};
+    double outputHistory_[2] = {0,0};
+    double t_step = 0.002;
+
+    double m = 5;
+    double b = 2;
+
 
 };
 
