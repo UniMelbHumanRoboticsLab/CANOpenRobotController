@@ -4,10 +4,10 @@
 #include "SittingDwn.h"
 void SittingDwn::entry(void) {
     spdlog::info("Sitting Down State Entered ");
-    std::cout << "===================" << std::endl
-              << " GREEN -> SIT DOWN " << std::endl
-              << "===================" << std::endl;
-    trajectoryGenerator->initialiseTrajectory(SIT, 1);
+
+    Eigen::VectorXd pos = robot->getPosition();
+
+    trajectoryGenerator->initialiseTrajectory(SIT, 5, pos);
     currTrajProgress = 0;
     clock_gettime(CLOCK_MONOTONIC, &prevTime);
 }

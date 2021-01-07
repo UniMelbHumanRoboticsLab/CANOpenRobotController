@@ -3,10 +3,9 @@
 // Negative bending control machine
 void StandingUp::entry(void) {
     spdlog::info("Standing Up State Entered");
-    std::cout << "===================" << std::endl
-              << " GREEN -> STAND UP" << std::endl
-              << "===================" << std::endl;
-    trajectoryGenerator->initialiseTrajectory(STAND, 1);
+
+    Eigen::VectorXd pos = robot->getPosition();
+    trajectoryGenerator->initialiseTrajectory(STAND, 5, pos);
     currTrajProgress = 0;
     clock_gettime(CLOCK_MONOTONIC, &prevTime);
 }

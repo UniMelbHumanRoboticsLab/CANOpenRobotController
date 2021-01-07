@@ -61,7 +61,7 @@ class DummyTrajectoryGenerator {
      * and length of time the trajectory will take.
      *
      */
-    bool initialiseTrajectory(Trajectory traj, double time);
+    bool initialiseTrajectory(Trajectory traj, double time, Eigen::VectorXd startPos);
 
     /**
      * \brief Implementation of the getSetPoint method in TrajectoryGenerator
