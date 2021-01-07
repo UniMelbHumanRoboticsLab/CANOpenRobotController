@@ -151,7 +151,6 @@ struct sCO_OD_EEPROM CO_OD_EEPROM = {
 OD_RPDOCommunicationParameter_t RPDOCommParamOff = {0x2L, 0x80000000L, 0xffL};
 OD_RPDOMappingParameter_t RPDOMapParamOff = {0x0L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L};
 
-
 // Array of pointers to all RPDOs (initialised to off to start with)
 OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO] = {&RPDOCommParamOff};
 OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO] = {&RPDOMapParamOff};
