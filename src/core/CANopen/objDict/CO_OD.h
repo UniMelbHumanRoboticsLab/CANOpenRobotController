@@ -3234,8 +3234,8 @@ struct sCO_OD_RAM {
     /*1280      */ OD_SDOClientParameter_t SDOClientParameter[1];
     /*1400      */ //OD_RPDOCommunicationParameter_t RPDOCommunicationParameter[32];
     /*1600      */ //OD_RPDOMappingParameter_t RPDOMappingParameter[32];
-    /*1800      */ OD_TPDOCommunicationParameter_t TPDOCommunicationParameter[32];
-    /*1a00      */ OD_TPDOMappingParameter_t TPDOMappingParameter[32];
+    /*1800      */ //OD_TPDOCommunicationParameter_t TPDOCommunicationParameter[32];
+    /*1a00      */ //OD_TPDOMappingParameter_t TPDOMappingParameter[32];
     /*1f80      */ UNSIGNED32 NMTStartup;
     /*1f81      */ UNSIGNED32 slaveAssignment[127];
     /*1f82      */ UNSIGNED8 requestNMT[127];
@@ -3400,10 +3400,12 @@ extern OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO
 extern OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO];
 
 /*1800, Data Type: TPDOCommunicationParameter_t */
-#define OD_TPDOCommunicationParameter CO_OD_RAM.TPDOCommunicationParameter
+//#define OD_TPDOCommunicationParameter CO_OD_RAM.TPDOCommunicationParameter
+extern OD_TPDOCommunicationParameter_t *OD_TPDOCommunicationParameter[CO_NO_TPDO];
 
 /*1a00, Data Type: TPDOMappingParameter_t */
-#define OD_TPDOMappingParameter CO_OD_RAM.TPDOMappingParameter
+//#define OD_TPDOMappingParameter CO_OD_RAM.TPDOMappingParameter
+extern OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO];
 
 /*1f80, Data Type: UNSIGNED32 */
 #define OD_NMTStartup CO_OD_RAM.NMTStartup

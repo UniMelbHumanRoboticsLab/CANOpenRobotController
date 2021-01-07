@@ -28,6 +28,7 @@ STATE_MACHINE_TYPE stateMachine;
 char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 INTEGER16 ODtestthing = 0;
+int counter = 0; 
 
 CO_OD_entryRecord_t testRecord[7] = {
     {(void *)&CO_OD_RAM.controlWords.numberOfMotors, 0x06, 0x1},
@@ -62,7 +63,8 @@ CO_OD_entryRecord_t RPDOmapparamEntry[9] = {
 };
 extern OD_RPDOCommunicationParameter_t RPDOCommParamOff;
 extern OD_RPDOMappingParameter_t RPDOMapParamOff;
-
+extern OD_TPDOCommunicationParameter_t TPDOCommParamOff;
+extern OD_TPDOMappingParameter_t TPDOMapParamOff;
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
     spdlog::info("CORC Start application");
@@ -72,7 +74,6 @@ void app_programStart(int argc, char *argv[]) {
 #endif  // NOROBOT
 
     CO_configure();
-    spdlog::info("ODTEST {} {} {}", CO_OD[25].index, CO_OD[25].attribute, CO_OD[25].pData);
 
     // Initialise all RPDOs to off
     for (int i = 0; i < CO_NO_RPDO; i++ ){
@@ -81,21 +82,21 @@ void app_programStart(int argc, char *argv[]) {
     }
 
     // Initialise all TPDOs to off
-
+    for (int i = 0; i < CO_NO_TPDO; i++) {
+        OD_TPDOCommunicationParameter[i] = &TPDOCommParamOff;
+        OD_TPDOMappingParameter[i] = &TPDOMapParamOff;
+    }
 
     // For each PDO:
     // - Create Comm Parameter Object
     // - Create Mapping Paramter Object
     // - Create Storage location (R/W)
-
-
     CO_OD[25].pData = (void *)&PRDOCommEntry;
     CO_OD[25 + CO_NO_RPDO].pData = (void *)&RPDOmapparamEntry;
     OD_RPDOCommunicationParameter[0] = &RPDOcommPara;
     OD_RPDOMappingParameter[0] = &RPDOmapparam;
-
-
     CO_OD[24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 92].pData = (void *)&testRecord;
+    
 //CO_OD
 #ifndef USEROS
                                      stateMachine.init();
@@ -125,7 +126,10 @@ void app_programControlLoop(void) {
         stateMachine.update();
         stateMachine.hwStateUpdate();
     }
-    spdlog::info("ODTEST {}", ODtestthing);
+    counter = counter + 1;
+    if (counter % 100 == 0) {
+        spdlog::info("ODTEST {}", ODtestthing);
+    };
 #ifdef TIMING_LOG
     loopTimer.tick();
 #endif
