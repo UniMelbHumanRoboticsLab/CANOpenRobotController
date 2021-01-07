@@ -756,14 +756,22 @@ CO_ReturnError_t CO_RPDO_init(
     RPDO->defaultCOB_ID = defaultCOB_ID;
     RPDO->restrictionFlags = restrictionFlags;
 
+<<<<<<< Updated upstream
     /* Configure Object dictionary entry at index 0x1400+ and 0x1600+ */
     CO_OD_configure(SDO, idx_RPDOCommPar, CO_ODF_RPDOcom, (void*)RPDO, 0, 0);
+=======
+//    printf("%d \n", RPDOCommPar->COB_IDUsedByRPDO);
+
+        /* Configure Object dictionary entry at index 0x1400+ and 0x1600+ */
+    CO_OD_configure(SDO, idx_RPDOCommPar, CO_ODF_RPDOcom, (void *)RPDO, 0, 0);
+>>>>>>> Stashed changes
     CO_OD_configure(SDO, idx_RPDOMapPar, CO_ODF_RPDOmap, (void*)RPDO, 0, 0);
 
     /* configure communication and mapping */
     RPDO->CANrxNew[0] = RPDO->CANrxNew[1] = false;
     RPDO->CANdevRx = CANdevRx;
     RPDO->CANdevRxIdx = CANdevRxIdx;
+
 
     CO_RPDOconfigMap(RPDO, RPDOMapPar->numberOfMappedObjects);
     CO_RPDOconfigCom(RPDO, RPDOCommPar->COB_IDUsedByRPDO);

@@ -3389,10 +3389,19 @@ extern struct sCO_OD_EEPROM CO_OD_EEPROM;
 #define OD_SDOClientParameter CO_OD_RAM.SDOClientParameter
 
 /*1400, Data Type: RPDOCommunicationParameter_t */
+<<<<<<< Updated upstream
 #define OD_RPDOCommunicationParameter CO_OD_RAM.RPDOCommunicationParameter
 
 /*1600, Data Type: RPDOMappingParameter_t */
 #define OD_RPDOMappingParameter CO_OD_RAM.RPDOMappingParameter
+=======
+// Change to store the parameters in a dedicated array
+// #define OD_RPDOCommunicationParameter CO_OD_RAM.RPDOCommunicationParameter
+extern OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO];
+/*1600, Data Type: RPDOMappingParameter_t */
+//#define OD_RPDOMappingParameter CO_OD_RAM.RPDOMappingParameter
+extern OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO];
+>>>>>>> Stashed changes
 
 /*1800, Data Type: TPDOCommunicationParameter_t */
 #define OD_TPDOCommunicationParameter CO_OD_RAM.TPDOCommunicationParameter
