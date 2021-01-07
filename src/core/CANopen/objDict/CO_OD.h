@@ -51,6 +51,8 @@
    Dictionary Editor v0.6-xdd-alpha-81-gb562769
    DON'T EDIT THIS FILE MANUALLY !!!!
 *******************************************************************************/
+#ifndef CO_OD_H
+#define CO_OD_H
 
 #include "CO_driver.h"
 
@@ -109,7 +111,7 @@ typedef domain_t CO_DOMAIN;
 /*******************************************************************************
    OBJECT DICTIONARY
 *******************************************************************************/
-#define CO_OD_NoOfElements 255
+#define CO_OD_NoOfElements (127 + CO_NO_RPDO * 2 + CO_NO_TPDO * 2)
 
 /*******************************************************************************
    TYPE DEFINITIONS FOR RECORDS
@@ -306,8 +308,8 @@ typedef domain_t CO_DOMAIN;
     INTEGER32 sensor2;
     INTEGER32 sensor3;
     INTEGER32 sensor4;
-//    INTEGER16 sensor5;
-//    INTEGER16 sensor6;
+    //    INTEGER16 sensor5;
+    //    INTEGER16 sensor6;
 } OD_actualSensorForces_t;
 
 /*******************************************************************************
@@ -3230,8 +3232,8 @@ struct sCO_OD_RAM {
     /*1029      */ UNSIGNED8 errorBehavior[6];
     /*1200      */ OD_SDOServerParameter_t SDOServerParameter[1];
     /*1280      */ OD_SDOClientParameter_t SDOClientParameter[1];
-    /*1400      */ OD_RPDOCommunicationParameter_t RPDOCommunicationParameter[32];
-    /*1600      */ OD_RPDOMappingParameter_t RPDOMappingParameter[32];
+    /*1400      */ //OD_RPDOCommunicationParameter_t RPDOCommunicationParameter[32];
+    /*1600      */ //OD_RPDOMappingParameter_t RPDOMappingParameter[32];
     /*1800      */ OD_TPDOCommunicationParameter_t TPDOCommunicationParameter[32];
     /*1a00      */ OD_TPDOMappingParameter_t TPDOMappingParameter[32];
     /*1f80      */ UNSIGNED32 NMTStartup;
@@ -3389,19 +3391,13 @@ extern struct sCO_OD_EEPROM CO_OD_EEPROM;
 #define OD_SDOClientParameter CO_OD_RAM.SDOClientParameter
 
 /*1400, Data Type: RPDOCommunicationParameter_t */
-<<<<<<< Updated upstream
-#define OD_RPDOCommunicationParameter CO_OD_RAM.RPDOCommunicationParameter
 
-/*1600, Data Type: RPDOMappingParameter_t */
-#define OD_RPDOMappingParameter CO_OD_RAM.RPDOMappingParameter
-=======
 // Change to store the parameters in a dedicated array
 // #define OD_RPDOCommunicationParameter CO_OD_RAM.RPDOCommunicationParameter
 extern OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO];
 /*1600, Data Type: RPDOMappingParameter_t */
 //#define OD_RPDOMappingParameter CO_OD_RAM.RPDOMappingParameter
 extern OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO];
->>>>>>> Stashed changes
 
 /*1800, Data Type: TPDOCommunicationParameter_t */
 #define OD_TPDOCommunicationParameter CO_OD_RAM.TPDOCommunicationParameter
@@ -3554,3 +3550,15 @@ extern OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO];
 #define OD_writeAnalogueOutput16Bit CO_OD_RAM.writeAnalogueOutput16Bit
 #define ODL_writeAnalogueOutput16Bit_arrayLength 8
 #define ODA_writeAnalogueOutput16Bit_output 0
+
+    /**
+ * Configures the Objection Dictionary with blank PDOs.
+ *
+ * @return Success or failure of the configuration
+ */
+    bool_t
+    CO_configure(void);
+
+bool_t CO_OD_set_entry(uint16_t element_, uint16_t index_, uint8_t maxSubIndex_, uint16_t attribute_, uint16_t length_, void *pData_);
+
+#endif
