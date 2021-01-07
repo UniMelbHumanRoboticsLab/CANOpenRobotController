@@ -14,7 +14,6 @@
 #define RobotM3_H_INCLUDED
 
 #include <map>
-#include <Eigen/Dense>
 
 #include "JointM3.h"
 #include "Keyboard.h"
@@ -38,8 +37,8 @@ typedef struct M3Tool
 } M3Tool;
 
 //Classic tools attached to M3
-static M3Tool M3NoTool(0, .0, "No Tool"); //! Default handle with 3 rotational DoFs
-static M3Tool M3Handle(0.140, 0.720, "Handle"); //! Default handle with 3 rotational DoFs 0.465
+static M3Tool M3NoTool(0, .0, "No Tool"); //! No Tool
+static M3Tool M3Handle(0.140, 0.800, "Handle"); //! Default handle with 3 rotational DoFs 0.465
 static M3Tool M3MachiningTool(0.060, 0.100, "Machining tool"); //!
 
 /**
@@ -72,7 +71,6 @@ static M3Tool M3MachiningTool(0.060, 0.100, "Machining tool"); //!
  *
  *
  */
-
 class RobotM3 : public Robot {
    private:
     const std::vector<float> LinkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};   /*!< Link lengths used for kinematic models (in m), excluding tool*/
@@ -85,6 +83,11 @@ class RobotM3 : public Robot {
     bool calibrated;
     double maxEndEffVel; /*!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.*/
     double maxEndEffForce; /*!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated. */
+
+    Eigen::VectorXd endEffPositions;
+    Eigen::VectorXd endEffVelocities;
+    Eigen::VectorXd endEffForces;
+    Eigen::VectorXd interactionForces;
 
    public:
     /**
@@ -201,6 +204,10 @@ class RobotM3 : public Robot {
     VM3 getEndEffPosition();
     VM3 getEndEffVelocity();
     VM3 getEndEffForce();
+    Eigen::VectorXd& getEndEffPositionRef();
+    Eigen::VectorXd& getEndEffVelocityRef();
+    Eigen::VectorXd& getEndEffForceRef();
+    Eigen::VectorXd& getInteractionForceRef();
 
     setMovementReturnCode_t setJointPosition(VM3 q);
     setMovementReturnCode_t setJointVelocity(VM3 q);

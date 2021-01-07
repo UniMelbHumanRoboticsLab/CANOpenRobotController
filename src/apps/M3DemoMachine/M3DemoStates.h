@@ -43,7 +43,7 @@ class M3TimedState : public State {
         std::cout
         << "==================================" << std::endl
         << " STARTING  " << getName() << std::endl
-        << "==================================" << std::endl
+        << "----------------------------------" << std::endl
         << std::endl;
 
         //Timing
@@ -74,7 +74,7 @@ class M3TimedState : public State {
     void exit(void) final {
         exitCode();
         std::cout
-        << "==================================" << std::endl
+        << "----------------------------------" << std::endl
         << "EXIT "<< getName() << std::endl
         << "==================================" << std::endl
         << std::endl;

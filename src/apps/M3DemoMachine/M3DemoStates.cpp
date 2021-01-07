@@ -1,4 +1,7 @@
 #include "M3DemoStates.h"
+#include "M3DemoMachine.h"
+
+#define OWNER ((M3DemoMachine *)owner)
 
 double timeval_to_sec(struct timespec *ts)
 {

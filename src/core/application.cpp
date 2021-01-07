@@ -24,6 +24,7 @@ STATE_MACHINE_TYPE stateMachine;
 /*For master-> node SDO message sending*/
 #define CO_COMMAND_SDO_BUFFER_SIZE 100000
 #define STRING_BUFFER_SIZE (CO_COMMAND_SDO_BUFFER_SIZE * 4 + 100)
+
 char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 INTEGER16 ODtestthing = 0;
@@ -59,6 +60,8 @@ CO_OD_entryRecord_t RPDOmapparamEntry[9] = {
     {(void *)&RPDOmapparam.mappedObject7, 0x8e, 0x4},
     {(void *)&RPDOmapparam.mappedObject8, 0x8e, 0x4},
 };
+extern OD_RPDOCommunicationParameter_t RPDOCommParamOff;
+extern OD_RPDOMappingParameter_t RPDOMapParamOff;
 
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
@@ -71,22 +74,33 @@ void app_programStart(int argc, char *argv[]) {
     CO_configure();
     spdlog::info("ODTEST {} {} {}", CO_OD[25].index, CO_OD[25].attribute, CO_OD[25].pData);
 
+    // Initialise all RPDOs to off
+    for (int i = 0; i < CO_NO_RPDO; i++ ){
+        OD_RPDOCommunicationParameter[i] = &RPDOCommParamOff;
+        OD_RPDOMappingParameter[i] = &RPDOMapParamOff;
+    }
+
+    // Initialise all TPDOs to off
+
+
+    // For each PDO:
+    // - Create Comm Parameter Object
+    // - Create Mapping Paramter Object
+    // - Create Storage location (R/W)
+
+
     CO_OD[25].pData = (void *)&PRDOCommEntry;
-    spdlog::info("ODTEST {} {} {}", CO_OD[25].index, CO_OD[25].attribute, CO_OD[25].pData);
-
     CO_OD[25 + CO_NO_RPDO].pData = (void *)&RPDOmapparamEntry;
+    OD_RPDOCommunicationParameter[0] = &RPDOcommPara;
+    OD_RPDOMappingParameter[0] = &RPDOmapparam;
 
-    //RPDOcommPara.COB_IDUsedByRPDO = 0x0f2;
-    //RPDOcommPara.transmissionType = 0xfeL;
-    //RPDOmapparam.numberOfMappedObjects = 0x1L;
-    //RPDOmapparam.mappedObject1 = 0x60410110L;
-    
+
     CO_OD[24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 92].pData = (void *)&testRecord;
 //CO_OD
 #ifndef USEROS
-    stateMachine.init();
+                                     stateMachine.init();
 #else
-    stateMachine.init(argc, argv);
+                                     stateMachine.init(argc, argv);
 #endif
     stateMachine.activate();
 }

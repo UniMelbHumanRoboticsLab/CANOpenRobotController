@@ -46,7 +46,7 @@
 
 
 #include "CANopen.h"
-
+#include <stdio.h>
 
 /* If defined, global variables will be used, otherwise CANopen objects will
    be generated with calloc(). */
@@ -205,7 +205,6 @@ CO_ReturnError_t CO_init(
 #if CO_NO_TRACE > 0
     uint32_t CO_traceBufferSize[CO_NO_TRACE];
 #endif
-
     /* Verify parameters from CO_OD */
     if(   sizeof(OD_TPDOCommunicationParameter_t) != sizeof(CO_TPDOCommPar_t)
        || sizeof(OD_TPDOMappingParameter_t) != sizeof(CO_TPDOMapPar_t)
@@ -215,7 +214,7 @@ CO_ReturnError_t CO_init(
         return CO_ERROR_PARAMETERS;
     }
 
-    #if CO_NO_SDO_CLIENT == 1
+#if CO_NO_SDO_CLIENT == 1
     if(sizeof(OD_SDOClientParameter_t) != sizeof(CO_SDOclientPar_t)){
         return CO_ERROR_PARAMETERS;
     }
@@ -403,6 +402,7 @@ CO_ReturnError_t CO_init(
     if(err){CO_delete(CANbaseAddress); return err;}
 
 
+
     err = CO_EM_init(
             CO->em,
             CO->emPr,
@@ -460,11 +460,9 @@ CO_ReturnError_t CO_init(
 
     if(err){CO_delete(CANbaseAddress); return err;}
 
-
     for(i=0; i<CO_NO_RPDO; i++){
         CO_CANmodule_t *CANdevRx = CO->CANmodule[0];
         uint16_t CANdevRxIdx = CO_RXCAN_RPDO + i;
-
         err = CO_RPDO_init(
                 CO->RPDO[i],
                 CO->em,
@@ -474,16 +472,14 @@ CO_ReturnError_t CO_init(
                 nodeId,
                 ((i<4) ? (CO_CAN_ID_RPDO_1+i*0x100) : 0),
                 0,
-                (CO_RPDOCommPar_t*) &OD_RPDOCommunicationParameter[i],
-                (CO_RPDOMapPar_t*) &OD_RPDOMappingParameter[i],
+                (CO_RPDOCommPar_t*) OD_RPDOCommunicationParameter[i],
+                (CO_RPDOMapPar_t*) OD_RPDOMappingParameter[i],
                 OD_H1400_RXPDO_1_PARAM+i,
                 OD_H1600_RXPDO_1_MAPPING+i,
                 CANdevRx,
                 CANdevRxIdx);
-
         if(err){CO_delete(CANbaseAddress); return err;}
     }
-
 
     for(i=0; i<CO_NO_TPDO; i++){
         err = CO_TPDO_init(
