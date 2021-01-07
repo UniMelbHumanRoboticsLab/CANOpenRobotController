@@ -23,7 +23,6 @@ LoopTiming loopTimer;
 
 STATE_MACHINE_TYPE *stateMachine;
 
-
 /******************** RUNS BEFORE CO_init() ********************/
 void app_communicationReset(int argc, char *argv[]) {
 #ifdef USEROS

@@ -151,6 +151,7 @@ struct sCO_OD_EEPROM CO_OD_EEPROM = {
 OD_RPDOCommunicationParameter_t RPDOCommParamOff = {0x2L, 0x80000000L, 0xffL};
 OD_RPDOMappingParameter_t RPDOMapParamOff = {0x0L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L};
 
+
 // Array of pointers to all RPDOs (initialised to off to start with)
 OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO] = {&RPDOCommParamOff};
 OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO] = {&RPDOMapParamOff};
@@ -202,6 +203,29 @@ OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO] = {&TPDOMapParamO
     {(void *)&TPDOMapParamOff.mappedObject6, 0x8e, 0x4},
     {(void *)&TPDOMapParamOff.mappedObject7, 0x8e, 0x4},
     {(void *)&TPDOMapParamOff.mappedObject8, 0x8e, 0x4},
+
+OD_RPDOCommunicationParameter_t RPDOCommParamOff = {0x2L, 0x80000000L, 0xffL};
+OD_RPDOMappingParameter_t RPDOMapParamOff = {0x0L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L};
+
+OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO] = {&RPDOCommParamOff};
+OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO] = {&RPDOMapParamOff};
+
+/*0x1400*/ CO_OD_entryRecord_t OD_recordRPDOCommff[3] = {
+    {(void *)&(RPDOCommParamOff.maxSubIndex), 0x06, 0x1},
+    {(void *)&(RPDOCommParamOff.COB_IDUsedByRPDO), 0x8e, 0x4},
+    {(void *)&(RPDOCommParamOff.transmissionType), 0x0e, 0x1},
+};
+
+/*0x1600*/ CO_OD_entryRecord_t OD_recordRPDOMapOff[9] = {
+    {(void *)&RPDOMapParamOff.numberOfMappedObjects, 0x0e, 0x1},
+    {(void *)&RPDOMapParamOff.mappedObject1, 0x8e, 0x4},
+    {(void *)&RPDOMapParamOff.mappedObject2, 0x8e, 0x4},
+    {(void *)&RPDOMapParamOff.mappedObject3, 0x8e, 0x4},
+    {(void *)&RPDOMapParamOff.mappedObject4, 0x8e, 0x4},
+    {(void *)&RPDOMapParamOff.mappedObject5, 0x8e, 0x4},
+    {(void *)&RPDOMapParamOff.mappedObject6, 0x8e, 0x4},
+    {(void *)&RPDOMapParamOff.mappedObject7, 0x8e, 0x4},
+    {(void *)&RPDOMapParamOff.mappedObject8, 0x8e, 0x4},
 };
 
 /*0x2130*/ const CO_OD_entryRecord_t OD_record2130[4] = {
@@ -228,7 +252,6 @@ INTEGER16 junkData =8;
 /*******************************************************************************
    OBJECT DICTIONARY
 *******************************************************************************/
-
 CO_OD_entry_t CO_OD[CO_OD_NoOfElements];
 
 bool_t CO_OD_set_entry(uint16_t element_, uint16_t index_, uint8_t maxSubIndex_, uint16_t attribute_, uint16_t length_, void *pData_) {
@@ -267,8 +290,6 @@ bool_t CO_configure(void) {
     CO_OD_set_entry(22, 0x1029, 0x06, 0x0e, 1, (void *)&CO_OD_RAM.errorBehavior[0]);
     CO_OD_set_entry(23, 0x1200, 0x02, 0x00, 0, (void *)&OD_record1200);
     CO_OD_set_entry(24, 0x1280, 0x03, 0x00, 0, (void *)&OD_record1280);
-
-
     // Initialise all PDOs to off
     for (i = 0; i < CO_NO_RPDO; i = i + 1) {
         CO_OD_set_entry(25 + i, 0x1400 + i, 0x02, 0x00, 0, (void *)&OD_recordRPDOCommOff);
