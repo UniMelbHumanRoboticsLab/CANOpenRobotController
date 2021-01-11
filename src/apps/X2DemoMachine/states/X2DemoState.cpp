@@ -112,20 +112,31 @@ void X2DemoState::during(void) {
 
     } else if(controller_mode_ == 7){ // Chirp torque
 
-        double T=15; //chirp time in seconds
-        double a=5.; //Amplitude in N.m
-        double fi=0.5; //initial frequency
-        double fn=20; //final frequency
+//        double T=15; //chirp time in seconds
+//        double a=5.; //Amplitude in N.m
+//        double fi=0.5; //initial frequency
+//        double fn=20; //final frequency
+//
+//        double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
+//        double f = 0;
+//        if(time<T) {
+//            double f = fi + (fn-fi)*time/T;
+//            desiredJointTorques_[1] = a*sin(2.*M_PI*f*time);
+//        }
+
+        float T = 1.0;
+        double A = 6.0; // Amplitude
+        double f = 20.0; // frequency
 
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
-        double f = 0;
-        if(time<T) {
-            double f = fi + (fn-fi)*time/T;
-            desiredJointTorques_[1] = a*sin(2.*M_PI*f*time);
+        if(time < T){
+            desiredJointTorques_[0] = A*sin(2*M_PI*f*time);
+
         }
         else {
-            desiredJointTorques_[1] = 0;
+            desiredJointTorques_[0] = 0;
             std::cout<<"done"<<std::endl;
+            controller_mode_ = 0;
         }
         robot_->setTorque(desiredJointTorques_);
 
@@ -147,8 +158,8 @@ void X2DemoState::dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t
     controller_mode_ = config.controller_mode;
     virtualMassRatio_ = config.virtual_mass_ratio;
     desiredInteractionForce_ = config.desired_interaction_force;
-    m = config.m_adm;
-    b = config.b_adm;
+//    m = config.m_adm;
+//    b = config.b_adm;
 
     if(controller_mode_ == 1) robot_->initTorqueControl();
     if(controller_mode_ == 2) robot_->initVelocityControl();
@@ -156,7 +167,11 @@ void X2DemoState::dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t
     if(controller_mode_ == 4) robot_->initTorqueControl();
     if(controller_mode_ == 5) robot_->initVelocityControl();
     if(controller_mode_ == 6) robot_->initVelocityControl();
-    if(controller_mode_ == 7)     time0 = std::chrono::steady_clock::now();
+    if(controller_mode_ == 7) {
+        robot_->initTorqueControl();
+//        system("sudo -S ifconfig can0 txqueuelen 1");
+        time0 = std::chrono::steady_clock::now();
+    }
 
     return;
 

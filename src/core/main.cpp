@@ -85,6 +85,7 @@ static void sigHandler(int sig) {
 /** Mainline and threads                                                     **/
 /******************************************************************************/
 int main(int argc, char *argv[]) {
+    system("sudo -S ifconfig can0 txqueuelen 1000");
     //Initialise console and file logging. Name file can be specified if required (see logging.h)
     init_logging();
 
