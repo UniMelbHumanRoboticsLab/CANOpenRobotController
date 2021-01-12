@@ -550,7 +550,6 @@ CO_ReturnError_t CO_init(
     }
 #endif
 
-
     return CO_ERROR_NO;
 }
 
