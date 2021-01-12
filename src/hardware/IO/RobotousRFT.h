@@ -7,7 +7,6 @@
  * 
  * \version 0.1
  * \date 2021-01-12
- * \version 0.1
  * \copyright Copyright (c) 2021
  *
  */
