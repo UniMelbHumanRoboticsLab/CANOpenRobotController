@@ -8,8 +8,9 @@ void InitState::entry(void) {
         << "==================================" << std::endl
         << std::endl
         << "========================" << std::endl
-        << " PRESS S to start program" << std::endl
+        << " PRESS S to start or A to Home" << std::endl
         << "========================" << std::endl;
+
 }
 void InitState::during(void) {
 }

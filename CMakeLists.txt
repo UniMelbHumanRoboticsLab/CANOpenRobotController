@@ -18,14 +18,14 @@ set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT ON)
+set(NO_ROBOT OFF)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS OFF)
 
 # Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL OFF)
 # INFO is the recommended level in normal operation
-set(CORC_LOGGING_LEVEL INFO) 
+set(CORC_LOGGING_LEVEL DEBUG) 
 ################################################################################
 
 if(USE_ROS)

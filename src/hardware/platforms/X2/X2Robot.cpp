@@ -109,7 +109,7 @@ bool X2Robot::initVelocityControl() {
     }
 
     // Pause for a bit to let commands go
-    usleep(2000);
+    usleep(10000);
     for (auto p : joints) {
         p->enable();
     }
@@ -337,6 +337,9 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count() < maxTime * 1000) {
             this->updateRobot();  // because this function has its own loops, updateRobot needs to be called
             this->setVelocity(desiredVelocity);
+            usleep(10000);
+
+
             if (std::abs(this->getTorque()[i]) >= thresholdTorque) {  // if high torque is reached
                 highTorqueReached = true;
                 firstTimeHighTorque = std::chrono::steady_clock::now();
@@ -344,7 +347,10 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
                        (std::chrono::steady_clock::now() - firstTimeHighTorque)
                            .count() < delayTime * 1000) {
                     this->updateRobot();
+                    usleep(10000);
+
                     if (std::abs(this->getTorque()[i]) < thresholdTorque) {  // if torque value reach below thresholdTorque, goes back
+                        spdlog::debug("Torque drop", this->getTorque()[i]);
                         highTorqueReached = false;
                         break;
                     }
@@ -355,6 +361,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
 
         if (success[i]) {
             spdlog::debug("Homing Succeeded for Joint {} .", i);
+            usleep(10000);
             if (i == X2_LEFT_HIP || i == X2_RIGHT_HIP) {  // if it is a hip joint
 
                 // zeroing is done depending on the limits on the homing direction
