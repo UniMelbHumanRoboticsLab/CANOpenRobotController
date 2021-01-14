@@ -1280,7 +1280,7 @@ bool_t CO_configure(void) {
     CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 84, 0x2420, 0x06, 0x00, 0, (void *)&OD_record2420);
     // Extra data stores
     CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85, 0x6000, 0x08, 0x00, 0, (void *)&OD_dataStore);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 86, 0x6001, 0x00, 0xfe, 2, (void *)&CO_OD_RAM.currentState);
+    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 86, 0x6001, 0x08, 0x00, 0, (void *)&CO_OD_RAM.currentState);
     CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 87, 0x6002, 0x00, 0xfe, 2, (void *)&CO_OD_RAM.currentMovement);
     CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 88, 0x6003, 0x00, 0xfe, 2, (void *)&CO_OD_RAM.nextMovement);
     CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 89, 0x6004, 0x00, 0xfe, 2, (void *)&CO_OD_RAM.goButton);
@@ -1311,41 +1311,33 @@ bool_t CO_configure(void) {
 int CO_setRPDO(int cobID, CO_OD_entryRecord_t *PRDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, OD_RPDOCommunicationParameter_t *RPDOcommPara, CO_OD_entryRecord_t *RPDOmapparamEntry, OD_RPDOMappingParameter_t *RPDOmapparam) {
     // Should check that the COB-ID is not being used at the moment
     // Could also add a flag which says whether it should be checked or not
+    int currRPDO = cobID;
 
-    // This is super hacky and crap.. seriously... why did they set it up in this way? 
+    // Iterate through the Mapped Objects to set the parameters
+    //This is super hacky and crap.. seriously... why did they set it up in this way? 
     uint32_t *pMap = &RPDOmapparam->mappedObject1; 
-    
     for (int i = 0; i < RPDOmapparam->numberOfMappedObjects; i++) {
         uint32_t map = *pMap;
-        printf("%d %d \n", map, pMap);
 
-        // Change it to 0x6040
-        printf("%d %d \n", (0x60400000 | (0x0000FFFF & map)), pMap);
-        *pMap = 0x60400000 | (0x0000FFFF & map);
+        // Change it to 0x6000
+        *pMap = (0x60000000 + currRPDO*0x10000)| (0x0000FFFF & map);
         pMap++;
     }
 
-    printf("now check \n");
-    pMap = &RPDOmapparam->mappedObject1;
-    for (int i = 0; i < RPDOmapparam->numberOfMappedObjects; i++) {
-        uint32_t map = *pMap;
-        printf("%d %d \n", map, pMap);
-        pMap++;
-    }
-    /*
     // Change the OD entry
-    CO_OD[25 + currRPDO].pData = (void *)&PRDOCommEntry;
-    CO_OD[25 + CO_NO_RPDO+ currRPDO].pData = (void *)&RPDOmapparamEntry;
+    CO_OD[25 + currRPDO].pData = (void *)PRDOCommEntry;
+    CO_OD[25 + CO_NO_RPDO+ currRPDO].pData = (void *)RPDOmapparamEntry;
 
     // Change the Mapping Parameter Entry
-    OD_RPDOCommunicationParameter[0] = &RPDOcommPara;
-    OD_RPDOMappingParameter[0] = &RPDOmapparam;
+    OD_RPDOCommunicationParameter[currRPDO] = RPDOcommPara;
+    OD_RPDOMappingParameter[currRPDO] = RPDOmapparam;
 
     // Change the relevant OD location
-    CO_OD[24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85 + currRPDO].pData = (void *)&dataStoreRecord;
+    CO_OD[24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85 + currRPDO].pData = (void *)dataStoreRecord;
+
 
     // increment counter, but return the original value
-    currRPDO = currRPDO +1
-    return currRPDO-1;*/
+   // currRPDO = currRPDO +1
+   // return currRPDO-1;
     return 1; 
 }
