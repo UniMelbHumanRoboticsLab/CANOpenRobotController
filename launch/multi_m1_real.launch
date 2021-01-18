@@ -17,16 +17,8 @@
     <param name="dof" value="1" />
     </node>
 
-    <!-- rqt
-    <node name="rqt" pkg="rqt" type="rqt" output="screen" respawn="false">
-    </node> -->
-
-    <!-- rqt_gui -->
-    <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" output="screen" respawn="false">
-    </node> -->
-
-    <!-- rqt_multi_plot
-    <node name="rqt_multiplot" pkg="rqt_multiplot" type="rqt_multiplot" output="screen" respawn="false">
-    </node> -->
+    <!-- rqt -->
+    <node name="rqt" pkg="CORC" type="rqt.sh">
+    </node>
 
 </launch>
