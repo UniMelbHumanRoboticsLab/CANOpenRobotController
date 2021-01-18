@@ -87,7 +87,7 @@ private:
     std::string robotName_;
 
     void initializeRobotParams(std::string robotName);
-    double forceSensorValueToNewton(int sensorValue, int sensorId);
+    double forceSensorValueToNewton(double sensorValue, int sensorId);
 
 #ifdef SIM
     ros::NodeHandle* nodeHandle_;

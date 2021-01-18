@@ -321,9 +321,9 @@ bool X2Robot::calibrateForceSensors() {
     }
 }
 
-double X2Robot::forceSensorValueToNewton(int sensorValue, int sensorId) {
+double X2Robot::forceSensorValueToNewton(double sensorValue, int sensorId) {
 
-    return (sensorValue-1500.0)*forceSensorScaleFactor_[sensorId];
+    return (sensorValue)*forceSensorScaleFactor_[sensorId];
 
 }
 
@@ -475,14 +475,15 @@ void X2Robot::initializeRobotParams(std::string robotName) {
 
         // X2_A_tune
 //        m_[1] = 2.3922; // mass of shank + foot
-//        s_[1] = 0.3199; // distance between knee and CoM(shank + foot)
+//        s_[1] = 0.3199; // distance betweWen knee and CoM(shank + foot)
 //        I_[1] = 2.1868; // mass moment of inertia
 //        c0_[1] = 2.1373; // viscous fric constant
 //        c1_[1] = 2.5; // coulomb friction const
 
         cuffWeights_ << 3.69, 3.69, 3.69, 3.69; // X2_A
+//        cuffWeights_ << 0, 0, 0, 0; // X2_A   DELETE !!!!!!!!!!!!!!!!!
         // todo: find other calibration parameters
-        forceSensorScaleFactor_ << 0, 0.246, 0, 0; // X2_A
+        forceSensorScaleFactor_ << 0.246, 0.246, 0.246, 0.246; // X2_A
     }
     else if(robotName_ == "x2_B") {
         // X2_B exp vel sqrt
