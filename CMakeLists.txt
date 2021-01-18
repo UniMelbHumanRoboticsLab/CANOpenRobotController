@@ -95,7 +95,7 @@ if(USE_ROS)
 				std_srvs
 				sensor_msgs
 				geometry_msgs
-#				multi_robot_interaction
+				multi_robot_interaction
 				dynamic_reconfigure
         )
 		if(SIM)
@@ -121,7 +121,7 @@ if(USE_ROS)
 					std_srvs
 					sensor_msgs
 					geometry_msgs
-#					multi_robot_interaction
+					multi_robot_interaction
 					dynamic_reconfigure
 				#  DEPENDS system_lib
 		)
