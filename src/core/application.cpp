@@ -11,10 +11,13 @@
  */
 #include "application.h"
 
+#include "RobotousRFT.h"
+
 #ifdef TIMING_LOG
 #include "LoopTiming.h"
 LoopTiming loopTimer;
 #endif
+
 
 //Select state machine to use for this application (can be set in cmake)
 #ifndef STATE_MACHINE_TYPE

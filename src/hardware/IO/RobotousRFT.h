@@ -55,36 +55,77 @@ class RobotousRFT : public InputDevice {
         UNSIGNED8 lengthData =8; // 8 for each of the RPDOs - I cheat and reuse this variable
         UNSIGNED8 lengthCmd = 2; // Second one is for padding
 
-
         // OD Parameters
-        CO_OD_entryRecord_t dataStoreRecord[9];
-
-        OD_RPDOCommunicationParameter_t RPDOcommPara = {0x2L, 0x0f9L, 0xffL}; // {0x2L, COB-ID, 0xffL}
-
-
-        // This stays constant for this object
-        // Might need to be public
-        CO_OD_entryRecord_t PRDOCommEntry[3] = {
-            {(void *)&RPDOcommPara.maxSubIndex, 0x06, 0x1},
-            {(void *)&RPDOcommPara.COB_IDUsedByRPDO, 0x8e, 0x4},
-            {(void *)&RPDOcommPara.transmissionType, 0x0e, 0x1},
-        };
-
         // Will need to be modified to take into number of items, data size and location
         // Data size and number of items will be constant, function will be used to change location
-        OD_RPDOMappingParameter_t RPDOmapparam = {0x8L, 0x60000108L, 0x60000208L, 0x60000308L, 0x60000408L, 0x60000508L, 0x60000608L, 0x60000708L, 0x60000808L};
+        OD_RPDOMappingParameter_t RPDOMapParamH = {0x8L, 0x00000108L, 0x00000208L, 0x00000308L, 0x00000408L, 0x00000508L, 0x00000608L, 0x00000708L, 0x00000808L};
+        OD_RPDOMappingParameter_t RPDOMapParamL = {0x8L, 0x00000108L, 0x00000208L, 0x00000308L, 0x00000408L, 0x00000508L, 0x00000608L, 0x00000708L, 0x00000808L};
+
+        OD_RPDOCommunicationParameter_t RPDOcommParaH = {0x2L, 0x0f9L, 0xffL}; // {0x2L, COB-ID, 0xffL}
+        OD_RPDOCommunicationParameter_t RPDOcommParaL = {0x2L, 0x0f9L, 0xffL};  // {0x2L, COB-ID, 0xffL}
+
+        // Records which are linked to from the OD
+        // These might need to be public
+        CO_OD_entryRecord_t dataStoreRecordH[9] = {
+            {(void *)&CO_OD_RAM.controlWords.numberOfMotors, 0x06, 0x1},
+            {(void *)&rawData[0], 0xfe, 0x2},
+            {(void *)&rawData[1], 0xfe, 0x2},
+            {(void *)&rawData[2], 0xfe, 0x2},
+            {(void *)&rawData[3], 0xfe, 0x2},
+            {(void *)&rawData[4], 0xfe, 0x2},
+            {(void *)&rawData[5], 0xfe, 0x2},
+            {(void *)&rawData[6], 0xfe, 0x2},
+            {(void *)&rawData[7], 0xfe, 0x2},
+        };
+        ;
+        CO_OD_entryRecord_t dataStoreRecordL[9] = {
+            {(void *)&CO_OD_RAM.controlWords.numberOfMotors, 0x06, 0x1},
+            {(void *)&rawData[8], 0xfe, 0x2},
+            {(void *)&rawData[9], 0xfe, 0x2},
+            {(void *)&rawData[10], 0xfe, 0x2},
+            {(void *)&rawData[11], 0xfe, 0x2},
+            {(void *)&rawData[12], 0xfe, 0x2},
+            {(void *)&rawData[13], 0xfe, 0x2},
+            {(void *)&rawData[14], 0xfe, 0x2},
+            {(void *)&rawData[15], 0xfe, 0x2},
+        };
+        ;
+
+        CO_OD_entryRecord_t RPDOCommEntryH[3] = {
+            {(void *)&RPDOcommParaH.maxSubIndex, 0x06, 0x1},
+            {(void *)&RPDOcommParaH.COB_IDUsedByRPDO, 0x8e, 0x4},
+            {(void *)&RPDOcommParaH.transmissionType, 0x0e, 0x1},
+        };
+
+        CO_OD_entryRecord_t RPDOCommEntryL[3] = {
+            {(void *)&RPDOcommParaL.maxSubIndex, 0x06, 0x1},
+            {(void *)&RPDOcommParaL.COB_IDUsedByRPDO, 0x8e, 0x4},
+            {(void *)&RPDOcommParaL.transmissionType, 0x0e, 0x1},
+        };
 
         // This is constant (pointers to above)
-        CO_OD_entryRecord_t RPDOmapparamEntry[9] = {
-            {(void *)&RPDOmapparam.numberOfMappedObjects, 0x0e, 0x1},
-            {(void *)&RPDOmapparam.mappedObject1, 0x8e, 0x4},
-            {(void *)&RPDOmapparam.mappedObject2, 0x8e, 0x4},
-            {(void *)&RPDOmapparam.mappedObject3, 0x8e, 0x4},
-            {(void *)&RPDOmapparam.mappedObject4, 0x8e, 0x4},
-            {(void *)&RPDOmapparam.mappedObject5, 0x8e, 0x4},
-            {(void *)&RPDOmapparam.mappedObject6, 0x8e, 0x4},
-            {(void *)&RPDOmapparam.mappedObject7, 0x8e, 0x4},
-            {(void *)&RPDOmapparam.mappedObject8, 0x8e, 0x4},
+        CO_OD_entryRecord_t RPDOMapParamEntryH[9] = {
+            {(void *)&RPDOMapParamH.numberOfMappedObjects, 0x0e, 0x1},
+            {(void *)&RPDOMapParamH.mappedObject1, 0x8e, 0x4},
+            {(void *)&RPDOMapParamH.mappedObject2, 0x8e, 0x4},
+            {(void *)&RPDOMapParamH.mappedObject3, 0x8e, 0x4},
+            {(void *)&RPDOMapParamH.mappedObject4, 0x8e, 0x4},
+            {(void *)&RPDOMapParamH.mappedObject5, 0x8e, 0x4},
+            {(void *)&RPDOMapParamH.mappedObject6, 0x8e, 0x4},
+            {(void *)&RPDOMapParamH.mappedObject7, 0x8e, 0x4},
+            {(void *)&RPDOMapParamH.mappedObject8, 0x8e, 0x4},
+        };
+
+        CO_OD_entryRecord_t RPDOMapParamEntryL[9] = {
+            {(void *)&RPDOMapParamL.numberOfMappedObjects, 0x0e, 0x1},
+            {(void *)&RPDOMapParamL.mappedObject1, 0x8e, 0x4},
+            {(void *)&RPDOMapParamL.mappedObject2, 0x8e, 0x4},
+            {(void *)&RPDOMapParamL.mappedObject3, 0x8e, 0x4},
+            {(void *)&RPDOMapParamL.mappedObject4, 0x8e, 0x4},
+            {(void *)&RPDOMapParamL.mappedObject5, 0x8e, 0x4},
+            {(void *)&RPDOMapParamL.mappedObject6, 0x8e, 0x4},
+            {(void *)&RPDOMapParamL.mappedObject7, 0x8e, 0x4},
+            {(void *)&RPDOMapParamL.mappedObject8, 0x8e, 0x4},
         };
 
         // Data variables

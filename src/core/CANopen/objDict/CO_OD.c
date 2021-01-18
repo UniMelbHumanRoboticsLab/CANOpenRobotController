@@ -250,7 +250,7 @@ INTEGER16 junkData =8;
 
 INTEGER16 junkData =8;
 
-/*Junk data Test*/ const CO_OD_entryRecord_t OD_dataStore[9] = {
+/*Junk data Test*/ const CO_OD_entryRecord_t OD_DummyDataStoreLocation[9] = {
     {(void *)&junkData, 0xfe, 0x2},
     {(void *)&junkData, 0xfe, 0x2},
     {(void *)&junkData, 0xfe, 0x2},
@@ -366,7 +366,6 @@ int currRPDO = 0;
 int CO_setRPDO(OD_RPDOCommunicationParameter_t *RPDOCommParams, OD_RPDOMappingParameter_t *RPDOMapParams, CO_OD_entryRecord_t *RPDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *RPDOMapParamsEntry) {
     // Should check that the COB-ID is not being used at the moment
     // Could also add a flag which says whether it should be checked or not
-    int currRPDO = cobID;
 
     if (currRPDO < CO_NO_RPDO){
         // Iterate through the Mapped Objects to set the parameters
