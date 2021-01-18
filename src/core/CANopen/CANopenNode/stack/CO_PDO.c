@@ -758,9 +758,8 @@ CO_ReturnError_t CO_RPDO_init(
 
     /* Configure Object dictionary entry at index 0x1400+ and 0x1600+ */
     CO_OD_configure(SDO, idx_RPDOCommPar, CO_ODF_RPDOcom, (void*)RPDO, 0, 0);
-    printf("%d \n", RPDOCommPar->COB_IDUsedByRPDO);
 
-        /* Configure Object dictionary entry at index 0x1400+ and 0x1600+ */
+    /* Configure Object dictionary entry at index 0x1400+ and 0x1600+ */
     CO_OD_configure(SDO, idx_RPDOCommPar, CO_ODF_RPDOcom, (void *)RPDO, 0, 0);
     CO_OD_configure(SDO, idx_RPDOMapPar, CO_ODF_RPDOmap, (void*)RPDO, 0, 0);
 
@@ -811,7 +810,6 @@ CO_ReturnError_t CO_TPDO_init(
 
     /* Configure Object dictionary entry at index 0x1800+ and 0x1A00+ */
     CO_OD_configure(SDO, idx_TPDOCommPar, CO_ODF_TPDOcom, (void*)TPDO, 0, 0);
-    printf("%d \n", TPDOCommPar->COB_IDUsedByTPDO);
 
     CO_OD_configure(SDO, idx_TPDOMapPar, CO_ODF_TPDOmap, (void*)TPDO, 0, 0);
 

@@ -3563,6 +3563,6 @@ extern OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO];
     CO_configure(void);
 
 bool_t CO_OD_set_entry(uint16_t element_, uint16_t index_, uint8_t maxSubIndex_, uint16_t attribute_, uint16_t length_, void *pData_);
-int CO_setRPDO(int cobID, CO_OD_entryRecord_t *PRDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, OD_RPDOCommunicationParameter_t *RPDOcommPara, CO_OD_entryRecord_t *RPDOmapparamEntry, OD_RPDOMappingParameter_t *RPDOmapparam);
+int CO_setRPDO(OD_RPDOCommunicationParameter_t *RPDOcommPara, OD_RPDOMappingParameter_t *RPDOmapparam, CO_OD_entryRecord_t *PRDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *RPDOmapparamEntry);
 
 #endif

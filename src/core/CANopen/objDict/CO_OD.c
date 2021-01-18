@@ -1109,7 +1109,7 @@ OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO] = {&TPDOMapParamO
 
 INTEGER16 junkData =8;
 
-/*Junk data Test*/ const CO_OD_entryRecord_t OD_dataStore[9] = {
+/*Junk data Test*/ const CO_OD_entryRecord_t OD_DummyDataStoreLocation[9] = {
     {(void *)&junkData, 0xfe, 0x2},
     {(void *)&junkData, 0xfe, 0x2},
     {(void *)&junkData, 0xfe, 0x2},
@@ -1279,24 +1279,9 @@ bool_t CO_configure(void) {
     CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 83, 0x241f, 0x06, 0x00, 0, (void *)&OD_record241f);
     CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 84, 0x2420, 0x06, 0x00, 0, (void *)&OD_record2420);
     // Extra data stores
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85, 0x6000, 0x08, 0x00, 0, (void *)&OD_dataStore);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 86, 0x6001, 0x08, 0x00, 0, (void *)&CO_OD_RAM.currentState);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 87, 0x6002, 0x00, 0xfe, 2, (void *)&CO_OD_RAM.currentMovement);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 88, 0x6003, 0x00, 0xfe, 2, (void *)&CO_OD_RAM.nextMovement);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 89, 0x6004, 0x00, 0xfe, 2, (void *)&CO_OD_RAM.goButton);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 90, 0x6005, 0x00, 0xfe, 2, (void *)&CO_OD_RAM.HB);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 91, 0x6040, 0x06, 0x00, 0, (void *)&OD_record6040);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 92, 0x6041, 0x06, 0x00, 0, (void *)&OD_record6041);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 93, 0x6064, 0x06, 0x00, 0, (void *)&OD_record6064);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 94, 0x606c, 0x06, 0x00, 0, (void *)&OD_record606c);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 95, 0x6071, 0x04, 0x00, 0, (void *)&OD_record6071);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 96, 0x6077, 0x04, 0x00, 0, (void *)&OD_record6077);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 97, 0x607a, 0x06, 0x00, 0, (void *)&OD_record607a);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 98, 0x60ff, 0x06, 0x00, 0, (void *)&OD_record60ff);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 99, 0x7001, 0x04, 0x00, 1, (void *)&OD_record7001);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 100, 0x6200, 0x08, 0x0e, 1, (void *)&CO_OD_RAM.writeOutput8Bit[0]);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 101, 0x6401, 0x0c, 0x8e, 2, (void *)&CO_OD_RAM.readAnalogueInput16Bit[0]);
-    CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 102, 0x6411, 0x08, 0x8e, 2, (void *)&CO_OD_RAM.writeAnalogueOutput16Bit[0]);
+    for (int i = 0; i < 18; i++){
+        CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85+i, 0x6000+i, 0x08, 0x00, 0, (void *)&OD_DummyDataStoreLocation);
+    }
 
     return true;
 }
@@ -1308,10 +1293,11 @@ bool_t CO_configure(void) {
  * 
  * @return int RPDO number
  */
-int CO_setRPDO(int cobID, CO_OD_entryRecord_t *PRDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, OD_RPDOCommunicationParameter_t *RPDOcommPara, CO_OD_entryRecord_t *RPDOmapparamEntry, OD_RPDOMappingParameter_t *RPDOmapparam) {
+int currRPDO = 0;
+
+int CO_setRPDO(OD_RPDOCommunicationParameter_t *RPDOcommPara, OD_RPDOMappingParameter_t *RPDOmapparam, CO_OD_entryRecord_t *PRDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *RPDOmapparamEntry) {
     // Should check that the COB-ID is not being used at the moment
     // Could also add a flag which says whether it should be checked or not
-    int currRPDO = cobID;
 
     // Iterate through the Mapped Objects to set the parameters
     //This is super hacky and crap.. seriously... why did they set it up in this way? 
@@ -1335,9 +1321,8 @@ int CO_setRPDO(int cobID, CO_OD_entryRecord_t *PRDOCommEntry, CO_OD_entryRecord_
     // Change the relevant OD location
     CO_OD[24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85 + currRPDO].pData = (void *)dataStoreRecord;
 
-
     // increment counter, but return the original value
-   // currRPDO = currRPDO +1
-   // return currRPDO-1;
-    return 1; 
+    currRPDO = currRPDO +1;
+    // return currRPDO-1;
+    return currRPDO;
 }

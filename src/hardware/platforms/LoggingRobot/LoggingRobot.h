@@ -15,6 +15,7 @@
 
 #include "Keyboard.h"
 #include "Robot.h"
+#include "RobotousRFT.h"
 
 class LoggingRobot : public Robot {
    private:
