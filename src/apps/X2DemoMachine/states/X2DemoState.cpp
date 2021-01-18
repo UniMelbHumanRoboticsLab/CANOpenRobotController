@@ -19,6 +19,7 @@ void X2DemoState::entry(void) {
 
     std::cout << robot_->getInteractionForce()[1] << std::endl;
     robot_->calibrateForceSensors();
+//    robot_->homing();
 
     time0 = std::chrono::steady_clock::now();
 }
@@ -35,7 +36,7 @@ void X2DemoState::during(void) {
     } else if(controller_mode_ == 2){ // zero velocity mode
         desiredJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
         robot_->setVelocity(desiredJointVelocities_);
-        std::cout<<robot_->getInteractionForce()[3]<<std::endl<<"**********"<<std::endl;
+        std::cout<<robot_->getInteractionForce()<<std::endl<<"**********"<<std::endl;
 
     } else if(controller_mode_ == 3){ // feedforward model compensation
         int motionIntend;
@@ -98,7 +99,7 @@ void X2DemoState::during(void) {
 
     } else if(controller_mode_ == 6){ // Parameter estimation with velocity control
 
-        double desiredVel = 50.0*M_PI/180.0;
+        double desiredVel = 5.0*M_PI/180.0;
 
         if(robot_->getPosition()[1]<M_PI/2.0) {
             desiredJointVelocities_ << 0, desiredVel, 0, 0;
@@ -112,27 +113,27 @@ void X2DemoState::during(void) {
 
     } else if(controller_mode_ == 7){ // Chirp torque
 
-//        double T=15; //chirp time in seconds
-//        double a=5.; //Amplitude in N.m
-//        double fi=0.5; //initial frequency
-//        double fn=20; //final frequency
-//
-//        double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
-//        double f = 0;
-//        if(time<T) {
-//            double f = fi + (fn-fi)*time/T;
-//            desiredJointTorques_[1] = a*sin(2.*M_PI*f*time);
-//        }
-
-        float T = 1.0;
-        double A = 6.0; // Amplitude
-        double f = 20.0; // frequency
+        double T=15; //chirp time in seconds
+        double a=6.; //Amplitude in N.m
+        double fi=0; //initial frequency
+        double fn=5; //final frequency
 
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
-        if(time < T){
-            desiredJointTorques_[0] = A*sin(2*M_PI*f*time);
-
+        double f = 0;
+        if(time<T) {
+            double f = fi + (fn-fi)*time/T;
+            desiredJointTorques_[2] = a*sin(2.*M_PI*f*time);
         }
+
+//        float T = 1.0;
+//        double A = 6.0; // Amplitude
+//        double f = 20.0; // frequency
+//
+//        double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
+//        if(time < T){
+//            desiredJointTorques_[0] = A*sin(2*M_PI*f*time);
+//
+//        }
         else {
             desiredJointTorques_[0] = 0;
             std::cout<<"done"<<std::endl;
@@ -169,7 +170,6 @@ void X2DemoState::dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t
     if(controller_mode_ == 6) robot_->initVelocityControl();
     if(controller_mode_ == 7) {
         robot_->initTorqueControl();
-//        system("sudo -S ifconfig can0 txqueuelen 1");
         time0 = std::chrono::steady_clock::now();
     }
 
