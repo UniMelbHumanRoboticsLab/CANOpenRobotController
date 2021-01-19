@@ -112,7 +112,7 @@ typedef domain_t CO_DOMAIN;
 /*******************************************************************************
    OBJECT DICTIONARY
 *******************************************************************************/
-#define CO_OD_NoOfElements (127 + CO_NO_RPDO * 2 + CO_NO_TPDO * 2)
+#define CO_OD_NoOfElements (109 + CO_NO_RPDO * 3 + CO_NO_TPDO * 3)
 
 /*******************************************************************************
    TYPE DEFINITIONS FOR RECORDS
@@ -3564,5 +3564,6 @@ extern OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO];
 
 bool_t CO_OD_set_entry(uint16_t element_, uint16_t index_, uint8_t maxSubIndex_, uint16_t attribute_, uint16_t length_, void *pData_);
 int CO_setRPDO(OD_RPDOCommunicationParameter_t *RPDOcommPara, OD_RPDOMappingParameter_t *RPDOmapparam, CO_OD_entryRecord_t *PRDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *RPDOmapparamEntry);
+int CO_setTPDO(OD_TPDOCommunicationParameter_t *TPDOcommPara, OD_TPDOMappingParameter_t *TPDOmapparam, CO_OD_entryRecord_t *TPDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *TPDOmapparamEntry);
 
 #endif

@@ -1278,11 +1278,15 @@ bool_t CO_configure(void) {
     CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 82, 0x241e, 0x06, 0x00, 0, (void *)&OD_record241e);
     CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 83, 0x241f, 0x06, 0x00, 0, (void *)&OD_record241f);
     CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 84, 0x2420, 0x06, 0x00, 0, (void *)&OD_record2420);
-    // Extra data stores
-    for (int i = 0; i < 18; i++){
+    // Extra data stores for RPDO Data
+    for (int i = 0; i < CO_NO_RPDO; i++) {
         CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85+i, 0x6000+i, 0x08, 0x00, 0, (void *)&OD_DummyDataStoreLocation);
     }
 
+    // Extra data stores for TPDO data
+    for (int i = 0; i < CO_NO_TPDO; i++) {
+        CO_OD_set_entry(24 + 2 * CO_NO_RPDO + 3 * CO_NO_TPDO + 85 + i, 0x6000 + CO_NO_RPDO + i, 0x08, 0x00, 0, (void *)&OD_DummyDataStoreLocation);
+    }
     return true;
 }
 
@@ -1295,34 +1299,78 @@ bool_t CO_configure(void) {
  */
 int currRPDO = 0;
 
-int CO_setRPDO(OD_RPDOCommunicationParameter_t *RPDOcommPara, OD_RPDOMappingParameter_t *RPDOmapparam, CO_OD_entryRecord_t *PRDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *RPDOmapparamEntry) {
+int CO_setRPDO(OD_RPDOCommunicationParameter_t *RPDOcommPara, OD_RPDOMappingParameter_t *RPDOmapparam, CO_OD_entryRecord_t *RPDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *RPDOmapparamEntry) {
     // Should check that the COB-ID is not being used at the moment
     // Could also add a flag which says whether it should be checked or not
 
-    // Iterate through the Mapped Objects to set the parameters
-    //This is super hacky and crap.. seriously... why did they set it up in this way? 
-    uint32_t *pMap = &RPDOmapparam->mappedObject1; 
-    for (int i = 0; i < RPDOmapparam->numberOfMappedObjects; i++) {
-        uint32_t map = *pMap;
+    if (currRPDO < CO_NO_RPDO){
+        // Iterate through the Mapped Objects to set the parameters
+        //This is super hacky and crap.. seriously... why did they set it up in this way? 
+        uint32_t *pMap = &RPDOmapparam->mappedObject1; 
+        for (int i = 0; i < RPDOmapparam->numberOfMappedObjects; i++) {
+            uint32_t map = *pMap;
 
-        // Change it to 0x6000
-        *pMap = (0x60000000 + currRPDO*0x10000)| (0x0000FFFF & map);
-        pMap++;
+            // Change it to 0x6000
+            *pMap = (0x60000000 + currRPDO*0x10000)| (0x0000FFFF & map);
+            pMap++;
+        }
+
+        // Change the OD entry
+        CO_OD[25 + currRPDO].pData = (void *)RPDOCommEntry;
+        CO_OD[25 + CO_NO_RPDO+ currRPDO].pData = (void *)RPDOmapparamEntry;
+
+        // Change the Mapping Parameter Entry
+        OD_RPDOCommunicationParameter[currRPDO] = RPDOcommPara;
+        OD_RPDOMappingParameter[currRPDO] = RPDOmapparam;
+
+        // Change the relevant OD location
+        CO_OD[24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85 + currRPDO].pData = (void *)dataStoreRecord;
+
+        // increment counter, but return the original value
+        currRPDO = currRPDO +1;
+        return currRPDO;
     }
+    return -1; // Error  - too many PDOs defined
+}
 
-    // Change the OD entry
-    CO_OD[25 + currRPDO].pData = (void *)PRDOCommEntry;
-    CO_OD[25 + CO_NO_RPDO+ currRPDO].pData = (void *)RPDOmapparamEntry;
+// Should return RPDO number
+/**
+ * @brief Sets up an TPDO. Should need:
+ * - Number of Objects to Map and Links to where the object should be mapped to (or a matrix of pointers to variables...) (testRecord?)
+ * 
+ * @return int TPDO number
+ */
+int currTPDO = 0;
+int CO_setTPDO(OD_TPDOCommunicationParameter_t *TPDOcommPara, OD_TPDOMappingParameter_t *TPDOmapparam, CO_OD_entryRecord_t *TPDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *TPDOmapparamEntry) {
+    // Should check that the COB-ID is not being used at the moment
+    // Could also add a flag which says whether it should be checked or not
 
-    // Change the Mapping Parameter Entry
-    OD_RPDOCommunicationParameter[currRPDO] = RPDOcommPara;
-    OD_RPDOMappingParameter[currRPDO] = RPDOmapparam;
+    if (currTPDO < CO_NO_TPDO) {
+        // Iterate through the Mapped Objects to set the parameters
+        //This is super hacky and crap.. seriously... why did they set it up in this way?
+        uint32_t *pMap = &TPDOmapparam->mappedObject1;
+        for (int i = 0; i < TPDOmapparam->numberOfMappedObjects; i++) {
+            uint32_t map = *pMap;
 
-    // Change the relevant OD location
-    CO_OD[24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85 + currRPDO].pData = (void *)dataStoreRecord;
+            // Change it to 0x6000
+            *pMap = (0x60000000 + (CO_NO_RPDO+currTPDO) * 0x10000) | (0x0000FFFF & map);
+            pMap++;
+        }
 
-    // increment counter, but return the original value
-    currRPDO = currRPDO +1;
-    // return currRPDO-1;
-    return currRPDO;
+        // Change the OD entry
+        CO_OD[25 + 2*CO_NO_RPDO +currTPDO].pData = (void *)TPDOCommEntry;
+        CO_OD[25 + 2*CO_NO_RPDO + CO_NO_TPDO + currTPDO].pData = (void *)TPDOmapparamEntry;
+
+        // Change the Mapping Parameter Entry
+        OD_TPDOCommunicationParameter[currTPDO] = TPDOcommPara;
+        OD_TPDOMappingParameter[currTPDO] =TPDOmapparam;
+
+        // Change the relevant OD location
+        CO_OD[24 + 3 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85 + currTPDO].pData = (void *)dataStoreRecord;
+
+        // increment counter, but return the original value
+        currTPDO = currTPDO + 1;
+        return currTPDO;
+    }
+    return -1;  // Error  - too many PDOs defined
 }

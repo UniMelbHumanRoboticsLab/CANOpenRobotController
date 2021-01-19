@@ -114,6 +114,18 @@ void app_programControlLoop(void) {
         spdlog::info("ODTEST {}, {},{},{},{},{}", forces[0], forces[1], forces[2], torques[0], torques[1], torques[2]);
         
     };
+    if (counter % 1000 == 0) {
+        if (sensor->getStreaming()){
+            sensor->stopStream();
+        }else {
+            sensor->startStream();
+        }
+        if (sensor2->getStreaming()) {
+            sensor2->stopStream();
+        } else {
+            sensor2->startStream();
+        }
+    };
 #ifdef TIMING_LOG
     loopTimer.tick();
 #endif
