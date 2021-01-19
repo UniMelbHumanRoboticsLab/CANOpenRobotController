@@ -1,6 +1,8 @@
 #include "RobotousRFT.h"
 
 RobotousRFT::RobotousRFT(int commandID_, int responseID1_, int responseID2_) {
+    spdlog::info("Robotous Sensor Created");
+
     // Change the parameters
     commandID = commandID_; 
     responseID1 = responseID1_;
@@ -19,14 +21,16 @@ RobotousRFT::RobotousRFT(int commandID_, int responseID1_, int responseID2_) {
 }
 
 void RobotousRFT::setupPDO(){
-    spdlog::debug("RobotousRFT {} - TPDO {} Set", commandID, CO_setTPDO(&TPDOcommPara, &TPDOMapParam, TPDOCommEntry, dataStoreRecordCmd, TPDOMapParamEntry));
-    spdlog::debug("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaH, &RPDOMapParamH, RPDOCommEntryH, dataStoreRecordH, RPDOMapParamEntryH));
-    spdlog::debug("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaL, &RPDOMapParamL, RPDOCommEntryL, dataStoreRecordL, RPDOMapParamEntryL));
+    spdlog::info("RobotousRFT {} - TPDO {} Set", commandID, CO_setTPDO(&TPDOcommPara, &TPDOMapParam, TPDOCommEntry, dataStoreRecordCmd, TPDOMapParamEntry));
+    spdlog::info("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaH, &RPDOMapParamH, RPDOCommEntryH, dataStoreRecordH, RPDOMapParamEntryH));
+    spdlog::info("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaL, &RPDOMapParamL, RPDOCommEntryL, dataStoreRecordL, RPDOMapParamEntryL));
 }
 
-void RobotousRFT::update() {
+void RobotousRFT::updateInput() {
+
     // If the last command was a streamed command, update the local copy of forces
     if (rawData[0] == 0x0B){
+        spdlog::info("New data");
         UNSIGNED16 Fx = rawData[1] * 256 + rawData[2];
         UNSIGNED16 Fy = rawData[3] * 256 + rawData[4];
         UNSIGNED16 Fz = rawData[5] * 256 + rawData[6];
@@ -51,7 +55,8 @@ void RobotousRFT::update() {
          * 
          * \return Eigen::VectorXd X,Y,Z forces
          */
-Eigen::VectorXd RobotousRFT::getForces() {
+Eigen::VectorXd& RobotousRFT::getForces() {
+    spdlog::info("forces {}", forces[0]);
     return forces;
 }
 
@@ -60,22 +65,27 @@ Eigen::VectorXd RobotousRFT::getForces() {
          * 
          * \return Eigen::VectorXd 
          */
-Eigen::VectorXd RobotousRFT::getTorques() {
+Eigen::VectorXd& RobotousRFT::getTorques() {
     return torques;
 }
 
 bool RobotousRFT::startStream(){
     spdlog::info("RobotousRFT {} Starting", commandID);
-    cmdData =0x0B;
-    streaming = true;
-    return streaming;
+    if (!streaming){
+        cmdData =0x0B;
+        streaming = true;
+        return true; 
+    }
+    return false;
 }
 bool RobotousRFT::stopStream() {
     spdlog::info("RobotousRFT {} Stopping", commandID);
-
-    cmdData = 0x0C;
-    streaming = false;
-    return streaming;
+    if (streaming){
+        cmdData = 0x0C;
+        streaming = false;
+        return true; 
+    }
+    return false;
 }
 bool RobotousRFT::getStreaming() {
     return streaming;

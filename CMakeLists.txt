@@ -19,7 +19,7 @@ project(CORC C CXX)
 set (STATE_MACHINE_NAME "LoggingDevice")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT ON)
+set(NO_ROBOT OFF)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS OFF)

@@ -18,9 +18,10 @@
 
 #include <Eigen/Dense>
 
+#include "InputDevice.h"
 #include "logging.h"
 
-class RobotousRFT {
+class RobotousRFT : public InputDevice {
     private:
         int commandID;     //   COB-ID of command messages    
         int responseID1; // COB-ID of 1st received message
@@ -162,12 +163,31 @@ class RobotousRFT {
          * \brief Updates the forces from the raw data
          * 
          */
-        void update();
+        void updateInput();
 
+        /**
+         * @brief Starts the Robotous Sensor Streaming data (sends 0x0B)
+         * 
+         * @return true if the sensor was previously not streaming (i.e. the stream is starting)
+         * @return false if the sensor was previously streaming (i.e. no change in state)
+         */
         bool startStream();
 
+        /**
+         * @brief Stops the Robotous Sensor Streaming data (sends 0x0B)
+         * 
+         * @return true if the sensor was previously streaming (i.e. the stream is starting)
+         * @return false if the sensor was previously not streaming (i.e. no change in state)
+         */
         bool stopStream();
 
+
+        /**
+         * @brief Check if the system is streaming
+         * 
+         * @return true if streaming
+         * @return false if not streaming
+         */
         bool getStreaming();
 
         /**
@@ -175,14 +195,14 @@ class RobotousRFT {
          * 
          * \return Eigen::VectorXd X,Y,Z forces
          */
-        Eigen::VectorXd getForces();
+        Eigen::VectorXd& getForces();
 
         /**
          * \brief Get the Forces object
          * 
          * \return Eigen::VectorXd 
          */
-        Eigen::VectorXd getTorques();
+        Eigen::VectorXd& getTorques();
     
 };
 #endif

@@ -21,6 +21,10 @@ class LoggingRobot : public Robot {
    private:
    public:
     Keyboard *keyboard;
+    std::vector<RobotousRFT *> crutchSensors;
+
+    Eigen::VectorXd crutchForces;
+
     LoggingRobot();
     ~LoggingRobot();
 
@@ -28,6 +32,8 @@ class LoggingRobot : public Robot {
     bool initialiseJoints() { return true; };
     bool initialiseInputs() { return true; };
     bool initialiseNetwork() { return true; };  // this one might need to be changed
+
+    Eigen::VectorXd &getCrutchSensors();
 };
 
 #endif /*LoggingRobot.h*/

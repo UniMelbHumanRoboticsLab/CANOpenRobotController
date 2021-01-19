@@ -40,11 +40,13 @@ bool Robot::disable() {
 }
 
 void Robot::updateRobot() {
+
     //Retrieve latest values from hardware
     for (auto joint : joints)
         joint->updateValue();
-    for (auto input : inputs)
+    for (auto input : inputs ){
         input->updateInput();
+    }
 
     //Update local copies of joint values
     if((unsigned int)jointPositions_.size()!=joints.size()) {

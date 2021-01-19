@@ -31,9 +31,8 @@ STATE_MACHINE_TYPE stateMachine;
 char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 int counter = 0;
-
-RobotousRFT *sensor;
-RobotousRFT *sensor2;
+//RobotousRFT * sensor;
+//RobotousRFT * sensor2;
 
 /******************************************************************************/
 void app_programStart(int argc, char *argv[]) {
@@ -45,27 +44,9 @@ void app_programStart(int argc, char *argv[]) {
 
     CO_configure();
 
-    sensor = new RobotousRFT(0xf8, 0xf9, 0xfa);
-    sensor2 = new RobotousRFT(0xf0, 0xf1, 0xf2);
+    //sensor = new RobotousRFT(0xf8, 0xf9, 0xfa);
+    //sensor2 = new RobotousRFT(0xf0, 0xf1, 0xf2);
 
-    // For each PDO:
-    // - Create Comm Parameter Object
-    // - Create Mapping Paramter Object
-    // - Create Storage location (R/W)
-    //spdlog::info("RPDO {} Set", CO_setRPDO(&RPDOcommPara, &RPDOmapparam, RPDOCommEntry, dataStoreRecord, RPDOmapparamEntry));
-    //spdlog::info("RPDO {} Set", CO_setRPDO(&RPDOcommPara2, &RPDOmapparam2, RPDOCommEntry2, dataStoreRecord2, RPDOmapparamEntry2));
-
-/*
-    // Change the OD entry
-    CO_OD[25].pData = (void *)&PRDOCommEntry;
-    CO_OD[25 + CO_NO_RPDO].pData = (void *)&RPDOmapparamEntry;
-
-    // Change the Mapping Parameter Entry
-    OD_RPDOCommunicationParameter[0] = &RPDOcommPara;
-    OD_RPDOMappingParameter[0] = &RPDOmapparam;
-
-    // Change the relevant OD location
-    CO_OD[24 + 2 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85].pData = (void *)&dataStoreRecord;*/
 
 //CO_OD
 #ifndef USEROS
@@ -92,14 +73,17 @@ void app_programAsync(uint16_t timer1msDiffy) {
 }
 
 void app_programControlLoop(void) {
-    if (stateMachine.running) {
+    if (stateMachine.running && counter%100 == 0) {
         stateMachine.update();
         stateMachine.hwStateUpdate();
+        //sensor->updateInput();
+        //sensor2->updateInput();
     }
-    counter = counter + 1;
+    counter = counter+1;
+  /*  counter = counter + 1;
     if (counter % 100 == 0) {
-        sensor->update();
-        sensor2->update();
+        sensor->updateInput();
+        sensor2->updateInput();
 
         Eigen::VectorXd forces= sensor->getForces();
         Eigen::VectorXd torques = sensor2->getForces();
@@ -109,7 +93,7 @@ void app_programControlLoop(void) {
         UNSIGNED16 Fz = ODtestthing[5] * 256 + ODtestthing[6];
         UNSIGNED16 Tx = ODtestthing[7] * 256 + ODtestthing[8];
         UNSIGNED16 Ty = ODtestthing[9] * 256 + ODtestthing[10];
-        UNSIGNED16 Tz = ODtestthing[11] * 256 + ODtestthing[12];*/
+        UNSIGNED16 Tz = ODtestthing[11] * 256 + ODtestthing[12];
 
         spdlog::info("ODTEST {}, {},{},{},{},{}", forces[0], forces[1], forces[2], torques[0], torques[1], torques[2]);
         
@@ -125,7 +109,7 @@ void app_programControlLoop(void) {
         } else {
             sensor2->startStream();
         }
-    };
+    };*/
 #ifdef TIMING_LOG
     loopTimer.tick();
 #endif
