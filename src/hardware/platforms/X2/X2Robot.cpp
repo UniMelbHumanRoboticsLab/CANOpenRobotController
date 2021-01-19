@@ -35,6 +35,8 @@ JointDrivePairs kneeJDP{
  */
 ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
+static volatile sig_atomic_t exitHoming = 0;
+
 X2Robot::X2Robot() : Robot() {
 #ifdef NOROBOT
     simJointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
@@ -48,6 +50,12 @@ X2Robot::~X2Robot() {
     freeMemory();
     spdlog::debug("X2Robot deleted");
 }
+
+void X2Robot::signalHandler(int signum) {
+    exitHoming = 1;
+    std::raise(SIGTERM); //Clean exit
+}
+
 #ifdef SIM
 void X2Robot::initialiseROS() {
     controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
@@ -331,6 +339,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
     std::vector<bool> success(X2_NUM_JOINTS, false);
     std::chrono::steady_clock::time_point time0;
     this->initVelocityControl();
+    signal(SIGINT, signalHandler); // check if ctrl + c is pressed
 
     for (int i = 0; i < X2_NUM_JOINTS; i++) {
         if (homingDirection[i] == 0) continue;  // skip the joint if it is not asked to do homing
@@ -345,6 +354,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
         spdlog::debug("Homing Joint {} ...", i);
 
         while (success[i] == false &&
+                exitHoming == 0 &&
                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count() < maxTime * 1000) {
             this->updateRobot();  // because this function has its own loops, updateRobot needs to be called
             this->setVelocity(desiredVelocity);
@@ -352,8 +362,8 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
                 highTorqueReached = true;
                 firstTimeHighTorque = std::chrono::steady_clock::now();
                 while (std::chrono::duration_cast<std::chrono::milliseconds>  // high torque should be measured for delayTime
-                       (std::chrono::steady_clock::now() - firstTimeHighTorque)
-                           .count() < delayTime * 1000) {
+                       (std::chrono::steady_clock::now() - firstTimeHighTorque).count() < delayTime * 1000 &&
+                        exitHoming == 0) {
                     this->updateRobot();
                     if (std::abs(this->getTorque()[i]) < thresholdTorque) {  // if torque value reach below thresholdTorque, goes back
                         highTorqueReached = false;

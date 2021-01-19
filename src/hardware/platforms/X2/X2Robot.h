@@ -19,6 +19,7 @@
 #include <chrono>
 #include <map>
 #include <thread>
+#include <csignal>
 
 #include "CopleyDrive.h"
 #include "Keyboard.h"
@@ -69,6 +70,7 @@ class X2Robot : public Robot {
      * \brief motor drive position control profile paramaters, user defined.
      *
      */
+    static void signalHandler(int signum);
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
     motorProfile velControlMotorProfile{0, 240000, 240000};
 public:
