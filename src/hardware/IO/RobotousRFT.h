@@ -60,14 +60,16 @@ class RobotousRFT : public InputDevice {
         // Data size and number of items will be constant, function will be used to change location
         OD_RPDOMappingParameter_t RPDOMapParamH = {0x8L, 0x00000108L, 0x00000208L, 0x00000308L, 0x00000408L, 0x00000508L, 0x00000608L, 0x00000708L, 0x00000808L};
         OD_RPDOMappingParameter_t RPDOMapParamL = {0x8L, 0x00000108L, 0x00000208L, 0x00000308L, 0x00000408L, 0x00000508L, 0x00000608L, 0x00000708L, 0x00000808L};
+        OD_TPDOMappingParameter_t TPDOMapParam = {0x2L, 0x00000108L, 0x00000238L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L};
 
-        OD_RPDOCommunicationParameter_t RPDOcommParaH = {0x2L, 0x0f9L, 0xffL}; // {0x2L, COB-ID, 0xffL}
-        OD_RPDOCommunicationParameter_t RPDOcommParaL = {0x2L, 0x0f9L, 0xffL};  // {0x2L, COB-ID, 0xffL}
+        OD_RPDOCommunicationParameter_t RPDOcommParaH = {0x2L, 0x0L, 0xffL}; // {0x2L, COB-ID, 0xffL}
+        OD_RPDOCommunicationParameter_t RPDOcommParaL = {0x2L, 0x0L, 0xffL};  // {0x2L, COB-ID, 0xffL}
+        OD_TPDOCommunicationParameter_t TPDOcommPara = {0x6L, 0x0L, 0xffL, 0x0, 0x0, 0x0, 0x0};  // {0x2L, COB-ID, 0xffL}
 
         // Records which are linked to from the OD
         // These might need to be public
         CO_OD_entryRecord_t dataStoreRecordH[9] = {
-            {(void *)&CO_OD_RAM.controlWords.numberOfMotors, 0x06, 0x1},
+            {(void *)&lengthData, 0x06, 0x1},
             {(void *)&rawData[0], 0xfe, 0x2},
             {(void *)&rawData[1], 0xfe, 0x2},
             {(void *)&rawData[2], 0xfe, 0x2},
@@ -77,9 +79,8 @@ class RobotousRFT : public InputDevice {
             {(void *)&rawData[6], 0xfe, 0x2},
             {(void *)&rawData[7], 0xfe, 0x2},
         };
-        ;
         CO_OD_entryRecord_t dataStoreRecordL[9] = {
-            {(void *)&CO_OD_RAM.controlWords.numberOfMotors, 0x06, 0x1},
+            {(void *)&lengthData, 0x06, 0x1},
             {(void *)&rawData[8], 0xfe, 0x2},
             {(void *)&rawData[9], 0xfe, 0x2},
             {(void *)&rawData[10], 0xfe, 0x2},
@@ -89,7 +90,11 @@ class RobotousRFT : public InputDevice {
             {(void *)&rawData[14], 0xfe, 0x2},
             {(void *)&rawData[15], 0xfe, 0x2},
         };
-        ;
+        CO_OD_entryRecord_t dataStoreRecordCmd[3] = {
+            {(void *)&lengthCmd, 0x06, 0x1},
+            {(void *)&cmdData, 0xfe, 0x2},
+            {(void *)&cmdDataPad, 0xfe, 0x8},
+        };
 
         CO_OD_entryRecord_t RPDOCommEntryH[3] = {
             {(void *)&RPDOcommParaH.maxSubIndex, 0x06, 0x1},
@@ -101,6 +106,11 @@ class RobotousRFT : public InputDevice {
             {(void *)&RPDOcommParaL.maxSubIndex, 0x06, 0x1},
             {(void *)&RPDOcommParaL.COB_IDUsedByRPDO, 0x8e, 0x4},
             {(void *)&RPDOcommParaL.transmissionType, 0x0e, 0x1},
+        };
+        CO_OD_entryRecord_t TPDOCommEntry[3] = {
+            {(void *)&TPDOcommPara.maxSubIndex, 0x06, 0x1},
+            {(void *)&TPDOcommPara.COB_IDUsedByTPDO, 0x8e, 0x4},
+            {(void *)&TPDOcommPara.transmissionType, 0x0e, 0x1},
         };
 
         // This is constant (pointers to above)
@@ -127,7 +137,17 @@ class RobotousRFT : public InputDevice {
             {(void *)&RPDOMapParamL.mappedObject7, 0x8e, 0x4},
             {(void *)&RPDOMapParamL.mappedObject8, 0x8e, 0x4},
         };
-
+        CO_OD_entryRecord_t TPDOMapParamEntry[9] = {
+            {(void *)&TPDOMapParam.numberOfMappedObjects, 0x0e, 0x1},
+            {(void *)&TPDOMapParam.mappedObject1, 0x8e, 0x4},
+            {(void *)&TPDOMapParam.mappedObject2, 0x8e, 0x4},
+            {(void *)&TPDOMapParam.mappedObject3, 0x8e, 0x4},
+            {(void *)&TPDOMapParam.mappedObject4, 0x8e, 0x4},
+            {(void *)&TPDOMapParam.mappedObject5, 0x8e, 0x4},
+            {(void *)&TPDOMapParam.mappedObject6, 0x8e, 0x4},
+            {(void *)&TPDOMapParam.mappedObject7, 0x8e, 0x4},
+            {(void *)&TPDOMapParam.mappedObject8, 0x8e, 0x4},
+        };
         // Data variables
         Eigen::VectorXd forces;
         Eigen::VectorXd torques;
@@ -187,6 +207,12 @@ class RobotousRFT : public InputDevice {
          * @return true if streaming
          * @return false if not streaming
          */
+        bool getStreaming();
+
+        bool startStream();
+
+        bool stopStream();
+
         bool getStreaming();
 
         /**
