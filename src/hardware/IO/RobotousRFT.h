@@ -209,10 +209,29 @@ class RobotousRFT : public InputDevice {
          */
         bool getStreaming();
 
+        /**
+         * @brief Starts the Robotous Sensor Streaming data (sends 0x0B)
+         * 
+         * @return true if the sensor was previously not streaming (i.e. the stream is starting)
+         * @return false if the sensor was previously streaming (i.e. no change in state)
+         */
         bool startStream();
 
+        /**
+         * @brief Stops the Robotous Sensor Streaming data (sends 0x0B)
+         * 
+         * @return true if the sensor was previously streaming (i.e. the stream is starting)
+         * @return false if the sensor was previously not streaming (i.e. no change in state)
+         */
         bool stopStream();
 
+
+        /**
+         * @brief Check if the system is streaming
+         * 
+         * @return true if streaming
+         * @return false if not streaming
+         */
         bool getStreaming();
 
         /**
