@@ -34,17 +34,17 @@
 
 class X2DemoMachine : public StateMachine {
 
-    X2DemoMachineROS *x2DemoMachineRos_; /*<!Pointer to the ROS Class*/
-    X2Robot *robot_; /*<!Pointer to the Robot*/
-
 public:
+    X2DemoMachineROS *x2DemoMachineRos_; /*<!Pointer to the ROS Class*/
+    X2Robot *robot_; /*<!Pointer to the Robot*/ // NOTE: For some reason; if this is defined later, it doesn't publish
+
     bool running = false;
-    std::chrono::steady_clock::time_point time0; // initial time that machine started
-    double time; // time passed after tim0 in [s]
+
     /**
      *  \todo Pilot Parameters would be set in constructor here
      *
      */
+
     X2DemoMachine();
     void init(int argc, char *argv[]);
     void end();
@@ -60,8 +60,6 @@ public:
     IdleState *idleState;
     X2DemoState *x2DemoState;
 
-//    X2DemoMachineROS *x2DemoMachineRos_;
-
 private:
     /**
      *
@@ -72,6 +70,9 @@ private:
     EventObject(StartExo) * startExo;
 
     std::string robotName_; // robot name(obtained from node name)
+
+    std::chrono::steady_clock::time_point time0; // initial time that machine started
+    double time; // time passed after tim0 in [s]
 
 };
 

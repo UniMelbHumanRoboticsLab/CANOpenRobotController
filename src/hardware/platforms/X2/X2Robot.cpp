@@ -324,7 +324,6 @@ bool X2Robot::calibrateForceSensors() {
 double X2Robot::forceSensorValueToNewton(double sensorValue, int sensorId) {
 
     return (sensorValue)*forceSensorScaleFactor_[sensorId];
-
 }
 
 bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, float delayTime,
@@ -392,7 +391,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
         if (homingDirection[i] == 0) continue;  // skip the joint if it is not asked to do homing
         if (success[i] == false) return false;
     }
-    return true;  // will come here if all hoints successfully homed
+    return true;  // will come here if all joints successfully homed
 }
 
 bool X2Robot::initialiseJoints() {

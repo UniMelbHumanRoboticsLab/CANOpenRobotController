@@ -3,7 +3,6 @@
 X2ForceSensor::X2ForceSensor(int sensorID) {
 
     this->sensorID = sensorID;
-
 }
 
 void X2ForceSensor::updateInput() {
@@ -38,19 +37,15 @@ bool X2ForceSensor::calibrate() {
         while(time < calibrationTime){
             time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
             readingVector.push_back(*(&CO_OD_RAM.actualSensorForces.sensor1 + sensorID));
-//            std::cout<<time<<"::  "<<readingVector.back()<<std::endl;
         }
         calibrationOffset = std::accumulate(readingVector.begin(), readingVector.end(), 0.0)/readingVector.size();
 
-        spdlog::info("[X2ForceSensor::calibrate]: Force Sensor {} succesfully zeroed with offset {}.", sensorID, calibrationOffset);
+        spdlog::debug("[X2ForceSensor::calibrate]: Force Sensor {} succesfully zeroed with offset {}.", sensorID, calibrationOffset);
         return true;
     }
 }
 
 double X2ForceSensor::getForce() {
-
-//    std::cout<<this->sensorID<<": "<<forceReading - calibrationOffset<<std::endl;
-
     return forceReading - calibrationOffset;
 
 }

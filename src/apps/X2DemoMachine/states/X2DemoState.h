@@ -55,14 +55,12 @@ private:
     Eigen::VectorXd desiredJointVelocities_;
     Eigen::VectorXd desiredJointTorques_;
 
+    double admittanceInputHistory_[2] = {0,0};
+    double admittanceOutputHistory_[2] = {0,0};
+    double t_step_ = 0.002; // todo: get from main
 
-
-    double inputHistory_[2] = {0,0};
-    double outputHistory_[2] = {0,0};
-    double t_step = 0.002;
-
-    double m = 5;
-    double b = 2;
+    double mAdmittance_ = 5;
+    double bAdmittance_ = 2;
 
 
 };
