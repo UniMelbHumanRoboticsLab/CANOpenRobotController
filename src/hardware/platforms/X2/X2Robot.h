@@ -51,6 +51,9 @@
 #define X2_NUM_JOINTS 4
 #define X2_NUM_FORCE_SENSORS 4
 
+// robot name is used to access the properties of the correct robot version
+#define X2_NAME X2_MELB_A
+
 // Macros
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
@@ -82,6 +85,7 @@ class X2Robot : public Robot {
     motorProfile velControlMotorProfile{0, 240000, 240000};
 public:
     Eigen::VectorXd m_; // masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
+    Eigen::VectorXd l_; // length of left thigh, left shank, right thigh, right shank [kg]
     Eigen::VectorXd s_; // length from previous joint to CoM [m]
     Eigen::VectorXd I_; // mass moment of inertia of left thigh, left shank+foot, right thigh, right shank+foot [kg.m^2]
     Eigen::VectorXd c0_; // viscous fric constant of joints [N.s]

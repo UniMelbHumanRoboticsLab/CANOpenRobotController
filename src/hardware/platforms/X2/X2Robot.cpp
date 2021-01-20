@@ -43,7 +43,9 @@ X2Robot::X2Robot() : Robot() {
     simJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 #endif
-    robotName_ = "x2";
+    // This is the default name accessed from the MACRO. If ROS is used, under demo machine robot name can be set
+    // by setRobotName() to the ros node name. See X2DemoMachine::init()
+    robotName_ = XSTR(X2_NAME);
 }
 
 X2Robot::~X2Robot() {
@@ -449,23 +451,43 @@ bool X2Robot::initialiseInputs() {
 
 void X2Robot::initializeRobotParams(std::string robotName) {
 
+    // need to use address of base directory because when run with ROS, working directory is ~/.ros
     std::string baseDirectory = XSTR(BASE_DIRECTORY);
     std::string relativeFilePath = "/config/x2_ros_control.yaml";
 
-    YAML::Node config = YAML::LoadFile(baseDirectory + relativeFilePath);
-    std::cout<< "publish rate: "<< config["x2"]["joint_state_controller"]["publish_rate"]<<std::endl<<"!!!!!!!!!!!!!!"<<std::endl;
+    YAML::Node params = YAML::LoadFile(baseDirectory + relativeFilePath);
+    std::string dummyName = "x2";
+    std::cout<< "JOINTS: "<< params[dummyName]["position_controller"]["joints"][0]<<std::endl<<"!!!!!!!!!!!!!!"<<std::endl;
 
-    //todo: continue
+    double xx = params[dummyName]["joint_state_controller"]["publish_rate"].as<double>();
+    std::cout<<"PUBLISH RATE : !!!!: "<<xx<<std::endl;
 
-    //todo: better representation for 4 DoF. Didn't like this
+    // Initializing the parameters to zero
     m_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    l_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     s_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     I_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     c0_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     c1_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     c2_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    cuffWeights_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    cuffWeights_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
     forceSensorScaleFactor_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+
+    // getting the parameters from the yaml file
+    for(int i = 0; i<X2_NUM_JOINTS; i++){
+        m_[i] = params[robotName]["m_"][i].as<double>();
+        l_[i] = params[robotName]["l_"][i].as<double>();
+        s_[i] = params[robotName]["s_"][i].as<double>();
+        I_[i] = params[robotName]["I_"][i].as<double>();
+        c0_[i] = params[robotName]["c0_"][i].as<double>();
+        c1_[i] = params[robotName]["c1_"][i].as<double>();
+        c2_[i] = params[robotName]["c2_"][i].as<double>();
+    }
+    for(int i = 0; i<X2_NUM_FORCE_SENSORS; i++) {
+        cuffWeights_[i] = params[robotName]["cuffWeights_"][i].as<double>();
+        forceSensorScaleFactor_[i] = params[robotName]["forceSensorScaleFactor_"][i].as<double>();
+    }
+
 
     if(robotName_ == "x2_A"){
         // X2_A
