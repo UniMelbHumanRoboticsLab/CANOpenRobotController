@@ -136,11 +136,11 @@ bool Drive::posControlConfirmSP() {
 bool Drive::initPDOs() {
     spdlog::debug("Drive::initPDOs");
 
-//    spdlog::debug("Set up STATUS_WORD TPDO");
-//    if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF))<0) {
-//        spdlog::error("Set up STATUS_WORD TPDO FAILED on node {}", NodeID);
-//        return false;
-//    }
+    spdlog::debug("Set up STATUS_WORD TPDO");
+    if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF))<0) {
+        spdlog::error("Set up STATUS_WORD TPDO FAILED on node {}", NodeID);
+        return false;
+    }
 
     spdlog::debug("Set up ACTUAL_POS and ACTUAL_VEL TPDO");
     if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 0x01))<0) {
