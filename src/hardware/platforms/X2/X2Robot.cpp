@@ -432,7 +432,9 @@ bool X2Robot::initialiseJoints() {
         }
     }
 
-    return initializeRobotParams(robotName_);
+    initializeRobotParams(robotName_);
+
+    return true;
 }
 
 bool X2Robot::initialiseNetwork() {
@@ -474,6 +476,7 @@ bool X2Robot::initializeRobotParams(std::string robotName) {
     if(!params[robotName]){
         spdlog::error("Parameters of {} couldn't be found in {} !", robotName, baseDirectory + relativeFilePath);
         spdlog::error("All parameters are zero !");
+
         return false;
     }
 

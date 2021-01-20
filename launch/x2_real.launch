@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <launch>
 
-  <!-- load the urdf into the parameter server -->
-  <param name="robot_description" command="$(find xacro)/xacro '$(find x2_description)/urdf/x2_fixed_base.urdf.xacro'"/>
-
+  <arg name="robot_description_name" default="x2/robot_description"/>
   <arg name="robot_name" default="X2_SRA_B"/>
+
+  <!-- load the urdf into the parameter server -->
+  <param name="$(arg robot_description_name)" command="$(find xacro)/xacro '$(find x2_description)/urdf/x2_fixed_base.urdf.xacro'"/>
 
   <!-- CORC -->
   <node name="$(arg robot_name)" pkg="CORC" type="X2DemoMachine_APP" output="screen" args="-can can0"/>
@@ -13,6 +14,7 @@
        and listens to joint information on the /joint_states topic -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
   <remap from="/joint_states" to="/$(arg robot_name)/joint_states" />
+  <remap from="robot_description" to="$(arg robot_description_name)"/>
   </node>
 
   <!-- rviz will enable us to see the robot -->
