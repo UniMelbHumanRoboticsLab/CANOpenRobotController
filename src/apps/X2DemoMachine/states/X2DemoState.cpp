@@ -24,7 +24,6 @@ void X2DemoState::entry(void) {
 }
 
 void X2DemoState::during(void) {
-
     if(controller_mode_ == 1){ // zero torque mode
         desiredJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
         robot_->setTorque(desiredJointTorques_);
@@ -55,7 +54,7 @@ void X2DemoState::during(void) {
 
         desiredInteractionForce_ = x2DemoMachineRos_->interactionForceCommand_[1]; //todo: uncomment in muliti robot control
 
-        desiredJointAcceleration_ = (1/(robot_->m_[1]*virtualMassRatio_))*J*(robot_->getInteractionForce()[1] - desiredInteractionForce_);
+        desiredJointAcceleration_ = (1/(robot_->getRobotParameters().m[1]*virtualMassRatio_))*J*(robot_->getInteractionForce()[1] - desiredInteractionForce_);
 
         feedBackTorque[1] = (1.0/virtualMassRatio_-1)*J*robot_->getInteractionForce()[1] -
                             (1.0/virtualMassRatio_)*J*desiredInteractionForce_;

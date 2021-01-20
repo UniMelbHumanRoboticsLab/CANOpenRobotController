@@ -50,15 +50,15 @@ X2Robot::X2Robot() : Robot() {
 #endif
 
     // Initializing the parameters to zero
-    m_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    l_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    s_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    I_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    c0_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    c1_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    c2_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    cuffWeights_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
-    forceSensorScaleFactor_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    x2Parameters.m = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.l = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.s = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.I = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.c0 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.c1 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.c2 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.cuffWeights = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    x2Parameters.forceSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
 }
 
 X2Robot::~X2Robot() {
@@ -316,10 +316,12 @@ Eigen::VectorXd &X2Robot::getInteractionForce() {
         interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
     }
 
-    //todo: add compensation for thigh sensors
+    //todo: add backpack angle
     Eigen::VectorXd cuffCompensation = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    cuffCompensation[1] = cuffWeights_[1] * sin(getPosition()[1] - getPosition()[0]);
-    cuffCompensation[3] = cuffWeights_[3] * sin(getPosition()[3] - getPosition()[2]);
+    cuffCompensation[0] = x2Parameters.cuffWeights[0] * sin(getPosition()[0]);
+    cuffCompensation[1] = x2Parameters.cuffWeights[1] * sin(getPosition()[1] - getPosition()[0]);
+    cuffCompensation[2] = x2Parameters.cuffWeights[2] * sin(getPosition()[2]);
+    cuffCompensation[3] = x2Parameters.cuffWeights[3] * sin(getPosition()[3] - getPosition()[2]);
 
     //Update values
     for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
@@ -346,7 +348,7 @@ bool X2Robot::calibrateForceSensors() {
 
 double X2Robot::forceSensorValueToNewton(double sensorValue, int sensorId) {
 
-    return (sensorValue)*forceSensorScaleFactor_[sensorId];
+    return (sensorValue)*x2Parameters.forceSensorScaleFactor[sensorId];
 }
 
 bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, float delayTime,
@@ -430,9 +432,7 @@ bool X2Robot::initialiseJoints() {
         }
     }
 
-    initializeRobotParams(robotName_);
-
-    return true;
+    return initializeRobotParams(robotName_);
 }
 
 bool X2Robot::initialiseNetwork() {
@@ -462,7 +462,7 @@ bool X2Robot::initialiseInputs() {
     return true;
 }
 
-void X2Robot::initializeRobotParams(std::string robotName) {
+bool X2Robot::initializeRobotParams(std::string robotName) {
 
     // need to use address of base directory because when run with ROS, working directory is ~/.ros
     std::string baseDirectory = XSTR(BASE_DIRECTORY);
@@ -474,23 +474,25 @@ void X2Robot::initializeRobotParams(std::string robotName) {
     if(!params[robotName]){
         spdlog::error("Parameters of {} couldn't be found in {} !", robotName, baseDirectory + relativeFilePath);
         spdlog::error("All parameters are zero !");
-        return;
+        return false;
     }
 
     // getting the parameters from the yaml file
     for(int i = 0; i<X2_NUM_JOINTS; i++){
-        m_[i] = params[robotName]["m"][i].as<double>();
-        l_[i] = params[robotName]["l"][i].as<double>();
-        s_[i] = params[robotName]["s"][i].as<double>();
-        I_[i] = params[robotName]["I"][i].as<double>();
-        c0_[i] = params[robotName]["c0"][i].as<double>();
-        c1_[i] = params[robotName]["c1"][i].as<double>();
-        c2_[i] = params[robotName]["c2"][i].as<double>();
+        x2Parameters.m[i] = params[robotName]["m"][i].as<double>();
+        x2Parameters.l[i] = params[robotName]["l"][i].as<double>();
+        x2Parameters.s[i] = params[robotName]["s"][i].as<double>();
+        x2Parameters.I[i] = params[robotName]["I"][i].as<double>();
+        x2Parameters.c0[i] = params[robotName]["c0"][i].as<double>();
+        x2Parameters.c1[i] = params[robotName]["c1"][i].as<double>();
+        x2Parameters.c2[i] = params[robotName]["c2"][i].as<double>();
     }
     for(int i = 0; i<X2_NUM_FORCE_SENSORS; i++) {
-        cuffWeights_[i] = params[robotName]["cuff_weights"][i].as<double>();
-        forceSensorScaleFactor_[i] = params[robotName]["force_sensor_scale_factor"][i].as<double>();
+        x2Parameters.cuffWeights[i] = params[robotName]["cuff_weights"][i].as<double>();
+        x2Parameters.forceSensorScaleFactor[i] = params[robotName]["force_sensor_scale_factor"][i].as<double>();
     }
+
+    return true;
 }
 
 void X2Robot::freeMemory() {
@@ -518,14 +520,14 @@ Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
 
     // todo generalized 4 Dof Approach
     if(abs(jointVelocities_[1]) > velTreshold){ // if in motion
-        coulombFriction = c1_[1]*jointVelocities_[1]/abs(jointVelocities_[1]) +
-        + c2_[1]*sqrt(abs(jointVelocities_[1]))*jointVelocities_[1]/abs(jointVelocities_[1]);
+        coulombFriction = x2Parameters.c1[1]*jointVelocities_[1]/abs(jointVelocities_[1]) +
+        + x2Parameters.c2[1]*sqrt(abs(jointVelocities_[1]))*jointVelocities_[1]/abs(jointVelocities_[1]);
     }else { // if static
-        coulombFriction = c1_[1]*motionIntend/abs(motionIntend);
+        coulombFriction = x2Parameters.c1[1]*motionIntend/abs(motionIntend);
     }
 
     Eigen::VectorXd ffTorque = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    ffTorque[1] = m_[1]*s_[1]*9.81*sin(jointPositions_[1] - jointPositions_[0]) + coulombFriction + c0_[1]*jointVelocities_[1];
+    ffTorque[1] = x2Parameters.m[1]*x2Parameters.s[1]*9.81*sin(jointPositions_[1] - jointPositions_[0]) + coulombFriction + x2Parameters.c0[1]*jointVelocities_[1];
 
     return ffTorque;
 
@@ -537,6 +539,10 @@ void X2Robot::setRobotName(std::string robotName) {
 
 std::string & X2Robot::getRobotName() {
     return robotName_;
+}
+
+RobotParameters& X2Robot::getRobotParameters() {
+    return x2Parameters;
 }
 
 #ifdef SIM

@@ -69,6 +69,18 @@ struct ExoJointLimits {
     double kneeMin;
 };
 
+struct RobotParameters {
+    Eigen::VectorXd m; // masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
+    Eigen::VectorXd l; // length of left thigh, left shank, right thigh, right shank [kg]
+    Eigen::VectorXd s; // length from previous joint to CoM [m]
+    Eigen::VectorXd I; // mass moment of inertia of left thigh, left shank+foot, right thigh, right shank+foot [kg.m^2]
+    Eigen::VectorXd c0; // viscous fric constant of joints [N.s]
+    Eigen::VectorXd c1; // coulomb friction const of joints [N.m]
+    Eigen::VectorXd c2; // friction const related to sqrt of vel
+    Eigen::VectorXd cuffWeights; // cuff Weights [N]
+    Eigen::VectorXd forceSensorScaleFactor; // scale factor of force sensors [N/sensor output]
+};
+
 /**
  * \brief Example implementation of the Robot class, representing an X2 Exoskeleton.
  *
@@ -76,31 +88,23 @@ struct ExoJointLimits {
 class X2Robot : public Robot {
    private:
     /**
-
      * \brief motor drive position control profile paramaters, user defined.
      *
      */
-    static void signalHandler(int signum);
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
     motorProfile velControlMotorProfile{0, 240000, 240000};
-public:
-    Eigen::VectorXd m_; // masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
-    Eigen::VectorXd l_; // length of left thigh, left shank, right thigh, right shank [kg]
-    Eigen::VectorXd s_; // length from previous joint to CoM [m]
-    Eigen::VectorXd I_; // mass moment of inertia of left thigh, left shank+foot, right thigh, right shank+foot [kg.m^2]
-    Eigen::VectorXd c0_; // viscous fric constant of joints [N.s]
-    Eigen::VectorXd c1_; // coulomb friction const of joints [N.m]
-    Eigen::VectorXd c2_; // friction const related to sqrt of vel
-    Eigen::VectorXd cuffWeights_; // cuff Weights [N]
-    Eigen::VectorXd forceSensorScaleFactor_; // scale factor of force sensors [N/sensor output]
-private:
+
+    RobotParameters x2Parameters;
+
     //Todo: generalise sensors
     Eigen::VectorXd interactionForces_;
 
     std::string robotName_;
 
-    void initializeRobotParams(std::string robotName);
+    bool initializeRobotParams(std::string robotName);
     double forceSensorValueToNewton(double sensorValue, int sensorId);
+
+    static void signalHandler(int signum);
 
 #ifdef SIM
     ros::NodeHandle* nodeHandle_;
@@ -300,6 +304,11 @@ private:
        * \brief get the robot name
        */
     std::string& getRobotName();
+
+    /**
+       * \brief returns the parameters of the robot
+       */
+    RobotParameters& getRobotParameters();
 
 #ifdef SIM
     /**
