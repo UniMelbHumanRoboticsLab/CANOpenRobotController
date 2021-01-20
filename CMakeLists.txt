@@ -28,6 +28,8 @@ set(USE_ROS ON)
 set(CORC_LOGGING_LEVEL INFO) 
 ################################################################################
 
+add_definitions(-DBASE_DIRECTORY=${CMAKE_SOURCE_DIR})
+
 if(USE_ROS)
 	add_definitions(-DUSEROS)
 endif()
@@ -80,6 +82,8 @@ endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
 ## Add libraries headers
 list (APPEND INCLUDE_DIRS lib/)
+
+add_subdirectory(lib/yaml-cpp/)
 
 
 ## Add ROS dependencies
@@ -167,7 +171,6 @@ add_executable(${APP_NAME}
 				${SOURCES}
 				)
 
-
 ## Includes
 target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
 
@@ -175,7 +178,9 @@ target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
 find_package(Threads REQUIRED)
 
 ## Link non-ROS libraries
-target_link_libraries(${APP_NAME} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${APP_NAME}
+		${CMAKE_THREAD_LIBS_INIT}
+		yaml-cpp)
 
 ## Link ROS libraries
 if(USE_ROS)

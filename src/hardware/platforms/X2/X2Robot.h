@@ -29,6 +29,13 @@
 
 // Logger
 #include "spdlog/helper/LogHelper.h"
+// yaml-parser
+#include <fstream>
+#include "yaml-cpp/yaml.h"
+
+// These are used to access the MACRO: BASE_DIRECTORY
+#define XSTR(x) STR(x)
+#define STR(x) #x
 
 #ifdef SIM
 #include "controller_manager_msgs/SwitchController.h"

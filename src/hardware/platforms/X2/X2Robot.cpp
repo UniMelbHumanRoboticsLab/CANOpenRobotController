@@ -449,6 +449,14 @@ bool X2Robot::initialiseInputs() {
 
 void X2Robot::initializeRobotParams(std::string robotName) {
 
+    std::string baseDirectory = XSTR(BASE_DIRECTORY);
+    std::string relativeFilePath = "/config/x2_ros_control.yaml";
+
+    YAML::Node config = YAML::LoadFile(baseDirectory + relativeFilePath);
+    std::cout<< "publish rate: "<< config["x2"]["joint_state_controller"]["publish_rate"]<<std::endl<<"!!!!!!!!!!!!!!"<<std::endl;
+
+    //todo: continue
+
     //todo: better representation for 4 DoF. Didn't like this
     m_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     s_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
