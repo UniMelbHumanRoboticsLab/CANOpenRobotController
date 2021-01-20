@@ -4,7 +4,7 @@
   <!-- load the urdf into the parameter server -->
   <param name="robot_description" command="$(find xacro)/xacro '$(find x2_description)/urdf/x2_fixed_base.urdf.xacro'"/>
 
-  <arg name="robot_name" default="x2_A"/>
+  <arg name="robot_name" default="X2_SRA_B"/>
 
   <!-- CORC -->
   <node name="$(arg robot_name)" pkg="CORC" type="X2DemoMachine_APP" output="screen" args="-can can0"/>

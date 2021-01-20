@@ -38,14 +38,27 @@ ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2ra
 static volatile sig_atomic_t exitHoming = 0;
 
 X2Robot::X2Robot() : Robot() {
+
+    // This is the default name accessed from the MACRO. If ROS is used, under demo machine robot name can be set
+    // by setRobotName() to the ros node name. See X2DemoMachine::init()
+    robotName_ = XSTR(X2_NAME);
+
 #ifdef NOROBOT
     simJointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 #endif
-    // This is the default name accessed from the MACRO. If ROS is used, under demo machine robot name can be set
-    // by setRobotName() to the ros node name. See X2DemoMachine::init()
-    robotName_ = XSTR(X2_NAME);
+
+    // Initializing the parameters to zero
+    m_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    l_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    s_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    I_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    c0_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    c1_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    c2_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    cuffWeights_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    forceSensorScaleFactor_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
 }
 
 X2Robot::~X2Robot() {
@@ -453,120 +466,30 @@ void X2Robot::initializeRobotParams(std::string robotName) {
 
     // need to use address of base directory because when run with ROS, working directory is ~/.ros
     std::string baseDirectory = XSTR(BASE_DIRECTORY);
-    std::string relativeFilePath = "/config/x2_ros_control.yaml";
+    std::string relativeFilePath = "/config/x2_params.yaml";
 
     YAML::Node params = YAML::LoadFile(baseDirectory + relativeFilePath);
-    std::string dummyName = "x2";
-    std::cout<< "JOINTS: "<< params[dummyName]["position_controller"]["joints"][0]<<std::endl<<"!!!!!!!!!!!!!!"<<std::endl;
 
-    double xx = params[dummyName]["joint_state_controller"]["publish_rate"].as<double>();
-    std::cout<<"PUBLISH RATE : !!!!: "<<xx<<std::endl;
-
-    // Initializing the parameters to zero
-    m_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    l_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    s_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    I_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    c0_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    c1_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    c2_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    cuffWeights_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
-    forceSensorScaleFactor_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    // if the robotName does not match with the name in x2_params.yaml
+    if(!params[robotName]){
+        spdlog::error("Parameters of {} couldn't be found in {} !", robotName, baseDirectory + relativeFilePath);
+        spdlog::error("All parameters are zero !");
+        return;
+    }
 
     // getting the parameters from the yaml file
     for(int i = 0; i<X2_NUM_JOINTS; i++){
-        m_[i] = params[robotName]["m_"][i].as<double>();
-        l_[i] = params[robotName]["l_"][i].as<double>();
-        s_[i] = params[robotName]["s_"][i].as<double>();
-        I_[i] = params[robotName]["I_"][i].as<double>();
-        c0_[i] = params[robotName]["c0_"][i].as<double>();
-        c1_[i] = params[robotName]["c1_"][i].as<double>();
-        c2_[i] = params[robotName]["c2_"][i].as<double>();
+        m_[i] = params[robotName]["m"][i].as<double>();
+        l_[i] = params[robotName]["l"][i].as<double>();
+        s_[i] = params[robotName]["s"][i].as<double>();
+        I_[i] = params[robotName]["I"][i].as<double>();
+        c0_[i] = params[robotName]["c0"][i].as<double>();
+        c1_[i] = params[robotName]["c1"][i].as<double>();
+        c2_[i] = params[robotName]["c2"][i].as<double>();
     }
     for(int i = 0; i<X2_NUM_FORCE_SENSORS; i++) {
-        cuffWeights_[i] = params[robotName]["cuffWeights_"][i].as<double>();
-        forceSensorScaleFactor_[i] = params[robotName]["forceSensorScaleFactor_"][i].as<double>();
-    }
-
-
-    if(robotName_ == "x2_A"){
-        // X2_A
-//        m_[1] = 2.3852; // mass of shank + foot
-//        s_[1] = 0.3192; // distance between knee and CoM(shank + foot)
-//        I_[1] = 2.1898; // mass moment of inertia
-//        c0_[1] = 4.6959; // viscous fric constant
-//        c1_[1] = 2.0; // coulomb friction const
-
-        // X2_A exp vel sqrt
-        m_[1] = 2.4076; // mass of shank + foot
-        s_[1] = 0.3213; // distance between knee and CoM(shank + foot)
-        I_[1] = 2.1814; // mass moment of inertia
-        c0_[1] = 1.5761; // viscous fric constant
-        c1_[1] = 2.5; // coulomb friction const
-        c2_[1] = 2.4839; // // friction const related to sqrt of vel
-
-        // X2_A
-//        m_[1] = 2.3922; // mass of shank + foot
-//        s_[1] = 0.3199; // distance between knee and CoM(shank + foot)
-//        I_[1] = 2.1868; // mass moment of inertia
-//        c0_[1] = 4.1373; // viscous fric constant
-//        c1_[1] = 2.5; // coulomb friction const
-
-        // X2_A_tune
-//        m_[1] = 2.3922; // mass of shank + foot
-//        s_[1] = 0.3199; // distance betweWen knee and CoM(shank + foot)
-//        I_[1] = 2.1868; // mass moment of inertia
-//        c0_[1] = 2.1373; // viscous fric constant
-//        c1_[1] = 2.5; // coulomb friction const
-
-        cuffWeights_ << 3.69, 3.69, 3.69, 3.69; // X2_A
-//        cuffWeights_ << 0, 0, 0, 0; // X2_A   DELETE !!!!!!!!!!!!!!!!!
-        // todo: find other calibration parameters
-        forceSensorScaleFactor_ << 0.246, 0.246, 0.246, 0.246; // X2_A
-    }
-    else if(robotName_ == "x2_B") {
-        // X2_B exp vel sqrt
-        m_[1] = 2.4755; // mass of shank + foot
-        s_[1] = 0.3293; // distance between knee and CoM(shank + foot)
-        I_[1] = 2.2067; // mass moment of inertia
-        c0_[1] = 1.2173; // viscous fric constant
-        c1_[1] = 2.7000; // coulomb friction const
-        c2_[1] = 4.3807; // // friction const related to sqrt of vel
-
-//        // X2_B exp
-//        m_[1] = 2.4540; // mass of shank + foot
-//        s_[1] = 0.3269; // distance between knee and CoM(shank + foot)
-//        I_[1] = 2.2132; // mass moment of inertia
-//        c0_[1] = 5.5612; // viscous fric constant
-//        c1_[1] = 3.1000; // coulomb friction const
-
-        // X2_B exp
-//        m_[1] = 2.4604; // mass of shank + foot
-//        s_[1] = 0.3276; // distance between knee and CoM(shank + foot)
-//        I_[1] = 2.2107; // mass moment of inertia
-//        c0_[1] = 5.0404; // viscous fric constant
-//        c1_[1] = 3.5000; // coulomb friction const
-
-        // X2_B exp
-//        m_[1] = 2.4614; // mass of shank + foot
-//        s_[1] = 0.3305; // distance between knee and CoM(shank + foot)
-//        I_[1] = 2.2048; // mass moment of inertia
-//        c0_[1] = 4.0548; // viscous fric constant
-//        c1_[1] = 4.2571; // coulomb friction const
-
-        // X2_B_tune
-//        m_[1] = 2.4540; // mass of shank + foot
-//        s_[1] = 0.3269; // distance between knee and CoM(shank + foot)
-//        I_[1] = 2.2132; // mass moment of inertia
-//        c0_[1] = 2.5612; // viscous fric constant
-//        c1_[1] = 3.1000; // coulomb friction const
-
-        cuffWeights_ << 3.88, 3.88, 3.88, 3.88; // // X2_B
-        // todo: find other calibration parameters
-        forceSensorScaleFactor_ << 0, 0.194, 0, 0.194; // X2_B
-    }
-    else{
-        spdlog::warn("parameters of robot '{}' is unknown. All parameters are set to zero", robotName_);
+        cuffWeights_[i] = params[robotName]["cuff_weights"][i].as<double>();
+        forceSensorScaleFactor_[i] = params[robotName]["force_sensor_scale_factor"][i].as<double>();
     }
 }
 
