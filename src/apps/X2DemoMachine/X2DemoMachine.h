@@ -72,7 +72,7 @@ private:
     std::string robotName_; // robot name(obtained from node name)
 
     std::chrono::steady_clock::time_point time0; // initial time that machine started
-    double time; // time passed after tim0 in [s]
+    double time; // time passed after time0 in [s]
 
 };
 

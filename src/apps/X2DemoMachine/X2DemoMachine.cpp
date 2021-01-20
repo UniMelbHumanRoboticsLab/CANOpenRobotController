@@ -31,7 +31,7 @@ void X2DemoMachine::init(int argc, char *argv[]) {
     // Pass nodeHandle to the classes that use ROS features
     x2DemoMachineRos_->setNodeHandle(nodeHandle);
 
-    // Pass nodeHandle to the classes that use ROS features
+    // Pass MachineRos to the State to use ROS features
     x2DemoState = new X2DemoState(this, robot_, x2DemoMachineRos_);
 
     // Create states with ROS features // This should be created after ros::init()
