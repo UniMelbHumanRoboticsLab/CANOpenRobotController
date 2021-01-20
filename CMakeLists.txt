@@ -14,19 +14,21 @@ project(CORC C CXX)
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "M3Machining")
 #set (STATE_MACHINE_NAME "M3Chai")
-set (STATE_MACHINE_NAME "ExoTestMachine")
-#set (STATE_MACHINE_NAME "X2DemoMachine")
+#set (STATE_MACHINE_NAME "ExoTestMachine")
+set (STATE_MACHINE_NAME "X2DemoMachine")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT ON)
+set(NO_ROBOT OFF)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
-set(USE_ROS OFF)
+set(USE_ROS ON)
 
 # Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL OFF)
 # INFO is the recommended level in normal operation
 set(CORC_LOGGING_LEVEL INFO) 
 ################################################################################
+
+add_definitions(-DBASE_DIRECTORY=${CMAKE_SOURCE_DIR})
 
 if(USE_ROS)
 	add_definitions(-DUSEROS)
@@ -81,6 +83,8 @@ list(REMOVE_DUPLICATES INCLUDE_DIRS)
 ## Add libraries headers
 list (APPEND INCLUDE_DIRS lib/)
 
+add_subdirectory(lib/yaml-cpp/)
+
 
 
 ## Add ROS dependencies
@@ -96,6 +100,7 @@ if(USE_ROS)
 				std_srvs
 				sensor_msgs
 				geometry_msgs
+				dynamic_reconfigure
         )
 		if(SIM)
 			find_package(catkin REQUIRED COMPONENTS
@@ -105,11 +110,22 @@ if(USE_ROS)
 			)
 		endif()
 
+		generate_dynamic_reconfigure_options(
+				config/x2_dynamic_params.cfg
+		)
+
 
 		catkin_package(
 				#  INCLUDE_DIRS include
 				#  LIBRARIES x2
-				#  CATKIN_DEPENDS roscpp rospy std_msgs
+			  CATKIN_DEPENDS
+				roscpp
+				rospy
+				std_msgs
+				std_srvs
+				sensor_msgs
+				geometry_msgs
+				dynamic_reconfigure
 				#  DEPENDS system_lib
 		)
 
@@ -156,7 +172,6 @@ add_executable(${APP_NAME}
 				${SOURCES}
 				)
 
-
 ## Includes
 target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
 
@@ -164,11 +179,16 @@ target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
 find_package(Threads REQUIRED)
 
 ## Link non-ROS libraries
-target_link_libraries(${APP_NAME} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${APP_NAME}
+		${CMAKE_THREAD_LIBS_INIT}
+		yaml-cpp)
 
 ## Link ROS libraries
 if(USE_ROS)
 	target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
+
+	# make sure configure headers are built before any node using them
+	add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
 endif()
 
 
