@@ -141,9 +141,10 @@ class RobotousRFT : public InputDevice {
         // Data variables
         Eigen::VectorXd forces;
         Eigen::VectorXd torques;
-        
+        Eigen::VectorXd forceOffsets;
+        Eigen::VectorXd torqueOffsets;
 
-    public:
+       public:
         /**
         * \brief Sets up the Robotous sensor, including data storage and setting up PDOs
         *
@@ -203,6 +204,11 @@ class RobotousRFT : public InputDevice {
          * \return Eigen::VectorXd 
          */
         Eigen::VectorXd& getTorques();
-    
+
+        /**
+         * \brief Set the offsets for the forces and torques
+         *  
+         */
+        void setOffsets(Eigen::VectorXd forceOffset, Eigen::VectorXd torqueOffset);
 };
 #endif

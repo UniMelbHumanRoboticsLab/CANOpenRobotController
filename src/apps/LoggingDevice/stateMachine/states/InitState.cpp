@@ -19,11 +19,10 @@ void InitState::entry(void) {
 };
 
 void InitState::during(void){
-    //spdlog::info("COB-ID {}, Mapped Ob {} Value {} {}", CO_OD_RAM.RPDOCommunicationParameter[31].COB_IDUsedByRPDO, CO_OD_RAM.RPDOMappingParameter[31].mappedObject1, CO_OD_RAM.statusWords.motor2, CO_OD_RAM.statusWords.motor1);
+    //Eigen::VectorXd force = robot->getCrutchReadings();
+    //spdlog::info("Fx1: {}, Fy1: {}, Fz1: {}, Fx2: {}, Fy2: {}, Fz2: {}", force[0], force[1], force[2], force[3], force[4], force[5]);
 };
 
 void InitState::exit(void) {
     spdlog::info("InitState Exit");
-    //CO->RPDO[31]->RPDOCommPar->COB_IDUsedByRPDO = 0x0f1;
-    reset_local = CO_RESET_COMM;
 };

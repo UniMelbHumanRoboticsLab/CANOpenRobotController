@@ -41,6 +41,9 @@
 
 // State Classes
 #include "InitState.h"
+#include "IdleState.h"
+#include "CalibrateState.h"
+#include "RecordState.h"
 
 // Logger
 #include "spdlog/helper/LogHelper.h"
@@ -75,6 +78,9 @@ class LoggingDevice : public StateMachine {
      *
      */
     InitState *initState;
+    IdleState *idleState;
+    CalibrateState *calibrateState;
+    RecordState *recordState;
 
    protected:
     LoggingRobot *robot;   /*<!Pointer to the Robot*/
@@ -88,6 +94,8 @@ class LoggingDevice : public StateMachine {
      * An events check function are defined in the .cpp file.
     */
     EventObject(IsAPressed) * isAPressed;
+    EventObject(IsSPressed) * isSPressed;
+    EventObject(IsCalibrationFinished) * isCalibrationFinished;
 };
 
 #endif

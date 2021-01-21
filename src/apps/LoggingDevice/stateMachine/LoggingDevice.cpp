@@ -8,19 +8,28 @@ LoggingDevice::LoggingDevice() {
 
     // Events
     isAPressed = new IsAPressed(this);
+    isSPressed = new IsSPressed(this);
+    isCalibrationFinished = new IsCalibrationFinished(this);
 
     // States
     initState = new InitState(this, robot);
+    idleState = new IdleState(this, robot);
+    calibrateState = new CalibrateState(this, robot);
+    recordState = new RecordState(this, robot);
 
     // Transitions
-    NewTransition(initState, isAPressed, initState);
+    NewTransition(initState, isAPressed, idleState);
+    NewTransition(idleState, isAPressed, calibrateState);
+    NewTransition(calibrateState, isCalibrationFinished, idleState);
+    NewTransition(idleState, isSPressed, recordState);
+    NewTransition(recordState, isSPressed, idleState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(initState);
 }
 
 void LoggingDevice::init() {
-    spdlog::debug("LoggingDevice::init()");
+    spdlog::info("LoggingDevice::init()");
     initialised = robot->initialise();
     running = true;
 
@@ -28,7 +37,7 @@ void LoggingDevice::init() {
     time0 = std::chrono::steady_clock::now();
     dataLogger.initLogger("test_logger", "logs/testLog.csv", LogFormat::CSV, true);
     dataLogger.add(time, "time");
-    dataLogger.add(robot->getPosition(), "JointPositions");
+    dataLogger.add(robot->getCrutchReadings(), "CrutchReadings");
     dataLogger.startLogger();
 }
 
@@ -42,7 +51,7 @@ void LoggingDevice::end() {
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
 /**
-     * \brief poll the trajectory Generators flag to see if the currently loaded motion is complete
+     * \brief Keyboard States
      *
      */
 
@@ -51,6 +60,19 @@ bool LoggingDevice::IsAPressed::check(void) {
         return true;
     }
     return false;
+}
+bool LoggingDevice::IsSPressed::check(void) {
+    if (OWNER->robot->keyboard->getS() == true) {
+        return true;
+    }
+    return false;
+}
+
+bool LoggingDevice::IsCalibrationFinished::check(void) {
+    if (OWNER->calibrateState->getCurrReading() < NUM_CALIBRATE_READINGS) {
+        return false;
+    }
+    return true;
 }
 
 /**

@@ -19,21 +19,39 @@
 
 class LoggingRobot : public Robot {
    private:
+    std::vector<RobotousRFT *> crutchSensors;
+    Eigen::VectorXd crutchReadings;  //6xN Vector containing all crutch readings
+
+    bool sensorsOn =  false;
+
    public:
     Keyboard *keyboard;
-    std::vector<RobotousRFT *> crutchSensors;
-
-    Eigen::VectorXd crutchForces;
 
     LoggingRobot();
     ~LoggingRobot();
 
     // Functions which are needed for the Robot Class - they don't do anything at the moment
     bool initialiseJoints() { return true; };
-    bool initialiseInputs() { return true; };
+    bool initialiseInputs();
     bool initialiseNetwork() { return true; };  // this one might need to be changed
 
-    Eigen::VectorXd &getCrutchSensors();
+    /**
+     * @brief Updates local copy of forces, and returns them
+     * 
+     * @return Eigen::VectorXd& a 6xN (N is number of crutches) of crutch sensor readings
+     */
+    Eigen::VectorXd &getCrutchReadings();
+
+    /**
+     * @brief Takes the forces from the crutches and updates a local copy
+     * 
+     */
+    void updateCrutchReadings();
+
+    void setCrutchOffsets(Eigen::VectorXd offsets);
+
+    bool startSensors();
+    bool stopSensors();
 };
 
 #endif /*LoggingRobot.h*/
