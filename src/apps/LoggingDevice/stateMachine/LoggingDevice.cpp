@@ -29,7 +29,7 @@ LoggingDevice::LoggingDevice() {
 }
 
 void LoggingDevice::init() {
-    spdlog::debug("LoggingDevice::init()");
+    spdlog::info("LoggingDevice::init()");
     initialised = robot->initialise();
     running = true;
 
@@ -67,6 +67,19 @@ bool LoggingDevice::IsSPressed::check(void) {
         return true;
     }
     return false;
+}
+bool LoggingDevice::IsSPressed::check(void) {
+    if (OWNER->robot->keyboard->getS() == true) {
+        return true;
+    }
+    return false;
+}
+
+bool LoggingDevice::IsCalibrationFinished::check(void) {
+    if (OWNER->calibrateState->getCurrReading() < NUM_CALIBRATE_READINGS) {
+        return false;
+    }
+    return true;
 }
 
 bool LoggingDevice::IsCalibrationFinished::check(void) {

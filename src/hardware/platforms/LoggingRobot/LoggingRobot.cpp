@@ -2,6 +2,7 @@
 
 LoggingRobot::LoggingRobot() {
     spdlog::info("New Logging Robot");
+};
 
     initialiseJoints();
     initialiseInputs();
@@ -60,6 +61,11 @@ void LoggingRobot::updateCrutchReadings(){
             crutchReadings[i * 6 + j] = forces[j];
             crutchReadings[i * 6 + 3 + j] = torques[j];
         }
+        crutchReadings = Eigen::VectorXd::Zero(6 * crutchSensors.size());
+        sensorsOn = false;
+        return true;
+    } else {
+        return false;
     }
 }
 
