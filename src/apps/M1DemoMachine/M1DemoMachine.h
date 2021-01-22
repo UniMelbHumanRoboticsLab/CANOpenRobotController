@@ -52,6 +52,7 @@ class M1DemoMachine : public StateMachine {
      */
     IdleState *idleState;
     M1DemoState *demoState;
+
     Monitoring *monitorState;
     Calibration *calibrationState;
     M1PositionTracking *positionTracking;
@@ -68,6 +69,7 @@ class M1DemoMachine : public StateMachine {
     EventObject(Event2Monitor) * event2Monitor;
     EventObject(Event2Idle) * event2Idle;
     EventObject(Event2Pos) * event2Pos;
+    EventObject(Event2Cali) * event2Cali;
 
     LogHelper logHelper_;
 //    EventObject(EndCalib) * endCalib;

@@ -204,7 +204,9 @@ public:
     JointVec dq;
     JointVec tau;
     JointVec tau_s;
+    JointVec tau_cmd;
 
+    double cfreq;
     double Ks;
     double dt;
     double B;
@@ -212,7 +214,6 @@ public:
     double net_tau;
     double gain;
     double acc;
-
 
     EndEffVec Xi;
     bool flag = true;
@@ -223,6 +224,7 @@ public:
     int sub_mode = 1;
     int cycle = 0;
     bool dir = true;
+    double sflag = 0;
     double magnitude = 20;
     double step;
 

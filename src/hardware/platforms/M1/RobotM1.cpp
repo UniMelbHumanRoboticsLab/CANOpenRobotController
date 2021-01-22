@@ -374,6 +374,10 @@ JointVec& RobotM1::getJointTor_s() {
     return tau_s;
 }
 
+JointVec& RobotM1::getJointTor_cmd() {
+    return tau_cmd;
+}
+
 setMovementReturnCode_t RobotM1::setJointPos(JointVec pos_d) {
     return applyPosition(pos_d*d2r);
 }
@@ -383,25 +387,62 @@ setMovementReturnCode_t RobotM1::setJointVel(JointVec vel_d) {
 }
 
 setMovementReturnCode_t RobotM1::setJointTor(JointVec tor_d) {
+    tau_cmd = tor_d;
     return applyTorque(tor_d);
 }
 
-setMovementReturnCode_t RobotM1::setJointTor_comp(JointVec tor_d) {
-    tor_d = compensateJointTor(tor_d);
-    return applyTorque(tor_d);
+setMovementReturnCode_t RobotM1::setJointTor_comp(JointVec tor_d, JointVec tor_s) {
+    tau_cmd = compensateJointTor(tor_d, tor_s);
+    return applyTorque(tau_cmd);
 }
 
-JointVec RobotM1::compensateJointTor(JointVec tor){
+JointVec RobotM1::compensateJointTor(JointVec tor, JointVec tor_s){
+/*** f_s is the static friction,
+ f_d is dynamic friction
+ inertia_c is the inertia compensation
+
+ ***/
+
+//    double f_s = 1.57;
+//    double f_d = 2.02;
+//    double inertia_c = 0.24;
+
+// manually adjusted values
     double f_s = 1.57;
-    double f_d = 2.02;
+    double f_d = 1.0;   //1.2
     double inertia_c = 0.24;
-    if(abs(dq(0))<0.05)
+
+// calibration with foot plate
+//    double f_s = 0.6503;
+//    double f_d = 0.3015;   //1.2
+//    double inertia_s = 1.0323; // m*s*g =
+//    double inertia_c = 0.2560;
+//    double theta_bias = 0.0601;
+//    double c2 =  1.5; //2.6209; //
+// calibration with foot plate without c2
+//    double f_s = 1.2302;
+//    double f_d = 1.2723;   //1.2
+//    double inertia_s = 1.0592; // m*s*g =
+//    double inertia_c = 0.3258;
+//    double theta_bias = 0.1604;
+//    double c2 = 1.2532;
+    if(abs(dq(0))<0.32)
     {
-        tor(0) = tor(0) + f_s*sign(tor(0)) + f_d*dq(0)+inertia_c*sin(q(0));
+         tor(0) = tor(0) + f_s*sign(tor_s(0)) + f_d*dq(0)+inertia_c*sin(q(0));
+//        if(abs(tor_s(0))>0.1)
+//        {
+//            tor(0) = tor(0) + f_s*sign(tor_s(0)) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
+//        }
+//        else
+//        {
+//            tor(0) = tor(0) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
+//        }
     }
     else
     {
         tor(0) = tor(0) + f_s*sign(dq(0))+ f_d*dq(0)+inertia_c*sin(q(0));
+//        tor(0) = tor(0) + f_s*sign(dq(0)) + f_d*dq(0) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias) + c2*sqrt(abs(dq(0)))*sign(dq(0));
+
     }
     return tor;
 }
