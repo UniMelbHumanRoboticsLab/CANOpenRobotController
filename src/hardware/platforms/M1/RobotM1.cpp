@@ -408,9 +408,9 @@ JointVec RobotM1::compensateJointTor(JointVec tor, JointVec tor_s){
 //    double inertia_c = 0.24;
 
 // manually adjusted values
-    double f_s = 1.57;
-    double f_d = 1.0;   //1.2
-    double inertia_c = 0.24;
+//    double f_s = 1.57;
+//    double f_d = 1.0;   //1.2
+//    double inertia_c = 0.24;
 
 // calibration with foot plate
 //    double f_s = 0.6503;
@@ -420,30 +420,31 @@ JointVec RobotM1::compensateJointTor(JointVec tor, JointVec tor_s){
 //    double theta_bias = 0.0601;
 //    double c2 =  1.5; //2.6209; //
 // calibration with foot plate without c2
-//    double f_s = 1.2302;
-//    double f_d = 1.2723;   //1.2
-//    double inertia_s = 1.0592; // m*s*g =
-//    double inertia_c = 0.3258;
-//    double theta_bias = 0.1604;
-//    double c2 = 1.2532;
+    double f_s = 1.2302;
+    double f_d = 1.2723;   //1.2
+    double inertia_s = 1.0592; // m*s*g =
+    double inertia_c = 0.3258;
+    double theta_bias = 0.1604;
+    double c2 = 1.2532;
+    double tor_ff = 0;
     if(abs(dq(0))<0.32)
     {
-         tor(0) = tor(0) + f_s*sign(tor_s(0)) + f_d*dq(0)+inertia_c*sin(q(0));
-//        if(abs(tor_s(0))>0.1)
-//        {
-//            tor(0) = tor(0) + f_s*sign(tor_s(0)) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
-//        }
-//        else
-//        {
-//            tor(0) = tor(0) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
-//        }
+//         tor_ff = f_s*sign(tor_s(0)) + f_d*dq(0)+inertia_c*sin(q(0));
+        if(abs(tor_s(0))>0.2)
+        {
+            tor_ff = f_s*sign(tor_s(0)) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
+        }
+        else
+        {
+            tor_ff = inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
+        }
     }
     else
     {
-        tor(0) = tor(0) + f_s*sign(dq(0))+ f_d*dq(0)+inertia_c*sin(q(0));
-//        tor(0) = tor(0) + f_s*sign(dq(0)) + f_d*dq(0) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias) + c2*sqrt(abs(dq(0)))*sign(dq(0));
-
+//        tor_ff = f_s*sign(dq(0))+ f_d*dq(0)+inertia_c*sin(q(0));
+        tor_ff = f_s*sign(dq(0)) + f_d*dq(0) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias) + c2*sqrt(abs(dq(0)))*sign(dq(0));
     }
+    tor(0) = tor(0) + tor_ff*0.8;
     return tor;
 }
 /*

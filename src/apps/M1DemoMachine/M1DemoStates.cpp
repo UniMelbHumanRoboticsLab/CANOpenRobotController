@@ -127,7 +127,7 @@ void M1PositionTracking::entryCode(void) {
     // set mode to 2 for velocity control test
     // set mode to 3 for torque control test
     // set mode to 4 for admittance control
-    sub_mode = 4;
+    sub_mode = 3;
     // sub_mode 1 for sine wave tracking
     // sub_mode 2 for ramp tracking
     // sub_mode 3 for torque control only
@@ -344,8 +344,11 @@ void M1PositionTracking::velocityControl(void){
 }
 
 void M1PositionTracking::torqueControl(void){
+    double spring_tor;
+    double error;
+    double delta_error;
     tau = robot->getJointTor();
-    tau_s = robot->getJointTor_s();
+    tau_s = (robot->getJointTor_s()+tau_s)/2;
     q = robot->getJointPos();
     dq = robot->getJointVel();
     switch(sub_mode) {
@@ -406,12 +409,23 @@ void M1PositionTracking::torqueControl(void){
             }
             break;
         case 3: // feedback torque compensation
-            tau_cmd(0) = tau_s(0)*0.7;
+            error = tau_s(0);  // interaction torque error, desired interaction torque is 0
+            delta_error = (error-torque_error_last_time_step)*cfreq;  // derivative of interaction torque error;
+            tau_cmd(0) = error*1 + delta_error*0.001;  // tau_cmd = P*error + D*delta_error; 1 and 0.001
+            torque_error_last_time_step = error;
             break;
         case 4:
-            tau_cmd(0) = 7*3.14*(30-q(0))/180;  //stiffness
-            std::cout << ":command tau " << tau_cmd(0) << "; theta error" << (30-q(0)) << std::endl;
-//            tau_cmd(0) = (tau_cmd(0)-tau_s(0));
+            spring_tor = 7*3.14*(30-q(0))/180;  //stiffness
+//            if(abs(tau_s(0))>=0.3)
+//                error = spring_tor+tau_s(0);
+//            else
+//                error = spring_tor;
+            error = spring_tor+tau_s(0);
+            delta_error = (error-torque_error_last_time_step)*cfreq;  // derivative of interaction torque error;
+            tau_cmd(0) = error*1 + delta_error*0.001;  // tau_cmd = P*error + D*delta_error
+            torque_error_last_time_step = error;
+//            tau_cmd(0) = 3*error;
+            std::cout << "; spring_tor: " << spring_tor <<  ":sensor tau " << tau_s(0) <<  ":command tau " << tau_cmd(0) <<  "; theta error: " << (30-q(0)) << std::endl;
             break;
         default:
             std::cout << "Wrong sub mode !" << std::endl;

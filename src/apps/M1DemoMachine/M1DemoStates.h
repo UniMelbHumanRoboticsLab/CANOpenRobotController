@@ -214,6 +214,7 @@ public:
     double net_tau;
     double gain;
     double acc;
+    double torque_error_last_time_step = 0;
 
     EndEffVec Xi;
     bool flag = true;
