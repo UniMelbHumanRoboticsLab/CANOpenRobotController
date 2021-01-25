@@ -102,7 +102,6 @@ class X2Robot : public Robot {
     std::string robotName_;
 
     bool initializeRobotParams(std::string robotName);
-    double forceSensorValueToNewton(double sensorValue, int sensorId);
 
     static void signalHandler(int signum);
 

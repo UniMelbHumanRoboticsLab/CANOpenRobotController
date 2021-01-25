@@ -325,7 +325,7 @@ Eigen::VectorXd &X2Robot::getInteractionForce() {
 
     //Update values
     for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
-        interactionForces_[i] = forceSensorValueToNewton(forceSensors[i]->getForce(), i) + cuffCompensation[i];
+        interactionForces_[i] = forceSensors[i]->getForce() + cuffCompensation[i];
     }
     return interactionForces_;
 }
@@ -344,11 +344,6 @@ bool X2Robot::calibrateForceSensors() {
         spdlog::error("[X2Robot::calibrateForceSensors]: Zeroing failed.");
         return false;
     }
-}
-
-double X2Robot::forceSensorValueToNewton(double sensorValue, int sensorId) {
-
-    return (sensorValue)*x2Parameters.forceSensorScaleFactor[sensorId];
 }
 
 bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, float delayTime,
@@ -457,7 +452,7 @@ bool X2Robot::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
 
     for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
-        forceSensors.push_back(new X2ForceSensor(id));
+        forceSensors.push_back(new X2ForceSensor(id, x2Parameters.forceSensorScaleFactor[id]));
         inputs.push_back(forceSensors[id]);
     }
 

@@ -25,7 +25,7 @@ public:
      * Construct a new X2ForceSensor object
      *
      */
-    X2ForceSensor(int sensorID);
+    X2ForceSensor(int sensorID, double scaleFactor);
 
     /**
     * updates the force readings
@@ -48,8 +48,10 @@ public:
 
 private:
     int sensorID;
-    double forceReading;
-    double calibrationOffset;
+    double sensorValueToNewton(int sensorValue, double scaleFactor);
+    double forceReading_;
+    double calibrationOffset_;
+    double scaleFactor_;
     std::chrono::steady_clock::time_point time0;
 
 };

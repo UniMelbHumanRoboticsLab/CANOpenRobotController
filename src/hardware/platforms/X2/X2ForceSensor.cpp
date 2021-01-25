@@ -1,13 +1,14 @@
 #include "X2ForceSensor.h"
 
-X2ForceSensor::X2ForceSensor(int sensorID) {
+X2ForceSensor::X2ForceSensor(int sensorID, double scaleFactor) {
 
     this->sensorID = sensorID;
+    this->scaleFactor_ = scaleFactor;
 }
 
 void X2ForceSensor::updateInput() {
 
-    forceReading = *(&CO_OD_RAM.actualSensorForces.sensor1 + sensorID);
+    forceReading_ = *(&CO_OD_RAM.actualSensorForces.sensor1 + sensorID);
 }
 
 bool X2ForceSensor::calibrate() {
@@ -38,15 +39,20 @@ bool X2ForceSensor::calibrate() {
             time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
             readingVector.push_back(*(&CO_OD_RAM.actualSensorForces.sensor1 + sensorID));
         }
-        calibrationOffset = std::accumulate(readingVector.begin(), readingVector.end(), 0.0)/readingVector.size();
+        calibrationOffset_ = std::accumulate(readingVector.begin(), readingVector.end(), 0.0)/readingVector.size();
 
-        spdlog::debug("[X2ForceSensor::calibrate]: Force Sensor {} succesfully zeroed with offset {}.", sensorID, calibrationOffset);
+        spdlog::debug("[X2ForceSensor::calibrate]: Force Sensor {} succesfully zeroed with offset {}.", sensorID, calibrationOffset_);
         return true;
     }
 }
 
 double X2ForceSensor::getForce() {
-    return forceReading - calibrationOffset;
 
+    return sensorValueToNewton(forceReading_ - calibrationOffset_, scaleFactor_);
+}
+
+double X2ForceSensor::sensorValueToNewton(int sensorValue, double scaleFactor) {
+    
+    return sensorValue*scaleFactor;
 }
 
