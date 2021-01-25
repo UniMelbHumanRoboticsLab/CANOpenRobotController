@@ -75,7 +75,7 @@ class RobotM1 : public Robot {
     double d2r, r2d;
 
     // Storage variables for real-time updated values from CANopn
-    JointVec q, dq, tau, tau_s;
+    JointVec q, dq, tau, tau_s, tau_sc;
 
     JointVec qCalibration;  // Calibration configuration: posture in which the robot is when using the calibration procedure
 
@@ -221,6 +221,7 @@ public:
     setMovementReturnCode_t setJointPos(JointVec pos);
     setMovementReturnCode_t setJointVel(JointVec vel);
     setMovementReturnCode_t setJointTor(JointVec tor);
+    setMovementReturnCode_t setJointTor_comp(JointVec tor, JointVec tor_s, double ffRatio); // FOR TRANSPERANCY EXPERIMENT
     JointVec compensateJointTor(JointVec tor);
 //    setMovementReturnCode_t setEndEffPos(EndEffVec X);
 //    setMovementReturnCode_t setEndEffVel(EndEffVec dX);

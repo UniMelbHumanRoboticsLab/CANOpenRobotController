@@ -368,7 +368,11 @@ JointVec RobotM1::getJointTor() {
 }
 
 JointVec& RobotM1::getJointTor_s() {
-    return tau_s;
+    double inertia_s = 1.0592; // m*s*g =
+    double inertia_c = 0.3258;
+    double theta_bias = 0.1604;
+    tau_sc(0) =  tau_s(0); //+ inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
+    return tau_sc;
 }
 
 setMovementReturnCode_t RobotM1::setJointPos(JointVec pos_d) {
@@ -400,6 +404,40 @@ JointVec RobotM1::compensateJointTor(JointVec tor){
         tor(0) = tor(0) + f_s*sign(dq(0))+ f_d*dq(0)+inertia_c*sin(q(0));
     }
     return tor;
+}
+
+setMovementReturnCode_t RobotM1::setJointTor_comp(JointVec tor, JointVec tor_s, double ffRatio) {
+
+    double f_s = 1.2302;
+    double f_d = 1.2723;   //1.2
+    double inertia_s = 1.0592; // m*s*g =
+    double inertia_c = 0.3258;
+    double theta_bias = 0.1604;
+    double c2 = 1.2532;
+    double tor_ff = 0;
+    double vel = 0;
+    vel = dq(0);
+    if(abs(vel)<0.1)
+    {
+//         tor_ff = f_s*sign(tor_s(0)) + f_d*dq(0)+inertia_c*sin(q(0));
+        if(abs(tor_s(0))>0.2)
+        {
+            tor_ff = f_s*sign(tor_s(0)) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
+        }
+        else
+        {
+            tor_ff = inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
+        }
+    }
+    else
+    {
+        vel = vel-sign(vel)*0.1;
+//        tor_ff = f_s*sign(dq(0))+ f_d*dq(0)+inertia_c*sin(q(0));
+        tor_ff = f_s*sign(vel) + f_d*vel + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias) + c2*sqrt(abs(vel))*sign(vel);
+    }
+    tor(0) = tor(0) + tor_ff*ffRatio;
+    return applyTorque(tor);
+
 }
 
 short RobotM1::sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }

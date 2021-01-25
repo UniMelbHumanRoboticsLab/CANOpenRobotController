@@ -51,8 +51,8 @@ private:
     sensor_msgs::JointState jointStateMsg_;
 
     // Publisher and message for interaction wrench publication
-//    ros::Publisher interactionWrenchPublisher_;
-//    geometry_msgs::WrenchStamped interactionWrenchMsg_;
+    ros::Publisher interactionWrenchPublisher_;
+    geometry_msgs::WrenchStamped interactionWrenchMsg_;
     RobotM1 *robot_;
 
 };

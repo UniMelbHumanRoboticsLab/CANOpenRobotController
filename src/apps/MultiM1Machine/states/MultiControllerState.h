@@ -36,6 +36,21 @@ public:
                         State(m, name), robot_(exo), multiM1MachineRos_(multiM1MachineRos){};
 
     int controller_mode_;
+
+    // FOR TRANSPERANCY EXPERIMENTS
+    double kp_;
+    double kd_;
+    double ffRatio_;
+    double torque_error_last_time_step = 0;
+    double error;
+    double delta_error;
+    Eigen::VectorXd q;     //positive dorsi flexion
+    Eigen::VectorXd dq;
+    Eigen::VectorXd tau;
+    Eigen::VectorXd tau_s;
+    Eigen::VectorXd tau_cmd;
+
+
 private:
     // dynamic reconfigure server and callback
     dynamic_reconfigure::Server<CORC::dynamic_paramsConfig> server_;
