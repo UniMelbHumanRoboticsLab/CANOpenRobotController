@@ -55,7 +55,7 @@ void MultiM1Machine::init(int argc, char *argv[]) {
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);
     std::stringstream logFileName;
-    logFileName << "spdlogs/m1/" << std::put_time(&tm, "%d-%m-%Y_%H:%M:%S") << ".csv";
+    logFileName << "logs/m1/" << std::put_time(&tm, "%d-%m-%Y_%H:%M:%S") << ".csv";
 
     logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
     logHelper.add(time_, "time");
@@ -63,12 +63,15 @@ void MultiM1Machine::init(int argc, char *argv[]) {
     logHelper.add(robot_->getPosition(), "JointPositions");
     logHelper.add(robot_->getVelocity(), "JointVelocities");
     logHelper.add(robot_->getTorque(), "JointTorques");
+    logHelper.add(robot_->getJointTor_s(), "SensorTorques");
+    logHelper.add(multiControllerState_->spk_, "SpringStiffness");
     logHelper.add(multiM1MachineRos_->jointTorqueCommand_, "DesiredJointTorques");
     logHelper.startLogger();
 }
 
 void MultiM1Machine::end() {
     if(initialised) {
+        logHelper.endLog();
         currentState->exit();
         robot_->stop();
         delete multiM1MachineRos_;
@@ -84,6 +87,7 @@ void MultiM1Machine::end() {
 void MultiM1Machine::hwStateUpdate(void) {
     robot_->updateRobot();
     multiM1MachineRos_->update();
+    logHelper.recordLogData();
     time_ = (std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now() - time0_).count()) / 1e6;
     ros::spinOnce();

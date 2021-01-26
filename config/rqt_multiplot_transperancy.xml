@@ -206,7 +206,7 @@
                         <visible>true</visible>
                     </legend>
                     <plot_rate>30</plot_rate>
-                    <title>Untitled Plot</title>
+                    <title>interaction torque</title>
                 </column_0>
             </row_1>
         </plots>

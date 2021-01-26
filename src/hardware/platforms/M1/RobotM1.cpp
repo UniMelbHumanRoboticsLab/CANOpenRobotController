@@ -133,6 +133,11 @@ void RobotM1::updateRobot() {
         dq(i) = ((JointM1 *)joints[i])->getVelocity();
         tau(i) = ((JointM1 *)joints[i])->getTorque();
         tau_s(i) = m1ForceSensor[i].getForce();
+        // compensate inertia, move it later
+        double inertia_s = 1.0592; // m*s*g =
+        double inertia_c = 0.3258;
+        double theta_bias = 0.1604;
+        tau_s(i) =  tau_s(i) - inertia_s*sin(q(i)+theta_bias) - inertia_c*cos(q(i)+theta_bias);
     }
 //    std::cout << "safety check" << std::endl; // YW debug
     if (safetyCheck() != SUCCESS) {
@@ -384,7 +389,7 @@ setMovementReturnCode_t RobotM1::setJointVel(JointVec vel_d) {
 }
 
 setMovementReturnCode_t RobotM1::setJointTor(JointVec tor_d) {
-    tor_d = compensateJointTor(tor_d);
+//    tor_d = compensateJointTor(tor_d);
     return applyTorque(tor_d);
 }
 

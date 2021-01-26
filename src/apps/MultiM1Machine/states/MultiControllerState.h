@@ -38,12 +38,15 @@ public:
     int controller_mode_;
 
     // FOR TRANSPERANCY EXPERIMENTS
+
     double kp_;
     double kd_;
+    double spk_;
     double ffRatio_;
     double torque_error_last_time_step = 0;
     double error;
     double delta_error;
+    double spring_tor;
     Eigen::VectorXd q;     //positive dorsi flexion
     Eigen::VectorXd dq;
     Eigen::VectorXd tau;
