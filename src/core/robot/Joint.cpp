@@ -203,6 +203,12 @@ bool Joint::start() {
 
 }
 
+void Joint::resetErrors() {
+    if (actuated) {
+        drive->resetErrors();
+    }
+}
+
 void Joint::readyToSwitchOn() {
     if (actuated) {
         drive->readyToSwitchOn();

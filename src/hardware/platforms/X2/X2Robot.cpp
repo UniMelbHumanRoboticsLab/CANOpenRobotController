@@ -58,6 +58,15 @@ void X2Robot::initialiseROS() {
     jointStateSubscriber_ = nodeHandle_->subscribe("joint_states", 1, &X2Robot::jointStateCallback, this);
 }
 #endif
+
+void X2Robot::resetErrors() {
+    spdlog::debug("Clearing errors on all motor drives ");
+    for (auto p : joints) {
+        // Put into ReadyToSwitchOn()
+        p->resetErrors();
+    }
+}
+
 bool X2Robot::initPositionControl() {
     spdlog::debug("Initialising Position Control on all joints ");
     bool returnValue = true;
@@ -173,6 +182,7 @@ setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
+        spdlog::info("Joint {}, Target {}, Current {}", i, positions[i], ((X2Joint *)p)->getPosition());
         setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
             spdlog::error("Joint {} is not in Position Control ", p->getId());

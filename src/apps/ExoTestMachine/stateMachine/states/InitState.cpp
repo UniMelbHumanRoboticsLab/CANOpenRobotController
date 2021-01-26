@@ -10,7 +10,7 @@ void InitState::entry(void) {
         << "========================" << std::endl
         << " PRESS S to start or A to Home" << std::endl
         << "========================" << std::endl;
-
+    robot->resetErrors();
 }
 void InitState::during(void) {
 }

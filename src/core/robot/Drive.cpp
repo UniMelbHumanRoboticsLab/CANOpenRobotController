@@ -95,6 +95,12 @@ int Drive::getTorque() {
     }
 }
 
+DriveState Drive::resetErrors() {
+    *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x80;
+    driveState = DISABLED;
+    return driveState;
+}
+
 
 DriveState Drive::readyToSwitchOn() {
     *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = 0x06;

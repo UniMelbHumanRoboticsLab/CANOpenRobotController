@@ -423,6 +423,17 @@ class Drive {
 
     // Drive State Modifiers
     /**
+           * \brief Clears errors (and changes the state of the drive to "disabled".
+           *
+           * This is equivalent to setting bits 7 Control Word (0x6064) to 1.
+           * See also the CANopen Programmer's Manual (from Copley Controls)
+           *
+           * \return true if operation successful
+           * \return false if operation unsuccessful
+           */
+    virtual DriveState resetErrors();
+
+    /**
            * \brief Changes the state of the drive to "ready to switch on".
            *
            * This is equivalent to setting bits 2 and 3 of Control Word (0x6064) to 1.

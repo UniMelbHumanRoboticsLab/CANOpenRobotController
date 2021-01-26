@@ -406,6 +406,12 @@ class Joint {
          * \return Return value of drive->start();
          */
     bool start();
+
+    /**
+      * \brief Resets any errors on the drive
+      *
+      */
+    virtual void resetErrors();
     /**
       * \brief Set the joint ready to switch On
       *
