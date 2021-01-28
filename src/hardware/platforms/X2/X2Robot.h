@@ -19,6 +19,7 @@
 #include <chrono>
 #include <map>
 #include <thread>
+#include <csignal>
 
 #include "CopleyDrive.h"
 #include "Keyboard.h"
@@ -28,6 +29,13 @@
 
 // Logger
 #include "spdlog/helper/LogHelper.h"
+// yaml-parser
+#include <fstream>
+#include "yaml-cpp/yaml.h"
+
+// These are used to access the MACRO: BASE_DIRECTORY
+#define XSTR(x) STR(x)
+#define STR(x) #x
 
 #ifdef SIM
 #include "controller_manager_msgs/SwitchController.h"
@@ -42,6 +50,9 @@
 
 #define X2_NUM_JOINTS 4
 #define X2_NUM_FORCE_SENSORS 4
+
+// robot name is used to access the properties of the correct robot version
+#define X2_NAME X2_MELB_A
 
 // Macros
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
@@ -58,6 +69,18 @@ struct ExoJointLimits {
     double kneeMin;
 };
 
+struct RobotParameters {
+    Eigen::VectorXd m; // masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
+    Eigen::VectorXd l; // length of left thigh, left shank, right thigh, right shank [kg]
+    Eigen::VectorXd s; // length from previous joint to CoM [m]
+    Eigen::VectorXd I; // mass moment of inertia of left thigh, left shank+foot, right thigh, right shank+foot [kg.m^2]
+    Eigen::VectorXd c0; // viscous fric constant of joints [N.s]
+    Eigen::VectorXd c1; // coulomb friction const of joints [N.m]
+    Eigen::VectorXd c2; // friction const related to sqrt of vel
+    Eigen::VectorXd cuffWeights; // cuff Weights [N]
+    Eigen::VectorXd forceSensorScaleFactor; // scale factor of force sensors [N/sensor output]
+};
+
 /**
  * \brief Example implementation of the Robot class, representing an X2 Exoskeleton.
  *
@@ -71,8 +94,16 @@ class X2Robot : public Robot {
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
     motorProfile velControlMotorProfile{0, 240000, 240000};
 
+    RobotParameters x2Parameters;
+
     //Todo: generalise sensors
     Eigen::VectorXd interactionForces_;
+
+    std::string robotName_;
+
+    bool initializeRobotParams(std::string robotName);
+
+    static void signalHandler(int signum);
 
 #ifdef SIM
     ros::NodeHandle* nodeHandle_;
@@ -253,6 +284,30 @@ class X2Robot : public Robot {
        * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
        */
     void updateRobot();
+
+    /**
+       * \brief returns the feedforward torque to compensate for the gravitational and frictional elements
+       *
+       * \param motionIntend intended direction of the motion. Used to calculate the static friction
+       */
+    Eigen::VectorXd getFeedForwardTorque(int motionIntend);
+
+    /**
+       * \brief sets the Robot name. This name is used to choose the proper set of parameters
+       *
+       * \param std::string robotName name of the robot
+       */
+    void setRobotName(std::string robotName);
+
+    /**
+       * \brief get the robot name
+       */
+    std::string& getRobotName();
+
+    /**
+       * \brief returns the parameters of the robot
+       */
+    RobotParameters& getRobotParameters();
 
 #ifdef SIM
     /**

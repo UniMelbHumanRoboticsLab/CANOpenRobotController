@@ -56,8 +56,8 @@ void app_programAsync(uint16_t timer1msDiffy) {
 
 void app_programControlLoop(void) {
     if (stateMachine.running) {
-        stateMachine.update();
         stateMachine.hwStateUpdate();
+        stateMachine.update();
     }
     #ifdef TIMING_LOG
     loopTimer.tick();
