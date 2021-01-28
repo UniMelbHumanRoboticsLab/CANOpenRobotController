@@ -23,7 +23,7 @@ bool State::addArc(Transition *t) {
         return false;
 };
 
-const char *State::getName(void) {
+const std::string &State::getName(void) {
     return name;
 };
 
