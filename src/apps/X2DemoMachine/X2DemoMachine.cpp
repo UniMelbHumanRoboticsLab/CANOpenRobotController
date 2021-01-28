@@ -12,12 +12,6 @@ X2DemoMachine::X2DemoMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    idleState = new IdleState(this, robot_);
-    x2DemoState = new X2DemoState(this, robot_);
-
-    NewTransition(idleState, startExo, x2DemoState);
-    //Initialize the state machine with first state of the designed state machine, using baseclass function.
-    StateMachine::initialize(idleState);
 
     // Create ros object
     x2DemoMachineRos_ = new X2DemoMachineROS(robot_);
@@ -37,25 +31,48 @@ void X2DemoMachine::init(int argc, char *argv[]) {
     // Pass nodeHandle to the classes that use ROS features
     x2DemoMachineRos_->setNodeHandle(nodeHandle);
 
+    // Pass MachineRos to the State to use ROS features
+    x2DemoState = new X2DemoState(this, robot_, x2DemoMachineRos_);
+
+    // Create states with ROS features // This should be created after ros::init()
+    StateMachine::initialize(x2DemoState);
+
+    // Get robot name from the node name
+    robotName_ = ros::this_node::getName();
+    robotName_.erase(0,1); // erase the first character which is '/'
+
 #ifdef SIM
     robot_->setNodeHandle(nodeHandle);
 #endif
 
+    robot_->setRobotName(robotName_);
     initialised = robot_->initialise();
     x2DemoMachineRos_->initialize();
     running = true;
     time0 = std::chrono::steady_clock::now();
 
-    logHelper_.initLogger("test_logger", "logs/helperTrial.csv", LogFormat::CSV, true);
-    logHelper_.add(time, "time");
-    logHelper_.add(robot_->getPosition(), "JointPositions");
-    logHelper_.add(robot_->getTorque(), "JointTorques");
-    logHelper_.startLogger();
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    std::stringstream logFileName;
+
+    logFileName << "spdlogs/" << robotName_<< std::put_time(&tm, "/%d-%m-%Y_%H-%M-%S") << ".csv";
+
+    logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
+    logHelper.add(time, "time");
+    logHelper.add(x2DemoState->controller_mode_, "mode");
+    logHelper.add(robot_->getPosition(), "JointPositions");
+    logHelper.add(robot_->getVelocity(), "JointVelocities");
+    logHelper.add(robot_->getTorque(), "JointTorques");
+    logHelper.add(x2DemoState->getDesiredJointTorques(), "DesiredJointTorques");
+    logHelper.add(robot_->getInteractionForce(), "InteractionForces");
+    //    logHelper.add(x2DemoState->virtualMassRatio_, "virtualMassRatio");
+
+    logHelper.startLogger();
 }
 
 void X2DemoMachine::end() {
     if(initialised) {
-        logHelper_.endLog();
+        logHelper.endLog();
         currentState->exit();
         robot_->disable();
         delete x2DemoMachineRos_;
@@ -89,6 +106,5 @@ void X2DemoMachine::update() {
 
     StateMachine::update();
     x2DemoMachineRos_->update();
-    logHelper_.recordLogData();
     ros::spinOnce();
 }

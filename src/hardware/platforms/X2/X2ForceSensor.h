@@ -16,7 +16,7 @@
 #include <CANopen.h>
 #include <CO_command.h>
 #include <sstream>
-
+#include <numeric>
 
 class X2ForceSensor : public InputDevice {
 public:
@@ -25,7 +25,7 @@ public:
      * Construct a new X2ForceSensor object
      *
      */
-    X2ForceSensor(int sensorID);
+    X2ForceSensor(int sensorID, double scaleFactor);
 
     /**
     * updates the force readings
@@ -48,8 +48,11 @@ public:
 
 private:
     int sensorID;
-    double sensorValueToNewton(int sensorValue);
-    double forceReading;
+    double sensorValueToNewton(int sensorValue, double scaleFactor);
+    double forceReading_;
+    double calibrationOffset_;
+    double scaleFactor_;
+    std::chrono::steady_clock::time_point time0;
 
 };
 
