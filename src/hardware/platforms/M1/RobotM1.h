@@ -93,7 +93,7 @@ public:
       */
     RobotM1();
     ~RobotM1();
-
+    JointVec tau_motor;
     Keyboard *keyboard;
     Joystick *joystick;
     M1ForceSensor *m1ForceSensor;
