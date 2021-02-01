@@ -31,6 +31,7 @@ LoggingRobot::~LoggingRobot() {
         spdlog::info("Delete Joint ID: {}", p->getId());
         delete p;
     }
+
     joints.clear();
 
     // Delete the inputs
