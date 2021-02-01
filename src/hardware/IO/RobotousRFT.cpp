@@ -10,8 +10,8 @@ RobotousRFT::RobotousRFT(int commandID_, int responseID1_, int responseID2_) {
 
     // Change on the mapping parameters
     TPDOcommPara.COB_IDUsedByTPDO = commandID;
-    RPDOcommParaH.COB_IDUsedByRPDO = responseID1;
-    RPDOcommParaL.COB_IDUsedByRPDO = responseID2;
+    //RPDOcommParaH.COB_IDUsedByRPDO = responseID1;
+    //RPDOcommParaL.COB_IDUsedByRPDO = responseID2;
 
     setupPDO();
 
@@ -26,11 +26,30 @@ RobotousRFT::RobotousRFT(int commandID_, int responseID1_, int responseID2_) {
 int RobotousRFT::getCommandID() {
     return commandID;
 }
-
-    void RobotousRFT::setupPDO() {
+void RobotousRFT::setupPDO() {
     spdlog::info("RobotousRFT {} - TPDO {} Set", commandID, CO_setTPDO(&TPDOcommPara, &TPDOMapParam, TPDOCommEntry, dataStoreRecordCmd, TPDOMapParamEntry));
-    spdlog::info("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaH, &RPDOMapParamH, RPDOCommEntryH, dataStoreRecordH, RPDOMapParamEntryH));
-    spdlog::info("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaL, &RPDOMapParamL, RPDOCommEntryL, dataStoreRecordL, RPDOMapParamEntryL));
+    //spdlog::info("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaH, &RPDOMapParamH, RPDOCommEntryH, dataStoreRecordH, RPDOMapParamEntryH));
+    UNSIGNED16 dataSize[8] = {1,1,1,1,1,1,1,1};
+    void *dataEntryH[8] = {(void *)&rawData[0],
+                            (void *)&rawData[1],
+                            (void *)&rawData[2],
+                            (void *)&rawData[3],
+                            (void *)&rawData[4],
+                            (void *)&rawData[5],
+                            (void *)&rawData[6],
+                            (void *)&rawData[7]};
+    void *dataEntryL[8] = {(void *)&rawData[8],
+                          (void *)&rawData[9],
+                          (void *)&rawData[10],
+                          (void *)&rawData[11],
+                          (void *)&rawData[12],
+                          (void *)&rawData[13],
+                          (void *)&rawData[14],
+                          (void *)&rawData[15]};
+    rpdo1 = new RPDO(responseID1, 0xff, dataEntryH, dataSize, 8);
+    rpdo2 = new RPDO(responseID2, 0xff, dataEntryL, dataSize, 8);
+
+    //spdlog::info("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaL, &RPDOMapParamL, RPDOCommEntryL, dataStoreRecordL, RPDOMapParamEntryL));
 }
 
 void RobotousRFT::updateInput() {
