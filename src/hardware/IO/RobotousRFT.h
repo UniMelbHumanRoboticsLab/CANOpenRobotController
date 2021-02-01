@@ -154,6 +154,15 @@ class RobotousRFT : public InputDevice {
         */
         RobotousRFT(int commandID_, int responseID1_, int responseID2_);
 
+
+        /**
+         * @brief Get the Command ID object (can be used as an identifier as there should only be one of each)
+         * 
+         * @return int 
+         */
+        int getCommandID();
+
+
         /**
          * \brief Sets up the receiving PDOs (note: will have issues if commands are sent, as the response are on the same COB-IDs)
          * 
@@ -181,7 +190,6 @@ class RobotousRFT : public InputDevice {
          * @return false if the sensor was previously not streaming (i.e. no change in state)
          */
         bool stopStream();
-
 
         /**
          * @brief Check if the system is streaming

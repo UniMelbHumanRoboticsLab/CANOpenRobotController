@@ -21,8 +21,6 @@ LoopTiming loopTimer;
 #define STATE_MACHINE_TYPE ExoTestMachine
 #endif
 
-extern CO_OD_entry_t CO_OD[CO_OD_NoOfElements];
-
 STATE_MACHINE_TYPE stateMachine;
 /*For master-> node SDO message sending*/
 #define CO_COMMAND_SDO_BUFFER_SIZE 100000

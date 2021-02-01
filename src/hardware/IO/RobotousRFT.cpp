@@ -23,7 +23,11 @@ RobotousRFT::RobotousRFT(int commandID_, int responseID1_, int responseID2_) {
     torqueOffsets = Eigen::VectorXd::Zero(3);
 }
 
-void RobotousRFT::setupPDO(){
+int RobotousRFT::getCommandID() {
+    return commandID;
+}
+
+    void RobotousRFT::setupPDO() {
     spdlog::info("RobotousRFT {} - TPDO {} Set", commandID, CO_setTPDO(&TPDOcommPara, &TPDOMapParam, TPDOCommEntry, dataStoreRecordCmd, TPDOMapParamEntry));
     spdlog::info("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaH, &RPDOMapParamH, RPDOCommEntryH, dataStoreRecordH, RPDOMapParamEntryH));
     spdlog::info("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaL, &RPDOMapParamL, RPDOCommEntryL, dataStoreRecordL, RPDOMapParamEntryL));

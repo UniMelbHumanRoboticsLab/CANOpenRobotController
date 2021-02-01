@@ -42,7 +42,7 @@ void LoggingDevice::init() {
 }
 
 void LoggingDevice::end() {
-    spdlog::debug("Ending ExoTestMachine");
+    spdlog::debug("Ending Logging Device");
     dataLogger.endLog();
     delete robot;
 }
