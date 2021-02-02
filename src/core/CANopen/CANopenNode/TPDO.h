@@ -5,7 +5,6 @@
  * 
  * \version 0.1
  * \date 2021-02-02
- * \version 0.1
  *
  * \copyright Copyright (c) 2021
  *

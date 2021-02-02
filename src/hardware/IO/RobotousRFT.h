@@ -58,8 +58,8 @@ class RobotousRFT : public InputDevice {
         // OD Parameters
         // Will need to be modified to take into number of items, data size and location
         // Data size and number of items will be constant, function will be used to change location
-        OD_TPDOMappingParameter_t TPDOMapParam = {0x2L, 0x00000108L, 0x00000238L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L};
-        OD_TPDOCommunicationParameter_t TPDOcommPara = {0x6L, 0x0L, 0xffL, 0x0, 0x0, 0x0, 0x0};  // {0x2L, COB-ID, 0xffL}
+   /*     OD_TPDOMappingParameter_t TPDOMapParam = {0x2L, 0x00000108L, 0x00000238L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L};
+        OD_TPDOCommunicationParameter_t TPDOcommPara = {0x6L, 0x0L, 0xffL, 0x0, 0x0, 0x0, 0x0};  
 
         // Records which are linked to from the OD
         // These might need to be public
@@ -85,7 +85,7 @@ class RobotousRFT : public InputDevice {
             {(void *)&TPDOMapParam.mappedObject6, 0x8e, 0x4},
             {(void *)&TPDOMapParam.mappedObject7, 0x8e, 0x4},
             {(void *)&TPDOMapParam.mappedObject8, 0x8e, 0x4},
-        };
+        };*/
         // Data variables
         Eigen::VectorXd forces;
         Eigen::VectorXd torques;
