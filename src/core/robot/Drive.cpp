@@ -139,6 +139,20 @@ bool Drive::posControlConfirmSP() {
     }
 }
 
+bool Drive::posControlSetContinuousProfile(bool continuous) {
+    if (driveState == ENABLED){
+        int controlWord = *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1)));
+        if (continuous){
+            *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = controlWord | 0x20;
+        } else{
+            *(&CO_OD_RAM.controlWords.motor1 + ((this->NodeID - 1))) = controlWord & ~0x20;
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool Drive::initPDOs() {
     spdlog::debug("Drive::initPDOs");
 

@@ -16,5 +16,6 @@ void InitState::during(void) {
 }
 void InitState::exit(void) {
     robot->initPositionControl();
+    robot->setPosControlContinuousProfile(true);
     spdlog::info("InitState Exited");
 }

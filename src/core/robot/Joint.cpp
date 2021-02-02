@@ -231,3 +231,13 @@ bool Joint::disable() {
     }
     return false;
 }
+
+
+// For Position Control
+bool Joint::setPosControlContinuousProfile(bool continuous) {
+    if (drive->getState() == ENABLED  && driveMode  == CM_POSITION_CONTROL && actuated) {
+        return (drive->posControlSetContinuousProfile(continuous));
+    }
+    spdlog::error("SetPosControlContinuous: Drive is not enabled, in incorrect mode or not actuated");
+    return false;
+}

@@ -433,6 +433,16 @@ class Joint {
      * \return false if drive is currently not in the correct state to enable
      */
     bool disable();
+
+    /**
+     * \brief Sets the drive of this joint to be in continous position profile mode (or not)
+     * 
+     * \param continuous True if continuous mode is required, false if not
+     *
+     * \return true if succesful
+     * \return false if drive is not in position control
+     */
+    bool setPosControlContinuousProfile(bool continuous);
 };
 
 #endif

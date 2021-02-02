@@ -475,6 +475,15 @@ class Drive {
     virtual bool posControlConfirmSP();
 
     /**
+        * \brief Sets the continous/not continous profile bit
+        *
+        * \param continuous if this is true, continous movement is enabled, otherwise it is disabled
+        * \return true If change is successful 
+        * \return false If drive was not in position control mode
+        */
+    virtual bool posControlSetContinuousProfile(bool continuous);
+
+    /**
         * \brief Get the current state of the drive
         *
         * \return DriveState

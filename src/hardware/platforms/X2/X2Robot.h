@@ -259,6 +259,15 @@ class X2Robot : public Robot {
        */
     void updateRobot();
 
+
+    /**
+       * \brief Changes the mode of 
+       * 
+       * \return true if successful
+       * \return false if not (joints/drive not enabled or in correct mode)
+       */
+    bool setPosControlContinuousProfile(bool continuous);
+
 #ifdef SIM
     /**
        * \brief method to pass the nodeHandle. Only available in SIM mode
