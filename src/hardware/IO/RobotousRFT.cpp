@@ -32,7 +32,7 @@ void RobotousRFT::setupPDO() {
     UNSIGNED16 dataCmdSize[2] = {1,7};
     void *dataCmd[2] = {(void *) &cmdData, (void *) &cmdDataPad};
 
-    tpdo1 = new TPDO(commandID, 0xff, dataCmd, dataCmdSize, 2);
+    tpdo1 = new TPDO(commandID, 0xff, dataCmd, dataCmdSize, lengthCmd);
 
     //spdlog::info("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaH, &RPDOMapParamH, RPDOCommEntryH, dataStoreRecordH, RPDOMapParamEntryH));
     UNSIGNED16 dataSize[8] = {1,1,1,1,1,1,1,1};
@@ -52,8 +52,8 @@ void RobotousRFT::setupPDO() {
                           (void *)&rawData[13],
                           (void *)&rawData[14],
                           (void *)&rawData[15]};
-    rpdo1 = new RPDO(responseID1, 0xff, dataEntryH, dataSize, 8);
-    rpdo2 = new RPDO(responseID2, 0xff, dataEntryL, dataSize, 8);
+    rpdo1 = new RPDO(responseID1, 0xff, dataEntryH, dataSize, lengthData);
+    rpdo2 = new RPDO(responseID2, 0xff, dataEntryL, dataSize, lengthData);
 
     //spdlog::info("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaL, &RPDOMapParamL, RPDOCommEntryL, dataStoreRecordL, RPDOMapParamEntryL));
 }

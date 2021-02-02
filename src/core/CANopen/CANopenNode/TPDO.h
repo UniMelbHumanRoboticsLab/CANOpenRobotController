@@ -1,3 +1,16 @@
+/**
+ * \file TPDO.h
+ * \author Justin Fong
+ * \brief  The <code>TPDO</code> class is used to create TPDOs in the Programmatic PDO
+ * 
+ * \version 0.1
+ * \date 2021-02-02
+ * \version 0.1
+ *
+ * \copyright Copyright (c) 2021
+ *
+ */
+
 #ifndef TPDO_H_INCLUDED
 #define TPDO_H_INCLUDED
 
@@ -6,15 +19,17 @@
 
 class TPDO {
     private:
+        // Dummy Variables for extraneous OD entries
         UNSIGNED8 nullData = 0;
-
-    public:
         UNSIGNED8 lengthData = 0;
 
-        // Everything is public due to all the linking between stuff
+    public:
+    // Storage for the configuration parameters for the TPDO
      OD_TPDOMappingParameter_t mappingParam = {0x8L, 0x00000108L, 0x00000208L, 0x00000308L, 0x00000408L, 0x00000508L, 0x00000608L, 0x00000708L, 0x00000808L};
      OD_TPDOCommunicationParameter_t commParam = {0x2L, 0x0L, 0xffL,0x00, 0x0L, 0x00, 0x0L};
 
+
+    // Object Dictionary Entries for the parameters, along with the pointers to the linked variables
      CO_OD_entryRecord_t dataRecord[9] = {
          {(void *)&lengthData, 0x06, 0x1},
          {(void *)&nullData, 0xfe, 0x1},
@@ -49,10 +64,20 @@ class TPDO {
          {(void *)&commParam.SYNCStartValue, 0x0e, 0x1},
     };
 
-     // Need to have a constructor
+    
+    /**
+      * \brief Creates TPDO with appropriate mapping parameters 
+      *
+      * \param COBID The COB-ID on which the TPDO is sent
+      * \param tranmissionType SYNCs per tranmissions or on change if 0xff (see CO_PDO.h)
+      * \param dataEntry An array of addresses of variables to link to the TPDO
+      * \param dataSize An array indicating the size of the variables (in bytes)
+      * \param numMappedObjects Number of mapped objects in the TPDO  
+      */
     TPDO(UNSIGNED32 COBID, UNSIGNED8 transmissionType, void *dataEntry[], UNSIGNED16 dataSize[], UNSIGNED8 numMappedObjects);
 
-    // Makes sense to overload the constructor to allow access to the other communication parameters 
+    // Makes sense to overload the constructor to allow access to the other communication parameters
+    // This could be added if required
 };
 
 #endif 
