@@ -203,6 +203,12 @@ bool Joint::start() {
 
 }
 
+void Joint::resetErrors() {
+    if (actuated) {
+        drive->resetErrors();
+    }
+}
+
 void Joint::readyToSwitchOn() {
     if (actuated) {
         drive->readyToSwitchOn();
@@ -223,5 +229,15 @@ bool Joint::disable() {
     if (actuated) {
         drive->readyToSwitchOn();  //Ready to switch on is also power off state
     }
+    return false;
+}
+
+
+// For Position Control
+bool Joint::setPosControlContinuousProfile(bool continuous) {
+    if (drive->getState() == ENABLED  && driveMode  == CM_POSITION_CONTROL && actuated) {
+        return (drive->posControlSetContinuousProfile(continuous));
+    }
+    spdlog::error("SetPosControlContinuous: Drive is not enabled, in incorrect mode or not actuated");
     return false;
 }

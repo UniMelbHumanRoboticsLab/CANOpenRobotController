@@ -11,8 +11,10 @@
 
 #include "DummyTrajectoryGenerator.h"
 
+
 double sitting[6] = {deg2rad(95), deg2rad(95), deg2rad(90), deg2rad(90), 0, 0};
 double standing[6] = {0, 0, 0, 0, 0, 0};
+Eigen::VectorXd startPos(6); 
 
 DummyTrajectoryGenerator::DummyTrajectoryGenerator(int NumOfJoints) {
     numJoints = NumOfJoints;
@@ -21,6 +23,7 @@ DummyTrajectoryGenerator::DummyTrajectoryGenerator(int NumOfJoints) {
 bool DummyTrajectoryGenerator::initialiseTrajectory() {
     currTraj = SIT;
     trajTime = 2;
+    lastProgress = 0;
     return true;
 }
 
@@ -28,9 +31,12 @@ bool DummyTrajectoryGenerator::initialiseTrajectory() {
      * @brief 
      * 
      */
-bool DummyTrajectoryGenerator::initialiseTrajectory(Trajectory traj, double time) {
+bool DummyTrajectoryGenerator::initialiseTrajectory(Trajectory traj, double time, Eigen::VectorXd &startPos_) {
     currTraj = traj;
     trajTime = time;
+    startPos = startPos_;
+    lastProgress = 0;
+
     return true;
 }
 
@@ -47,10 +53,11 @@ Eigen::VectorXd DummyTrajectoryGenerator::getSetPoint(double time) {
 
     if (currTraj == SIT) {
         for (int i = 0; i < numJoints; i++) {
+
             if (progress > 1) {
                 angles(i) = sitting[i];
             } else {
-                angles(i) = standing[i] + progress * (sitting[i] - standing[i]);
+                angles(i) = startPos[i] + progress * (sitting[i] - startPos[i]);
             }
         }
     } else {
@@ -58,11 +65,12 @@ Eigen::VectorXd DummyTrajectoryGenerator::getSetPoint(double time) {
             if (progress > 1) {
                 angles(i) = standing[i];
             } else {
-                angles(i) = sitting[i] + progress * (standing[i] - sitting[i]);
+                angles(i) = startPos[i]  + progress * (standing[i] - startPos[i]);
             }
         }
     }
     lastProgress = progress;
+
     return angles;
 }
 

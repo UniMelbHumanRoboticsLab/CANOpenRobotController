@@ -58,6 +58,15 @@ void X2Robot::initialiseROS() {
     jointStateSubscriber_ = nodeHandle_->subscribe("joint_states", 1, &X2Robot::jointStateCallback, this);
 }
 #endif
+
+void X2Robot::resetErrors() {
+    spdlog::debug("Clearing errors on all motor drives ");
+    for (auto p : joints) {
+        // Put into ReadyToSwitchOn()
+        p->resetErrors();
+    }
+}
+
 bool X2Robot::initPositionControl() {
     spdlog::debug("Initialising Position Control on all joints ");
     bool returnValue = true;
@@ -109,7 +118,7 @@ bool X2Robot::initVelocityControl() {
     }
 
     // Pause for a bit to let commands go
-    usleep(2000);
+    usleep(10000);
     for (auto p : joints) {
         p->enable();
     }
@@ -173,6 +182,7 @@ setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
+        spdlog::debug("Joint {}, Target {}, Current {}", i, positions[i], ((X2Joint *)p)->getPosition());
         setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
             spdlog::error("Joint {} is not in Position Control ", p->getId());
@@ -337,6 +347,9 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count() < maxTime * 1000) {
             this->updateRobot();  // because this function has its own loops, updateRobot needs to be called
             this->setVelocity(desiredVelocity);
+            usleep(10000);
+
+
             if (std::abs(this->getTorque()[i]) >= thresholdTorque) {  // if high torque is reached
                 highTorqueReached = true;
                 firstTimeHighTorque = std::chrono::steady_clock::now();
@@ -344,7 +357,10 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
                        (std::chrono::steady_clock::now() - firstTimeHighTorque)
                            .count() < delayTime * 1000) {
                     this->updateRobot();
+                    usleep(10000);
+
                     if (std::abs(this->getTorque()[i]) < thresholdTorque) {  // if torque value reach below thresholdTorque, goes back
+                        spdlog::debug("Torque drop", this->getTorque()[i]);
                         highTorqueReached = false;
                         break;
                     }
@@ -355,6 +371,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
 
         if (success[i]) {
             spdlog::debug("Homing Succeeded for Joint {} .", i);
+            usleep(10000);
             if (i == X2_LEFT_HIP || i == X2_RIGHT_HIP) {  // if it is a hip joint
 
                 // zeroing is done depending on the limits on the homing direction
@@ -441,6 +458,16 @@ void X2Robot::freeMemory() {
 void X2Robot::updateRobot() {
     //TODO: generalise sensors update
     Robot::updateRobot();
+}
+
+bool X2Robot::setPosControlContinuousProfile(bool continuous){
+    bool returnValue = true;
+    for (auto p : joints) {
+        if(!(p->setPosControlContinuousProfile(continuous))){
+            returnValue = false;
+        }
+    }
+    return returnValue;
 }
 
 #ifdef SIM
