@@ -706,6 +706,16 @@ RobotParameters& X2Robot::getRobotParameters() {
 
 }
 
+bool X2Robot::setPosControlContinuousProfile(bool continuous){
+    bool returnValue = true;
+    for (auto p : joints) {
+        if(!(p->setPosControlContinuousProfile(continuous))){
+            returnValue = false;
+        }
+    }
+    return returnValue;
+}
+
 #ifdef SIM
 void X2Robot::setNodeHandle(ros::NodeHandle &nodeHandle) {
     nodeHandle_ = &nodeHandle;
