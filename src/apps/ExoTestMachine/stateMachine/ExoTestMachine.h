@@ -100,6 +100,7 @@ class ExoTestMachine : public StateMachine {
     EventObject(IsAPressed) * isAPressed;
     EventObject(StartButtonsPressed) * startButtonsPressed;
     EventObject(StartExo) * startExo;
+    EventObject(StartExoCal) * startExoCal;
     EventObject(StartSit) * startSit;
     EventObject(StartStand) * startStand;
 };

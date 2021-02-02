@@ -8,12 +8,14 @@ void InitState::entry(void) {
         << "==================================" << std::endl
         << std::endl
         << "========================" << std::endl
-        << " PRESS S to start program" << std::endl
+        << " PRESS S to start or A to Home" << std::endl
         << "========================" << std::endl;
+    robot->resetErrors();
 }
 void InitState::during(void) {
 }
 void InitState::exit(void) {
     robot->initPositionControl();
+    robot->setPosControlContinuousProfile(true);
     spdlog::info("InitState Exited");
 }

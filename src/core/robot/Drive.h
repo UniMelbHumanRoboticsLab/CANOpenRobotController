@@ -423,6 +423,17 @@ class Drive {
 
     // Drive State Modifiers
     /**
+           * \brief Clears errors (and changes the state of the drive to "disabled".
+           *
+           * This is equivalent to setting bits 7 Control Word (0x6064) to 1.
+           * See also the CANopen Programmer's Manual (from Copley Controls)
+           *
+           * \return true if operation successful
+           * \return false if operation unsuccessful
+           */
+    virtual DriveState resetErrors();
+
+    /**
            * \brief Changes the state of the drive to "ready to switch on".
            *
            * This is equivalent to setting bits 2 and 3 of Control Word (0x6064) to 1.
@@ -462,6 +473,15 @@ class Drive {
         * \return false The control word was previously 1 (i.e. unsuccessful set point confirm)
         */
     virtual bool posControlConfirmSP();
+
+    /**
+        * \brief Sets the continous/not continous profile bit
+        *
+        * \param continuous if this is true, continous movement is enabled, otherwise it is disabled
+        * \return true If change is successful 
+        * \return false If drive was not in position control mode
+        */
+    virtual bool posControlSetContinuousProfile(bool continuous);
 
     /**
         * \brief Get the current state of the drive
