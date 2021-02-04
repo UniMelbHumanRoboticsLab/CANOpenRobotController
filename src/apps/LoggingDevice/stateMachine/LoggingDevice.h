@@ -25,8 +25,8 @@
  * Date: 07/04/2020
  *
  */
-#ifndef EXO_SM_H
-#define EXO_SM_H
+#ifndef LOGGINGDEVICE_SM_H
+#define LOGGINGDEVICE_SM_H
 
 #include <sys/time.h>
 
@@ -36,22 +36,23 @@
 #include <iostream>
 #include <string>
 
-#include "ExoTestState.h"
+#include "LoggingRobot.h"
 #include "StateMachine.h"
-#include "X2Robot.h"
 
 // State Classes
 #include "InitState.h"
-#include "Sitting.h"
-#include "SittingDwn.h"
-#include "Standing.h"
-#include "StandingUp.h"
+#include "IdleState.h"
+#include "CalibrateState.h"
+#include "RecordState.h"
+
+// Logger
+#include "spdlog/helper/LogHelper.h"
 
 /**
  * @brief Example implementation of a StateMachine for the ExoRobot class. States should implemented ExoTestState
  *
  */
-class ExoTestMachine : public StateMachine {
+class LoggingDevice : public StateMachine {
    public:
     bool running = false;
 
@@ -63,30 +64,26 @@ class ExoTestMachine : public StateMachine {
      *  \todo Pilot Parameters would be set in constructor here
      *
      */
-    ExoTestMachine();
+    LoggingDevice();
     void init();
     void end();
-
     void update();
     void hwStateUpdate();
 
     State *gettCurState();
-    void initRobot(X2Robot *rb);
     bool trajComplete;
-    DummyTrajectoryGenerator *trajectoryGenerator;
 
     /**
      * Pointers to the relevant states - initialised in init
      *
      */
     InitState *initState;
-    SittingDwn *sittingDwn;
-    StandingUp *standingUp;
-    Sitting *sitting;
-    Standing *standing;
+    IdleState *idleState;
+    CalibrateState *calibrateState;
+    RecordState *recordState;
 
    protected:
-    X2Robot *robot;        /*<!Pointer to the Robot*/
+    LoggingRobot *robot;   /*<!Pointer to the Robot*/
     LogHelper dataLogger;  // Logger
 
    private:
@@ -96,13 +93,9 @@ class ExoTestMachine : public StateMachine {
      * Defines the Class itself, as well as initialises an object of that class
      * An events check function are defined in the .cpp file.
     */
-    EventObject(EndTraj) * endTraj;
     EventObject(IsAPressed) * isAPressed;
-    EventObject(StartButtonsPressed) * startButtonsPressed;
-    EventObject(StartExo) * startExo;
-    EventObject(StartExoCal) * startExoCal;
-    EventObject(StartSit) * startSit;
-    EventObject(StartStand) * startStand;
+    EventObject(IsSPressed) * isSPressed;
+    EventObject(IsCalibrationFinished) * isCalibrationFinished;
 };
 
-#endif /*EXO_SM_H*/
+#endif

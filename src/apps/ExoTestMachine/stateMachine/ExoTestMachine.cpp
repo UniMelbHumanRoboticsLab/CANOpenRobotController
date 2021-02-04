@@ -4,7 +4,7 @@
 #define OWNER ((ExoTestMachine *)owner)
 
 ExoTestMachine::ExoTestMachine() {
-    trajectoryGenerator = new DummyTrajectoryGenerator(6);
+    trajectoryGenerator = new DummyTrajectoryGenerator(4);
     robot = new X2Robot();
 
     // Create PRE-DESIGNED State Machine events and state objects.
@@ -12,6 +12,8 @@ ExoTestMachine::ExoTestMachine() {
     endTraj = new EndTraj(this);
     startButtonsPressed = new StartButtonsPressed(this);
     startExo = new StartExo(this);
+    startExoCal = new StartExoCal(this);
+
     startSit = new StartSit(this);
     startStand = new StartStand(this);
     initState = new InitState(this, robot, trajectoryGenerator);
@@ -27,6 +29,7 @@ ExoTestMachine::ExoTestMachine() {
      *
      */
     NewTransition(initState, startExo, sitting);
+    NewTransition(initState, startExoCal, sitting);
     NewTransition(sitting, startStand, standingUp);
     NewTransition(standingUp, endTraj, standing);
     NewTransition(standing, startSit, sittingDwn);
@@ -87,6 +90,20 @@ bool ExoTestMachine::StartExo::check(void) {
     }
     return false;
 }
+bool ExoTestMachine::StartExoCal::check(void) {
+    if (OWNER->robot->keyboard->getA() == true) {
+        spdlog::info("LEAVING INIT and entering Sitting");
+        spdlog::info("Homing");
+
+        OWNER->robot->disable();
+        OWNER->robot->homing();
+        spdlog::info("Finished");
+
+        return true;
+    }
+    return false;
+}
+
 bool ExoTestMachine::StartStand::check(void) {
     if (OWNER->robot->keyboard->getW() == true) {
         return true;
@@ -119,7 +136,7 @@ void ExoTestMachine::update() {
                 std::chrono::steady_clock::now() - time0)
                 .count()) /
            1e6;
-    spdlog::debug("Update()");
+    spdlog::trace("Update()");
     StateMachine::update();
     dataLogger.recordLogData();
 }
