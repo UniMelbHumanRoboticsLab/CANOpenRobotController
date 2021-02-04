@@ -7,6 +7,7 @@ SSH_USER="debian"
 BUILD_FOLDER="build/"
 INIT_SCRIPTS="*.sh"
 SCRIPT_FOLDER="script/"
+CONFIG_FOLDER="config/"
 
 #use default BB address (dependent on OS used)
 if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then 
@@ -22,31 +23,25 @@ parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd "$parent_path"/..
 
 
-echo "---------------------------------------------------"
-echo "Create remote folders (~/CANOpenRobotController/)"
-echo "---------------------------------------------------"
+echo "## Create remote folder (~/CANOpenRobotController/):"
+echo -n "ssh -q $SSH_USER@$SSH_IP_ADDR "mkdir -p ~/CANOpenRobotController/" ... "
 ssh -q $SSH_USER@$SSH_IP_ADDR "mkdir -p ~/CANOpenRobotController/"
-ssh -q $SSH_USER@$SSH_IP_ADDR "mkdir -p ~/CANOpenRobotController/$BUILD_FOLDER"
 echo "done."
 
 echo ""
-echo "---------------------------------------------------"
-echo "Copy scripts"
-echo "---------------------------------------------------"
-rsync -chaz $SCRIPT_FOLDER $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/$SCRIPT_FOLDER
+echo "## Copy scripts:"
+echo -n "rsync -chaz -e 'ssh -q' ${SCRIPT_FOLDER} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${SCRIPT_FOLDER} ... "
+rsync -chaz -e 'ssh -q' ${SCRIPT_FOLDER} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${SCRIPT_FOLDER}
+echo "done."
 
 echo ""
-echo "---------------------------------------------------"
-echo "Copy APP(s):"
-echo "---------------------------------------------------"
-for APP in "$BUILD_FOLDER"*APP
-do
-  echo ${APP}
-  rsync -chaz ${APP} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${APP}
-done
-for APP in "$BUILD_FOLDER"*APP_NOROBOT
-do
-  echo ${APP}
-  rsync -chaz ${APP} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${APP}
-done
+echo "## Copy config files:"
+echo -n "rsync -chaz -e 'ssh -q' ${CONFIG_FOLDER} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${CONFIG_FOLDER} ... "
+rsync -chaz -e 'ssh -q' ${CONFIG_FOLDER} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${CONFIG_FOLDER}
+echo "done."
+
+echo ""
+echo "## Copy APP(s):"
+echo -n "rsync -chaz -e 'ssh -q' --include='*APP' --include='*APP_NOROBOT' --exclude='*' ${BUILD_FOLDER} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${BUILD_FOLDER} ... "
+rsync -chaz -e 'ssh -q' --include='*APP' --include='*APP_NOROBOT' --exclude='*' ${BUILD_FOLDER} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${BUILD_FOLDER}
 echo "done."
