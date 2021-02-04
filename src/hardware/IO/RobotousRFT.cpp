@@ -8,11 +8,6 @@ RobotousRFT::RobotousRFT(int commandID_, int responseID1_, int responseID2_) {
     responseID1 = responseID1_;
     responseID2 = responseID2_;
 
-    // Change on the mapping parameters
-    //TPDOcommPara.COB_IDUsedByTPDO = commandID;
-    //RPDOcommParaH.COB_IDUsedByRPDO = responseID1;
-    //RPDOcommParaL.COB_IDUsedByRPDO = responseID2;
-
     setupPDO();
 
     // Initialise variables as zeros
@@ -54,8 +49,6 @@ void RobotousRFT::setupPDO() {
                           (void *)&rawData[15]};
     rpdo1 = new RPDO(responseID1, 0xff, dataEntryH, dataSize, lengthData);
     rpdo2 = new RPDO(responseID2, 0xff, dataEntryL, dataSize, lengthData);
-
-    //spdlog::info("RobotousRFT {} - RPDO {} Set", commandID, CO_setRPDO(&RPDOcommParaL, &RPDOMapParamL, RPDOCommEntryL, dataStoreRecordL, RPDOMapParamEntryL));
 }
 
 void RobotousRFT::updateInput() {
@@ -80,20 +73,10 @@ void RobotousRFT::updateInput() {
     // Else, don't do anything
 }
 
-/**
-         * \brief Get the Forces object
-         * 
-         * \return Eigen::VectorXd X,Y,Z forces
-         */
 Eigen::VectorXd& RobotousRFT::getForces() {
     return forces;
 }
 
-/**
-         * \brief Get the Forces object
-         * 
-         * \return Eigen::VectorXd 
-         */
 Eigen::VectorXd& RobotousRFT::getTorques() {
     return torques;
 }
@@ -101,7 +84,6 @@ Eigen::VectorXd& RobotousRFT::getTorques() {
 void RobotousRFT::setOffsets(Eigen::VectorXd forceOffset, Eigen::VectorXd torqueOffset) {
         forceOffsets = forceOffset; 
         torqueOffsets = torqueOffset;
-
 }
 
 bool RobotousRFT::startStream(){
@@ -124,6 +106,7 @@ bool RobotousRFT::stopStream() {
     }
     return false;
 }
+
 bool RobotousRFT::getStreaming() {
     return streaming;
 }

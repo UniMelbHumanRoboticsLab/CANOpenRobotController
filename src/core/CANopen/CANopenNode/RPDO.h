@@ -22,6 +22,7 @@ class RPDO {
         // Dummy Variables for extraneous OD entries
         UNSIGNED8 nullData = 0;
         UNSIGNED8 lengthData = 0;
+        UNSIGNED32 myCOBID =0;
 
     public:
     // Storage for the configuration parameters for the RPDO
@@ -67,7 +68,15 @@ class RPDO {
       * \param dataEntry An array of addresses of variables to link to the RPDO
       * \param dataSize An array indicating the size of the variables (in bytes)
       * \param numMappedObjects Number of mapped objects in the RPDO  
-      */    RPDO(UNSIGNED32 COBID, UNSIGNED8 transmissionType, void *dataEntry[], UNSIGNED16 dataSize[], UNSIGNED8 numMappedObjects);
+      */    
+     RPDO(UNSIGNED32 COBID, UNSIGNED8 transmissionType, void *dataEntry[], UNSIGNED16 dataSize[], UNSIGNED8 numMappedObjects);
+
+     /**
+      * \brief returns the COBID of this RPDO
+      * 
+      * @return UNSIGNED32 COB-ID of this RPDO
+      */
+     UNSIGNED32 getCOBID();
 };
 
 #endif 

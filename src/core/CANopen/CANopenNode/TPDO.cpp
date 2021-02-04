@@ -1,6 +1,7 @@
 #include "TPDO.h"
 
 TPDO::TPDO(UNSIGNED32 COBID, UNSIGNED8 transmissionType, void *dataEntry[], UNSIGNED16 dataSize[], UNSIGNED8 numMappedObjects) {
+    myCOBID = COBID;
     commParam.COB_IDUsedByTPDO = COBID;
     commParam.transmissionType = transmissionType;
 
@@ -21,4 +22,8 @@ TPDO::TPDO(UNSIGNED32 COBID, UNSIGNED8 transmissionType, void *dataEntry[], UNSI
 
     // Then set up the OD
     CO_setTPDO(&commParam, &mappingParam, commRecord, dataRecord, mappingRecord);
+}
+
+UNSIGNED32 TPDO::getCOBID() {
+    return myCOBID;
 }

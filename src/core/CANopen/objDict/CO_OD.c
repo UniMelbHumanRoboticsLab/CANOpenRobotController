@@ -1367,7 +1367,6 @@ int CO_setTPDO(OD_TPDOCommunicationParameter_t *TPDOcommPara, OD_TPDOMappingPara
 
         // Change the relevant OD location
         CO_OD[24 + 3 * CO_NO_RPDO + 2 * CO_NO_TPDO + 85 + currTPDO].pData = (void *)dataStoreRecord;
-
         // increment counter, but return the original value
         currTPDO = currTPDO + 1;
         return currTPDO;
