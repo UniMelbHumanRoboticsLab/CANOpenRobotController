@@ -26,7 +26,6 @@ echo "---------------------------------------------------"
 echo "Create remote folders (~/CANOpenRobotController/)"
 echo "---------------------------------------------------"
 ssh -q $SSH_USER@$SSH_IP_ADDR "mkdir -p ~/CANOpenRobotController/"
-ssh -q $SSH_USER@$SSH_IP_ADDR "mkdir -p ~/CANOpenRobotController/$SCRIPT_FOLDER"
 ssh -q $SSH_USER@$SSH_IP_ADDR "mkdir -p ~/CANOpenRobotController/$BUILD_FOLDER"
 echo "done."
 
@@ -34,12 +33,7 @@ echo ""
 echo "---------------------------------------------------"
 echo "Copy scripts"
 echo "---------------------------------------------------"
-for SCRIPT in "$SCRIPT_FOLDER"*.sh
-do
-  echo ${SCRIPT}
-  scp -q ${SCRIPT} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${SCRIPT}
-done
-echo "done."
+rsync -chaz $SCRIPT_FOLDER $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/$SCRIPT_FOLDER
 
 echo ""
 echo "---------------------------------------------------"
@@ -48,11 +42,11 @@ echo "---------------------------------------------------"
 for APP in "$BUILD_FOLDER"*APP
 do
   echo ${APP}
-  scp -q ${APP} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${APP}
+  rsync -chaz ${APP} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${APP}
 done
 for APP in "$BUILD_FOLDER"*APP_NOROBOT
 do
   echo ${APP}
-  scp -q ${APP} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${APP}
+  rsync -chaz ${APP} $SSH_USER@$SSH_IP_ADDR:~/CANOpenRobotController/${APP}
 done
 echo "done."
