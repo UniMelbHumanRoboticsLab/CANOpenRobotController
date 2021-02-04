@@ -845,6 +845,9 @@ extern struct sCO_OD_EEPROM CO_OD_EEPROM;
 /*1400, Data Type: RPDOCommunicationParameter_t */
 extern OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO];
 
+// Change to store the parameters in a dedicated array
+// #define OD_RPDOCommunicationParameter CO_OD_RAM.RPDOCommunicationParameter
+extern OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO];
 /*1600, Data Type: RPDOMappingParameter_t */
 extern OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO];
 

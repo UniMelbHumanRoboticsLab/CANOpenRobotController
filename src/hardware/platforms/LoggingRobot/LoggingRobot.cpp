@@ -7,9 +7,6 @@ LoggingRobot::LoggingRobot() {
     initialiseInputs();
 };
 
-    initialiseJoints();
-    initialiseInputs();
-};
 
 bool LoggingRobot::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
