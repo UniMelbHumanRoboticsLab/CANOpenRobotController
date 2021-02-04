@@ -180,6 +180,9 @@ bool Drive::initPDOs() {
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0xFF)) < 0) {
         spdlog::error("Set up STATUS_WORD TPDO FAILED on node {}", NodeID);
         return false;
+    } else {
+        // Set up equivalent RPDO on the CORC Side (NOTE: THIS IS A RPDO to match the Drive's TPDO)
+        generateEquivalentLocalRPDO(TPDO_MappedObjects[TPDO_Num],  TPDO_COBID[TPDO_Num] + NodeID, 0xff);
     }
 
     spdlog::info("Set up ACTUAL_POS and ACTUAL_VEL TPDO on Node {}", NodeID);
@@ -187,14 +190,19 @@ bool Drive::initPDOs() {
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01)) < 0) {
         spdlog::error("Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node {}", NodeID);
         return false;
+    } else {
+        // Set up equivalent RPDO on the CORC Side (NOTE: THIS IS A RPDO to match the Drive's TPDO)
+        generateEquivalentLocalRPDO(TPDO_MappedObjects[TPDO_Num],  TPDO_COBID[TPDO_Num] + NodeID, 0xff);
     }
-
 
     spdlog::info("Set up ACTUAL_TOR TPDO on Node {}", NodeID);
     TPDO_Num = 3;
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01)) < 0) {
         spdlog::error("Set up ACTUAL_TOR TPDO FAILED on node {}", NodeID);
         return false;
+    } else {
+        // Set up equivalent RPDO on the CORC Side (NOTE: THIS IS A RPDO to match the Drive's TPDO)
+        generateEquivalentLocalRPDO(TPDO_MappedObjects[TPDO_Num], TPDO_COBID[TPDO_Num] + NodeID, 0xff);
     }
 
     // Calculate COB_ID. If RPDO:
@@ -204,24 +212,40 @@ bool Drive::initPDOs() {
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up CONTROL_WORD RPDO FAILED on node {}", NodeID);
         return false;
+    } else {
+        // Set up equivalent TPDO on the CORC Side (NOTE: THIS IS A TPDO to match the Drive's RPDO)
+        spdlog::info("Set up CONTROL_WORD TPDO on Node {}", NodeID);
+        generateEquivalentLocalTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
     }
     spdlog::info("Set up TARGET_POS RPDO on Node {}", NodeID);
     RPDO_Num = 2;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up TARGET_POS RPDO FAILED on node {}", NodeID);
         return false;
+    } else {
+        // Set up equivalent TPDO on the CORC Side (NOTE: THIS IS A TPDO to match the Drive's RPDO)
+        spdlog::info("Set up TARGET_POS TPDO on Node {}", NodeID);
+        generateEquivalentLocalTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
     }
     spdlog::info("Set up TARGET_VEL RPDO on Node {}", NodeID);
     RPDO_Num = 3;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up ARGET_VEL RPDO FAILED on node {}", NodeID);
         return false;
+    } else {
+        // Set up equivalent TPDO on the CORC Side (NOTE: THIS IS A TPDO to match the Drive's RPDO)
+        spdlog::info("Set up TARGET_VEL  TPDO on Node {}", NodeID);
+        generateEquivalentLocalTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
     }
     spdlog::info("Set up TARGET_TOR RPDO on Node {}", NodeID);
     RPDO_Num = 4;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up TARGET_TOR RPDO FAILED on node {}", NodeID);
         return false;
+    } else {
+        // Set up equivalent TPDO on the CORC Side (NOTE: THIS IS A TPDO to match the Drive's RPDO)
+        spdlog::info("Set up TARGET_TOR TPDO on Node {}", NodeID);
+        generateEquivalentLocalTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
     }
     return true;
     }
