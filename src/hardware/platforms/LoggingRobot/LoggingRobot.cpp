@@ -89,12 +89,3 @@ bool LoggingRobot::stopSensors() {
         return false;
     }
 }
-
-bool LoggingRobot::configureMasterPDOs(){
-    spdlog::debug("LoggingRobot::configureMasterPDOs");
-    for (auto cs : crutchSensors) {
-        cs->configureMasterPDOs();
-    }
-    return true;
-    
-}

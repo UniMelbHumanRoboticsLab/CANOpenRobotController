@@ -26,6 +26,7 @@ void StandingUp::during(void) {
         currTrajProgress += elapsedSec;
         robot->setPosition(trajectoryGenerator->getSetPoint(currTrajProgress));
         //}
+
 }
 void StandingUp::exit(void) {
     spdlog::info("Standing Up State Exited");

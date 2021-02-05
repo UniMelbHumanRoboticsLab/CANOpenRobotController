@@ -226,7 +226,6 @@ OD_RPDOMappingParameter_t RPDOMapParamOff = {0x0L, 0x0000L, 0x0000L, 0x0000L, 0x
 OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO] = {&RPDOCommParamOff};
 OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO] = {&RPDOMapParamOff};
 
-
 // OD_record for Entries that are off
 /*0x1400*/ CO_OD_entryRecord_t OD_recordRPDOCommOff[3] = {
     {(void *)&(RPDOCommParamOff.maxSubIndex), 0x06, 0x1},

@@ -56,9 +56,8 @@ void LoggingDevice::end() {
      */
 
 bool LoggingDevice::IsAPressed::check(void) {
-    spdlog::trace("IsAPressed");
     if (OWNER->robot->keyboard->getA() == true) {
-        spdlog::debug("IsAPressed");
+
         return true;
     }
     return false;
@@ -104,3 +103,4 @@ void LoggingDevice::configureMasterPDOs() {
     spdlog::debug("LoggingDevice::configureMasterPDOs()");
     robot->configureMasterPDOs();
 }
+

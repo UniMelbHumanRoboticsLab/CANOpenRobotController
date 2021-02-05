@@ -69,7 +69,6 @@ class LoggingDevice : public StateMachine {
     void end();
     void update();
     void hwStateUpdate();
-
     void configureMasterPDOs();
 
     State *gettCurState();
