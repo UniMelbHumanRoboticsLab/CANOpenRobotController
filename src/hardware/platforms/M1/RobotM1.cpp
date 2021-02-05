@@ -133,6 +133,11 @@ void RobotM1::updateRobot() {
         dq(i) = ((JointM1 *)joints[i])->getVelocity();
         tau(i) = ((JointM1 *)joints[i])->getTorque();
         tau_s(i) = m1ForceSensor[i].getForce();
+        // compensate inertia, move it later
+        double inertia_s = 1.0592; // m*s*g =
+        double inertia_c = 0.3258;
+        double theta_bias = 0.1604;
+        tau_s(i) =  tau_s(i) - inertia_s*sin(q(i)+theta_bias) - inertia_c*cos(q(i)+theta_bias);
     }
 //    std::cout << "safety check" << std::endl; // YW debug
     if (safetyCheck() != SUCCESS) {
@@ -292,7 +297,7 @@ setMovementReturnCode_t RobotM1::applyVelocity(JointVec velocities) {
             returnValue = INCORRECT_MODE;
         } else if (setVelCode != SUCCESS) {
             // Something bad happened
-            std::cout << "Joint " << p->getId() << " velocity : " << std::endl;
+            std::cout << "Joint " << p->getId() << ": velocity error " << std::endl;
             ((JointM1 *)p)->errorMessage(setVelCode);
             returnValue = UNKNOWN_ERROR;
         }
@@ -311,8 +316,16 @@ setMovementReturnCode_t RobotM1::applyTorque(JointVec torques) {
             returnValue = INCORRECT_MODE;
         } else if (setTorCode != SUCCESS) {
             // Something bad happened
-            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
-            returnValue = UNKNOWN_ERROR;
+            if(setTorCode==R_OUTSIDE_LIMITS)
+            {
+                std::cout << "Joint " << p->getId() << ": Torque Outside limit! " << std::endl;
+                returnValue = UNKNOWN_ERROR;
+            }
+            else
+            {
+                std::cout << "Joint " << p->getId() << ": Torque Unknown Error :) " << std::endl;
+                returnValue = UNKNOWN_ERROR;
+            }
         }
         i++;
     }
@@ -384,7 +397,8 @@ setMovementReturnCode_t RobotM1::setJointVel(JointVec vel_d) {
 }
 
 setMovementReturnCode_t RobotM1::setJointTor(JointVec tor_d) {
-    tor_d = compensateJointTor(tor_d);
+//    tor_d = compensateJointTor(tor_d);
+    tau_motor = tor_d;
     return applyTorque(tor_d);
 }
 
@@ -436,8 +450,7 @@ setMovementReturnCode_t RobotM1::setJointTor_comp(JointVec tor, JointVec tor_s, 
         tor_ff = f_s*sign(vel) + f_d*vel + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias) + c2*sqrt(abs(vel))*sign(vel);
     }
     tor(0) = tor(0) + tor_ff*ffRatio;
-    return applyTorque(tor);
-
+    return setJointTor(tor);
 }
 
 short RobotM1::sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }

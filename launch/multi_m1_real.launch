@@ -8,8 +8,8 @@
     <!-- CORC M1_X -->
     <node name="$(arg robot_name_1)" pkg="CORC" type="MultiM1Machine_APP" output="screen" args="-can can0"/>
 
-    <!-- CORC M1_Y
-    <node name="$(arg robot_name_2)" pkg="CORC" type="MultiM1Machine_APP" output="screen" args="-can can1"/> -->
+    <!-- CORC M1_Y -->
+    <node name="$(arg robot_name_2)" pkg="CORC" type="MultiM1Machine_APP" output="screen" args="-can can1"/>
 
     <!-- multi_robot_interaction -->
     <node name="multi_robot_interaction" pkg="multi_robot_interaction" type="multi_robot_interaction" output="screen">

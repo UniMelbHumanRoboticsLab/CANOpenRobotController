@@ -55,15 +55,28 @@ void MultiM1Machine::init(int argc, char *argv[]) {
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);
     std::stringstream logFileName;
-    logFileName << "spdlogs/m1/" << std::put_time(&tm, "%d-%m-%Y_%H:%M:%S") << ".csv";
+
+    std::string robotName_ = ros::this_node::getName();
+
+    logFileName << "spdlogs/" << robotName_<< std::put_time(&tm, "/%d-%m-%Y_%H-%M-%S") << ".csv";
 
     logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
     logHelper.add(time_, "time");
     logHelper.add(multiControllerState_->controller_mode_, "mode");
+
     logHelper.add(robot_->getPosition(), "JointPositions");
     logHelper.add(robot_->getVelocity(), "JointVelocities");
     logHelper.add(robot_->getTorque(), "JointTorques");
-    logHelper.add(multiM1MachineRos_->jointTorqueCommand_, "DesiredJointTorques");
+    logHelper.add(robot_->getJointTor_s(), "SensorTorques");
+
+    logHelper.add(multiControllerState_->spk_, "SpringStiffness");
+    logHelper.add(multiControllerState_->spring_tor, "SpringTorque");
+    logHelper.add(multiControllerState_->tau_cmd, "CommandTorque");      // motor_torque = command_torque + compensation_torque
+    logHelper.add(robot_->tau_motor, "MotorTorque");
+
+    logHelper.add(multiM1MachineRos_->jointTorqueCommand_, "MM1_DesiredJointTorques");
+    logHelper.add(multiM1MachineRos_->jointPositionCommand_, "MM1_DesiredJointPositions");
+    logHelper.add(multiM1MachineRos_->interactionTorqueCommand_, "MM1_DesiredInteractionTorques");
     logHelper.startLogger();
 }
 
@@ -71,6 +84,7 @@ void MultiM1Machine::end() {
     if(initialised) {
         currentState->exit();
         robot_->stop();
+//        logHelper.endLog();
         delete multiM1MachineRos_;
         delete robot_;
     }
@@ -84,6 +98,7 @@ void MultiM1Machine::end() {
 void MultiM1Machine::hwStateUpdate(void) {
     robot_->updateRobot();
     multiM1MachineRos_->update();
+//    logHelper.recordLogData();
     time_ = (std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now() - time0_).count()) / 1e6;
     ros::spinOnce();

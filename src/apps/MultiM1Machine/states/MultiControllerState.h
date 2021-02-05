@@ -35,15 +35,25 @@ public:
     MultiControllerState(StateMachine *m, RobotM1 *exo, MultiM1MachineROS *multiM1MachineRos, const char *name = NULL) :
                         State(m, name), robot_(exo), multiM1MachineRos_(multiM1MachineRos){};
 
-    int controller_mode_;
-
+    int cali_stage;
+    int cali_velocity;
     // FOR TRANSPERANCY EXPERIMENTS
+
     double kp_;
     double kd_;
+    double ki_;
+    double tick_max_;
+    double spk_;
     double ffRatio_;
+    int controller_mode_;
+
+    int current_mode;
     double torque_error_last_time_step = 0;
     double error;
     double delta_error;
+    double integral_error;
+    double spring_tor;
+    double tick_count;
     Eigen::VectorXd q;     //positive dorsi flexion
     Eigen::VectorXd dq;
     Eigen::VectorXd tau;

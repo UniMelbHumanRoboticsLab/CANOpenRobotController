@@ -61,6 +61,7 @@ class MultiM1Machine : public StateMachine {
    private:
     std::chrono::steady_clock::time_point time0_; // initial time that machine started
     double time_; // time passed after tim0 in [s]
+//    LogHelper logHelper;
 };
 
 #endif /*M1_SM_H*/
