@@ -2,6 +2,9 @@
 
 LoggingRobot::LoggingRobot() {
     spdlog::info("New Logging Robot");
+
+    initialiseJoints();
+    initialiseInputs();
 };
 
     initialiseJoints();

@@ -56,6 +56,7 @@ void LoggingDevice::end() {
      */
 
 bool LoggingDevice::IsAPressed::check(void) {
+    spdlog::trace("IsAPressed");
     if (OWNER->robot->keyboard->getA() == true) {
 
         return true;
