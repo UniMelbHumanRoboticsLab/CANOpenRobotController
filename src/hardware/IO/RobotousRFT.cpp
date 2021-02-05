@@ -8,8 +8,6 @@ RobotousRFT::RobotousRFT(int commandID_, int responseID1_, int responseID2_) {
     responseID1 = responseID1_;
     responseID2 = responseID2_;
 
-    setupPDO();
-
     // Initialise variables as zeros
     forces = Eigen::VectorXd::Zero(3);
     torques = Eigen::VectorXd::Zero(3);
@@ -21,7 +19,7 @@ RobotousRFT::RobotousRFT(int commandID_, int responseID1_, int responseID2_) {
 int RobotousRFT::getCommandID() {
     return commandID;
 }
-void RobotousRFT::setupPDO() {
+bool RobotousRFT::configureMasterPDOs() {
     //spdlog::info("RobotousRFT {} - TPDO {} Set", commandID, CO_setTPDO(&TPDOcommPara, &TPDOMapParam, TPDOCommEntry, dataStoreRecordCmd, TPDOMapParamEntry));
 
     UNSIGNED16 dataCmdSize[2] = {1,7};
@@ -49,6 +47,8 @@ void RobotousRFT::setupPDO() {
                           (void *)&rawData[15]};
     rpdo1 = new RPDO(responseID1, 0xff, dataEntryH, dataSize, lengthData);
     rpdo2 = new RPDO(responseID2, 0xff, dataEntryL, dataSize, lengthData);
+
+    return true;
 }
 
 void RobotousRFT::updateInput() {
@@ -87,7 +87,8 @@ void RobotousRFT::setOffsets(Eigen::VectorXd forceOffset, Eigen::VectorXd torque
 }
 
 bool RobotousRFT::startStream(){
-    spdlog::info("RobotousRFT {} Starting", commandID);
+    spdlog::info("RobotousRFT 0x{0:x} Starting", commandID);
+
     if (!streaming){
         cmdData =0x0B;
         streaming = true;
@@ -96,7 +97,8 @@ bool RobotousRFT::startStream(){
     return false;
 }
 bool RobotousRFT::stopStream() {
-    spdlog::info("RobotousRFT {} Stopping", commandID);
+    spdlog::info("RobotousRFT 0x{0:x} Stopping", commandID);
+
     if (streaming){
         cmdData = 0x0C;
         streaming = false;

@@ -182,24 +182,6 @@ struct sCO_OD_RAM CO_OD_RAM = {
               /*241e*/ {0x6L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0, 0x0000L},
               /*241f*/ {0x6L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0, 0x0000L},
               /*2420*/ {0x6L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0, 0x0000L}},
-    /*6000*/ {0x0L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L},
-    /*6001*/ 0x0000,
-    /*6002*/ 0x0000,
-    /*6003*/ 0x0000,
-    /*6004*/ 0x0000,
-    /*6005*/ 0x0000,
-    /*6040*/ {0x6L, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-    /*6041*/ {0x6L, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-    /*6064*/ {0x6L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L},
-    /*606c*/ {0x6L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L},
-    /*6077*/ {0x4L, 0x0000, 0x0000, 0x0000, 0x0000},
-    /*607a*/ {0x6L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L},
-    /*60ff*/ {0x6L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L},
-    /*6071*/ {0x4L, 0x0000, 0x0000, 0x0000, 0x0000},
-    /*7001*/ {0x4L, 0x0000, 0x0000, 0x0000, 0x0000},
-    /*6200*/ {0x0L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L},
-    /*6401*/ {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-    /*6411*/ {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 
     CO_OD_FIRST_LAST_WORD,
 };
@@ -243,7 +225,6 @@ OD_RPDOMappingParameter_t RPDOMapParamOff = {0x0L, 0x0000L, 0x0000L, 0x0000L, 0x
 // Array of pointers to all RPDOs (initialised to off to start with)
 OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO] = {&RPDOCommParamOff};
 OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO] = {&RPDOMapParamOff};
-
 
 // OD_record for Entries that are off
 /*0x1400*/ CO_OD_entryRecord_t OD_recordRPDOCommOff[3] = {
@@ -1022,90 +1003,6 @@ OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO] = {&TPDOMapParamO
     {(void *)&CO_OD_RAM.trace[31].max, 0x9e, 0x4},
     {(void *)0, 0x06, 0x0},
     {(void *)&CO_OD_RAM.trace[31].triggerTime, 0x9e, 0x4},
-};
-
-/*0x6040*/ CO_OD_entryRecord_t OD_record6040[7] = {
-    {(void *)&CO_OD_RAM.controlWords.numberOfMotors, 0x06, 0x1},
-    {(void *)&CO_OD_RAM.controlWords.motor1, 0xfe, 0x2},
-    {(void *)&CO_OD_RAM.controlWords.motor2, 0xfe, 0x2},
-    {(void *)&CO_OD_RAM.controlWords.motor3, 0xfe, 0x2},
-    {(void *)&CO_OD_RAM.controlWords.motor4, 0xfe, 0x2},
-    {(void *)&CO_OD_RAM.controlWords.motor5, 0xfe, 0x2},
-    {(void *)&CO_OD_RAM.controlWords.motor6, 0xfe, 0x2},
-};
-
-/*0x6041*/ CO_OD_entryRecord_t OD_record6041[7] = {
-    {(void *)&CO_OD_RAM.statusWords.numberOfMotors, 0x06, 0x1},
-    {(void *)&CO_OD_RAM.statusWords.motor1, 0xfe, 0x2},
-    {(void *)&CO_OD_RAM.statusWords.motor2, 0xfe, 0x2},
-    {(void *)&CO_OD_RAM.statusWords.motor3, 0xfe, 0x2},
-    {(void *)&CO_OD_RAM.statusWords.motor4, 0xfe, 0x2},
-    {(void *)&CO_OD_RAM.statusWords.motor5, 0xfe, 0x2},
-    {(void *)&CO_OD_RAM.statusWords.motor6, 0xfe, 0x2},
-};
-
-/*0x6064*/ const CO_OD_entryRecord_t OD_record6064[7] = {
-    {(void *)&CO_OD_RAM.actualMotorPositions.numberOfMotors, 0x06, 0x1},
-    {(void *)&CO_OD_RAM.actualMotorPositions.motor1, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorPositions.motor2, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorPositions.motor3, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorPositions.motor4, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorPositions.motor5, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorPositions.motor6, 0xfe, 0x4},
-};
-
-/*0x606c*/ const CO_OD_entryRecord_t OD_record606c[7] = {
-    {(void *)&CO_OD_RAM.actualMotorVelocities.numberOfMotors, 0x06, 0x1},
-    {(void *)&CO_OD_RAM.actualMotorVelocities.motor1, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorVelocities.motor2, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorVelocities.motor3, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorVelocities.motor4, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorVelocities.motor5, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorVelocities.motor6, 0xfe, 0x4},
-};
-
-/*0x6077*/ const CO_OD_entryRecord_t OD_record6077[5] = {
-    {(void *)&CO_OD_RAM.actualMotorTorques.numberOfMotors, 0x06, 0x1},
-    {(void *)&CO_OD_RAM.actualMotorTorques.motor1, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorTorques.motor2, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorTorques.motor3, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualMotorTorques.motor4, 0xfe, 0x4},
-};
-
-/*0x607a*/ const CO_OD_entryRecord_t OD_record607a[7] = {
-    {(void *)&CO_OD_RAM.targetMotorPositions.numberOfMotors, 0x06, 0x1},
-    {(void *)&CO_OD_RAM.targetMotorPositions.motor1, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorPositions.motor2, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorPositions.motor3, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorPositions.motor4, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorPositions.motor5, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorPositions.motor6, 0xfe, 0x4},
-};
-
-/*0x60ff*/ const CO_OD_entryRecord_t OD_record60ff[7] = {
-    {(void *)&CO_OD_RAM.targetMotorVelocities.numberOfMotors, 0x06, 0x1},
-    {(void *)&CO_OD_RAM.targetMotorVelocities.motor1, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorVelocities.motor2, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorVelocities.motor3, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorVelocities.motor4, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorVelocities.motor5, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorVelocities.motor6, 0xfe, 0x4},
-};
-
-/*0x6071*/ const CO_OD_entryRecord_t OD_record6071[5] = {
-    {(void *)&CO_OD_RAM.targetMotorTorques.numberOfMotors, 0x06, 0x1},
-    {(void *)&CO_OD_RAM.targetMotorTorques.motor1, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorTorques.motor2, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorTorques.motor3, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.targetMotorTorques.motor4, 0xfe, 0x4},
-};
-
-/*0x7001*/ const CO_OD_entryRecord_t OD_record7001[5] = {
-    {(void *)&CO_OD_RAM.actualSensorForces.numberOfSensors, 0x06, 0x1},
-    {(void *)&CO_OD_RAM.actualSensorForces.sensor1, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualSensorForces.sensor2, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualSensorForces.sensor3, 0xfe, 0x4},
-    {(void *)&CO_OD_RAM.actualSensorForces.sensor4, 0xfe, 0x4},
 };
 
 INTEGER16 junkData =8;

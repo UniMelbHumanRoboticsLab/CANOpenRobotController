@@ -17,6 +17,8 @@
 
 #include <CANopen.h>
 
+#include "logging.h"
+
 class TPDO {
     private:
         // Dummy Variables for extraneous OD entries
