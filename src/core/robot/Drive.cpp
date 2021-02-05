@@ -180,10 +180,7 @@ bool Drive::initPDOs() {
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0xFF)) < 0) {
         spdlog::error("Set up STATUS_WORD TPDO FAILED on node {}", NodeID);
         return false;
-    } else {
-        // Set up equivalent RPDO on the CORC Side (NOTE: THIS IS A RPDO to match the Drive's TPDO)
-        generateEquivalentLocalRPDO(TPDO_MappedObjects[TPDO_Num],  TPDO_COBID[TPDO_Num] + NodeID, 0xff);
-    }
+    } 
 
     spdlog::info("Set up ACTUAL_POS and ACTUAL_VEL TPDO on Node {}", NodeID);
     TPDO_Num = 2;
