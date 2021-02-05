@@ -5,6 +5,7 @@
 
 #include "Robot.h"
 #include "RobotM3.h"
+#include "RobotM2.h"
 
 //Predefined hash of types for further comparison
 const size_t doubleType = typeid(double).hash_code();
