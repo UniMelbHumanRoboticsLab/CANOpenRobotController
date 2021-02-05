@@ -73,7 +73,7 @@ bool KincoDrive::initPDOs() {
     spdlog::debug("KincoDrive::initPDOs");
 
     spdlog::debug("Set up STATUS_WORD TPDO");
-    if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF))<0) {
+    if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xff))<0) {
         spdlog::error("Set up STATUS_WORD TPDO FAILED on node {}", NodeID);
         return false;
     }
