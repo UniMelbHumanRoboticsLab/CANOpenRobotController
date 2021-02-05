@@ -21,9 +21,6 @@ void SittingDwn::during(void) {
 
     //if (robot->keyboard->getA() ) {
         currTrajProgress += elapsedSec;
-        spdlog::debug("Elapsed Time: {}", currTrajProgress);
-
-
         robot->setPosition(trajectoryGenerator->getSetPoint(currTrajProgress));
     //}
 }

@@ -82,7 +82,7 @@ class RobotousRFT : public InputDevice {
          * \brief Sets up the receiving PDOs (note: will have issues if commands are sent, as the response are on the same COB-IDs)
          * 
          */
-        void setupPDO();
+        bool configureMasterPDOs();
 
         /**
          * \brief Updates the forces from the raw data

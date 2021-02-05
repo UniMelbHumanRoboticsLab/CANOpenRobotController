@@ -6,9 +6,18 @@ X2ForceSensor::X2ForceSensor(int sensorID, double scaleFactor) {
     this->scaleFactor_ = scaleFactor;
 }
 
-void X2ForceSensor::updateInput() {
+bool X2ForceSensor::configureMasterPDOs() {
+    UNSIGNED16 dataSize[2] = {4, 4};
+    void *dataEntry[2] = {(void *)&rawData[0],
+                           (void *)&rawData[1],};
 
-    forceReading_ = *(&CO_OD_RAM.actualSensorForces.sensor1 + sensorID);
+    rpdo = new RPDO(0x191+sensorID, 0xff, dataEntry, dataSize, 2);
+
+    return true;
+}
+
+void X2ForceSensor::updateInput() {
+    forceReading_ = (double) rawData[0];
 }
 
 bool X2ForceSensor::calibrate() {
@@ -37,7 +46,7 @@ bool X2ForceSensor::calibrate() {
         double calibrationTime = 2.0; // amount of time readings are recorded for calibration [sec]
         while(time < calibrationTime){
             time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
-            readingVector.push_back(*(&CO_OD_RAM.actualSensorForces.sensor1 + sensorID));
+            readingVector.push_back((double) rawData[0]);
         }
         calibrationOffset_ = std::accumulate(readingVector.begin(), readingVector.end(), 0.0)/readingVector.size();
 

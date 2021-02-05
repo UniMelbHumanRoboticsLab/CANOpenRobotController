@@ -38,6 +38,7 @@ ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2ra
 static volatile sig_atomic_t exitHoming = 0;
 
 X2Robot::X2Robot() : Robot() {
+    spdlog::debug("X2Robot Created");
 
     // This is the default name accessed from the MACRO. If ROS is used, under demo machine robot name can be set
     // by setRobotName() to the ros node name. See X2DemoMachine::init()
@@ -59,6 +60,11 @@ X2Robot::X2Robot() : Robot() {
     x2Parameters.c2 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     x2Parameters.cuffWeights = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
     x2Parameters.forceSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+
+    spdlog::debug("initialiseJoints call");
+
+    initialiseJoints();
+    initialiseInputs();
 }
 
 X2Robot::~X2Robot() {
@@ -206,7 +212,6 @@ setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        spdlog::debug("Joint {}, Target {}, Current {}", i, positions[i], ((X2Joint *)p)->getPosition());
         setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
             spdlog::error("Joint {} is not in Position Control ", p->getId());
@@ -442,12 +447,14 @@ bool X2Robot::initialiseJoints() {
         } else if (id == X2_LEFT_KNEE || id == X2_RIGHT_KNEE) {
             joints.push_back(new X2Joint(id, X2JointLimits.kneeMin, X2JointLimits.kneeMax, kneeJDP, motorDrives[id]));
         }
+        spdlog::debug("X2Robot::initialiseJoints() loop");
     }
 
     initializeRobotParams(robotName_);
 
     return true;
 }
+
 
 bool X2Robot::initialiseNetwork() {
     spdlog::debug("X2Robot::initialiseNetwork()");
@@ -537,6 +544,7 @@ bool X2Robot::setPosControlContinuousProfile(bool continuous){
         }
     }
     return returnValue;
+}
 Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
     float coulombFriction;
     const float velTreshold = 1*M_PI/180.0; // [rad/s]

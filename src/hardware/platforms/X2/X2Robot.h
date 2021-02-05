@@ -268,12 +268,12 @@ class X2Robot : public Robot {
        */
     bool initialiseJoints();
 
-    /**
+   /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
        * Initialize each <code>Drive</code> Objects underlying CANOpen Networking.
 
       */
-    bool initialiseNetwork();
+        bool initialiseNetwork();
     /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
        * Initialize each <code>Input</code> Object.

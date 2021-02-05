@@ -38,19 +38,18 @@ void app_programStart(int argc, char *argv[]) {
     spdlog::info("Running in NOROBOT (virtual) mode.");
 #endif  // NOROBOT
 
-    CO_configure();
-
 //CO_OD
 #ifndef USEROS
-                                                                  stateMachine.init();
+    stateMachine.init();
 #else
-                                                                  stateMachine.init(argc, argv);
+    stateMachine.init(argc, argv);
 #endif
     stateMachine.activate();
 }
 
 /******************************************************************************/
 void app_communicationReset(void) {
+    stateMachine.configureMasterPDOs();
 }
 /******************************************************************************/
 void app_programEnd(void) {

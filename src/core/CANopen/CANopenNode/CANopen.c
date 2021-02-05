@@ -155,9 +155,9 @@
     CO_CANtx_t *NMTM_txBuff = 0;
 
     uint8_t CO_sendNMTcommand(CO_t *CO, uint8_t command, uint8_t nodeID){
-        if(NMTM_txBuff == 0){
-            /* error, CO_CANtxBufferInit() was not called for this buffer. */
-            return CO_ERROR_TX_UNCONFIGURED; /* -11 */
+         if (NMTM_txBuff == 0) {
+             /* error, CO_CANtxBufferInit() was not called for this buffer. */
+             return CO_ERROR_TX_UNCONFIGURED; /* -11 */
         }
         NMTM_txBuff->data[0] = command;
         NMTM_txBuff->data[1] = nodeID;
@@ -432,7 +432,6 @@ CO_ReturnError_t CO_init(
             CO_CAN_ID_HEARTBEAT + nodeId);
 
     if(err){CO_delete(CANbaseAddress); return err;}
-
 
 #if CO_NO_NMT_MASTER == 1
     NMTM_txBuff = CO_CANtxBufferInit(/* return pointer to 8-byte CAN data buffer, which should be populated */

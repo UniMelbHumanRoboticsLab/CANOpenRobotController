@@ -52,6 +52,7 @@ public:
     void update();
     void hwStateUpdate();
     void initRobot(X2Robot *rb);
+    bool configureMasterPDOs();
 
     /**
      * Pointers to the relevant states - initialised in init

@@ -53,9 +53,14 @@ class Joystick : public InputDevice
                 return axes[stick].y/STICK_MAX_VALUE;
         }
 
-    protected:
+        /**
+         * \brief Does nothing as there are none here
+         * 
+         */
+        bool configureMasterPDOs(){return true;};
 
-    private:
+       protected:
+       private:
         bool initialised;
         const char *device;
         int js;

@@ -108,3 +108,8 @@ void X2DemoMachine::update() {
     x2DemoMachineRos_->update();
     ros::spinOnce();
 }
+
+bool X2DemoMachine::configureMasterPDOs() {
+    spdlog::debug("X2DemoMachine::configureMasterPDOs()");
+    return robot->configureMasterPDOs();
+}

@@ -145,7 +145,7 @@ class Drive {
         * \param COB_ID the COB-ID of the PDO 
         * \param RPDOSyncRate The rate at which the RPDO processes NOTE: This is not the same as for the equivalent TPDO
         */
-    void generateEquivalentLocalRPDO(std::vector<OD_Entry_t> items,  int COB_ID, int RPDOSyncRate);
+    void generateEquivalentMasterRPDO(std::vector<OD_Entry_t> items,  int COB_ID, int RPDOSyncRate);
 
 
     /**
@@ -167,7 +167,7 @@ class Drive {
         * \param COB_ID the COB-ID of the PDO 
         * \param RPDOSyncRate The rate at which the TPDO sends messages NOTE: This is not the same as for the equivalent RPDO
         */
-    void generateEquivalentLocalTPDO(std::vector<OD_Entry_t> items, int COB_ID, int TPDOSyncRate);
+    void generateEquivalentMasterTPDO(std::vector<OD_Entry_t> items, int COB_ID, int TPDOSyncRate);
 
     /**
        *
@@ -415,13 +415,15 @@ class Drive {
            */
     virtual bool initPDOs();
 
+    bool configureMasterPDOs();
+
     /**
            * \brief Initialises velocity and acceleration profiles (used by position and velocity controls) through SDOs write
            *
            * \return true if sucessfull
            * \return false otherwise
            */
-    virtual bool setMotorProfile(motorProfile profile);
+        virtual bool setMotorProfile(motorProfile profile);
 
     /**
            * Sets the drive to Position control with set parameters (through SDO messages)

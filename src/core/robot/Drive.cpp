@@ -10,16 +10,17 @@ Drive::Drive(int node_id) {
     statusWord = 0;
     error = 0;
     NodeID = node_id;
+
 }
 
 Drive::~Drive() {
     // Needs to undo PDOS
     for (auto p : rpdos) {
-        spdlog::debug("Deleting RPDO (COBID: {})", p->getCOBID());
+        spdlog::debug("Deleting RPDO (COB-ID: 0x{0:x})", p->getCOBID());
         delete p;
     }
     for (auto p : tpdos) {
-        spdlog::debug("Deleting TPDO (COBID: {})", p->getCOBID());
+        spdlog::debug("Deleting TPDO (COB-ID: 0x{0:x})", p->getCOBID());
         delete p;
     }
 }
@@ -77,7 +78,7 @@ bool Drive::setTorque(int torque) {
     * \todo add setTorque to object dictionary for all drives
     *
     */
-    spdlog::trace("Drive {} Writing {} to 0x{}", NodeID, (short int)torque, OD_Addresses[TARGET_TOR]);
+    spdlog::trace("Drive {} Writing {} to 0x{0:x}", NodeID, (short int)torque, OD_Addresses[TARGET_TOR]);
     targetTor = torque;
     return true;
 }
@@ -158,19 +159,27 @@ bool Drive::posControlSetContinuousProfile(bool continuous) {
     }
 }
 
+bool Drive::configureMasterPDOs(){
+    // Set up the PDOs in the OD here
+    for (int TPDO_Num = 1; TPDO_Num <= 3; TPDO_Num++){
+        generateEquivalentMasterRPDO(TPDO_MappedObjects[TPDO_Num], TPDO_COBID[TPDO_Num] + NodeID, 0xff);
+        }
+    for (int RPDO_Num = 1; RPDO_Num <= 4; RPDO_Num++){
+        generateEquivalentMasterTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
+    }
+
+    return true; 
+}
+
 bool Drive::initPDOs() {
     spdlog::debug("Drive::initPDOs");
 
     // Calculate COB_ID. If TPDO:
     //int COB_ID = 0x100 * PDO_Num + 0x80 + NodeID;
-    spdlog::info("Set up STATUS_WORD TPDO on Node {}", NodeID);
     int TPDO_Num = 1;
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0xFF)) < 0) {
         spdlog::error("Set up STATUS_WORD TPDO FAILED on node {}", NodeID);
         return false;
-    } else {
-        // Set up equivalent RPDO on the CORC Side (NOTE: THIS IS A RPDO to match the Drive's TPDO)
-        generateEquivalentLocalRPDO(TPDO_MappedObjects[TPDO_Num],  TPDO_COBID[TPDO_Num] + NodeID, 0xff);
     }
 
     spdlog::info("Set up ACTUAL_POS and ACTUAL_VEL TPDO on Node {}", NodeID);
@@ -178,20 +187,14 @@ bool Drive::initPDOs() {
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01)) < 0) {
         spdlog::error("Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node {}", NodeID);
         return false;
-    } else {
-        // Set up equivalent RPDO on the CORC Side (NOTE: THIS IS A RPDO to match the Drive's TPDO)
-        generateEquivalentLocalRPDO(TPDO_MappedObjects[TPDO_Num],  TPDO_COBID[TPDO_Num] + NodeID, 0xff);
-    }
+    } 
 
     spdlog::info("Set up ACTUAL_TOR TPDO on Node {}", NodeID);
     TPDO_Num = 3;
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01)) < 0) {
         spdlog::error("Set up ACTUAL_TOR TPDO FAILED on node {}", NodeID);
         return false;
-    } else {
-        // Set up equivalent RPDO on the CORC Side (NOTE: THIS IS A RPDO to match the Drive's TPDO)
-        generateEquivalentLocalRPDO(TPDO_MappedObjects[TPDO_Num], TPDO_COBID[TPDO_Num] + NodeID, 0xff);
-    }
+    } 
 
     // Calculate COB_ID. If RPDO:
     //int COB_ID = 0x100 * (PDO_Num+1) + NodeID;
@@ -200,46 +203,30 @@ bool Drive::initPDOs() {
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up CONTROL_WORD RPDO FAILED on node {}", NodeID);
         return false;
-    } else {
-        // Set up equivalent TPDO on the CORC Side (NOTE: THIS IS A TPDO to match the Drive's RPDO)
-        spdlog::info("Set up CONTROL_WORD TPDO on Node {}", NodeID);
-        generateEquivalentLocalTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
-    }
+    } 
+
     spdlog::info("Set up TARGET_POS RPDO on Node {}", NodeID);
     RPDO_Num = 2;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up TARGET_POS RPDO FAILED on node {}", NodeID);
         return false;
-    } else {
-        // Set up equivalent TPDO on the CORC Side (NOTE: THIS IS A TPDO to match the Drive's RPDO)
-        spdlog::info("Set up TARGET_POS TPDO on Node {}", NodeID);
-        generateEquivalentLocalTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
-    }
+    } 
 
     spdlog::info("Set up TARGET_VEL RPDO on Node {}", NodeID);
     RPDO_Num = 3;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up ARGET_VEL RPDO FAILED on node {}", NodeID);
         return false;
-    } else {
-        // Set up equivalent TPDO on the CORC Side (NOTE: THIS IS A TPDO to match the Drive's RPDO)
-        spdlog::info("Set up TARGET_VEL  TPDO on Node {}", NodeID);
-        generateEquivalentLocalTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
-    }
+    } 
 
     spdlog::info("Set up TARGET_TOR RPDO on Node {}", NodeID);
     RPDO_Num = 4;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up TARGET_TOR RPDO FAILED on node {}", NodeID);
         return false;
-    } else {
-        // Set up equivalent TPDO on the CORC Side (NOTE: THIS IS A TPDO to match the Drive's RPDO)
-        spdlog::info("Set up TARGET_TOR TPDO on Node {}", NodeID);
-        generateEquivalentLocalTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
-    }
-
+    } 
     return true;
-    }
+}
 
 bool Drive::setMotorProfile(motorProfile profile) {
     spdlog::debug("Drive::initMotorProfile");
@@ -319,7 +306,7 @@ std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> it
     return CANCommands;
 }
 
-void Drive::generateEquivalentLocalRPDO(std::vector<OD_Entry_t> items, int COB_ID, int RPDOSyncRate) {
+void Drive::generateEquivalentMasterRPDO(std::vector<OD_Entry_t> items, int COB_ID, int RPDOSyncRate) {
     void *variables[items.size()];
     UNSIGNED16 variableSize[items.size()];
     for (uint i = 0; i < items.size(); i++) {
@@ -328,7 +315,8 @@ void Drive::generateEquivalentLocalRPDO(std::vector<OD_Entry_t> items, int COB_I
     }
     // Add to the local (CORC-side) Object Dictionary
     rpdos.push_back(new RPDO(COB_ID, RPDOSyncRate, variables, variableSize, items.size()));
-    usleep(1000);
+
+    spdlog::debug("Master RPDO (COB-ID 0x{0:x}) Setup for Node {}", COB_ID, NodeID);
 }
 
 std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int COB_ID, int UpdateTiming, int sub_idx) {
@@ -379,7 +367,7 @@ std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> it
     return CANCommands;
 }
 
-void Drive::generateEquivalentLocalTPDO(std::vector<OD_Entry_t> items, int COB_ID, int TPDOSyncRate) {
+void Drive::generateEquivalentMasterTPDO(std::vector<OD_Entry_t> items, int COB_ID, int TPDOSyncRate) {
     void *variables[items.size()];
     UNSIGNED16 variableSize[items.size()];
     for (uint i = 0; i < items.size(); i++) {
@@ -388,7 +376,7 @@ void Drive::generateEquivalentLocalTPDO(std::vector<OD_Entry_t> items, int COB_I
     }
     // Add to the local (CORC-side) Object Dictionary
     tpdos.push_back(new TPDO(COB_ID, TPDOSyncRate, variables, variableSize, items.size()));
-    usleep(1000);
+    spdlog::debug("Master TPDO (COB-ID 0x{0:x}) Setup for Node {}", COB_ID, NodeID);
 }
 
 std::vector<std::string> Drive::generatePosControlConfigSDO(motorProfile positionProfile) {

@@ -52,6 +52,8 @@ class LoggingRobot : public Robot {
 
     bool startSensors();
     bool stopSensors();
+
+    bool configureMasterPDOs();
 };
 
 #endif /*LoggingRobot.h*/

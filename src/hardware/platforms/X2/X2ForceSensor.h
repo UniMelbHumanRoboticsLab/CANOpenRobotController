@@ -46,13 +46,17 @@ public:
     */
     double getForce();
 
-private:
-    int sensorID;
+    bool configureMasterPDOs();
+
+private : int sensorID;
+    INTEGER32 rawData[2] = {0};
     double sensorValueToNewton(int sensorValue, double scaleFactor);
     double forceReading_;
     double calibrationOffset_;
     double scaleFactor_;
     std::chrono::steady_clock::time_point time0;
+
+    RPDO *rpdo; 
 
 };
 

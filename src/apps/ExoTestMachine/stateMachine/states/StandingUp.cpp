@@ -24,11 +24,8 @@ void StandingUp::during(void) {
      */
     //if (robot->keyboard->getA() ) {
         currTrajProgress += elapsedSec;
-        Eigen::VectorXd sp = trajectoryGenerator->getSetPoint(currTrajProgress);
-        Eigen::VectorXd cp = robot->getPosition();
-
         robot->setPosition(trajectoryGenerator->getSetPoint(currTrajProgress));
-    //}
+        //}
 }
 void StandingUp::exit(void) {
     spdlog::info("Standing Up State Exited");

@@ -2,6 +2,9 @@
 
 LoggingRobot::LoggingRobot() {
     spdlog::info("New Logging Robot");
+
+    initialiseJoints();
+    initialiseInputs();
 };
 
 bool LoggingRobot::initialiseInputs() {
@@ -28,9 +31,9 @@ LoggingRobot::~LoggingRobot() {
 
     joints.clear();
     delete keyboard;
-    for (auto p : crutchSensors) {
-        spdlog::info("Delete Crutch Sensor with CommandID: {}", p->getCommandID());
-        delete p;
+    for (auto cs : crutchSensors) {
+        spdlog::info("Delete Crutch Sensor with CommandID: 0x{0:x}", cs->getCommandID());
+        delete cs;
     }
     inputs.clear();
     spdlog::debug("LoggingRobot deleted");
@@ -85,4 +88,13 @@ bool LoggingRobot::stopSensors() {
     } else {
         return false;
     }
+}
+
+bool LoggingRobot::configureMasterPDOs(){
+    spdlog::debug("LoggingRobot::configureMasterPDOs");
+    for (auto cs : crutchSensors) {
+        cs->configureMasterPDOs();
+    }
+    return true;
+    
 }

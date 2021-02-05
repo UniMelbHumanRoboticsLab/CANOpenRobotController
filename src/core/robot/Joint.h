@@ -343,6 +343,14 @@ class Joint {
      */
     virtual bool initNetwork() = 0;
 
+    /**
+     * @brief Pure virtual function for initialise the PDOs on the Master (this program)
+     *
+     * @return true if successful
+     * @return false if unsuccessful
+     */
+    virtual bool configureMasterPDOs();
+
     /// Functions for Actuated joints:
 
     /**

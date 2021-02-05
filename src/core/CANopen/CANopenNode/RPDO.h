@@ -14,8 +14,9 @@
 #ifndef RPDO_H_INCLUDED
 #define RPDO_H_INCLUDED
 
-
 #include <CANopen.h>
+
+#include "logging.h"
 
 class RPDO {
     private:

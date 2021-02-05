@@ -70,8 +70,11 @@ class LoggingDevice : public StateMachine {
     void update();
     void hwStateUpdate();
 
+    void configureMasterPDOs();
+
     State *gettCurState();
     bool trajComplete;
+
 
     /**
      * Pointers to the relevant states - initialised in init
