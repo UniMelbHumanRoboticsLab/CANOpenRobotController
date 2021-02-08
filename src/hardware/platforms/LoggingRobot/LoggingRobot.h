@@ -16,11 +16,13 @@
 #include "Keyboard.h"
 #include "Robot.h"
 #include "RobotousRFT.h"
+#include "HX711.h"
 
 class LoggingRobot : public Robot {
    private:
     std::vector<RobotousRFT *> crutchSensors;
     Eigen::VectorXd crutchReadings;  //6xN Vector containing all crutch readings
+    HX711* strainGauge; 
 
     bool sensorsOn =  false;
 
