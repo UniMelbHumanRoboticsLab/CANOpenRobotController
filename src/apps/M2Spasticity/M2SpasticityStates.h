@@ -241,6 +241,13 @@ class M2Recording : public M2TimedState {
    private:
     unsigned int nb_samples=10000;
     int new_value;
+
+    /**
+    *Xinliang
+    */
+    int RecordingPoint;
+    VM2 PositionRecording;
+    VM2 PositionTesting[10000];
 };
 
 
