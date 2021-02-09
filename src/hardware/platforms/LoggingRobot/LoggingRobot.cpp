@@ -2,10 +2,20 @@
 
 LoggingRobot::LoggingRobot() {
     spdlog::info("New Logging Robot");
+
+    initialiseJoints();
+    initialiseInputs();
 };
 
 bool LoggingRobot::initialiseInputs() {
+    spdlog::info("test");
+
     inputs.push_back(keyboard = new Keyboard());
+    spdlog::info("test");
+
+    inputs.push_back(strainGauge = new HX711());
+    spdlog::info("test");
+    strainGauge->begin("","",128);
 
     // Add two crutch sensors
     crutchSensors.push_back(new RobotousRFT(0xf8, 0xf9, 0xfa));
@@ -28,10 +38,11 @@ LoggingRobot::~LoggingRobot() {
 
     joints.clear();
     delete keyboard;
-    for (auto p : crutchSensors) {
-        spdlog::info("Delete Crutch Sensor with CommandID: {}", p->getCommandID());
-        delete p;
+    for (auto cs : crutchSensors) {
+        spdlog::info("Delete Crutch Sensor with CommandID: 0x{0:x}", cs->getCommandID());
+        delete cs;
     }
+    delete strainGauge;
     inputs.clear();
     spdlog::debug("LoggingRobot deleted");
 }

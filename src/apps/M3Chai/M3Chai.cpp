@@ -84,7 +84,10 @@ void M3Chai::hwStateUpdate(void) {
     robot->updateRobot();
 }
 
-
+void M3Chai::configureMasterPDOs() {
+    spdlog::debug("M3Chai::configureMasterPDOs()");
+    robot->configureMasterPDOs();
+}
 
 bool M3Chai::EndCalib::check() {
     return OWNER->calibState->isCalibDone();

@@ -1,6 +1,7 @@
 #include "RPDO.h"
 
 RPDO::RPDO(UNSIGNED32 COBID, UNSIGNED8 transmissionType, void *dataEntry[], UNSIGNED16 dataSize[], UNSIGNED8 numMappedObjects) {
+    myCOBID = COBID;
     commParam.COB_IDUsedByRPDO = COBID;
     commParam.transmissionType = transmissionType;
 
@@ -21,4 +22,9 @@ RPDO::RPDO(UNSIGNED32 COBID, UNSIGNED8 transmissionType, void *dataEntry[], UNSI
 
     // Then set up the OD
     CO_setRPDO(&commParam, &mappingParam, commRecord, dataRecord, mappingRecord);
+
+}
+
+UNSIGNED32 RPDO::getCOBID(){
+    return myCOBID;
 }

@@ -57,6 +57,7 @@ void LoggingDevice::end() {
 
 bool LoggingDevice::IsAPressed::check(void) {
     if (OWNER->robot->keyboard->getA() == true) {
+
         return true;
     }
     return false;
@@ -94,7 +95,12 @@ void LoggingDevice::update() {
                 std::chrono::steady_clock::now() - time0)
                 .count()) /
            1e6;
-    spdlog::debug("Update()");
     StateMachine::update();
     dataLogger.recordLogData();
 }
+
+void LoggingDevice::configureMasterPDOs() {
+    spdlog::debug("LoggingDevice::configureMasterPDOs()");
+    robot->configureMasterPDOs();
+}
+

@@ -18,12 +18,8 @@ void SittingDwn::during(void) {
     double elapsedSec = currTime.tv_sec - prevTime.tv_sec + (currTime.tv_nsec - prevTime.tv_nsec) / 1e9;
     prevTime = currTime;
 
-
     //if (robot->keyboard->getA() ) {
         currTrajProgress += elapsedSec;
-        spdlog::debug("Elapsed Time: {}", currTrajProgress);
-
-
         robot->setPosition(trajectoryGenerator->getSetPoint(currTrajProgress));
     //}
 }

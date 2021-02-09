@@ -73,43 +73,43 @@ bool KincoDrive::initPDOs() {
     spdlog::debug("KincoDrive::initPDOs");
 
     spdlog::debug("Set up STATUS_WORD TPDO");
-    if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0xFF))<0) {
+    if(sendSDOMessages(generateTPDOConfigSDO({STATUS_WORD}, 1, 0x180 + NodeID, 0xFF))<0) {
         spdlog::error("Set up STATUS_WORD TPDO FAILED on node {}", NodeID);
         return false;
     }
 
     spdlog::debug("Set up ACTUAL_POS and ACTUAL_VEL TPDO");
-    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 0x01))<0) {
+    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_POS, ACTUAL_VEL}, 2, 0x280 + NodeID, 0x01))<0) {
         spdlog::error("Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node {}", NodeID);
         return false;
     }
 
     spdlog::debug("Set up ACTUAL_TOR TPDO");
-    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 0x01))<0) {
+    if(sendSDOMessages(generateTPDOConfigSDO({ACTUAL_TOR}, 3, 0x380 + NodeID, 0x01))<0) {
         spdlog::error("Set up ACTUAL_TOR TPDO FAILED on node {}", NodeID);
         return false;
     }
 
     spdlog::debug("Set up CONTROL_WORD RPDO");
-    if(sendSDOMessages(generateRPDOConfigSDO({CONTROL_WORD}, 1, 0xff))<0) {
+    if(sendSDOMessages(generateRPDOConfigSDO({CONTROL_WORD}, 1, 0x100 + NodeID, 0xff))<0) {
         spdlog::error("Set up CONTROL_WORD RPDO FAILED on node {}", NodeID);
         return false;
     }
 
     spdlog::debug("Set up TARGET_POS RPDO");
-    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 2, 0xff))<0) {
+    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_POS}, 2, 0x200 + NodeID, 0xff))<0) {
         spdlog::error("Set up TARGET_POS RPDO FAILED on node {}", NodeID);
         return false;
     }
 
     spdlog::debug("Set up TARGET_VEL RPDO");
-    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 3, 0xff))<0) {
+    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_VEL}, 3, 0x300 + NodeID,0xff))<0) {
         spdlog::error("Set up ARGET_VEL RPDO FAILED on node {}", NodeID);
         return false;
     }
 
     spdlog::debug("Set up TARGET_TOR RPDO");
-    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0xff, 0x08))<0) { //Kinco has a specific word for this with a dedicated subindex
+    if(sendSDOMessages(generateRPDOConfigSDO({TARGET_TOR}, 4, 0x100 + NodeID,0xff, 0x08))<0) { //Kinco has a specific word for this with a dedicated subindex
         spdlog::error("Set up TARGET_TOR RPDO FAILED on node {}", NodeID);
         return false;
     }

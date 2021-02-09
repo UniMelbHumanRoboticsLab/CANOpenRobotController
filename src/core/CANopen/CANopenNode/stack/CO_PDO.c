@@ -162,11 +162,9 @@ static void CO_RPDOconfigCom(CO_RPDO_t* RPDO, uint32_t COB_IDUsedByRPDO){
  */
 static void CO_TPDOconfigCom(CO_TPDO_t* TPDO, uint32_t COB_IDUsedByTPDO, uint8_t syncFlag){
     uint16_t ID;
-
     ID = (uint16_t)COB_IDUsedByTPDO;
-
     /* is TPDO used? */
-    if((COB_IDUsedByTPDO & 0xBFFFF800L) == 0 && TPDO->dataLength && ID){
+    if ((COB_IDUsedByTPDO & 0xBFFFF800L) == 0 && TPDO->dataLength && ID) {
         /* is used default COB-ID? */
         if(ID == TPDO->defaultCOB_ID) ID += TPDO->nodeId;
         TPDO->valid = true;
@@ -175,14 +173,13 @@ static void CO_TPDOconfigCom(CO_TPDO_t* TPDO, uint32_t COB_IDUsedByTPDO, uint8_t
         ID = 0;
         TPDO->valid = false;
     }
-
     TPDO->CANtxBuff = CO_CANtxBufferInit(
-            TPDO->CANdevTx,            /* CAN device */
-            TPDO->CANdevTxIdx,         /* index of specific buffer inside CAN module */
-            ID,                        /* CAN identifier */
-            0,                         /* rtr */
-            TPDO->dataLength,          /* number of data bytes */
-            syncFlag);                 /* synchronous message flag bit */
+        TPDO->CANdevTx,    /* CAN device */
+        TPDO->CANdevTxIdx, /* index of specific buffer inside CAN module */
+        ID,                /* CAN identifier */
+        0,                 /* rtr */
+        TPDO->dataLength,  /* number of data bytes */
+        syncFlag);         /* synchronous message flag bit */
 
     if(TPDO->CANtxBuff == 0){
         TPDO->valid = false;
@@ -793,11 +790,10 @@ CO_ReturnError_t CO_TPDO_init(
         uint16_t                CANdevTxIdx)
 {
     /* verify arguments */
-    if(TPDO==NULL || em==NULL || SDO==NULL || operatingState==NULL ||
-        TPDOCommPar==NULL || TPDOMapPar==NULL || CANdevTx==NULL){
+    if (TPDO == NULL || em == NULL || SDO == NULL || operatingState == NULL ||
+        TPDOCommPar == NULL || TPDOMapPar == NULL || CANdevTx == NULL) {
         return CO_ERROR_ILLEGAL_ARGUMENT;
     }
-
     /* Configure object variables */
     TPDO->em = em;
     TPDO->SDO = SDO;
@@ -827,7 +823,7 @@ CO_ReturnError_t CO_TPDO_init(
     if((TPDOCommPar->transmissionType>240 &&
          TPDOCommPar->transmissionType<254) ||
          TPDOCommPar->SYNCStartValue>240){
-            TPDO->valid = false;
+        TPDO->valid = false;
     }
 
     return CO_ERROR_NO;

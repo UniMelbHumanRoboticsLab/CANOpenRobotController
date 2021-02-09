@@ -69,6 +69,7 @@ class ExoTestMachine : public StateMachine {
 
     void update();
     void hwStateUpdate();
+    void configureMasterPDOs();
 
     State *gettCurState();
     void initRobot(X2Robot *rb);

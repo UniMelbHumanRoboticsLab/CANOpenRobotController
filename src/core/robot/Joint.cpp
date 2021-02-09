@@ -58,7 +58,11 @@ void Joint::printStatus() {
     std::cout << "Joint " << name << "(ID " << id << ") @ pos " << getPosition() << " deg" << std::endl;
 }
 
-// Methods if joint is actuated
+bool Joint::configureMasterPDOs(){
+    return drive->configureMasterPDOs();
+}
+
+    // Methods if joint is actuated
 
 bool Joint::updateValue() {
     position = updatePosition();

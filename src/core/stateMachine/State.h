@@ -13,6 +13,7 @@
 
 #include <cstddef>
 #include <iostream>
+#include <string>
 
 class StateMachine;
 class Transition;
@@ -41,10 +42,11 @@ class State {
      * \param p Pointer to the owning state machine
      * \param n Name of the state machine
      */
-    State(StateMachine *p, const char n[] = NULL) {
-        owner = p;
-        numarcs = 0;
-        name = n;  // name of state
+    State(StateMachine *p, const char n[] = NULL): owner(p), numarcs(0) {
+        if(n==NULL)
+            name = "";
+        else
+            name = n;
     };
     ~State();
     // Arc creating and accessing functions
@@ -70,11 +72,11 @@ class State {
     virtual void exit(void) = 0;
 
     /**
-     * \brief Returns the name of the state - Note that this 
+     * \brief Returns the name of the state
      * 
-     * \return const char* The name of the state
+     * \return The name of the state
      */
-    const char *getName(void);
+    const std::string &getName(void);
 
     /**
      * \brief Prints the name of the state
@@ -87,8 +89,8 @@ class State {
     * \brief List of possible transitions
     * 
     */
-    Transition *arclist[MAXARCS]; /*<!Array of transition objects this state can transition to on exit*/
-    const char *name;             /*<!Pointer to the name of this State*/
+    Transition *arclist[MAXARCS];  /*<!Array of transition objects this state can transition to on exit*/
+    std::string name;              /*<!Pointer to the name of this State*/
     int numarcs;
 };
 

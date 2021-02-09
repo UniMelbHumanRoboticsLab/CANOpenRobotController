@@ -21,6 +21,7 @@
 #include "InputDevice.h"
 #include "logging.h"
 #include "RPDO.h"
+#include "TPDO.h"
 
 class RobotousRFT : public InputDevice {
     private:
@@ -38,47 +39,20 @@ class RobotousRFT : public InputDevice {
         // RespL: [D9 D10 D11 D12 D13 D14 D15 D16]
         // [Tx_l, Ty_u, Ty_l, Tz_u, Tz_l, OL_status, 0x00, 0x00]
 
+        // Objects representing the PDOs (used to create the PDOs in the OD)
+        TPDO *tpdo1;
         RPDO *rpdo1;
         RPDO *rpdo2;
-        /// Raw data
+
+        /// Raw data - these variables are linked to the PDOs
         UNSIGNED8 rawData[16] = {0};
         UNSIGNED8 cmdData = 0;
-        UNSIGNED32 cmdDataPad = 0;
+        UNSIGNED32 cmdDataPad = 0; // This is to make sure that the message is the full 8 bytes because of Robotous' not-CANopen implementation
 
-        UNSIGNED8 lengthData =8;
-        UNSIGNED8 lengthCmd = 2;
+        // Number of mapped parameters for RPDOs (lengthData) and TPDO (lengthCmd)
+        UNSIGNED8 lengthData =8; // 8 for each of the RPDOs - I cheat and reuse this variable
+        UNSIGNED8 lengthCmd = 2; // Second one is for padding
 
-        // OD Parameters
-        // Will need to be modified to take into number of items, data size and location
-        // Data size and number of items will be constant, function will be used to change location
-        OD_TPDOMappingParameter_t TPDOMapParam = {0x2L, 0x00000108L, 0x00000238L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L};
-        OD_TPDOCommunicationParameter_t TPDOcommPara = {0x6L, 0x0L, 0xffL, 0x0, 0x0, 0x0, 0x0};  // {0x2L, COB-ID, 0xffL}
-
-        // Records which are linked to from the OD
-        // These might need to be public
-        CO_OD_entryRecord_t dataStoreRecordCmd[3] = {
-            {(void *)&lengthCmd, 0x06, 0x1},
-            {(void *)&cmdData, 0xfe, 0x2},
-            {(void *)&cmdDataPad, 0xfe, 0x8},
-        };
-
-        CO_OD_entryRecord_t TPDOCommEntry[3] = {
-            {(void *)&TPDOcommPara.maxSubIndex, 0x06, 0x1},
-            {(void *)&TPDOcommPara.COB_IDUsedByTPDO, 0x8e, 0x4},
-            {(void *)&TPDOcommPara.transmissionType, 0x0e, 0x1},
-        };
-
-        CO_OD_entryRecord_t TPDOMapParamEntry[9] = {
-            {(void *)&TPDOMapParam.numberOfMappedObjects, 0x0e, 0x1},
-            {(void *)&TPDOMapParam.mappedObject1, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject2, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject3, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject4, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject5, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject6, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject7, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject8, 0x8e, 0x4},
-        };
         // Data variables
         Eigen::VectorXd forces;
         Eigen::VectorXd torques;
@@ -108,7 +82,7 @@ class RobotousRFT : public InputDevice {
          * \brief Sets up the receiving PDOs (note: will have issues if commands are sent, as the response are on the same COB-IDs)
          * 
          */
-        void setupPDO();
+        bool configureMasterPDOs();
 
         /**
          * \brief Updates the forces from the raw data

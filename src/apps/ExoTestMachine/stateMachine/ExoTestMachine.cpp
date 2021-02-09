@@ -126,6 +126,11 @@ void ExoTestMachine::hwStateUpdate(void) {
     robot->updateRobot();
 }
 
+void ExoTestMachine::configureMasterPDOs() {
+    spdlog::debug("ExoTestMachine::configureMasterPDOs()");
+    robot->configureMasterPDOs();
+}
+
 /**
  * \brief Statemachine update: overloaded to include logging
  *
