@@ -11,10 +11,10 @@ HX711::HX711() {
     iolib_init();
     iolib_setdir(2, 10, BBBIO_DIR_OUT);
     iolib_setdir(2, 8, BBBIO_DIR_IN);
+    iolib_setdir(2, 6, BBBIO_DIR_IN);
 }
 
 HX711::~HX711() {
-
 }
 
 //half
@@ -28,29 +28,29 @@ void HX711::updateInput() {
 
 char HX711::shiftInSlow(std::string dataPin, std::string clockPin) {
     uint8_t value = 0;
-
+    uint8_t value2 = 0;
 
     for (int i = 0; i < 8; ++i) {
         clock_digitalWrite(HIGH);
-        value |= digitalRead(dataPin) << (7 - i);
+        value |= digitalRead(6) << (7 - i);
+        value2 |= digitalRead(8) << (7 - i);
+
         clock_digitalWrite(LOW);
     }
-    printf("\n");
+    spdlog::info("{}, {}", value, value2);
     return value;
 }
 
-void HX711::clock_digitalWrite (bool value) {
-
+void HX711::clock_digitalWrite(bool value) {
     if (value) {
-        pin_high(2,10);
-    }
-    else {
+        pin_high(2, 10);
+    } else {
         pin_low(2, 10);
-    }    
+    }
 }
 
-uint8_t HX711::digitalRead(std::string path) {
-    if (is_high(2,8)){
+uint8_t HX711::digitalRead(int pin) {
+    if (is_high(2, pin)) {
         printf("1");
         return true;
     } else {
@@ -62,23 +62,22 @@ uint8_t HX711::digitalRead(std::string path) {
 
 //no
 bool HX711::is_ready() {
-    return digitalRead(DOUT) == LOW;
+    return digitalRead(6) == LOW && digitalRead(8) == LOW;
 }
 
 //go
 void HX711::set_gain(uint8_t gain) {
     switch (gain) {
-        case 128:        // channel A, gain factor 128
+        case 128:  // channel A, gain factor 128
             GAIN = 1;
             break;
-        case 64:        // channel A, gain factor 64
+        case 64:  // channel A, gain factor 64
             GAIN = 3;
             break;
-        case 32:        // channel B, gain factor 32
+        case 32:  // channel B, gain factor 32
             GAIN = 2;
             break;
     }
-
 }
 
 long HX711::read() {
@@ -91,7 +90,7 @@ long HX711::read() {
 
     // Define structures for reading data into.
     unsigned long value = 0;
-    uint8_t data[4] = { 0 };
+    uint8_t data[4] = {0};
     // Pulse the clock pin 24 times to read the data.
     data[2] = shiftInSlow(DOUT, PD_SCK);
     data[1] = shiftInSlow(DOUT, PD_SCK);
@@ -112,11 +111,7 @@ long HX711::read() {
     }
 
     // Construct a 32-bit signed integer
-    value = ( static_cast<unsigned long>(data[3]) << 24
-            | static_cast<unsigned long>(data[2]) << 16
-            | static_cast<unsigned long>(data[1]) << 8
-            | static_cast<unsigned long>(data[0]) );
-
+    value = (static_cast<unsigned long>(data[3]) << 24 | static_cast<unsigned long>(data[2]) << 16 | static_cast<unsigned long>(data[1]) << 8 | static_cast<unsigned long>(data[0]));
 
     spdlog::info("Reading: {0:x}", value);
     return static_cast<long>(value);
@@ -125,7 +120,7 @@ long HX711::read() {
 //go
 void HX711::wait_ready(unsigned long delay_ms) {
     while (!is_ready()) {
-        usleep(delay_ms*1000);
+        usleep(delay_ms * 1000);
     }
 }
 
@@ -138,7 +133,7 @@ bool HX711::wait_ready_retry(int retries, unsigned long delay_ms) {
         if (is_ready()) {
             return true;
         }
-        usleep(delay_ms*1000);
+        usleep(delay_ms * 1000);
         count++;
     }
     return false;
@@ -146,7 +141,6 @@ bool HX711::wait_ready_retry(int retries, unsigned long delay_ms) {
 
 //go
 bool HX711::wait_ready_timeout(unsigned long timeout, unsigned long delay_ms) {
-
     timespec startTime;
     clock_gettime(CLOCK_MONOTONIC, &startTime);
 
@@ -159,7 +153,7 @@ bool HX711::wait_ready_timeout(unsigned long timeout, unsigned long delay_ms) {
         if (is_ready()) {
             return true;
         }
-        usleep(delay_ms*1000);
+        usleep(delay_ms * 1000);
         elapsedSec = currTime.tv_sec - startTime.tv_sec + (currTime.tv_nsec - startTime.tv_nsec) / 1e6;
     }
     return false;
@@ -200,7 +194,7 @@ float HX711::get_scale() {
     return SCALE;
 }
 
-//go    
+//go
 void HX711::set_offset(long offset) {
     OFFSET = offset;
 }
