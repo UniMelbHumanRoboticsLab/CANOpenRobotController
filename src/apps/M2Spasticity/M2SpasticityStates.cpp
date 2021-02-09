@@ -192,13 +192,13 @@ void M2ArcCircle::duringCode(void) {
     *what does the below formula mean?
     */
     float K=5.0;
-    // dX = dXd + K*(Xd-robot->getEndEffPosition());
+     dX = dXd + K*(Xd-robot->getEndEffPosition());
 
 /**
 * set both 0.1 to test joint movement
 */
-dX[0]=0.1;
-dX[1]=0.1;
+//dX[0]=0.1;
+//dX[1]=0.1;
 
     //Apply
     robot->setEndEffVelocity(dX);

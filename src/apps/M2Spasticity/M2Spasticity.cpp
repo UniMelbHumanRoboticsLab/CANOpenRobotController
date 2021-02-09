@@ -25,7 +25,7 @@ M2Spasticity::M2Spasticity() {
      NewTransition(calibState, endCalib, standbyState);
       NewTransition(standbyState, goToNextState, testingState);
      // NewTransition(standbyState, goToNextState, recordingState);
-      NewTransition(recordingState, goToNextState, minJerkState);
+     // NewTransition(recordingState, goToNextState, minJerkState);
      // NewTransition(minJerkState, goToNextState, testingState);
       NewTransition(testingState, goToNextState, recordingState);
 
