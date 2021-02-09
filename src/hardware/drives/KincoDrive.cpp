@@ -13,6 +13,7 @@ KincoDrive::~KincoDrive() {
 
 bool KincoDrive::init() {
     preop();//Set preop first to disable PDO during initialisation
+    resetError();
     if(initPDOs()) {
         return true;
     }
@@ -20,6 +21,7 @@ bool KincoDrive::init() {
 }
 bool KincoDrive::init(motorProfile profile) {
     preop();//Set preop first to disable PDO during initialisation
+    resetError();
     if(setMotorProfile(profile)) {
         if(initPDOs()) {
             return true;
@@ -47,6 +49,7 @@ bool KincoDrive::initPosControl() {
 }
 bool KincoDrive::initVelControl(motorProfile velControlMotorProfile) {
     spdlog::debug("NodeID {} Initialising Velocity Control", NodeID);
+    resetError();
     /**
      * \todo create velControlMOTORPROFILE and test on exo
      * \todo Tune velocity loop gain index 0x2381 to optimize V control
@@ -68,6 +71,11 @@ bool KincoDrive::initTorqueControl() {
     return true;
 }
 
+bool KincoDrive::resetError(){
+    spdlog::debug("NodeID {} reset error", NodeID);
+    sendSDOMessages(generateResetErrorSDO());
+    return true;
+}
 
 bool KincoDrive::initPDOs() {
     spdlog::debug("KincoDrive::initPDOs");
@@ -115,4 +123,28 @@ bool KincoDrive::initPDOs() {
     }
 
     return true;
+}
+
+std::vector<std::string> KincoDrive::generateResetErrorSDO() {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+
+    // shutdown
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x06";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    // reset fault
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x80";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    // reset fault
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x06";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    return CANCommands;
 }
