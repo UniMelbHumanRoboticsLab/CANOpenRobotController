@@ -114,9 +114,12 @@ void M2ArcCircle::entryCode(void) {
     //centerPt =
     theta_s = 180.0;
     dTheta_t = 10;
-    radius = 0.2;
-    centerPt[0] = 0.2;
+    radius = 0.4;
+    centerPt[0] = 0.4;
     centerPt[1] = .0;
+
+    thetaRange=90;
+    ddTheta=200;
 
     //Arc starting point
     finished = false;
@@ -183,6 +186,8 @@ void M2ArcCircle::duringCode(void) {
     //desired velocity
     dXd[0] = -radius*sin(theta*M_PI/180.)*dTheta*M_PI/180.;
     dXd[1] = radius*cos(theta*M_PI/180.)*dTheta*M_PI/180.;
+    // dXd[0] = 0.1;
+    // dXd[1] = 0.1;
     //desired position
     Xd[0] = centerPt[0]+radius*cos(theta*M_PI/180.);
     Xd[1] = centerPt[1]+radius*sin(theta*M_PI/180.);
@@ -192,6 +197,7 @@ void M2ArcCircle::duringCode(void) {
     *what does the below formula mean?
     */
     float K=5.0;
+    //dX=dXd;
      dX = dXd + K*(Xd-robot->getEndEffPosition());
 
 /**
