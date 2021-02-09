@@ -1,95 +1,40 @@
-#include "X2Robot.h"
+#include "AlexRobot.h"
 
-/**
- * An enum type.
- * Joint Index for the 4 joints (note, CANopen NODEID = this + 1)
- */
-enum X2Joints {
-    X2_LEFT_HIP = 0,   /**< Left Hip*/
-    X2_LEFT_KNEE = 1,  /**< Left Knee*/
-    X2_RIGHT_HIP = 2,  /**< Right Hip*/
-    X2_RIGHT_KNEE = 3, /**< Right Knee*/
-};
-/**
- * Paramater definitions: Hip motor reading and corresponding angle. Used for mapping between degree and motor values.
- */
-JointDrivePairs hipJDP{
-    250880,       // drivePosA
-    0,            // drivePosB
-    deg2rad(90),  //jointPosA
-    deg2rad(0)    //jointPosB
-};
-/**
- * Paramater definitions: Knee motor reading and corresponding angle. Used for mapping between degree and motor values.
- */
-JointDrivePairs kneeJDP{
-    250880,       // drivePosA
-    0,            //drivePosB
-    deg2rad(90),  //jointPosA
-    deg2rad(0)    //jointPosB
-};
-
-/**
- * Defines the Joint Limits of the X2 Exoskeleton
- *
- */
-ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
-
-static volatile sig_atomic_t exitHoming = 0;
-
-X2Robot::X2Robot() : Robot() {
-    spdlog::debug("X2Robot Created");
-
+AlexRobot::AlexRobot(AlexTrajectoryGenerator *tj) {
+    trajectoryGenerator = tj;
+}
+AlexRobot::AlexRobot(){
+    spdlog::debug("AlexRobot Created");
+    
+    
     // This is the default name accessed from the MACRO. If ROS is used, under demo machine robot name can be set
     // by setRobotName() to the ros node name. See X2DemoMachine::init()
-    robotName_ = XSTR(X2_NAME);
+    robotName_ = XSTR(X2_ALEX);
 
 #ifdef NOROBOT
-    simJointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    simJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    simJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    simJointPositions_ = Eigen::VectorXd::Zero(ALEX_NUM_JOINTS);
+    simJointVelocities_ = Eigen::VectorXd::Zero(ALEX_NUM_JOINTS);
+    simJointTorques_ = Eigen::VectorXd::Zero(ALEX_NUM_JOINTS);
 #endif
 
     // Initializing the parameters to zero
-    x2Parameters.m = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    x2Parameters.l = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    x2Parameters.s = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    x2Parameters.I = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    x2Parameters.c0 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    x2Parameters.c1 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    x2Parameters.c2 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    x2Parameters.cuffWeights = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
-    x2Parameters.forceSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
-
-    spdlog::debug("initialiseJoints call");
-
+    x2Parameters.m = Eigen::VectorXd::Zero(ALEX_NUM_JOINTS);
+    x2Parameters.l = Eigen::VectorXd::Zero(ALEX_NUM_JOINTS);
+    x2Parameters.s = Eigen::VectorXd::Zero(ALEX_NUM_JOINTS);
+    x2Parameters.I = Eigen::VectorXd::Zero(ALEX_NUM_JOINTS);
+    x2Parameters.c0 = Eigen::VectorXd::Zero(ALEX_NUM_JOINTS);
+    x2Parameters.c1 = Eigen::VectorXd::Zero(ALEX_NUM_JOINTS);
+    x2Parameters.c2 = Eigen::VectorXd::Zero(ALEX_NUM_JOINTS);
     initialiseJoints();
     initialiseInputs();
 }
 
-X2Robot::~X2Robot() {
+AlexRobot::~AlexRobot() {
     freeMemory();
-    spdlog::debug("X2Robot deleted");
+    spdlog::debug("AlexRobot deleted");
 }
 
-void X2Robot::signalHandler(int signum) {
-    exitHoming = 1;
-    std::raise(SIGTERM); //Clean exit
-}
-
-#ifdef SIM
-void X2Robot::initialiseROS() {
-    controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
-
-    positionCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("position_controller/command", 10);
-    velocityCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("velocity_controller/command", 10);
-    torqueCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("torque_controller/command", 10);
-
-    jointStateSubscriber_ = nodeHandle_->subscribe("joint_states", 1, &X2Robot::jointStateCallback, this);
-}
-#endif
-
-void X2Robot::resetErrors() {
+void AlexRobot::resetErrors() {
     spdlog::debug("Clearing errors on all motor drives ");
     for (auto p : joints) {
         // Put into ReadyToSwitchOn()
@@ -97,7 +42,8 @@ void X2Robot::resetErrors() {
     }
 }
 
-bool X2Robot::initPositionControl() {
+
+bool AlexRobot::initPositionControl() {
     spdlog::debug("Initialising Position Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
@@ -134,7 +80,8 @@ bool X2Robot::initPositionControl() {
     return returnValue;
 }
 
-bool X2Robot::initVelocityControl() {
+
+bool AlexRobot::initVelocityControl() {
     spdlog::debug("Initialising Velocity Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
@@ -171,7 +118,7 @@ bool X2Robot::initVelocityControl() {
     return returnValue;
 }
 
-bool X2Robot::initTorqueControl() {
+bool AlexRobot::initTorqueControl() {
     spdlog::debug("Initialising Torque Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
@@ -208,7 +155,18 @@ bool X2Robot::initTorqueControl() {
     return returnValue;
 }
 
-setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
+bool AlexRobot::setPosControlContinuousProfile(bool continuous){
+    bool returnValue = true;
+    for (auto p : joints) {
+        if(!(p->setPosControlContinuousProfile(continuous))){
+            returnValue = false;
+        }
+    }
+    return returnValue;
+}
+
+
+setMovementReturnCode_t AlexRobot::setPosition(Eigen::VectorXd positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
@@ -241,7 +199,7 @@ setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
     return returnValue;
 }
 
-setMovementReturnCode_t X2Robot::setVelocity(Eigen::VectorXd velocities) {
+setMovementReturnCode_t AlexRobot::setVelocity(Eigen::VectorXd velocities) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
@@ -271,7 +229,7 @@ setMovementReturnCode_t X2Robot::setVelocity(Eigen::VectorXd velocities) {
     return returnValue;
 }
 
-setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
+setMovementReturnCode_t AlexRobot::setTorque(Eigen::VectorXd torques) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
@@ -301,7 +259,7 @@ setMovementReturnCode_t X2Robot::setTorque(Eigen::VectorXd torques) {
     return returnValue;
 }
 
-Eigen::VectorXd &X2Robot::getPosition() {
+Eigen::VectorXd &AlexRobot::getPosition() {
 #ifndef NOROBOT
     return Robot::getPosition();
 #else
@@ -309,7 +267,7 @@ Eigen::VectorXd &X2Robot::getPosition() {
 #endif
 }
 
-Eigen::VectorXd &X2Robot::getVelocity() {
+Eigen::VectorXd &AlexRobot::getVelocity() {
 #ifndef NOROBOT
     return Robot::getVelocity();
 #else
@@ -317,7 +275,7 @@ Eigen::VectorXd &X2Robot::getVelocity() {
 #endif
 }
 
-Eigen::VectorXd &X2Robot::getTorque() {
+Eigen::VectorXd &AlexRobot::getTorque() {
 #ifndef NOROBOT
     return Robot::getTorque();
 #else
@@ -325,44 +283,8 @@ Eigen::VectorXd &X2Robot::getTorque() {
 #endif
 }
 
-Eigen::VectorXd &X2Robot::getInteractionForce() {
-    //TODO: generalise sensors
-    //Initialise vector if not already done
-    if((unsigned int)interactionForces_.size()!=forceSensors.size()) {
-        interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
-    }
 
-    //todo: add backpack angle
-    Eigen::VectorXd cuffCompensation = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    cuffCompensation[0] = x2Parameters.cuffWeights[0] * sin(getPosition()[0]);
-    cuffCompensation[1] = x2Parameters.cuffWeights[1] * sin(getPosition()[1] - getPosition()[0]);
-    cuffCompensation[2] = x2Parameters.cuffWeights[2] * sin(getPosition()[2]);
-    cuffCompensation[3] = x2Parameters.cuffWeights[3] * sin(getPosition()[3] - getPosition()[2]);
-
-    //Update values
-    for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
-        interactionForces_[i] = forceSensors[i]->getForce() + cuffCompensation[i];
-    }
-    return interactionForces_;
-}
-
-bool X2Robot::calibrateForceSensors() {
-    int numberOfSuccess = 0;
-    for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
-        if (forceSensors[i]->calibrate()) numberOfSuccess++;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-
-    if (numberOfSuccess == X2_NUM_FORCE_SENSORS) {
-        spdlog::info("[X2Robot::calibrateForceSensors]: Zeroing of force sensors are successfully completed.");
-        return true;
-    } else {
-        spdlog::error("[X2Robot::calibrateForceSensors]: Zeroing failed.");
-        return false;
-    }
-}
-
-bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, float delayTime,
+bool AlexRobot::homing(std::vector<int> homingDirection, float thresholdTorque, float delayTime,
                      float homingSpeed, float maxTime) {
     std::vector<bool> success(X2_NUM_JOINTS, false);
     std::chrono::steady_clock::time_point time0;
@@ -439,51 +361,16 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
     return true;  // will come here if all joints successfully homed
 }
 
-bool X2Robot::initialiseJoints() {
-    for (int id = 0; id < X2_NUM_JOINTS; id++) {
-        motorDrives.push_back(new CopleyDrive(id + 1));
-        // The X2 has 2 Hips and 2 Knees, by default configured as 2 hips, then 2 legs int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive
-        if (id == X2_LEFT_HIP || id == X2_RIGHT_HIP) {
-            joints.push_back(new X2Joint(id, X2JointLimits.hipMin, X2JointLimits.hipMax, hipJDP, motorDrives[id]));
-        } else if (id == X2_LEFT_KNEE || id == X2_RIGHT_KNEE) {
-            joints.push_back(new X2Joint(id, X2JointLimits.kneeMin, X2JointLimits.kneeMax, kneeJDP, motorDrives[id]));
-        }
-    }
 
-    initializeRobotParams(robotName_);
-
-    return true;
-}
-
-
-bool X2Robot::initialiseNetwork() {
-    spdlog::debug("X2Robot::initialiseNetwork()");
-
-    bool status;
-    for (auto joint : joints) {
-        status = joint->initNetwork();
-        if (!status)
-            return false;
-    }
-
-#ifdef SIM
-    initialiseROS();
-#endif
-
-    return true;
-}
-bool X2Robot::initialiseInputs() {
+bool AlexRobot::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
-
-    for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
-        forceSensors.push_back(new X2ForceSensor(id, x2Parameters.forceSensorScaleFactor[id]));
-        inputs.push_back(forceSensors[id]);
-    }
+    inputs.push_back(new Buttons());
+    // Should also Construct an Alex Crutch Input here
 
     return true;
 }
 
-bool X2Robot::initializeRobotParams(std::string robotName) {
+bool AlexRobot::initializeRobotParams(std::string robotName) {
 
     // need to use address of base directory because when run with ROS, working directory is ~/.ros
     std::string baseDirectory = XSTR(BASE_DIRECTORY);
@@ -517,7 +404,7 @@ bool X2Robot::initializeRobotParams(std::string robotName) {
     return true;
 }
 
-void X2Robot::freeMemory() {
+void AlexRobot::freeMemory() {
     for (auto p : joints) {
         spdlog::debug("Delete Joint ID: {}", p->getId());
         delete p;
@@ -531,64 +418,149 @@ void X2Robot::freeMemory() {
         delete p;
     }
 }
-void X2Robot::updateRobot() {
-    //TODO: generalise sensors update
-    Robot::updateRobot();
+
+void AlexRobot::startNewTraj() {
+    // Index Resetting
+    currTrajProgress = 0;
+    clock_gettime(CLOCK_MONOTONIC, &prevTime);
 }
 
-bool X2Robot::setPosControlContinuousProfile(bool continuous){
+bool AlexRobot::moveThroughTraj() {
     bool returnValue = true;
-    for (auto p : joints) {
-        if(!(p->setPosControlContinuousProfile(continuous))){
-            returnValue = false;
+    timespec currTime;
+    clock_gettime(CLOCK_MONOTONIC, &currTime);
+
+    double elapsedSec = currTime.tv_sec - prevTime.tv_sec + (currTime.tv_nsec - prevTime.tv_nsec) / 1e9;
+    double trajTimeUS = trajectoryGenerator->getStepDuration();
+    prevTime = currTime;
+    // This should check to make sure that the "GO" button is pressed.
+    if (getGo()) {
+        currTrajProgress += elapsedSec;
+        double fracTrajProgress = currTrajProgress / trajTimeUS;
+        std::vector<double> setPoints = trajectoryGenerator->getSetPoint(fracTrajProgress);
+        int i = 0;
+        //std::cout << currTrajProgress << " , ";
+        for (auto p : joints) {
+            //std::cout << rad2deg(setPoints[i]) << ",";
+            setMovementReturnCode_t setPosCode = ((Joint *)p)->setPosition(rad2deg(setPoints[i]));
+            if (setPosCode == INCORRECT_MODE) {
+                std::cout << "Joint ID: " << p->getId() << ": is not in Position Control " << std::endl;
+                returnValue = false;
+            } else if (setPosCode != SUCCESS) {
+                // Something bad happened
+                std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+                returnValue = false;
+            }
+            i++;
         }
+        //std::cout << std::endl;
+    } else {
+        //spdlog::debug("PRESS Go to go!")
     }
+
     return returnValue;
 }
 
-Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
-    float coulombFriction;
-    const float velTreshold = 1*M_PI/180.0; // [rad/s]
-
-    // todo generalized 4 Dof Approach
-    if(abs(jointVelocities_[1]) > velTreshold){ // if in motion
-        coulombFriction = x2Parameters.c1[1]*jointVelocities_[1]/abs(jointVelocities_[1]) +
-        + x2Parameters.c2[1]*sqrt(abs(jointVelocities_[1]))*jointVelocities_[1]/abs(jointVelocities_[1]);
-    }else { // if static
-        coulombFriction = x2Parameters.c1[1]*motionIntend/abs(motionIntend);
+bool AlexRobot::initialiseJoints() {
+    for (int id = 0; id < ALEX_NUM_JOINTS; id++) {
+        motorDrives.push_back(new CopleyDrive(id + 1));
+        // The X2 has 2 Hips and 2 Knees, by default configured as 2 hips, then 2 legs int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive
+        if (id == ALEX_LEFT_HIP || id == ALEX_RIGHT_HIP) {
+            joints.push_back(new ALEXJoint(id, X2JointLimits.hipMin, X2JointLimits.hipMax, hipJDP, motorDrives[id]));
+        } else if (id == ALEX_LEFT_KNEE || id == ALEX_RIGHT_KNEE) {
+            joints.push_back(new ALEXJoint(id, X2JointLimits.kneeMin, X2JointLimits.kneeMax, kneeJDP, motorDrives[id]));
+        } else {  // is an ankle  ->  CHANGE DRIVE to Schneider drives NOT COPLEY
+           // Drives.push_back(new SchneiderDrive(id + 1));
+           // joints.push_back(new AlexJoint(id, jointMinMap[id], jointMaxMap[id], Drives[id], ankleParam));
+           
+           // DO NOTHING FOR NOW - WILL NEED TO ADD ANKLES
+        }
+        
     }
+    //initializeRobotParams(robotName_);
 
-    Eigen::VectorXd ffTorque = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    ffTorque[1] = x2Parameters.m[1]*x2Parameters.s[1]*9.81*sin(jointPositions_[1] - jointPositions_[0]) + coulombFriction + x2Parameters.c0[1]*jointVelocities_[1];
-
-    return ffTorque;
-
+    return true;
 }
 
-void X2Robot::setRobotName(std::string robotName) {
-    robotName_ = robotName;
-}
-
-std::string & X2Robot::getRobotName() {
-    return robotName_;
-}
-
-RobotParameters& X2Robot::getRobotParameters() {
-    return x2Parameters;
-
-}
-
-#ifdef SIM
-void X2Robot::setNodeHandle(ros::NodeHandle &nodeHandle) {
-    nodeHandle_ = &nodeHandle;
-}
-
-void X2Robot::jointStateCallback(const sensor_msgs::JointState &msg) {
-    for (int i = 0; i < X2_NUM_JOINTS; i++) {
-        simJointPositions_[i] = msg.position[i];
-        simJointVelocities_[i] = msg.velocity[i];
-        simJointTorques_[i] = msg.effort[i];
+bool AlexRobot::initialiseNetwork() {
+    spdlog::debug("AlexRobot::initialiseNetwork()");
+#ifndef VIRTUAL
+    bool status;
+    for (auto joint : joints) {
+        status = joint->initNetwork();
+        if (!status)
+            return false;
     }
-}
-
 #endif
+    return true;
+}
+
+
+void AlexRobot::updateRobot() {
+    Robot::updateRobot();
+}
+double AlexRobot::getCurrTrajProgress() {
+    return currTrajProgress;
+}
+std::vector<double> AlexRobot::getJointStates() {
+    std::vector<double> robotJointspace;
+    int i = 0;
+    for (auto joint : joints) {
+        robotJointspace.push_back(joint->getPosition());
+        i++;
+    }
+    return robotJointspace;
+}
+
+void AlexRobot::setCurrentMotion(RobotMode mode) {
+    *(&CO_OD_RAM.currentMovement) = static_cast<int>(mode);
+}
+
+RobotMode AlexRobot::getCurrentMotion() {
+    return static_cast<RobotMode>(*(&CO_OD_RAM.currentMovement));
+}
+void AlexRobot::setNextMotion(RobotMode mode) {
+    *(&CO_OD_RAM.nextMovement) = static_cast<int>(mode);
+}
+RobotMode AlexRobot::getNextMotion() {
+    return static_cast<RobotMode>(*(&CO_OD_RAM.nextMovement));
+}
+void AlexRobot::setCurrentState(AlexState state) {
+    *(&CO_OD_RAM.currentState) = static_cast<int>(state);
+    //:" << *(&CO_OD_RAM.currentState));
+}
+bool AlexRobot::getGo() {
+    if (*(&CO_OD_RAM.goButton) == 1) {
+        return true;
+    }
+    return false;
+}
+
+void AlexRobot::setResetFlag(bool value) {
+    resetTrajectory = value;
+}
+
+bool AlexRobot::getResetFlag() {
+    return resetTrajectory;
+    ;
+}
+
+bool AlexRobot::disableJoints() {
+    bool tmp = true;
+    for (auto p : joints) {
+        if (((Joint *)p)->disable() == false) {
+            std::cout << "Drive failed to be disabled!" << std::endl;
+            tmp = false;
+        }
+    }
+
+    return tmp;
+}
+
+#ifdef VIRTUAL
+void AlexRobot::setVirtualPosition(double angle) {
+    for (auto joint : joints) {
+        ((AlexJoint *)joint)->setPosition(angle);
+    }
+}
+#endif 
