@@ -20,32 +20,68 @@
 
 #include <time.h>
 
+#include <csignal>
 #include <map>
+#include <thread>
 
 #include "AlexJoint.h"
 #include "AlexTrajectoryGenerator.h"
+#include "Buttons.h"
 #include "CopleyDrive.h"
 #include "Keyboard.h"
-#include "Buttons.h"
 #include "Robot.h"
 #include "RobotParams.h"
 //#include "SchneiderDrive.h"
 #include "ALEXCrutchController.h"
 
+// Logger
+#include "spdlog/helper/LogHelper.h"
+// yaml-parser
+#include <fstream>
+#include "yaml-cpp/yaml.h"
+
+// These are used to access the MACRO: BASE_DIRECTORY
+#define XSTR(x) STR(x)
+#define STR(x) #x
+
+#ifdef SIM
+#include "controller_manager_msgs/SwitchController.h"
+#include "ros/ros.h"
+#include "sensor_msgs/JointState.h"
+#include "std_msgs/Float64MultiArray.h"
+#endif
 
 
-#define ALEX_NUM_JOINTS 4
+// robot name is used to access the properties of the correct robot version
+#define X2_NAME X2_ALEX
+
+// Macros
+#define deg2rad(deg) ((deg)*M_PI / 180.0)
+#define rad2deg(rad) ((rad)*180.0 / M_PI)
 
 /**
- * An enum type.
- * Joint Index for the 4 joints (note, CANopen NODEID = this + 1)
+ * Structure which is used for joint limits. Defines minimum and maximum limits of the each joint
+ *
  */
-enum X2Joints {
-    ALEX_LEFT_HIP = 0,   /**< Left Hip*/
-    ALEX_LEFT_KNEE = 1,  /**< Left Knee*/
-    ALEX_RIGHT_HIP = 2,  /**< Right Hip*/
-    ALEX_RIGHT_KNEE = 3, /**< Right Knee*/
+struct ExoJointLimits {
+    double hipMax;
+    double hipMin;
+    double kneeMax;
+    double kneeMin;
 };
+
+struct RobotParameters {
+    Eigen::VectorXd m;                       // masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
+    Eigen::VectorXd l;                       // length of left thigh, left shank, right thigh, right shank [kg]
+    Eigen::VectorXd s;                       // length from previous joint to CoM [m]
+    Eigen::VectorXd I;                       // mass moment of inertia of left thigh, left shank+foot, right thigh, right shank+foot [kg.m^2]
+    Eigen::VectorXd c0;                      // viscous fric constant of joints [N.s]
+    Eigen::VectorXd c1;                      // coulomb friction const of joints [N.m]
+    Eigen::VectorXd c2;                      // friction const related to sqrt of vel
+    Eigen::VectorXd cuffWeights;             // cuff Weights [N]
+    Eigen::VectorXd forceSensorScaleFactor;  // scale factor of force sensors [N/sensor output]
+};
+
 /**
  * Paramater definitions: Hip motor reading and corresponding angle. Used for mapping between degree and motor values.
  */
@@ -69,13 +105,14 @@ JointDrivePairs kneeJDP{
  * Defines the Joint Limits of the X2 Exoskeleton
  *
  */
-//ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
-
+ExoJointLimits AlexJointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      * 
      */
+
+
 /**
  * \brief Example implementation of the Robot class, representing an X2 Exoskeleton, using DummyActuatedJoint and AlexTrajectoryGenerator.
  * 
@@ -95,8 +132,17 @@ private:
      */
 
    motorProfile posControlMotorProfile{4000000, 190000, 190000};
+   motorProfile velControlMotorProfile{0, 240000, 240000};
 
-public:
+   std::string robotName_;
+   RobotParameters x2Parameters;
+
+  UNSIGNED8 currentState; // Static Cast to AlexState
+  UNSIGNED8 currentMovement; // Static Cast to RobotMode
+  
+  static void signalHandler(int signum);
+
+  public:
    AlexRobot();
    /**
       * \brief Default <code>AlexRobot</code> constructor.
@@ -107,7 +153,7 @@ public:
    ~AlexRobot();
    AlexTrajectoryGenerator *trajectoryGenerator;
    Keyboard *keyboard;
-   ALEXCrutchController pb;
+   ALEXCrutchController *pb;
    Buttons buttons;
 
    // Base class drive pointer: can be any type of derived driver class.
@@ -118,14 +164,27 @@ public:
    //  *
    //  */
    struct timeval tv, tv_diff, moving_tv, tv_changed, stationary_tv, start_traj, last_tv;
+   
+   /**
+       * \brief Clears (or attempts to clear) errors on the motor drives.
+       */
+   void resetErrors();
 
    /**
-       * \brief Initialises all joints to position control mode. 
-       * 
+       * \brief Initialises all joints to position control mode.
+       *
        * \return true If all joints are successfully configured
        * \return false  If some or all joints fail the configuration
        */
    bool initPositionControl();
+
+   /**
+       * \brief Initialises all joints to velocity control mode.
+       *
+       * \return true If all joints are successfully configured
+       * \return false  If some or all joints fail the configuration
+   */
+   bool initVelocityControl();
 
    /**
        * \brief Initialises all joints to torque control mode.
@@ -134,6 +193,23 @@ public:
        * \return false  If some or all joints fail the configuration
    */
    bool initTorqueControl();
+
+   /**
+       * \brief Sets the position control profile to be continuous (i.e. movements do not to complete before a new command is issued) or not
+       * 
+       * \return true if successful
+       * \return false if not (joints/drive not enabled or in correct mode)
+       */
+   bool setPosControlContinuousProfile(bool continuous);
+
+   /** 
+      *  \brief Begin a new trajectory with the currently loaded trajectory paramaters. 
+      * Using the <code>AlexRobot</code> current configuration (read in from joint objects) 
+      * and the trajecotry generator object, generate and save a spline to move from current 
+      * to desired position.
+      * 
+      */
+   void startNewTraj();
 
    /** 
       * /brief For each joint, move through(send appropriate commands to joints) the currently 
@@ -144,14 +220,64 @@ public:
       */
    bool moveThroughTraj();
 
-   /** 
-      *  \brief Begin a new trajectory with the currently loaded trajectory paramaters. 
-      * Using the <code>AlexRobot</code> current configuration (read in from joint objects) 
-      * and the trajecotry generator object, generate and save a spline to move from current 
-      * to desired position.
-      * 
-      */
-   void startNewTraj();
+   /**
+    * \brief Homing procedure of joint
+    *
+    * \param homingDirection a vector of int whose sign indicate homing direction. If 0 skips that joint
+    * \param thresholdTorque torque to understand [Nm]
+    * \param delayTime time required for the actual torque being larger than thresholdTorque to identify hardstops [s]
+    * \param homingSpeed velocity used during homing [rad/s]
+    * \param maxTime maximum time to complete the homing [s]
+    * \return bool success of homing
+    */
+   bool homing(std::vector<int> homingDirection = std::vector<int>(ALEX_NUM_JOINTS, 1), float thresholdTorque = 50.0,
+               float delayTime = 0.2, float homingSpeed = 5 * M_PI / 180.0, float maxTime = 30.0);
+
+   /**
+    * \brief Set the target positions for each of the joints
+    *
+    * \param positions a vector of target positions - applicable for each of the actuated joints
+    * \return MovementCode representing success or failure of the application
+    */
+   setMovementReturnCode_t setPosition(Eigen::VectorXd positions);
+
+   /**
+    * \brief Set the target velocities for each of the joints
+    *
+    * \param velocities a vector of target velocities - applicable for each of the actuated joints
+    * \return MovementCode representing success or failure of the application
+    */
+   setMovementReturnCode_t setVelocity(Eigen::VectorXd velocities);
+
+   /**
+    * \brief Set the target torque for each of the joints
+    *
+    * \param torques a vector of target torques - applicable for each of the actuated joints
+    * \return MovementCode representing success or failure of the application
+    */
+   setMovementReturnCode_t setTorque(Eigen::VectorXd torques);
+
+   /**
+    * \brief Get the latest joints position
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+   Eigen::VectorXd &getPosition();
+
+   /**
+    * \brief Get the latest joints velocity
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+   Eigen::VectorXd &getVelocity();
+
+   /**
+    * \brief Get the latest joints torque
+    *
+    * \return Eigen::VectorXd a reference to the vector of actual joint positions
+    */
+   Eigen::VectorXd &getTorque();
+
    
 #ifdef VIRTUAL
    /**
@@ -185,8 +311,7 @@ public:
    /**
        * \brief Free robot objects vector pointer memory.
        */
-   void
-   freeMemory();
+   void freeMemory();
    /**
        * \brief update current state of the robot, including input and output devices. 
        * Overloaded Method from the Robot Class. 

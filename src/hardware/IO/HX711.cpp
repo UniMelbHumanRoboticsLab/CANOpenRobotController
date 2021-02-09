@@ -11,6 +11,7 @@ HX711::HX711() {
     iolib_init();
     iolib_setdir(2, 10, BBBIO_DIR_OUT);
     iolib_setdir(2, 8, BBBIO_DIR_IN);
+    iolib_setdir(2, 6, BBBIO_DIR_IN);
 }
 
 HX711::~HX711() {
@@ -28,14 +29,16 @@ void HX711::updateInput() {
 
 char HX711::shiftInSlow(std::string dataPin, std::string clockPin) {
     uint8_t value = 0;
-
+    uint8_t value2 = 0;
 
     for (int i = 0; i < 8; ++i) {
         clock_digitalWrite(HIGH);
-        value |= digitalRead(dataPin) << (7 - i);
+        value |= digitalRead(6) << (7 - i);
+        value2 |= digitalRead(8) << (7 - i);
+
         clock_digitalWrite(LOW);
     }
-    printf("\n");
+    spdlog::info("{}, {}", value, value2);    
     return value;
 }
 
@@ -49,8 +52,8 @@ void HX711::clock_digitalWrite (bool value) {
     }    
 }
 
-uint8_t HX711::digitalRead(std::string path) {
-    if (is_high(2,8)){
+uint8_t HX711::digitalRead(int pin) {
+    if (is_high(2,pin)){
         printf("1");
         return true;
     } else {

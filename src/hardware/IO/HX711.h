@@ -90,7 +90,7 @@ class HX711: public InputDevice
 
         char shiftInSlow(std::string dataPin, std::string clockPin);
         void clock_digitalWrite(bool value);
-        uint8_t digitalRead(std::string path);
+        uint8_t digitalRead(int pin);
 
 };
 

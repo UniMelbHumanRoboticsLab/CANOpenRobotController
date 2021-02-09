@@ -1,16 +1,45 @@
 #include "ALEXCrutchController.h"
 
 ALEXCrutchController::ALEXCrutchController() {
-    DEBUG_OUT("Virtual pocket Beagle created")
+    spdlog::debug("ALEXCrutchController created");
 }
 
 void ALEXCrutchController::updateGO(bool go) {
     if (go) {
-        *(&CO_OD_RAM.goButton) = 1;
+        goButton = 1;
     } else {
-        *(&CO_OD_RAM.goButton) = 0;
+        goButton = 0;
     }
 }
+
+bool ALEXCrutchController::getGo() {
+    if (goButton == 1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void ALEXCrutchController::updateInput(){
+
+}
+bool ALEXCrutchController::configureMasterPDOs(){
+        UNSIGNED16 dataSize[1] = {1};
+        void *dataGo[1] = {
+            (void *)&goButton,
+        };
+
+        goRPDO = new RPDO(0x192, 0xff, dataGo, dataSize, 1);
+
+        void *dataNextMove[1] = {
+            (void *)&nextMovement,
+        };
+
+        nextMovementRPDO = new RPDO(0x191, 0xff, dataNextMove, dataSize, 1);
+
+        return true;
+}
+
 RobotMode ALEXCrutchController::updateController(bool up, bool dwn, bool select) {
     RobotMode returnValue = RobotMode::INITIAL;
     if (up) {

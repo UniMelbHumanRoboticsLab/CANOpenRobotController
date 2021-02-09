@@ -27,7 +27,6 @@ void InitState::during(void)
     // RobotMode modeSelected = robot->pb.updateController(robot->keyboard.getE(), robot->keyboard.getW(), robot->keyboard.getX());
     // if (modeSelected == RobotMode::INITIAL) {
     //     std::cout << "output:" << robot->pb.printRobotMode(modeSelected) << std::endl;
-    //     robot->setNextMotion(modeSelected);
     // }
     updateCrutch();
     updateFlag();

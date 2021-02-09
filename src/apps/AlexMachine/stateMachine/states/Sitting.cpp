@@ -19,7 +19,6 @@ void Sitting::during() {
     // RobotMode modeSelected = robot->pb.updateController(robot->keyboard.getE(), robot->keyboard.getW(), robot->keyboard.getX());
     // if (modeSelected != RobotMode::INITIAL) {
     //     std::cout << "Selected mode: " << robot->pb.printRobotMode(modeSelected) << std::endl;
-    //     robot->setNextMotion(modeSelected);
     // }
     //robot->pb.updateGO(robot->keyboard.getD());
     updateCrutch();

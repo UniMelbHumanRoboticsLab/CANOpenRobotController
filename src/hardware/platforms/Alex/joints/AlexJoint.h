@@ -10,13 +10,11 @@
 #ifndef AlexJoint_H_INCLUDED
 #define AlexJoint_H_INCLUDED
 
+#include "CopleyDrive.h"
 #include "Joint.h"
-typedef struct JointKnownPos {
-    int motorCountA;
-    int motorCountB;
-    int motorDegPosA;
-    int motorDegPosB;
-} JointKnownPos;
+
+#define MOTOR_RATED_TORQUE 0.319
+#define REDUCTION_RATIO 122.5
 
 /**
  * \brief Structure which is used for joint conversions. Defines two Drive Position/Joint Position Pairs, 
@@ -39,41 +37,68 @@ typedef struct JointDrivePairs {
  */
 class AlexJoint : public Joint {
    private:
-    JointKnownPos jointParamaters;
     double lastQCommand = 0;
-    long A = 0; /* For use in drive and motor unit conversion, differs for each joints implementation*/
-    long B = 0; /* For use in drive and motor unit conversion, differs for each joints implementation*/
+    double JDSlope;
+    double JDIntercept;
 
     /**
-     * \brief converter drive motor count value to joint values (angles)
-     * 
-     * \params driveValue read from a joints drive object
-     * \return double joint angle
-    */
-    double fromDriveUnits(int driveValue);
+         * \brief Converts from the joint position[rad] to the equivalent value for the drive [encoder count]
+         * \param jointPosition joint position[rad]
+         * \return int The equivalent drive value for the given joint position
+         */
+    int jointPositionToDriveUnit(double jointPosition);
+
     /**
-     * \brief converts joint angles to driver motor count values
-     * 
-     * @param jointValue angle from a robot object
-     * \return int driver Value for use by this joints Drive object
-     */
-    int toDriveUnits(double jointValue);
+         * \brief Converts from the drive value[encoder count] to the equivalent value for the joint position[rad]
+         * \param driveValue The drive value to be converted [encoder count]
+         * \return The equivalent joint position for the given drive value [rad]
+         */
+    double driveUnitToJointPosition(int driveValue);
     /**
-     * \brief precalulate A and B values for faster linear interpolating calculation of y and x in y = Ax+B
-     *  Note: these values are used in determining motor degree position from motor count readings and vice versa.
-     * 
-     * The function uses the specified joints joint Paramaters, set at construction.
-     * 
-     */
-    void linearInterpolatePreCalc();
+         * \brief Converts from the joint velocity[rad/s] to the equivalent value for the drive [encoder count/0.1sec]
+         * \param jointVelocity joint velocity[rad/s]
+         * \return int The equivalent drive value for the given joint position [encoder count/0.1sec]
+         */
+    int jointVelocityToDriveUnit(double jointVelocity);
+
+    /**
+         * \brief Converts from the drive value[encoder count/0.1sec] to the equivalent value for the joint velocity[rad/s]
+         * \param driveValue The drive value to be converted [encoder count/0.1sec]
+         * \return The equivalent joint velocity for the given drive value [rad/s]
+         */
+    double driveUnitToJointVelocity(int driveValue);
+    /**
+         * \brief Converts from the joint torque[Nm] to the equivalent value for the drive [1000ths of rated torque]
+         * \param jointTorque joint velocity[Nm]
+         * \return int The equivalent drive value for the given joint position [rated torque in Nmm]
+         */
+    int jointTorqueToDriveUnit(double jointTorque);
+
+    /**
+         * \brief Converts from the drive value[1000ths of rated torque] to the equivalent value for the joint velocity[Nm]
+         * \param driveValue The drive value to be converted [1000ths of rated torque]
+         * \return The equivalent joint velocity for the given drive value [Nm]
+         */
+    double driveUnitToJointTorque(int driveValue);
 
    public:
-    AlexJoint(int jointID, double jointMin, double jointMax, Drive *drive, JointKnownPos jointParams);
+    AlexJoint(int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive);
     bool updateValue();
     bool initNetwork();
-    double getQ();
-    /*testing*/
-    bool enableContinuousProfile();
+
+    double getPosition();
+    double getVelocity();
+    double getTorque();
+
+        /**
+          * \brief Set the current position as offset
+          *
+          * /param offset, joint position value to be at the homing position [rad]
+          *
+         * \return true if successful
+         * \return false if not
+         */
+    void setPositionOffset(double offset);
 };
 
 #endif

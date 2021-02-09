@@ -10,8 +10,13 @@
 #include <iostream>
 #include <map>
 #include <vector>
-
 #include "RobotParams.h"
+
+/**
+ * An enum type.
+ * Joint Index for the 4 joints (note, CANopen NODEID = this + 1)
+ */
+
 
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
@@ -99,12 +104,12 @@ typedef struct taskspace_state {
 // }
 
 typedef struct jointspace_state {
-    double q[NUM_JOINTS];
+    double q[ALEX_NUM_JOINTS];
     time_tt time;
 } jointspace_state;
 
 typedef struct jointspace_state_ex {  // extended to include velocity and acceleration
-    double q[NUM_JOINTS], qd[NUM_JOINTS], qdd[NUM_JOINTS];
+    double q[ALEX_NUM_JOINTS], qd[ALEX_NUM_JOINTS], qdd[ALEX_NUM_JOINTS];
     time_tt time;
 } jointspace_state_ex;
 
@@ -115,7 +120,7 @@ typedef struct CubicPolynomial {
 } CubicPolynomial;
 
 typedef struct jointspace_spline {
-    std::vector<CubicPolynomial> polynomials[NUM_JOINTS];  // polynomial[0] is a vector of cubic polynomials TrajectoryParameterstor<time_tt> times;                            // Start/end times of the polynomials (#times = #polynomials+1)
+    std::vector<CubicPolynomial> polynomials[ALEX_NUM_JOINTS];  // polynomial[0] is a vector of cubic polynomials TrajectoryParameterstor<time_tt> times;                            // Start/end times of the polynomials (#times = #polynomials+1)
     std::vector<time_tt> times;
 } jointspace_spline;
 
@@ -291,7 +296,10 @@ static std::map<RobotMode, TrajectoryParameters> movementTrajMap = {
                          .step_end_height = 0.04,  // stairs
                          .slope_angle = 0.0,      // tilted path
                          .left_foot_on_tilt = false,
-                         .right_foot_on_tilt = false}}};
+                         .right_foot_on_tilt = false}}
+};
+
+
 
 class AlexTrajectoryGenerator {
    private:

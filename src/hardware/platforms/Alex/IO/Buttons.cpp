@@ -3,7 +3,7 @@
 #include <fstream>
 
 Buttons::Buttons() {
-    spdlong::debug("Button object created");
+    spdlog::debug("Button object created");
     errorButton = false;
 };
 Buttons::~Buttons() {

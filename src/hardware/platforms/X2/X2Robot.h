@@ -292,7 +292,7 @@ class X2Robot : public Robot {
 
 
     /**
-       * \brief Changes the mode of 
+       * \brief Sets the position control profile to be continuous (i.e. movements do not to complete before a new command is issued) or not
        * 
        * \return true if successful
        * \return false if not (joints/drive not enabled or in correct mode)

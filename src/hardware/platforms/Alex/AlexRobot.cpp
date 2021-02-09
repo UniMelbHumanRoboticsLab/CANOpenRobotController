@@ -1,5 +1,7 @@
 #include "AlexRobot.h"
 
+static volatile sig_atomic_t exitHoming = 0;
+
 AlexRobot::AlexRobot(AlexTrajectoryGenerator *tj) {
     trajectoryGenerator = tj;
 }
@@ -9,7 +11,7 @@ AlexRobot::AlexRobot(){
     
     // This is the default name accessed from the MACRO. If ROS is used, under demo machine robot name can be set
     // by setRobotName() to the ros node name. See X2DemoMachine::init()
-    robotName_ = XSTR(X2_ALEX);
+    robotName_ = XSTR(X2_NAME);
 
 #ifdef NOROBOT
     simJointPositions_ = Eigen::VectorXd::Zero(ALEX_NUM_JOINTS);
@@ -170,8 +172,8 @@ setMovementReturnCode_t AlexRobot::setPosition(Eigen::VectorXd positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        spdlog::debug("Joint {}, Target {}, Current {}", i, positions[i], ((X2Joint *)p)->getPosition());
-        setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setPosition(positions[i]);
+        spdlog::debug("Joint {}, Target {}, Current {}", i, positions[i], ((AlexJoint *)p)->getPosition());
+        setMovementReturnCode_t setPosCode = ((AlexJoint *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
             spdlog::error("Joint {} is not in Position Control ", p->getId());
             returnValue = INCORRECT_MODE;
@@ -184,9 +186,9 @@ setMovementReturnCode_t AlexRobot::setPosition(Eigen::VectorXd positions) {
     }
 
 #ifdef SIM
-    std::vector<double> positionVector(X2_NUM_JOINTS);
+    std::vector<double> positionVector(ALEX_NUM_JOINTS);
 
-    for (int i = 0; i < X2_NUM_JOINTS; i++) {
+    for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
         positionVector[i] = positions[i];
     }
 
@@ -203,7 +205,7 @@ setMovementReturnCode_t AlexRobot::setVelocity(Eigen::VectorXd velocities) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setVelocity(velocities[i]);
+        setMovementReturnCode_t setPosCode = ((AlexJoint *)p)->setVelocity(velocities[i]);
         if (setPosCode == INCORRECT_MODE) {
             spdlog::error("Joint {} is not in Velocity Control", p->getId());
             returnValue = INCORRECT_MODE;
@@ -216,9 +218,9 @@ setMovementReturnCode_t AlexRobot::setVelocity(Eigen::VectorXd velocities) {
     }
 
 #ifdef SIM
-    std::vector<double> velocityVector(X2_NUM_JOINTS);
+    std::vector<double> velocityVector(ALEX_NUM_JOINTS);
 
-    for (int i = 0; i < X2_NUM_JOINTS; i++) {
+    for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
         velocityVector[i] = velocities[i];
     }
 
@@ -233,7 +235,7 @@ setMovementReturnCode_t AlexRobot::setTorque(Eigen::VectorXd torques) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
-        setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setTorque(torques[i]);
+        setMovementReturnCode_t setPosCode = ((AlexJoint *)p)->setTorque(torques[i]);
         if (setPosCode == INCORRECT_MODE) {
             spdlog::error("Joint {} is not in Torque Control", p->getId());
             returnValue = INCORRECT_MODE;
@@ -246,9 +248,9 @@ setMovementReturnCode_t AlexRobot::setTorque(Eigen::VectorXd torques) {
     }
 
 #ifdef SIM
-    std::vector<double> torqueVector(X2_NUM_JOINTS);
+    std::vector<double> torqueVector(ALEX_NUM_JOINTS);
 
-    for (int i = 0; i < X2_NUM_JOINTS; i++) {
+    for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
         torqueVector[i] = torques[i];
     }
 
@@ -286,15 +288,15 @@ Eigen::VectorXd &AlexRobot::getTorque() {
 
 bool AlexRobot::homing(std::vector<int> homingDirection, float thresholdTorque, float delayTime,
                      float homingSpeed, float maxTime) {
-    std::vector<bool> success(X2_NUM_JOINTS, false);
+    std::vector<bool> success(ALEX_NUM_JOINTS, false);
     std::chrono::steady_clock::time_point time0;
     this->initVelocityControl();
     signal(SIGINT, signalHandler); // check if ctrl + c is pressed
 
-    for (int i = 0; i < X2_NUM_JOINTS; i++) {
+    for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
         if (homingDirection[i] == 0) continue;  // skip the joint if it is not asked to do homing
 
-        Eigen::VectorXd desiredVelocity(X2_NUM_JOINTS);
+        Eigen::VectorXd desiredVelocity(ALEX_NUM_JOINTS);
         std::chrono::steady_clock::time_point firstTimeHighTorque;  // time at the first time joint exceed thresholdTorque
         bool highTorqueReached = false;
 
@@ -333,20 +335,20 @@ bool AlexRobot::homing(std::vector<int> homingDirection, float thresholdTorque, 
         if (success[i]) {
             spdlog::debug("Homing Succeeded for Joint {} .", i);
             usleep(10000);
-            if (i == X2_LEFT_HIP || i == X2_RIGHT_HIP) {  // if it is a hip joint
+            if (i == ALEX_LEFT_HIP || i == ALEX_RIGHT_HIP) {  // if it is a hip joint
 
                 // zeroing is done depending on the limits on the homing direction
                 if (homingDirection[i] > 0)
-                    ((X2Joint *)this->joints[i])->setPositionOffset(X2JointLimits.hipMax);
+                    ((AlexJoint *)this->joints[i])->setPositionOffset(AlexJointLimits.hipMax);
                 else
-                    ((X2Joint *)this->joints[i])->setPositionOffset(X2JointLimits.hipMin);
-            } else if (i == X2_LEFT_KNEE || i == X2_RIGHT_KNEE) {  // if it is a knee joint
+                    ((AlexJoint *)this->joints[i])->setPositionOffset(AlexJointLimits.hipMin);
+            } else if (i == ALEX_LEFT_KNEE || i == ALEX_RIGHT_KNEE) {  // if it is a knee joint
 
                 // zeroing is done depending on the limits on the homing direction
                 if (homingDirection[i] > 0)
-                    ((X2Joint *)this->joints[i])->setPositionOffset(X2JointLimits.kneeMax);
+                    ((AlexJoint *)this->joints[i])->setPositionOffset(AlexJointLimits.kneeMax);
                 else
-                    ((X2Joint *)this->joints[i])->setPositionOffset(X2JointLimits.kneeMin);
+                    ((AlexJoint *)this->joints[i])->setPositionOffset(AlexJointLimits.kneeMin);
             }
 
         } else {
@@ -354,7 +356,7 @@ bool AlexRobot::homing(std::vector<int> homingDirection, float thresholdTorque, 
         }
     }
     // Checking if all commanded joint successfully homed
-    for (int i = 0; i < X2_NUM_JOINTS; i++) {
+    for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
         if (homingDirection[i] == 0) continue;  // skip the joint if it is not asked to do homing
         if (success[i] == false) return false;
     }
@@ -387,7 +389,7 @@ bool AlexRobot::initializeRobotParams(std::string robotName) {
     }
 
     // getting the parameters from the yaml file
-    for(int i = 0; i<X2_NUM_JOINTS; i++){
+    for(int i = 0; i<ALEX_NUM_JOINTS; i++){
         x2Parameters.m[i] = params[robotName]["m"][i].as<double>();
         x2Parameters.l[i] = params[robotName]["l"][i].as<double>();
         x2Parameters.s[i] = params[robotName]["s"][i].as<double>();
@@ -396,10 +398,10 @@ bool AlexRobot::initializeRobotParams(std::string robotName) {
         x2Parameters.c1[i] = params[robotName]["c1"][i].as<double>();
         x2Parameters.c2[i] = params[robotName]["c2"][i].as<double>();
     }
-    for(int i = 0; i<X2_NUM_FORCE_SENSORS; i++) {
+   /* for(int i = 0; i<X2_NUM_FORCE_SENSORS; i++) {
         x2Parameters.cuffWeights[i] = params[robotName]["cuff_weights"][i].as<double>();
         x2Parameters.forceSensorScaleFactor[i] = params[robotName]["force_sensor_scale_factor"][i].as<double>();
-    }
+    }*/
 
     return true;
 }
@@ -466,9 +468,9 @@ bool AlexRobot::initialiseJoints() {
         motorDrives.push_back(new CopleyDrive(id + 1));
         // The X2 has 2 Hips and 2 Knees, by default configured as 2 hips, then 2 legs int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive
         if (id == ALEX_LEFT_HIP || id == ALEX_RIGHT_HIP) {
-            joints.push_back(new ALEXJoint(id, X2JointLimits.hipMin, X2JointLimits.hipMax, hipJDP, motorDrives[id]));
+            joints.push_back(new AlexJoint(id, AlexJointLimits.hipMin, AlexJointLimits.hipMax, hipJDP, motorDrives[id]));
         } else if (id == ALEX_LEFT_KNEE || id == ALEX_RIGHT_KNEE) {
-            joints.push_back(new ALEXJoint(id, X2JointLimits.kneeMin, X2JointLimits.kneeMax, kneeJDP, motorDrives[id]));
+            joints.push_back(new AlexJoint(id, AlexJointLimits.kneeMin, AlexJointLimits.kneeMax, kneeJDP, motorDrives[id]));
         } else {  // is an ankle  ->  CHANGE DRIVE to Schneider drives NOT COPLEY
            // Drives.push_back(new SchneiderDrive(id + 1));
            // joints.push_back(new AlexJoint(id, jointMinMap[id], jointMaxMap[id], Drives[id], ankleParam));
@@ -513,27 +515,23 @@ std::vector<double> AlexRobot::getJointStates() {
 }
 
 void AlexRobot::setCurrentMotion(RobotMode mode) {
-    *(&CO_OD_RAM.currentMovement) = static_cast<int>(mode);
+    currentMovement = static_cast<int>(mode);
 }
 
 RobotMode AlexRobot::getCurrentMotion() {
-    return static_cast<RobotMode>(*(&CO_OD_RAM.currentMovement));
+    return static_cast<RobotMode>(currentMovement);
 }
 void AlexRobot::setNextMotion(RobotMode mode) {
-    *(&CO_OD_RAM.nextMovement) = static_cast<int>(mode);
+    pb->nextMovement = static_cast<UNSIGNED8>(mode);
 }
 RobotMode AlexRobot::getNextMotion() {
-    return static_cast<RobotMode>(*(&CO_OD_RAM.nextMovement));
+    return static_cast<RobotMode>(pb->nextMovement);
 }
 void AlexRobot::setCurrentState(AlexState state) {
-    *(&CO_OD_RAM.currentState) = static_cast<int>(state);
-    //:" << *(&CO_OD_RAM.currentState));
+    currentState = static_cast<UNSIGNED8>(state);
 }
 bool AlexRobot::getGo() {
-    if (*(&CO_OD_RAM.goButton) == 1) {
-        return true;
-    }
-    return false;
+    return pb->getGo();
 }
 
 void AlexRobot::setResetFlag(bool value) {

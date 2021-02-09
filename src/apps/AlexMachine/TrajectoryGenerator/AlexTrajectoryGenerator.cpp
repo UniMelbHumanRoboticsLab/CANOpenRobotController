@@ -83,22 +83,22 @@ std::vector<double> AlexTrajectoryGenerator::getSetPoint(time_tt time) {
     // Every sample time, compute the value of q1 to q6 based on the time segment / set of NO_JOINTS polynomials
     int numPoints = trajectoryJointSpline.times.size();
     int numPolynomials = numPoints - 1;
-    CubicPolynomial currentPolynomial[NUM_JOINTS];
+    CubicPolynomial currentPolynomial[ALEX_NUM_JOINTS];
     for (int polynomial_index = 0; polynomial_index < numPolynomials; polynomial_index++) {
         //cout << "[discretise_spline]: pt " << polynomial_index << ":" << endl;
         //if the jointspaceState time is bounded by the section of spline
         if (time >= trajectoryJointSpline.times.at(polynomial_index) &&
             time <= trajectoryJointSpline.times.at(polynomial_index + 1)) {
             //cout << "time " << time << "\t" << trajectoryJointSpline.times.at(polynomial_index)  << endl;
-            for (int i = 0; i < NUM_JOINTS; i++) {
+            for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
                 currentPolynomial[i] = trajectoryJointSpline.polynomials[i].at(polynomial_index);
                 angles.push_back(evaluate_cubic_polynomial(currentPolynomial[i], time));
             }
             ////force ankles to be in the final position
-            //currentPolynomial[LEFT_ANKLE] = trajectoryJointSpline.polynomials[LEFT_ANKLE].at(numPolynomials - 1);
-            //positionArray[LEFT_ANKLE] = evaluate_cubic_polynomial(currentPolynomial[LEFT_ANKLE], endTime);
-            //currentPolynomial[RIGHT_ANKLE] = trajectoryJointSpline.polynomials[RIGHT_ANKLE].at(numPolynomials - 1);
-            //positionArray[RIGHT_ANKLE] = evaluate_cubic_polynomial(currentPolynomial[RIGHT_ANKLE], endTime);
+            //currentPolynomial[ALEX_LEFT_ANKLE]= trajectoryJointSpline.polynomials[ALEX_LEFT_ANKLE].at(numPolynomials - 1);
+            //positionArray[ALEX_LEFT_ANKLE]= evaluate_cubic_polynomial(currentPolynomial[ALEX_LEFT_ANKLE], endTime);
+            //currentPolynomial[ALEX_RIGHT_ANKLE]= trajectoryJointSpline.polynomials[ALEX_RIGHT_ANKLE].at(numPolynomials - 1);
+            //positionArray[ALEX_RIGHT_ANKLE]= evaluate_cubic_polynomial(currentPolynomial[ALEX_RIGHT_ANKLE], endTime);
             //make sure the angles are within boundary
             limit_position_against_angle_boundary(angles);
             return angles;
@@ -106,7 +106,7 @@ std::vector<double> AlexTrajectoryGenerator::getSetPoint(time_tt time) {
     }
     //spdlog::debug("Time point outside range")
     //if the time point is outside range
-    for (int i = 0; i < NUM_JOINTS; i++) {
+    for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
         currentPolynomial[i] = trajectoryJointSpline.polynomials[i].at(numPolynomials - 1);
         angles.push_back(evaluate_cubic_polynomial(currentPolynomial[i], endTime));
     }
@@ -1223,7 +1223,7 @@ void AlexTrajectoryGenerator::compute_discrete_trajectory(
               << "RIGHT_ANKLE" << std::endl;
     for (auto state : jointspaceStates) {
         std::cout << "[compute_trajectory]:\t" << state.time << "\t\t\t";
-        for (int i = 0; i < NUM_JOINTS; i++)
+        for (int i = 0; i < ALEX_NUM_JOINTS; i++)
             std::cout << rad2deg(state.q[i]) << "\t  ";
         std::cout << std::endl;
     }
@@ -1239,7 +1239,7 @@ taskspace_state AlexTrajectoryGenerator::jointspace_state_to_taskspace_state(
     //  needed to be added at hip/right_leg to get exo
     double *q = jointspaceState.q;  // for readability; will be optimised out by compiler?
     //calculate the torso forward angle from left joints, which is repsect to world space vertical up
-    double torso_forward_angle = M_PI_2 + q[LEFT_ANKLE] - q[LEFT_KNEE] - q[LEFT_HIP];
+    double torso_forward_angle = M_PI_2 + q[ALEX_LEFT_ANKLE]- q[ALEX_LEFT_KNEE]- q[ALEX_LEFT_HIP];
     // Perform Forward Kinematics
     //  Put origin at base of Stance foot, vertically below the ankle
     //  Assume hip has zero width for now
@@ -1247,17 +1247,17 @@ taskspace_state AlexTrajectoryGenerator::jointspace_state_to_taskspace_state(
     taskspaceState.left_ankle_position.y = 0.0;
     taskspaceState.left_ankle_position.z = pilotParameters.ankle_height;
     if (trajectoryParameters.left_foot_on_tilt) {
-        taskspaceState.hip_position.x = taskspaceState.left_ankle_position.x - pilotParameters.lowerleg_length * (cos(q[LEFT_ANKLE] + deg2rad(trajectoryParameters.slope_angle))) - pilotParameters.upperleg_length * (cos(q[LEFT_ANKLE] + deg2rad(trajectoryParameters.slope_angle - q[LEFT_KNEE])));
+        taskspaceState.hip_position.x = taskspaceState.left_ankle_position.x - pilotParameters.lowerleg_length * (cos(q[ALEX_LEFT_ANKLE]+ deg2rad(trajectoryParameters.slope_angle))) - pilotParameters.upperleg_length * (cos(q[ALEX_LEFT_ANKLE]+ deg2rad(trajectoryParameters.slope_angle - q[ALEX_LEFT_KNEE])));
         taskspaceState.hip_position.y = 0.0;
-        taskspaceState.hip_position.z = taskspaceState.left_ankle_position.z + pilotParameters.lowerleg_length * (sin(q[LEFT_ANKLE] + deg2rad(trajectoryParameters.slope_angle))) + pilotParameters.upperleg_length * (sin(q[LEFT_ANKLE] + deg2rad(trajectoryParameters.slope_angle - q[LEFT_KNEE])));
+        taskspaceState.hip_position.z = taskspaceState.left_ankle_position.z + pilotParameters.lowerleg_length * (sin(q[ALEX_LEFT_ANKLE]+ deg2rad(trajectoryParameters.slope_angle))) + pilotParameters.upperleg_length * (sin(q[ALEX_LEFT_ANKLE]+ deg2rad(trajectoryParameters.slope_angle - q[ALEX_LEFT_KNEE])));
     } else {
-        taskspaceState.hip_position.x = taskspaceState.left_ankle_position.x - pilotParameters.lowerleg_length * (cos(q[LEFT_ANKLE])) - pilotParameters.upperleg_length * (cos(q[LEFT_ANKLE] - q[LEFT_KNEE]));
+        taskspaceState.hip_position.x = taskspaceState.left_ankle_position.x - pilotParameters.lowerleg_length * (cos(q[ALEX_LEFT_ANKLE])) - pilotParameters.upperleg_length * (cos(q[ALEX_LEFT_ANKLE]- q[ALEX_LEFT_KNEE]));
         taskspaceState.hip_position.y = 0.0;
-        taskspaceState.hip_position.z = taskspaceState.left_ankle_position.z + pilotParameters.lowerleg_length * (sin(q[LEFT_ANKLE])) + pilotParameters.upperleg_length * (sin(q[LEFT_ANKLE] - q[LEFT_KNEE]));
+        taskspaceState.hip_position.z = taskspaceState.left_ankle_position.z + pilotParameters.lowerleg_length * (sin(q[ALEX_LEFT_ANKLE])) + pilotParameters.upperleg_length * (sin(q[ALEX_LEFT_ANKLE]- q[ALEX_LEFT_KNEE]));
     }
-    taskspaceState.right_ankle_position.x = taskspaceState.hip_position.x + pilotParameters.upperleg_length * (sin(M_PI - q[RIGHT_HIP] - torso_forward_angle)) - pilotParameters.lowerleg_length * (cos(M_PI_2 + M_PI - q[RIGHT_HIP] - torso_forward_angle - q[RIGHT_KNEE]));
+    taskspaceState.right_ankle_position.x = taskspaceState.hip_position.x + pilotParameters.upperleg_length * (sin(M_PI - q[ALEX_RIGHT_HIP]- torso_forward_angle)) - pilotParameters.lowerleg_length * (cos(M_PI_2 + M_PI - q[ALEX_RIGHT_HIP]- torso_forward_angle - q[ALEX_RIGHT_KNEE]));
     taskspaceState.right_ankle_position.y = 0.0;
-    taskspaceState.right_ankle_position.z = taskspaceState.hip_position.z - pilotParameters.upperleg_length * (cos(M_PI - q[RIGHT_HIP] - torso_forward_angle)) - pilotParameters.lowerleg_length * (sin(M_PI_2 + M_PI - q[RIGHT_HIP] - torso_forward_angle - q[RIGHT_KNEE]));
+    taskspaceState.right_ankle_position.z = taskspaceState.hip_position.z - pilotParameters.upperleg_length * (cos(M_PI - q[ALEX_RIGHT_HIP]- torso_forward_angle)) - pilotParameters.lowerleg_length * (sin(M_PI_2 + M_PI - q[ALEX_RIGHT_HIP]- torso_forward_angle - q[ALEX_RIGHT_KNEE]));
     taskspaceState.torso_forward_angle = torso_forward_angle;
     taskspaceState.swing_ankle_down_angle = 0;  //TODO: this is called when converting from robot to trajectory calculation. Do i need this information?
     taskspaceState.stance_foot = trajectoryParameters.stance_foot;
@@ -1292,21 +1292,21 @@ jointspace_state AlexTrajectoryGenerator::taskspace_state_to_jointspace_state(
 
     jointspaceState.time = taskspaceState.time;
     if (trajectoryParameters.left_foot_on_tilt) {
-        jointspaceState.q[LEFT_ANKLE] = M_PI_2 + LeftTempAngles.at(2) - trajectoryParameters.slope_angle;
+        jointspaceState.q[ALEX_LEFT_ANKLE]= M_PI_2 + LeftTempAngles.at(2) - trajectoryParameters.slope_angle;
     } else {
-        jointspaceState.q[LEFT_ANKLE] = M_PI_2 + LeftTempAngles.at(2);
+        jointspaceState.q[ALEX_LEFT_ANKLE]= M_PI_2 + LeftTempAngles.at(2);
     }
 
-    jointspaceState.q[LEFT_ANKLE] = M_PI_2 + LeftTempAngles.at(2);
-    jointspaceState.q[LEFT_KNEE] = LeftTempAngles.at(1);
-    jointspaceState.q[LEFT_HIP] = M_PI - LeftTempAngles.at(0) - taskspaceState.torso_forward_angle;
-    jointspaceState.q[RIGHT_HIP] = M_PI - RightTempAngles.at(0) - taskspaceState.torso_forward_angle;
-    jointspaceState.q[RIGHT_KNEE] = RightTempAngles.at(1);
+    jointspaceState.q[ALEX_LEFT_ANKLE]= M_PI_2 + LeftTempAngles.at(2);
+    jointspaceState.q[ALEX_LEFT_KNEE]= LeftTempAngles.at(1);
+    jointspaceState.q[ALEX_LEFT_HIP]= M_PI - LeftTempAngles.at(0) - taskspaceState.torso_forward_angle;
+    jointspaceState.q[ALEX_RIGHT_HIP]= M_PI - RightTempAngles.at(0) - taskspaceState.torso_forward_angle;
+    jointspaceState.q[ALEX_RIGHT_KNEE]= RightTempAngles.at(1);
 
     if (trajectoryParameters.right_foot_on_tilt) {
-        jointspaceState.q[RIGHT_ANKLE] = M_PI_2 + RightTempAngles.at(2) - trajectoryParameters.slope_angle;
+        jointspaceState.q[ALEX_RIGHT_ANKLE]= M_PI_2 + RightTempAngles.at(2) - trajectoryParameters.slope_angle;
     } else {
-        jointspaceState.q[RIGHT_ANKLE] = M_PI_2 + RightTempAngles.at(2);
+        jointspaceState.q[ALEX_RIGHT_ANKLE]= M_PI_2 + RightTempAngles.at(2);
     }
     return jointspaceState;
 }
@@ -1336,8 +1336,8 @@ std::vector<jointspace_state> AlexTrajectoryGenerator::taskspace_states_to_joint
       //If any part contains NaN, make all points in jointspaceStates just the initial jointstatespace points
       else{
         tempJointspacestate = taskspace_state_to_jointspace_state(taskspaceState, trajectoryParameters, pilotParameters);
-        for (int i = 0; i < NUM_JOINTS; i++) {
-          tempJointspacestate.q[i] = initialJointspaceState.q[i];
+        for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
+            tempJointspacestate.q[i] = initialJointspaceState.q[i];
         }
         jointspaceStates.push_back(tempJointspacestate);
       }
@@ -1466,7 +1466,7 @@ jointspace_spline AlexTrajectoryGenerator::cubic_spline_jointspace_states(std::v
         jointspaceSpline.times.push_back(jointspaceState.time);
 
     // Take spline for each q
-    for (int i = 0, numPoints = jointspaceStates.size(); i < NUM_JOINTS; i++) {
+    for (int i = 0, numPoints = jointspaceStates.size(); i < ALEX_NUM_JOINTS; i++) {
         double q[numPoints];
         for (int j = 0; j < numPoints; j++) {
             q[j] = jointspaceStates.at(j).q[i];
@@ -1545,7 +1545,7 @@ jointspace_spline AlexTrajectoryGenerator::compute_trajectory_spline(const Traje
     // Every sample time, compute the value of q1 to q6 based on the time segment / set of NUM_JOINTS polynomials
     int numPoints = trajectoryJointSpline.times.size();
     int numPolynomials = numPoints - 1;
-    CubicPolynomial currentPolynomial[NUM_JOINTS];
+    CubicPolynomial currentPolynomial[ALEX_NUM_JOINTS];
     jointspace_state_ex temp{};
     for (int polynomial_index = 0; polynomial_index < numPolynomials; polynomial_index++) {
         //cout << "[discretise_spline]: pt " << polynomial_index << ":" << std::endl;
@@ -1575,7 +1575,7 @@ jointspace_state AlexTrajectoryGenerator::compute_position_trajectory_difference
     jointspace_spline jointspaceSpline,
     jointspace_state currentJointspaceStates) {
     jointspace_state position_diff;
-    CubicPolynomial currentPolynomial[NUM_JOINTS];
+    CubicPolynomial currentPolynomial[ALEX_NUM_JOINTS];
     int numPoints = jointspaceSpline.times.size();
     int numPolynomials = numPoints - 1;
     time_tt endTime = jointspaceSpline.times.back();
@@ -1585,11 +1585,11 @@ jointspace_state AlexTrajectoryGenerator::compute_position_trajectory_difference
     // If the time is past the spline time range,
     // Calculate the diff based on last position in spline
     if (currentJointspaceStates.time >= jointspaceSpline.times.back()) {
-        for (int i = 0; i < NUM_JOINTS; i++) {
+        for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
             currentPolynomial[i] = jointspaceSpline.polynomials[i].at(numPolynomials - 1);
         }
         // calculate the position difference at each joint
-        for (int i = 0; i < NUM_JOINTS; i++) {
+        for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
             splinePosition.q[i] = evaluate_cubic_polynomial(currentPolynomial[i], endTime);
             position_diff.q[i] = currentJointspaceStates.q[i] - splinePosition.q[i];
         }
@@ -1605,7 +1605,7 @@ jointspace_state AlexTrajectoryGenerator::compute_position_trajectory_difference
             if (currentJointspaceStates.time >= jointspaceSpline.times.at(polynomial_index) &&
                 currentJointspaceStates.time <= jointspaceSpline.times.at(polynomial_index + 1)) {
                 // capture the polynomial for the current spline
-                for (int i = 0; i < NUM_JOINTS; i++) {
+                for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
                     currentPolynomial[i] = jointspaceSpline.polynomials[i].at(polynomial_index);
                     splinePosition.q[i] = evaluate_cubic_polynomial(currentPolynomial[i], currentJointspaceStates.time);
                     position_diff.q[i] = currentJointspaceStates.q[i] - splinePosition.q[i];
@@ -1619,7 +1619,7 @@ jointspace_state AlexTrajectoryGenerator::compute_position_trajectory_difference
     // return error if none of the above case return anything
     std::cout << "[compute_position_trajectory_difference] Error: Cannot find the time region in the spline" << std::endl;
     std::cout << "[compute_position_trajectory_difference] Assuming no position tracking error" << std::endl;
-    for (int i = 0; i < NUM_JOINTS; i++) {
+    for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
         position_diff.q[i] = 0;
     }
     //set up the position time to prevent weird behavior
@@ -1632,7 +1632,7 @@ jointspace_state AlexTrajectoryGenerator::compute_position_trajectory_difference
 void AlexTrajectoryGenerator::limit_velocity_against_angle_boundary(
     jointspace_state currentJointspaceStates,
     double *velocitySignal) {
-    for (int i = 0; i < NUM_JOINTS; i++) {
+    for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
         int minIndex = i * 2;
         int maxIndex = i * 2 + 1;
         //if we near the boundary and velocity is pushing towards it
@@ -1668,11 +1668,11 @@ void AlexTrajectoryGenerator::limit_position_against_angle_boundary(std::vector<
 bool AlexTrajectoryGenerator::jointspace_NaN_check(jointspace_state checkJointspaceState){
   bool containNaN  = false;
   //check whether the checkJointspaceState contains NaN
-  for (int i = 0; i < NUM_JOINTS; i++){
-    //Flag it if it does contains NaN
-    if(std::isnan(checkJointspaceState.q[i])) {
-      containNaN = true;
-    }
+  for (int i = 0; i < ALEX_NUM_JOINTS; i++) {
+      //Flag it if it does contains NaN
+      if (std::isnan(checkJointspaceState.q[i])) {
+          containNaN = true;
+      }
   }
   //if any one joint returns a NaN, change the whole jointspace state to the original state
   return containNaN;
@@ -1681,19 +1681,19 @@ bool AlexTrajectoryGenerator::jointspace_NaN_check(jointspace_state checkJointsp
 
 /*void AlexTrajectoryGenerator::getVelocityAfterPositionCorrection(
     time_tt time, double *robotPositionArray, double *velocityArray) {
-    double splinePositionArray[NUM_JOINTS];
-    double positionDiff[NUM_JOINTS];
-    double positionFeedback[NUM_JOINTS];
+    double splinePositionArray[ALEX_];
+    double positionDiff[ALEX_];
+    double positionFeedback[ALEX_];
     const double FEEDBACKGAIN = 1;
     calcPosition(time, splinePositionArray);
     //the spline position array is in radian, trajectory object perspective jointspace
     //so the robot position array also needs to be converted to trajectory jointspace, numbering and radian
-    for (int i = 0; i < NUM_JOINTS; i++) {
+    for (int i = 0; i < ; i++) {
         positionDiff[i] = splinePositionArray[i] - robotPositionArray[i];
     }
     //the feedback gain part
     calcVelocity(time, velocityArray);
-    for (int i = 0; i < NUM_JOINTS; i++) {
+    for (int i = 0; i < ; i++) {
         velocityArray[i] += FEEDBACKGAIN * positionDiff[i];
     }
 }*/

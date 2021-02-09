@@ -15,7 +15,6 @@ void RightForward::during(void) {
     // if (modeSelected != RobotMode::INITIAL) {
     //     std::cout << "Selected mode: " << robot->pb.printRobotMode(modeSelected) << std::endl;
     //     ;
-    //     robot->setNextMotion(modeSelected);
     // }
     updateCrutch();
     updateFlag();

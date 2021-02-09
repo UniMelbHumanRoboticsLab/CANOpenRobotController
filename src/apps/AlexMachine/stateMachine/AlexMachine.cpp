@@ -146,7 +146,7 @@ bool AlexMachine::EndTraj::check()
     else
     {
         // testing with keyboard
-        if (OWNER->robot->keyboard.getW() == true)
+        if (OWNER->robot->keyboard->getW() == true)
         {
             return true;
         }
@@ -159,7 +159,7 @@ bool AlexMachine::EndTraj::check()
 
 bool AlexMachine::StartExo::check(void)
 {
-    if (OWNER->robot->keyboard.getD() == true)
+    if (OWNER->robot->keyboard->getD() == true)
     {
         spdlog::info("LEAVING INIT and entering init Sitting");
         return true;
@@ -173,7 +173,7 @@ bool AlexMachine::StartExo::check(void)
 }
 bool AlexMachine::FeetTogether::check(void)
 {
-    if (OWNER->robot->keyboard.getA())
+    if (OWNER->robot->keyboard->getA())
     {
         return true;
     }
@@ -189,7 +189,7 @@ bool AlexMachine::StandSelect::check(void)
 {
     if (OWNER->robot->getResetFlag())
     {
-        if (OWNER->robot->keyboard.getA())
+        if (OWNER->robot->keyboard->getA())
         {
             spdlog::debug("Stand selected by keyboard! Begin standing up");
             return true;
@@ -206,7 +206,7 @@ bool AlexMachine::SitSelect::check(void)
 {
     if (OWNER->robot->getResetFlag())
     {
-        if (OWNER->robot->keyboard.getA())
+        if (OWNER->robot->keyboard->getA())
         {
             spdlog::debug("Sit selected! Begin standing up");
             return true;
@@ -225,7 +225,7 @@ bool AlexMachine::SitSelect::check(void)
 bool AlexMachine::WalkSelect::check(void)
 {
     // \todo change to switch statement
-    if (OWNER->robot->getCurrentMotion() == RobotMode::NORMALWALK && OWNER->robot->keyboard.getS())
+    if (OWNER->robot->getCurrentMotion() == RobotMode::NORMALWALK && OWNER->robot->keyboard->getS())
     {
         spdlog::debug("Normal walk selected begin left step");
         return true;
@@ -294,7 +294,7 @@ bool AlexMachine::DownStairSelect::check(void)
 bool AlexMachine::IsRPressed::check(void)
 {
 #ifdef KEYBOARD
-    return OWNER->robot->keyboard.getR();
+    return OWNER->robot->keyboard->getR();
 #endif
 #ifndef KEYBOARD
     return OWNER->robot->buttons.getErrorButton();
@@ -303,7 +303,7 @@ bool AlexMachine::IsRPressed::check(void)
 bool AlexMachine::ResetButtons::check(void)
 {
 #ifdef KEYBOARD
-    return OWNER->robot->keyboard.getR();
+    return OWNER->robot->keyboard->getR();
 #endif
 #ifndef KEYBOARD
     return !(OWNER->robot->buttons.getErrorButton());
@@ -313,7 +313,7 @@ bool AlexMachine::ResetButtons::check(void)
 #ifdef VIRTUAL
 bool AlexMachine::DebugTransition::check(void)
 {
-    return OWNER->robot->keyboard.getS();
+    return OWNER->robot->keyboard->getS();
 }
 #endif
 
