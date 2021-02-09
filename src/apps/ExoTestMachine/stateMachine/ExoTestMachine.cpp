@@ -28,6 +28,7 @@ ExoTestMachine::ExoTestMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
+    NewTransition(initState, startExoCal, sitting);
     NewTransition(initState, startExo, sitting);
     NewTransition(initState, startExoCal, sitting);
     NewTransition(sitting, startStand, standingUp);
@@ -79,6 +80,27 @@ bool ExoTestMachine::IsAPressed::check(void) {
 }
 bool ExoTestMachine::StartButtonsPressed::check(void) {
     if (OWNER->robot->keyboard->getW() == true) {
+        return true;
+    }
+    return false;
+}
+bool ExoTestMachine::StartExoCal::check(void) {
+    if (OWNER->robot->keyboard->getA() == true) {
+        spdlog::info("LEAVING INIT and entering Sitting");
+        spdlog::info("Performing joint homing");
+
+        std::vector<int> homingDirection = { -1, 0, 0, 0};
+        float thresholdTorque = 5; // Nm
+        float delayTime = 0.5;  // s
+        float homingSpeed = 0.1;  // [rad/s]
+        float maxTime = 5; // s
+
+        OWNER->robot->homing(homingDirection, thresholdTorque, delayTime, homingSpeed, maxTime);
+
+        spdlog::info("Homing complete");
+
+        spdlog::info("Setting to Position Control");
+        OWNER->robot->initPositionControl();
         return true;
     }
     return false;
