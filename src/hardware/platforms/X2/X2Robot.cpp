@@ -35,18 +35,48 @@ JointDrivePairs kneeJDP{
  */
 ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
+static volatile sig_atomic_t exitHoming = 0;
+
 X2Robot::X2Robot() : Robot() {
+    spdlog::debug("X2Robot Created");
+
+    // This is the default name accessed from the MACRO. If ROS is used, under demo machine robot name can be set
+    // by setRobotName() to the ros node name. See X2DemoMachine::init()
+    robotName_ = XSTR(X2_NAME);
+
 #ifdef NOROBOT
     simJointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 #endif
+
+    // Initializing the parameters to zero
+    x2Parameters.m = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.l = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.s = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.I = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.c0 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.c1 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.c2 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.cuffWeights = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    x2Parameters.forceSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+
+    spdlog::debug("initialiseJoints call");
+
+    initialiseJoints();
+    initialiseInputs();
 }
 
 X2Robot::~X2Robot() {
     freeMemory();
     spdlog::debug("X2Robot deleted");
 }
+
+void X2Robot::signalHandler(int signum) {
+    exitHoming = 1;
+    std::raise(SIGTERM); //Clean exit
+}
+
 #ifdef SIM
 void X2Robot::initialiseROS() {
     controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
@@ -58,6 +88,15 @@ void X2Robot::initialiseROS() {
     jointStateSubscriber_ = nodeHandle_->subscribe("joint_states", 1, &X2Robot::jointStateCallback, this);
 }
 #endif
+
+void X2Robot::resetErrors() {
+    spdlog::debug("Clearing errors on all motor drives ");
+    for (auto p : joints) {
+        // Put into ReadyToSwitchOn()
+        p->resetErrors();
+    }
+}
+
 bool X2Robot::initPositionControl() {
     spdlog::debug("Initialising Position Control on all joints ");
     bool returnValue = true;
@@ -109,7 +148,7 @@ bool X2Robot::initVelocityControl() {
     }
 
     // Pause for a bit to let commands go
-    usleep(2000);
+    usleep(10000);
     for (auto p : joints) {
         p->enable();
     }
@@ -173,6 +212,7 @@ setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
+        spdlog::debug("Joint {}, Target {}, Current {}", i, positions[i], ((X2Joint *)p)->getPosition());
         setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
             spdlog::error("Joint {} is not in Position Control ", p->getId());
@@ -292,9 +332,16 @@ Eigen::VectorXd &X2Robot::getInteractionForce() {
         interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
     }
 
+    //todo: add backpack angle
+    Eigen::VectorXd cuffCompensation = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    cuffCompensation[0] = x2Parameters.cuffWeights[0] * sin(getPosition()[0]);
+    cuffCompensation[1] = x2Parameters.cuffWeights[1] * sin(getPosition()[1] - getPosition()[0]);
+    cuffCompensation[2] = x2Parameters.cuffWeights[2] * sin(getPosition()[2]);
+    cuffCompensation[3] = x2Parameters.cuffWeights[3] * sin(getPosition()[3] - getPosition()[2]);
+
     //Update values
     for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
-        interactionForces_[i] = forceSensors[i]->getForce();
+        interactionForces_[i] = forceSensors[i]->getForce() + cuffCompensation[i];
     }
     return interactionForces_;
 }
@@ -320,6 +367,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
     std::vector<bool> success(X2_NUM_JOINTS, false);
     std::chrono::steady_clock::time_point time0;
     this->initVelocityControl();
+    signal(SIGINT, signalHandler); // check if ctrl + c is pressed
 
     for (int i = 0; i < X2_NUM_JOINTS; i++) {
         if (homingDirection[i] == 0) continue;  // skip the joint if it is not asked to do homing
@@ -334,17 +382,24 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
         spdlog::debug("Homing Joint {} ...", i);
 
         while (success[i] == false &&
+                exitHoming == 0 &&
                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count() < maxTime * 1000) {
             this->updateRobot();  // because this function has its own loops, updateRobot needs to be called
             this->setVelocity(desiredVelocity);
+            usleep(10000);
+
+
             if (std::abs(this->getTorque()[i]) >= thresholdTorque) {  // if high torque is reached
                 highTorqueReached = true;
                 firstTimeHighTorque = std::chrono::steady_clock::now();
                 while (std::chrono::duration_cast<std::chrono::milliseconds>  // high torque should be measured for delayTime
-                       (std::chrono::steady_clock::now() - firstTimeHighTorque)
-                           .count() < delayTime * 1000) {
+                       (std::chrono::steady_clock::now() - firstTimeHighTorque).count() < delayTime * 1000 &&
+                        exitHoming == 0) {
                     this->updateRobot();
+                    usleep(10000);
+
                     if (std::abs(this->getTorque()[i]) < thresholdTorque) {  // if torque value reach below thresholdTorque, goes back
+                        spdlog::debug("Torque drop", this->getTorque()[i]);
                         highTorqueReached = false;
                         break;
                     }
@@ -355,6 +410,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
 
         if (success[i]) {
             spdlog::debug("Homing Succeeded for Joint {} .", i);
+            usleep(10000);
             if (i == X2_LEFT_HIP || i == X2_RIGHT_HIP) {  // if it is a hip joint
 
                 // zeroing is done depending on the limits on the homing direction
@@ -380,7 +436,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
         if (homingDirection[i] == 0) continue;  // skip the joint if it is not asked to do homing
         if (success[i] == false) return false;
     }
-    return true;  // will come here if all hoints successfully homed
+    return true;  // will come here if all joints successfully homed
 }
 
 bool X2Robot::initialiseJoints() {
@@ -392,10 +448,14 @@ bool X2Robot::initialiseJoints() {
         } else if (id == X2_LEFT_KNEE || id == X2_RIGHT_KNEE) {
             joints.push_back(new X2Joint(id, X2JointLimits.kneeMin, X2JointLimits.kneeMax, kneeJDP, motorDrives[id]));
         }
+        spdlog::debug("X2Robot::initialiseJoints() loop");
     }
+
+    initializeRobotParams(robotName_);
 
     return true;
 }
+
 
 bool X2Robot::initialiseNetwork() {
     spdlog::debug("X2Robot::initialiseNetwork()");
@@ -417,8 +477,42 @@ bool X2Robot::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
 
     for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
-        forceSensors.push_back(new X2ForceSensor(id));
+        forceSensors.push_back(new X2ForceSensor(id, x2Parameters.forceSensorScaleFactor[id]));
         inputs.push_back(forceSensors[id]);
+    }
+
+    return true;
+}
+
+bool X2Robot::initializeRobotParams(std::string robotName) {
+
+    // need to use address of base directory because when run with ROS, working directory is ~/.ros
+    std::string baseDirectory = XSTR(BASE_DIRECTORY);
+    std::string relativeFilePath = "/config/x2_params.yaml";
+
+    YAML::Node params = YAML::LoadFile(baseDirectory + relativeFilePath);
+
+    // if the robotName does not match with the name in x2_params.yaml
+    if(!params[robotName]){
+        spdlog::error("Parameters of {} couldn't be found in {} !", robotName, baseDirectory + relativeFilePath);
+        spdlog::error("All parameters are zero !");
+
+        return false;
+    }
+
+    // getting the parameters from the yaml file
+    for(int i = 0; i<X2_NUM_JOINTS; i++){
+        x2Parameters.m[i] = params[robotName]["m"][i].as<double>();
+        x2Parameters.l[i] = params[robotName]["l"][i].as<double>();
+        x2Parameters.s[i] = params[robotName]["s"][i].as<double>();
+        x2Parameters.I[i] = params[robotName]["I"][i].as<double>();
+        x2Parameters.c0[i] = params[robotName]["c0"][i].as<double>();
+        x2Parameters.c1[i] = params[robotName]["c1"][i].as<double>();
+        x2Parameters.c2[i] = params[robotName]["c2"][i].as<double>();
+    }
+    for(int i = 0; i<X2_NUM_FORCE_SENSORS; i++) {
+        x2Parameters.cuffWeights[i] = params[robotName]["cuff_weights"][i].as<double>();
+        x2Parameters.forceSensorScaleFactor[i] = params[robotName]["force_sensor_scale_factor"][i].as<double>();
     }
 
     return true;
@@ -441,6 +535,48 @@ void X2Robot::freeMemory() {
 void X2Robot::updateRobot() {
     //TODO: generalise sensors update
     Robot::updateRobot();
+}
+
+bool X2Robot::setPosControlContinuousProfile(bool continuous){
+    bool returnValue = true;
+    for (auto p : joints) {
+        if(!(p->setPosControlContinuousProfile(continuous))){
+            returnValue = false;
+        }
+    }
+    return returnValue;
+}
+
+Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
+    float coulombFriction;
+    const float velTreshold = 1*M_PI/180.0; // [rad/s]
+
+    // todo generalized 4 Dof Approach
+    if(abs(jointVelocities_[1]) > velTreshold){ // if in motion
+        coulombFriction = x2Parameters.c1[1]*jointVelocities_[1]/abs(jointVelocities_[1]) +
+        + x2Parameters.c2[1]*sqrt(abs(jointVelocities_[1]))*jointVelocities_[1]/abs(jointVelocities_[1]);
+    }else { // if static
+        coulombFriction = x2Parameters.c1[1]*motionIntend/abs(motionIntend);
+    }
+
+    Eigen::VectorXd ffTorque = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    ffTorque[1] = x2Parameters.m[1]*x2Parameters.s[1]*9.81*sin(jointPositions_[1] - jointPositions_[0]) + coulombFriction + x2Parameters.c0[1]*jointVelocities_[1];
+
+    return ffTorque;
+
+}
+
+void X2Robot::setRobotName(std::string robotName) {
+    robotName_ = robotName;
+}
+
+std::string & X2Robot::getRobotName() {
+    return robotName_;
+}
+
+RobotParameters& X2Robot::getRobotParameters() {
+    return x2Parameters;
+
 }
 
 #ifdef SIM

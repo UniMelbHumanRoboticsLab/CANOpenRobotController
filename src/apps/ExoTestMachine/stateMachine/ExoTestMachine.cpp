@@ -30,15 +30,11 @@ ExoTestMachine::ExoTestMachine() {
      */
     NewTransition(initState, startExoCal, sitting);
     NewTransition(initState, startExo, sitting);
-
-    // Disable states for now
-    //NewTransition(sitting, startStand, standingUp);
-    //NewTransition(standingUp, endTraj, standing);
-    //NewTransition(standing, startSit, sittingDwn);
-    //NewTransition(sittingDwn, endTraj, sitting);
-
-
-
+    NewTransition(initState, startExoCal, sitting);
+    NewTransition(sitting, startStand, standingUp);
+    NewTransition(standingUp, endTraj, standing);
+    NewTransition(standing, startSit, sittingDwn);
+    NewTransition(sittingDwn, endTraj, sitting);
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(initState);
 }
@@ -116,6 +112,20 @@ bool ExoTestMachine::StartExo::check(void) {
     }
     return false;
 }
+bool ExoTestMachine::StartExoCal::check(void) {
+    if (OWNER->robot->keyboard->getA() == true) {
+        spdlog::info("LEAVING INIT and entering Sitting");
+        spdlog::info("Homing");
+
+        OWNER->robot->disable();
+        OWNER->robot->homing();
+        spdlog::info("Finished");
+
+        return true;
+    }
+    return false;
+}
+
 bool ExoTestMachine::StartStand::check(void) {
     if (OWNER->robot->keyboard->getW() == true) {
         return true;
@@ -138,6 +148,11 @@ void ExoTestMachine::hwStateUpdate(void) {
     robot->updateRobot();
 }
 
+void ExoTestMachine::configureMasterPDOs() {
+    spdlog::debug("ExoTestMachine::configureMasterPDOs()");
+    robot->configureMasterPDOs();
+}
+
 /**
  * \brief Statemachine update: overloaded to include logging
  *
@@ -148,7 +163,7 @@ void ExoTestMachine::update() {
                 std::chrono::steady_clock::now() - time0)
                 .count()) /
            1e6;
-    spdlog::debug("Update()");
+    spdlog::trace("Update()");
     StateMachine::update();
     dataLogger.recordLogData();
 }

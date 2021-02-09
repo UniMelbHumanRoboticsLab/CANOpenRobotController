@@ -13,6 +13,8 @@
 
 Robot::Robot(){
     spdlog::debug("Robot object created");
+    //initialiseJoints();
+    //initialiseInputs();
 }
 
 Robot::~Robot() {
@@ -20,12 +22,8 @@ Robot::~Robot() {
 }
 
 bool Robot::initialise() {
-    if (initialiseJoints()) {
-        if (initialiseNetwork()) {
-            if (initialiseInputs()) {
-                return true;
-            }
-        }
+    if (initialiseNetwork()) {
+            return true;
     }
     return false;
 }
@@ -40,11 +38,13 @@ bool Robot::disable() {
 }
 
 void Robot::updateRobot() {
+
     //Retrieve latest values from hardware
     for (auto joint : joints)
         joint->updateValue();
-    for (auto input : inputs)
+    for (auto input : inputs ){
         input->updateInput();
+    }
 
     //Update local copies of joint values
     if((unsigned int)jointPositions_.size()!=joints.size()) {
@@ -119,4 +119,14 @@ void Robot::printStatus() {
 
 void Robot::printJointStatus(int J_i) {
     joints[J_i]->printStatus();
+}
+
+bool Robot::configureMasterPDOs() {
+    for (auto j : joints) {
+        j->configureMasterPDOs();
+    }
+    for (auto i : inputs) {
+        i->configureMasterPDOs();
+    }
+    return true;
 }

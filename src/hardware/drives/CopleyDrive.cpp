@@ -18,7 +18,7 @@ bool CopleyDrive::init() {
 }
 
 bool CopleyDrive::initPosControl(motorProfile posControlMotorProfile) {
-    spdlog::debug("NodeID {} Initialising Position Control", NodeID);
+    spdlog::debug("Node     ID {} Initialising Position Control", NodeID);
 
     sendSDOMessages(generatePosControlConfigSDO(posControlMotorProfile));
     /**
@@ -77,7 +77,7 @@ std::vector<std::string> CopleyDrive::generatePositionOffsetSDO(int offset) {
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
     // set control word to start homing
-    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x1f";
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x0f";
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 

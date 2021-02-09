@@ -9,6 +9,7 @@
   <arg name="debug" default="false"/>
   <arg name="controllers" default="position_controller velocity_controller torque_controller"/>
   <arg name="robot_description_name" default="x2/robot_description"/>
+  <arg name="robot_name" default="x2"/>
 
   <!-- Launch empty world in gazebo -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -23,7 +24,6 @@
   <!-- load the urdf of X2 into the parameter server -->
   <param name="$(arg robot_description_name)" command="$(find xacro)/xacro '$(find x2_description)/urdf/x2_fixed_base.urdf.xacro'  robot_description_name:=$(arg robot_description_name)"/>
 
-
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" args="-param $(arg robot_description_name) -urdf -model x2"/>
 
@@ -32,16 +32,16 @@
 
   <!-- load joint state controller -->
   <node name="joint_state_spawner" pkg="controller_manager" type="spawner" respawn="false"
-     ns="/x2" args="joint_state_controller"/>
+     ns="/$(arg robot_name)" args="joint_state_controller"/>
 
   <!-- load other controllers in stopped state -->
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-     ns="/x2" args="--stopped $(arg controllers)"/> 
+     ns="$(arg robot_name)" args="--stopped $(arg controllers)"/>
 
   <!-- The robot_state_publisher reads the urdf from /robot_description parameter
        and listens to joint information on the /joint_states topic -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
-  <remap from="/joint_states" to="/x2/joint_states" />
+  <remap from="/joint_states" to="/$(arg robot_name)/joint_states" />
   <remap from="robot_description" to="$(arg robot_description_name)"/>
   </node>
 
@@ -49,7 +49,7 @@
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find x2_description)/rviz/view_robot.rviz"/>
 
   <!-- CORC -->
-  <node name="x2" pkg="CORC" type="X2DemoMachine_APP_NOROBOT" output="screen"/>
+  <node name="$(arg robot_name)" pkg="CORC" type="X2DemoMachine_APP_NOROBOT" output="screen"/>
 
 </launch>
 

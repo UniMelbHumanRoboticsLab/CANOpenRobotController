@@ -1,0 +1,21 @@
+X2_SRA_A: # That ends with 0.9999 are not investigated yet
+  m: [5.9999, 2.4076, 5.9999, 2.4076] # masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
+  l: [0.37, 0.38, 0.37, 0.38] # length of left thigh, left shank, right thigh, right shank [kg]
+  s: [0.19999, 0.3213, 0.19999, 0.3213] # length from previous joint to CoM [m]
+  I: [3.9999, 2.1814, 3.9999, 2.1814] # mass moment of inertia of left thigh, left shank+foot, right thigh, right shank+foot [kg.m^2]
+  c0: [1.9999, 1.5761, 1.9999, 1.5761] # viscous fric constant of joints [N.s]
+  c1: [2.9999, 2.5, 2.9999, 2.5] # coulomb friction const of joints [N.m]
+  c2: [2.9999, 2.4839, 2.9999, 2.4839] # friction const related to sqrt of vel
+  cuff_weights: [3.69, 3.69, 3.69, 3.69] # cuff Weights [N]
+  force_sensor_scale_factor: [0.1999, 0.246, 0.1999, 0.246] # scale factor of force sensors [N/sensor output]
+
+X2_SRA_B: # That ends with 0.9999 are not investigated yet
+  m: [5.9999, 2.4755, 5.9999, 2.4755] # masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
+  l: [0.37, 0.40, 0.37, 0.40] # length of left thigh, left shank, right thigh, right shank [kg]
+  s: [0.19999, 0.3293, 0.19999, 0.3293] # length from previous joint to CoM [m]
+  I: [3.9999, 2.2067, 3.9999, 2.2067] # mass moment of inertia of left thigh, left shank+foot, right thigh, right shank+foot [kg.m^2]
+  c0: [1.9999, 1.2173, 1.9999, 1.2173] # viscous fric constant of joints [N.s]
+  c1: [2.9999, 2.7, 2.9999, 2.7] # coulomb friction const of joints [N.m]
+  c2: [2.9999, 4.3807, 2.9999, 4.3807] # friction const related to sqrt of vel
+  cuff_weights: [3.69, 3.69, 3.69, 3.69] # cuff Weights [N]
+  force_sensor_scale_factor: [0.1999, 0.194, 0.1999, 0.194] # scale factor of force sensors [N/sensor output]

@@ -51,8 +51,11 @@
    Dictionary Editor v0.6-xdd-alpha-81-gb562769
    DON'T EDIT THIS FILE MANUALLY !!!!
 *******************************************************************************/
+#ifndef CO_OD_H
+#define CO_OD_H
 
 #include "CO_driver.h"
+#include "CO_SDO.h"
 
 #pragma once
 
@@ -109,7 +112,7 @@ typedef domain_t CO_DOMAIN;
 /*******************************************************************************
    OBJECT DICTIONARY
 *******************************************************************************/
-#define CO_OD_NoOfElements 255
+#define CO_OD_NoOfElements (109 + CO_NO_RPDO * 3 + CO_NO_TPDO * 3)
 
 /*******************************************************************************
    TYPE DEFINITIONS FOR RECORDS
@@ -223,92 +226,7 @@ typedef domain_t CO_DOMAIN;
     CO_DOMAIN plot;
     UNSIGNED32 triggerTime;
 } OD_trace_t;
-/*6040    */ typedef struct
-{
-    UNSIGNED8 numberOfMotors;
-    UNSIGNED16 motor1;
-    UNSIGNED16 motor2;
-    UNSIGNED16 motor3;
-    UNSIGNED16 motor4;
-    UNSIGNED16 motor5;
-    UNSIGNED16 motor6;
-} OD_controlWords_t;
-/*6041    */ typedef struct
-{
-    UNSIGNED8 numberOfMotors;
-    UNSIGNED16 motor1;
-    UNSIGNED16 motor2;
-    UNSIGNED16 motor3;
-    UNSIGNED16 motor4;
-    UNSIGNED16 motor5;
-    UNSIGNED16 motor6;
-} OD_statusWords_t;
-/*6064    */ typedef struct
-{
-    UNSIGNED8 numberOfMotors;
-    INTEGER32 motor1;
-    INTEGER32 motor2;
-    INTEGER32 motor3;
-    INTEGER32 motor4;
-    INTEGER32 motor5;
-    INTEGER32 motor6;
-} OD_actualMotorPositions_t;
-/*606c    */ typedef struct
-{
-    UNSIGNED8 numberOfMotors;
-    INTEGER32 motor1;
-    INTEGER32 motor2;
-    INTEGER32 motor3;
-    INTEGER32 motor4;
-    INTEGER32 motor5;
-    INTEGER32 motor6;
-} OD_actualMotorVelocities_t;
-/*6077    */ typedef struct
-{
-    UNSIGNED8 numberOfMotors;
-    INTEGER16 motor1;
-    INTEGER16 motor2;
-    INTEGER16 motor3;
-    INTEGER16 motor4;
-} OD_actualMotorTorques_t;
-/*607a    */ typedef struct
-{
-    UNSIGNED8 numberOfMotors;
-    INTEGER32 motor1;
-    INTEGER32 motor2;
-    INTEGER32 motor3;
-    INTEGER32 motor4;
-    INTEGER32 motor5;
-    INTEGER32 motor6;
-} OD_targetMotorPositions_t;
-/*60ff    */ typedef struct
-{
-    UNSIGNED8 numberOfMotors;
-    INTEGER32 motor1;
-    INTEGER32 motor2;
-    INTEGER32 motor3;
-    INTEGER32 motor4;
-    INTEGER32 motor5;
-    INTEGER32 motor6;
-} OD_targetMotorVelocities_t;
-/*6071    */ typedef struct
-{
-    UNSIGNED8 numberOfMotors;
-    INTEGER16 motor1;
-    INTEGER16 motor2;
-    INTEGER16 motor3;
-    INTEGER16 motor4;
-} OD_targetMotorTorques_t;
-/*7001    */ typedef struct
-{
-    UNSIGNED8 numberOfSensors;
-    INTEGER32 sensor1;
-    INTEGER32 sensor2;
-    INTEGER32 sensor3;
-    INTEGER32 sensor4;
-//    INTEGER16 sensor5;
-//    INTEGER16 sensor6;
-} OD_actualSensorForces_t;
+
 
 /*******************************************************************************
    TYPE DEFINITIONS FOR OBJECT DICTIONARY INDEXES
@@ -3033,160 +2951,7 @@ typedef domain_t CO_DOMAIN;
 #define OD_2420_5_trace_plot 5
 #define OD_2420_6_trace_triggerTime 6
 
-/*6000 */
-#define OD_6000_readInput8Bit 0x6000
 
-#define OD_6000_0_readInput8Bit_maxSubIndex 0
-#define OD_6000_1_readInput8Bit_input 1
-#define OD_6000_2_readInput8Bit_input 2
-#define OD_6000_3_readInput8Bit_input 3
-#define OD_6000_4_readInput8Bit_input 4
-#define OD_6000_5_readInput8Bit_input 5
-#define OD_6000_6_readInput8Bit_input 6
-#define OD_6000_7_readInput8Bit_input 7
-#define OD_6000_8_readInput8Bit_input 8
-
-/*6001 */
-#define OD_6001_currentState 0x6001
-
-/*6002 */
-#define OD_6002_currentMovement 0x6002
-
-/*6003 */
-#define OD_6003_nextMovement 0x6003
-
-/*6004 */
-#define OD_6004_goButton 0x6004
-
-/*6005 */
-#define OD_6005_HB 0x6005
-
-/*6040 */
-#define OD_6040_controlWords 0x6040
-
-#define OD_6040_0_controlWords_maxSubIndex 0
-#define OD_6040_1_controlWords_motor1 1
-#define OD_6040_2_controlWords_motor2 2
-#define OD_6040_3_controlWords_motor3 3
-#define OD_6040_4_controlWords_motor4 4
-#define OD_6040_5_controlWords_motor5 5
-#define OD_6040_6_controlWords_motor6 6
-
-/*6041 */
-#define OD_6041_statusWords 0x6041
-
-#define OD_6041_0_statusWords_maxSubIndex 0
-#define OD_6041_1_statusWords_motor1 1
-#define OD_6041_2_statusWords_motor2 2
-#define OD_6041_3_statusWords_motor3 3
-#define OD_6041_4_statusWords_motor4 4
-#define OD_6041_5_statusWords_motor5 5
-#define OD_6041_6_statusWords_motor6 6
-
-/*6064 */
-#define OD_6064_actualMotorPositions 0x6064
-
-#define OD_6064_0_actualMotorPositions_maxSubIndex 0
-#define OD_6064_1_actualMotorPositions_motor1 1
-#define OD_6064_2_actualMotorPositions_motor2 2
-#define OD_6064_3_actualMotorPositions_motor3 3
-#define OD_6064_4_actualMotorPositions_motor4 4
-#define OD_6064_5_actualMotorPositions_motor5 5
-#define OD_6064_6_actualMotorPositions_motor6 6
-
-/*606c */
-#define OD_606c_actualMotorVelocities 0x606c
-
-#define OD_606c_0_actualMotorVelocities_maxSubIndex 0
-#define OD_606c_1_actualMotorVelocities_motor1 1
-#define OD_606c_2_actualMotorVelocities_motor2 2
-#define OD_606c_3_actualMotorVelocities_motor3 3
-#define OD_606c_4_actualMotorVelocities_motor4 4
-#define OD_606c_5_actualMotorVelocities_motor5 5
-#define OD_606c_6_actualMotorVelocities_motor6 6
-
-/*6077 */
-#define OD_6077_actualMotorTorques 0x6077
-
-#define OD_6077_0_actualMotorTorques_maxSubIndex 0
-#define OD_6077_1_actualMotorTorques_motor1 1
-#define OD_6077_2_actualMotorTorques_motor2 2
-#define OD_6077_3_actualMotorTorques_motor3 3
-#define OD_6077_4_actualMotorTorques_motor4 4
-
-/*607a */
-#define OD_607a_targetMotorPositions 0x607a
-
-#define OD_607a_0_targetMotorPositions_maxSubIndex 0
-#define OD_607a_1_targetMotorPositions_motor1 1
-#define OD_607a_2_targetMotorPositions_motor2 2
-#define OD_607a_3_targetMotorPositions_motor3 3
-#define OD_607a_4_targetMotorPositions_motor4 4
-#define OD_607a_5_targetMotorPositions_motor5 5
-#define OD_607a_6_targetMotorPositions_motor6 6
-
-/*60ff */
-#define OD_60ff_targetMotorVelocities 0x60ff
-
-#define OD_60ff_0_targetMotorVelocities_maxSubIndex 0
-#define OD_60ff_1_targetMotorVelocities_motor1 1
-#define OD_60ff_2_targetMotorVelocities_motor2 2
-#define OD_60ff_3_targetMotorVelocities_motor3 3
-#define OD_60ff_4_targetMotorVelocities_motor4 4
-#define OD_60ff_5_targetMotorVelocities_motor5 5
-#define OD_60ff_6_targetMotorVelocities_motor6 6
-
-/*6071 */
-#define OD_6071_targetMotorTorques 0x6071
-
-#define OD_6071_0_targetMotorTorques_maxSubIndex 0
-#define OD_6071_1_targetMotorTorques_motor1 1
-#define OD_6071_2_targetMotorTorques_motor2 2
-#define OD_6071_3_targetMotorTorques_motor3 3
-#define OD_6071_4_targetMotorTorques_motor4 4
-
-/*6200 */
-#define OD_6200_writeOutput8Bit 0x6200
-
-#define OD_6200_0_writeOutput8Bit_maxSubIndex 0
-#define OD_6200_1_writeOutput8Bit_output 1
-#define OD_6200_2_writeOutput8Bit_output 2
-#define OD_6200_3_writeOutput8Bit_output 3
-#define OD_6200_4_writeOutput8Bit_output 4
-#define OD_6200_5_writeOutput8Bit_output 5
-#define OD_6200_6_writeOutput8Bit_output 6
-#define OD_6200_7_writeOutput8Bit_output 7
-#define OD_6200_8_writeOutput8Bit_output 8
-
-/*6401 */
-#define OD_6401_readAnalogueInput16Bit 0x6401
-
-#define OD_6401_0_readAnalogueInput16Bit_maxSubIndex 0
-#define OD_6401_1_readAnalogueInput16Bit_input 1
-#define OD_6401_2_readAnalogueInput16Bit_input 2
-#define OD_6401_3_readAnalogueInput16Bit_input 3
-#define OD_6401_4_readAnalogueInput16Bit_input 4
-#define OD_6401_5_readAnalogueInput16Bit_input 5
-#define OD_6401_6_readAnalogueInput16Bit_input 6
-#define OD_6401_7_readAnalogueInput16Bit_input 7
-#define OD_6401_8_readAnalogueInput16Bit_input 8
-#define OD_6401_9_readAnalogueInput16Bit_input 9
-#define OD_6401_10_readAnalogueInput16Bit_input 10
-#define OD_6401_11_readAnalogueInput16Bit_input 11
-#define OD_6401_12_readAnalogueInput16Bit_input 12
-
-/*6411 */
-#define OD_6411_writeAnalogueOutput16Bit 0x6411
-
-#define OD_6411_0_writeAnalogueOutput16Bit_maxSubIndex 0
-#define OD_6411_1_writeAnalogueOutput16Bit_output 1
-#define OD_6411_2_writeAnalogueOutput16Bit_output 2
-#define OD_6411_3_writeAnalogueOutput16Bit_output 3
-#define OD_6411_4_writeAnalogueOutput16Bit_output 4
-#define OD_6411_5_writeAnalogueOutput16Bit_output 5
-#define OD_6411_6_writeAnalogueOutput16Bit_output 6
-#define OD_6411_7_writeAnalogueOutput16Bit_output 7
-#define OD_6411_8_writeAnalogueOutput16Bit_output 8
 
 /*******************************************************************************
    STRUCTURES FOR VARIABLES IN DIFFERENT MEMORY LOCATIONS
@@ -3230,10 +2995,10 @@ struct sCO_OD_RAM {
     /*1029      */ UNSIGNED8 errorBehavior[6];
     /*1200      */ OD_SDOServerParameter_t SDOServerParameter[1];
     /*1280      */ OD_SDOClientParameter_t SDOClientParameter[1];
-    /*1400      */ OD_RPDOCommunicationParameter_t RPDOCommunicationParameter[32];
-    /*1600      */ OD_RPDOMappingParameter_t RPDOMappingParameter[32];
-    /*1800      */ OD_TPDOCommunicationParameter_t TPDOCommunicationParameter[32];
-    /*1a00      */ OD_TPDOMappingParameter_t TPDOMappingParameter[32];
+    /*1400      */ //OD_RPDOCommunicationParameter_t RPDOCommunicationParameter[32];
+    /*1600      */ //OD_RPDOMappingParameter_t RPDOMappingParameter[32];
+    /*1800      */ //OD_TPDOCommunicationParameter_t TPDOCommunicationParameter[32];
+    /*1a00      */ //OD_TPDOMappingParameter_t TPDOMappingParameter[32];
     /*1f80      */ UNSIGNED32 NMTStartup;
     /*1f81      */ UNSIGNED32 slaveAssignment[127];
     /*1f82      */ UNSIGNED8 requestNMT[127];
@@ -3256,24 +3021,6 @@ struct sCO_OD_RAM {
     /*2301      */ OD_traceConfig_t traceConfig[32];
     /*2400      */ UNSIGNED8 traceEnable;
     /*2401      */ OD_trace_t trace[32];
-    /*6000      */ UNSIGNED8 readInput8Bit[8];
-    /*6001      */ UNSIGNED16 currentState;
-    /*6002      */ UNSIGNED16 currentMovement;
-    /*6003      */ UNSIGNED16 nextMovement;
-    /*6004      */ UNSIGNED16 goButton;
-    /*6005      */ UNSIGNED16 HB;
-    /*6040      */ OD_controlWords_t controlWords;
-    /*6041      */ OD_statusWords_t statusWords;
-    /*6064      */ OD_actualMotorPositions_t actualMotorPositions;
-    /*606c      */ OD_actualMotorVelocities_t actualMotorVelocities;
-    /*6077      */ OD_actualMotorTorques_t actualMotorTorques;
-    /*607a      */ OD_targetMotorPositions_t targetMotorPositions;
-    /*60ff      */ OD_targetMotorVelocities_t targetMotorVelocities;
-    /*6071      */ OD_targetMotorTorques_t targetMotorTorques;
-    /*7001      */ OD_actualSensorForces_t actualSensorForces;
-    /*6200      */ UNSIGNED8 writeOutput8Bit[8];
-    /*6401      */ INTEGER16 readAnalogueInput16Bit[12];
-    /*6411      */ INTEGER16 writeAnalogueOutput16Bit[8];
 
     UNSIGNED32 LastWord;
 };
@@ -3389,16 +3136,21 @@ extern struct sCO_OD_EEPROM CO_OD_EEPROM;
 #define OD_SDOClientParameter CO_OD_RAM.SDOClientParameter
 
 /*1400, Data Type: RPDOCommunicationParameter_t */
-#define OD_RPDOCommunicationParameter CO_OD_RAM.RPDOCommunicationParameter
 
+// Change to store the parameters in a dedicated array
+// #define OD_RPDOCommunicationParameter CO_OD_RAM.RPDOCommunicationParameter
+extern OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO];
 /*1600, Data Type: RPDOMappingParameter_t */
-#define OD_RPDOMappingParameter CO_OD_RAM.RPDOMappingParameter
+//#define OD_RPDOMappingParameter CO_OD_RAM.RPDOMappingParameter
+extern OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO];
 
 /*1800, Data Type: TPDOCommunicationParameter_t */
-#define OD_TPDOCommunicationParameter CO_OD_RAM.TPDOCommunicationParameter
+//#define OD_TPDOCommunicationParameter CO_OD_RAM.TPDOCommunicationParameter
+extern OD_TPDOCommunicationParameter_t *OD_TPDOCommunicationParameter[CO_NO_TPDO];
 
 /*1a00, Data Type: TPDOMappingParameter_t */
-#define OD_TPDOMappingParameter CO_OD_RAM.TPDOMappingParameter
+//#define OD_TPDOMappingParameter CO_OD_RAM.TPDOMappingParameter
+extern OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO];
 
 /*1f80, Data Type: UNSIGNED32 */
 #define OD_NMTStartup CO_OD_RAM.NMTStartup
@@ -3545,3 +3297,17 @@ extern struct sCO_OD_EEPROM CO_OD_EEPROM;
 #define OD_writeAnalogueOutput16Bit CO_OD_RAM.writeAnalogueOutput16Bit
 #define ODL_writeAnalogueOutput16Bit_arrayLength 8
 #define ODA_writeAnalogueOutput16Bit_output 0
+
+    /**
+ * Configures the Objection Dictionary with blank PDOs.
+ *
+ * @return Success or failure of the configuration
+ */
+    bool_t
+    CO_configure(void);
+
+bool_t CO_OD_set_entry(uint16_t element_, uint16_t index_, uint8_t maxSubIndex_, uint16_t attribute_, uint16_t length_, void *pData_);
+int CO_setRPDO(OD_RPDOCommunicationParameter_t *RPDOcommPara, OD_RPDOMappingParameter_t *RPDOmapparam, CO_OD_entryRecord_t *PRDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *RPDOmapparamEntry);
+int CO_setTPDO(OD_TPDOCommunicationParameter_t *TPDOcommPara, OD_TPDOMappingParameter_t *TPDOmapparam, CO_OD_entryRecord_t *TPDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *TPDOmapparamEntry);
+
+#endif
