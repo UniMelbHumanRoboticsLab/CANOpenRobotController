@@ -1,6 +1,6 @@
 
 
-#include "Hx711.h"
+#include "HX711.h"
 
 //#define SHIFTIN_WITH_SPEED_SUPPORT(data,clock,order) shiftInSlow(data,clock,order)
 
