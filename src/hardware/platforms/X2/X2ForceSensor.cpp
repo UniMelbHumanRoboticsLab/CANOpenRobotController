@@ -4,6 +4,7 @@ X2ForceSensor::X2ForceSensor(int sensorID, double scaleFactor) {
 
     this->sensorID = sensorID;
     this->scaleFactor_ = scaleFactor;
+    calibrationOffset_ = 1500; // on avg value is around 1500. If no calibration() method is called. This default one will be used.
 }
 
 void X2ForceSensor::updateInput() {
