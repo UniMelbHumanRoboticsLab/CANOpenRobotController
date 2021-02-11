@@ -80,10 +80,9 @@ public:
     AlexMachine();
     void init();
     void activate();
-    void deactivate();
-
     void hwStateUpdate();
     void configureMasterPDOs();
+
     void end();
     State *gettCurState();
     void initRobot(AlexRobot *rb);

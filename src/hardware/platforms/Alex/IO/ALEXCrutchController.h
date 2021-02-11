@@ -40,8 +40,8 @@ class ALEXCrutchController : public InputDevice {
     ALEXCrutchController();
 
     // These should probably be private...TODO
-    UNSIGNED8 nextMovement;
-    UNSIGNED8 goButton;
+    UNSIGNED8 nextMovement =0;
+    UNSIGNED8 goButton =0;
 
     /**
     * \brief update the current controller menu and print to the screen, if select is

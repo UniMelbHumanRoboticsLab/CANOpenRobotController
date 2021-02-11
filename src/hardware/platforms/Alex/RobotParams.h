@@ -9,8 +9,13 @@
  * \copyright Copyright (c) 2020
  */
 #include "AlexJoint.h"
+
 #ifndef ROBOT_PARAMS_H
 #define ROBOT_PARAMS_H
+
+// Macros
+#define deg2rad(deg) ((deg)*M_PI / 180.0)
+#define rad2deg(rad) ((rad)*180.0 / M_PI)
 
 #define ALEX_NUM_JOINTS 4
 
@@ -73,5 +78,21 @@ enum class RobotMode
     UNEVEN,
     INITIAL,
 };
+
+
+
+/**
+ * Structure which is used for joint limits. Defines minimum and maximum limits of the each joint
+ *
+ */
+struct ExoJointLimits {
+    double hipMax;
+    double hipMin;
+    double kneeMax;
+    double kneeMin;
+};
+
+
+
 
 #endif /*ROBOT_PARAMS_H*/

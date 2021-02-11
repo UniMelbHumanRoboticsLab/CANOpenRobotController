@@ -65,7 +65,7 @@ uint8_t HX711::digitalRead(int pin) {
 
 //no
 bool HX711::is_ready() {
-    return digitalRead(DOUT) == LOW;
+    return digitalRead(6) == LOW;
 }
 
 //go

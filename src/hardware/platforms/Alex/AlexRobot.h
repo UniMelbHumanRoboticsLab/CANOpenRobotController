@@ -55,20 +55,7 @@
 // robot name is used to access the properties of the correct robot version
 #define X2_NAME X2_ALEX
 
-// Macros
-#define deg2rad(deg) ((deg)*M_PI / 180.0)
-#define rad2deg(rad) ((rad)*180.0 / M_PI)
 
-/**
- * Structure which is used for joint limits. Defines minimum and maximum limits of the each joint
- *
- */
-struct ExoJointLimits {
-    double hipMax;
-    double hipMin;
-    double kneeMax;
-    double kneeMin;
-};
 
 struct RobotParameters {
     Eigen::VectorXd m;                       // masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
@@ -82,30 +69,6 @@ struct RobotParameters {
     Eigen::VectorXd forceSensorScaleFactor;  // scale factor of force sensors [N/sensor output]
 };
 
-/**
- * Paramater definitions: Hip motor reading and corresponding angle. Used for mapping between degree and motor values.
- */
-JointDrivePairs hipJDP{
-    250880,       // drivePosA
-    0,            // drivePosB
-    deg2rad(90),  //jointPosA
-    deg2rad(0)    //jointPosB
-};
-/**
- * Paramater definitions: Knee motor reading and corresponding angle. Used for mapping between degree and motor values.
- */
-JointDrivePairs kneeJDP{
-    250880,       // drivePosA
-    0,            //drivePosB
-    deg2rad(90),  //jointPosA
-    deg2rad(0)    //jointPosB
-};
-
-/**
- * Defines the Joint Limits of the X2 Exoskeleton
- *
- */
-ExoJointLimits AlexJointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
@@ -155,6 +118,15 @@ private:
    Keyboard *keyboard;
    ALEXCrutchController *pb;
    Buttons buttons;
+
+
+
+/**
+ * Defines the Joint Limits of the X2 Exoskeleton
+ *
+ */
+ExoJointLimits AlexJointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
+
 
    // Base class drive pointer: can be any type of derived driver class.
    std::vector<Drive *> motorDrives;
