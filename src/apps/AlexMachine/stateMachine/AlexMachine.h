@@ -83,6 +83,7 @@ public:
 
     void hwStateUpdate();
     void configureMasterPDOs();
+
     void end();
     State *gettCurState();
     void initRobot(AlexRobot *rb);

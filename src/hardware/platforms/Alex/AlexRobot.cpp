@@ -367,6 +367,12 @@ bool AlexRobot::homing(std::vector<int> homingDirection, float thresholdTorque, 
 }
 
 
+
+void AlexRobot::signalHandler(int signum) {
+    exitHoming = 1;
+    std::raise(SIGTERM); //Clean exit
+}
+
 bool AlexRobot::initialiseInputs() {
     spdlog::info("initinputs");
     inputs.push_back(keyboard = new Keyboard());
@@ -472,9 +478,9 @@ bool AlexRobot::initialiseJoints() {
         motorDrives.push_back(new CopleyDrive(id + 1));
         // The X2 has 2 Hips and 2 Knees, by default configured as 2 hips, then 2 legs int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive
         if (id == ALEX_LEFT_HIP || id == ALEX_RIGHT_HIP) {
-            joints.push_back(new AlexJoint(id, AlexJointLimits.hipMin, AlexJointLimits.hipMax, hipJDP, motorDrives[id]));
+            joints.push_back(new AlexJoint(id, AlexJointLimits.hipMin, AlexJointLimits.hipMax, ALEXhipJDP, motorDrives[id]));
         } else if (id == ALEX_LEFT_KNEE || id == ALEX_RIGHT_KNEE) {
-            joints.push_back(new AlexJoint(id, AlexJointLimits.kneeMin, AlexJointLimits.kneeMax, kneeJDP, motorDrives[id]));
+            joints.push_back(new AlexJoint(id, AlexJointLimits.kneeMin, AlexJointLimits.kneeMax,  ALEXkneeJDP, motorDrives[id]));
         } else {  // is an ankle  ->  CHANGE DRIVE to Schneider drives NOT COPLEY
            // Drives.push_back(new SchneiderDrive(id + 1));
            // joints.push_back(new AlexJoint(id, jointMinMap[id], jointMaxMap[id], Drives[id], ankleParam));

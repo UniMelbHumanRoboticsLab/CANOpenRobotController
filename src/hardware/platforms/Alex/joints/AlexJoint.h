@@ -12,6 +12,7 @@
 
 #include "CopleyDrive.h"
 #include "Joint.h"
+#include "RobotParams.h"
 
 #define MOTOR_RATED_TORQUE 0.319
 #define REDUCTION_RATIO 122.5
@@ -27,6 +28,26 @@ typedef struct JointDrivePairs {
     double jointPosA;
     double jointPosB;
 } JointDrivePairs;
+
+
+/**
+ * Paramater definitions: Hip motor reading and corresponding angle. Used for mapping between degree and motor values.
+ */
+static JointDrivePairs ALEXhipJDP{
+    250880,       // drivePosA
+    0,            // drivePosB
+    deg2rad(90),  //jointPosA
+    deg2rad(0)    //jointPosB
+};
+/**
+ * Paramater definitions: Knee motor reading and corresponding angle. Used for mapping between degree and motor values.
+ */
+static JointDrivePairs ALEXkneeJDP{
+    250880,       // drivePosA
+    0,            //drivePosB
+    deg2rad(90),  //jointPosA
+    deg2rad(0)    //jointPosB
+};
 
 
 /**
@@ -83,6 +104,10 @@ class AlexJoint : public Joint {
 
    public:
     AlexJoint(int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive);
+
+
+
+
     bool updateValue();
     bool initNetwork();
 
