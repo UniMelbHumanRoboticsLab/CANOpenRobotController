@@ -6,10 +6,12 @@
 
 //using namespace std;
 #include <Eigen/Core>
+#include <Eigen/Dense>
 #include <cmath>
 #include <iostream>
 #include <map>
 #include <vector>
+
 #include "RobotParams.h"
 
 /**

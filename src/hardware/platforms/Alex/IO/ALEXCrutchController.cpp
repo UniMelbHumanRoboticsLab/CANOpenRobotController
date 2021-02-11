@@ -26,13 +26,13 @@ void ALEXCrutchController::updateInput(){
 bool ALEXCrutchController::configureMasterPDOs(){
         UNSIGNED16 dataSize[1] = {1};
         void *dataGo[1] = {
-            (void *)&goButton,
+            (void *)&goButton
         };
 
         goRPDO = new RPDO(0x192, 0xff, dataGo, dataSize, 1);
 
         void *dataNextMove[1] = {
-            (void *)&nextMovement,
+            (void *)&nextMovement
         };
 
         nextMovementRPDO = new RPDO(0x191, 0xff, dataNextMove, dataSize, 1);
@@ -65,6 +65,15 @@ RobotMode ALEXCrutchController::updateController(bool up, bool dwn, bool select)
     //printMenu();
     return returnValue;
 }
+
+void ALEXCrutchController::setNextMovement(UNSIGNED8 nm) {
+    nextMovement =nm;
+}
+
+UNSIGNED8 ALEXCrutchController::getNextMovement() {
+    return nextMovement;
+}
+
 /**
      * \brief print current menu of motions to the screen -> next Motion on crutch
      * 

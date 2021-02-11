@@ -4,8 +4,6 @@ static volatile sig_atomic_t exitHoming = 0;
 
 AlexRobot::AlexRobot(AlexTrajectoryGenerator *tj) {
     trajectoryGenerator = tj;
-}
-AlexRobot::AlexRobot(){
     spdlog::debug("AlexRobot Created");
     
     
@@ -34,6 +32,11 @@ AlexRobot::AlexRobot(){
 AlexRobot::~AlexRobot() {
     freeMemory();
     spdlog::debug("AlexRobot deleted");
+}
+
+void AlexRobot::signalHandler(int signum) {
+    exitHoming = 1;
+    std::raise(SIGTERM);  //Clean exit
 }
 
 void AlexRobot::resetErrors() {
@@ -365,10 +368,11 @@ bool AlexRobot::homing(std::vector<int> homingDirection, float thresholdTorque, 
 
 
 bool AlexRobot::initialiseInputs() {
+    spdlog::info("initinputs");
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(new Buttons());
     // Should also Construct an Alex Crutch Input here
-
+    inputs.push_back(pb = new ALEXCrutchController());
     return true;
 }
 
@@ -519,13 +523,12 @@ void AlexRobot::setCurrentMotion(RobotMode mode) {
 }
 
 RobotMode AlexRobot::getCurrentMotion() {
-    return static_cast<RobotMode>(currentMovement);
-}
+    return static_cast<RobotMode>(currentMovement);}
 void AlexRobot::setNextMotion(RobotMode mode) {
-    pb->nextMovement = static_cast<UNSIGNED8>(mode);
+    pb->setNextMovement(static_cast<UNSIGNED8>(mode));
 }
 RobotMode AlexRobot::getNextMotion() {
-    return static_cast<RobotMode>(pb->nextMovement);
+    return static_cast<RobotMode>(pb->getNextMovement());
 }
 void AlexRobot::setCurrentState(AlexState state) {
     currentState = static_cast<UNSIGNED8>(state);

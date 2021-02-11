@@ -85,7 +85,7 @@ struct RobotParameters {
 /**
  * Paramater definitions: Hip motor reading and corresponding angle. Used for mapping between degree and motor values.
  */
-JointDrivePairs hipJDP{
+static JointDrivePairs hipJDP{
     250880,       // drivePosA
     0,            // drivePosB
     deg2rad(90),  //jointPosA
@@ -94,7 +94,7 @@ JointDrivePairs hipJDP{
 /**
  * Paramater definitions: Knee motor reading and corresponding angle. Used for mapping between degree and motor values.
  */
-JointDrivePairs kneeJDP{
+static JointDrivePairs kneeJDP{
     250880,       // drivePosA
     0,            //drivePosB
     deg2rad(90),  //jointPosA
@@ -105,13 +105,12 @@ JointDrivePairs kneeJDP{
  * Defines the Joint Limits of the X2 Exoskeleton
  *
  */
-ExoJointLimits AlexJointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
+static ExoJointLimits AlexJointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
 
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      * 
      */
-
 
 /**
  * \brief Example implementation of the Robot class, representing an X2 Exoskeleton, using DummyActuatedJoint and AlexTrajectoryGenerator.

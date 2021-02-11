@@ -28,7 +28,6 @@ bool KincoDrive::init(motorProfile profile) {
     return false;
 }
 
-
 bool KincoDrive::initPosControl(motorProfile posControlMotorProfile) {
     spdlog::debug("NodeID {} Initialising Position Control", NodeID);
 
@@ -67,7 +66,6 @@ bool KincoDrive::initTorqueControl() {
 
     return true;
 }
-
 
 bool KincoDrive::initPDOs() {
     spdlog::debug("KincoDrive::initPDOs");
