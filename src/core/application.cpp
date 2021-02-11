@@ -40,9 +40,9 @@ void app_programStart(int argc, char *argv[]) {
 
 //CO_OD
 #ifndef USEROS
-                                                                  stateMachine.init();
+  stateMachine.init();
 #else
-                                                                  stateMachine.init(argc, argv);
+  stateMachine.init(argc, argv);
 #endif
     stateMachine.activate();
 }

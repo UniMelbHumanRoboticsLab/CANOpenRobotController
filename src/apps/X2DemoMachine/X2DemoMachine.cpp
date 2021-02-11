@@ -111,5 +111,5 @@ void X2DemoMachine::update() {
 
 bool X2DemoMachine::configureMasterPDOs() {
     spdlog::debug("X2DemoMachine::configureMasterPDOs()");
-    return robot->configureMasterPDOs();
+    return robot_->configureMasterPDOs();
 }
