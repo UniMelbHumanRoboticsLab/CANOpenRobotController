@@ -7,7 +7,7 @@ void SittingDwn::entry(void) {
     std::cout << "===================" << std::endl
               << " GREEN -> SIT DOWN " << std::endl
               << "===================" << std::endl;
-    trajectoryGenerator->initialiseTrajectory(SIT, 1);
+    trajectoryGenerator->initialiseTrajectory(SIT, 2, robot->getPosition());
     currTrajProgress = 0;
     clock_gettime(CLOCK_MONOTONIC, &prevTime);
 }
@@ -18,16 +18,10 @@ void SittingDwn::during(void) {
     double elapsedSec = currTime.tv_sec - prevTime.tv_sec + (currTime.tv_nsec - prevTime.tv_nsec) / 1e9;
     prevTime = currTime;
 
-    /**
-     *  /todo - Check if the GO button on the robot is pressed
-     *
-     */
-    if (true) {
+    //if (robot->keyboard->getA() ) {
         currTrajProgress += elapsedSec;
-        spdlog::debug("Elapsed Time: {}", currTrajProgress);
-
         robot->setPosition(trajectoryGenerator->getSetPoint(currTrajProgress));
-    }
+    //}
 }
 void SittingDwn::exit(void) {
     spdlog::info("Sitting Down State Exited ");

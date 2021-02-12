@@ -43,16 +43,17 @@ bool readyToStart = false;    /*!< Flag used by control thread to indicate CAN s
 uint32_t tmr1msPrev = 0;
 
 /*CAN msg processing thread variables*/
-static int rtPriority = 90;             /*!< priority of rt CANmsg thread */
+static int rtPriority = 90; /*!< priority of rt CANmsg thread */
 static void *rt_thread(void *arg);
 static pthread_t rt_thread_id;
-static int rt_thread_epoll_fd;          /*!< epoll file descriptor for rt thread */
+static int rt_thread_epoll_fd; /*!< epoll file descriptor for rt thread */
 /* Application Control loop thread */
-static int rtControlPriority = 80;      /*!< priority of application thread */
+static int rtControlPriority = 80; /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
-const float controlLoopPeriodInms = 2; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 2; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
+const float controlLoopPeriodInms = 3;   /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 3; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
+CO_NMT_reset_cmd_t reset_local = CO_RESET_NOT;
 
 /** @brief Task Timer used for the Control Loop*/
 struct period_info {
@@ -63,7 +64,7 @@ struct period_info {
 /** @brief Struct to hold arguments for ROS thread*/
 struct ros_arg_holder {
     int argc;
-    char ** argv;
+    char **argv;
 };
 
 /* Forward declartion of control loop thread timer functions*/
@@ -72,11 +73,11 @@ static void periodic_task_init(struct period_info *pinfo);
 static void wait_rest_of_period(struct period_info *pinfo);
 /* Forward declartion of CAN helper functions*/
 void configureCANopen(int nodeId, int rtPriority, int CANdevice0Index, char *CANdevice);
-void CO_errExit(char const *msg);                   /*!< CAN object error code and exit program*/
-void CO_error(const uint32_t info);                 /*!< send CANopen generic emergency message */
-volatile uint32_t CO_timer1ms = 0U;                 /*!< Global variable increments each millisecond */
-volatile sig_atomic_t CO_endProgram = 0;            /*!< Signal handler: controls the end of CAN processing thread*/
-volatile sig_atomic_t endProgram = 0;               /*!< Signal handler: controls the end of application side (rt thread and main)*/
+void CO_errExit(char const *msg);        /*!< CAN object error code and exit program*/
+void CO_error(const uint32_t info);      /*!< send CANopen generic emergency message */
+volatile uint32_t CO_timer1ms = 0U;      /*!< Global variable increments each millisecond */
+volatile sig_atomic_t CO_endProgram = 0; /*!< Signal handler: controls the end of CAN processing thread*/
+volatile sig_atomic_t endProgram = 0;    /*!< Signal handler: controls the end of application side (rt thread and main)*/
 static void sigHandler(int sig) {
     endProgram = 1;
 }
@@ -89,13 +90,12 @@ int main(int argc, char *argv[]) {
     init_logging();
 
     //Check if running with root privilege
-    if(getuid() != 0) {
+    if (getuid() != 0) {
         //Fallback to standard non RT thread
         rtPriority = -1;
         rtControlPriority = -1;
         spdlog::warn("Running without root privilege: using non-RT priority threads");
-    }
-    else {
+    } else {
         spdlog::info("Running with root privilege: using RT priority threads");
     }
 
@@ -103,52 +103,50 @@ int main(int argc, char *argv[]) {
     CO_NMT_reset_cmd_t reset = CO_RESET_NOT;
     bool_t firstRun = true;
     bool_t rebootEnable = false; /*!< Configurable by use case */  // TODO: DO WE EVER RESET? OR NEED TO?
-    int nodeId = NODEID; /*!< CAN Network NODEID */
+    int nodeId = NODEID;                                           /*!< CAN Network NODEID */
 
-    int can_dev_number=6;
-    char CANdeviceList[can_dev_number][10] = {"vcan0\0", "can0\0", "can1\0", "can2\0", "can3\0", "can4\0"};    /*!< linux CAN device interface for app to bind to: change to can1 for bbb, can0 for BBAI vcan0 for virtual can*/
-    for(unsigned int i = 1; i<argc; i++){ // skip index 0 because it gives the executable address
-        std::string arg =  argv[i];
-        if(arg.find("-can") != std::string::npos){ // if there is a -can argument
-            spdlog::info("CAN argument found: {}", argv[i+1]);
-            strcpy(CANdeviceList[0], argv[i+1]); // coppy the argument to the first element of CANdeviceList
-            can_dev_number = 1; // set can_dev_number to 1 so that other devices are not checked
+    int can_dev_number = 6;
+    char CANdeviceList[can_dev_number][10] = {"vcan0\0", "can0\0", "can1\0", "can2\0", "can3\0", "can4\0"}; /*!< linux CAN device interface for app to bind to: change to can1 for bbb, can0 for BBAI vcan0 for virtual can*/
+    for (int i = 1; i < argc; i++) {                                                               // skip index 0 because it gives the executable address
+        std::string arg = argv[i];
+        if (arg.find("-can") != std::string::npos) {  // if there is a -can argument
+            spdlog::info("CAN argument found: {}", argv[i + 1]);
+            strcpy(CANdeviceList[0], argv[i + 1]);  // coppy the argument to the first element of CANdeviceList
+            can_dev_number = 1;                     // set can_dev_number to 1 so that other devices are not checked
             break;
         }
     }
-    char CANdevice[10]="";
+    char CANdevice[10] = "";
     int CANdevice0Index;
     //Rotate through list of interfaces and select first one existing and up
-    for(int i=0; i<can_dev_number; i++) {
+    for (int i = 0; i < can_dev_number; i++) {
         //Check if interface exists
-        CANdevice0Index = if_nametoindex(CANdeviceList[i]);/*map linux CAN interface to corresponding int index return zero if no interface exists.*/
-        if(CANdevice0Index!=0) {
+        CANdevice0Index = if_nametoindex(CANdeviceList[i]); /*map linux CAN interface to corresponding int index return zero if no interface exists.*/
+        if (CANdevice0Index != 0) {
             char operstate_filename[255], operstate_s[25];
             snprintf(operstate_filename, 254, "/sys/class/net/%s/operstate", CANdeviceList[i]);
             //Check if it's up
-            FILE* operstate_f = fopen(operstate_filename, "r");
-            if(fscanf(operstate_f, "%s", &operstate_s)>0)
-            {
+            FILE *operstate_f = fopen(operstate_filename, "r");
+            if (fscanf(operstate_f, "%s", &operstate_s) > 0) {
                 spdlog::info("{}: {}", CANdeviceList[i], operstate_s);
                 //Check if not "down" as will be "unknown" if up
-                if(strcmp(operstate_s, "down")!=0) {
+                if (strcmp(operstate_s, "down") != 0) {
                     snprintf(CANdevice, 9, "%s", CANdeviceList[i]);
                     spdlog::info("Using: {} ({})", CANdeviceList[i], CANdevice0Index);
                     break;
                 } else {
-                    CANdevice0Index=0;
+                    CANdevice0Index = 0;
                 }
             } else {
-                CANdevice0Index=0;
+                CANdevice0Index = 0;
             }
         } else {
             spdlog::info("{}: -", CANdeviceList[i]);
         }
-
     }
     configureCANopen(nodeId, rtPriority, CANdevice0Index, CANdevice);
 
-    struct ros_arg_holder * ros_args = (ros_arg_holder*)malloc(sizeof(*ros_args));
+    struct ros_arg_holder *ros_args = (ros_arg_holder *)malloc(sizeof(*ros_args));
     ros_args->argc = argc;
     ros_args->argv = argv;
 
@@ -161,11 +159,11 @@ int main(int argc, char *argv[]) {
     spdlog::info("Starting CANopen device with Node ID {}", nodeId);
 
     //Set synch signal period (in us)
-    CO_OD_RAM.communicationCyclePeriod=CANUpdateLoopPeriodInms*1000;
+    CO_OD_RAM.communicationCyclePeriod = CANUpdateLoopPeriodInms * 1000;
 
     while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/
-        CO_ReturnError_t err;
+        //CO_ReturnError_t err;
         /*mutex locking for thread safe OD access*/
         pthread_mutex_lock(&CO_CAN_VALID_mtx);
         /* Wait rt_thread. */
@@ -174,10 +172,16 @@ int main(int argc, char *argv[]) {
             CO->CANmodule[0]->CANnormal = false;
             CO_UNLOCK_OD();
         }
+
+        CO_configure();
+        /* Execute optional additional application code */
+        app_communicationReset(argc, argv);
+
+
         /* initialize CANopen with CAN interface and nodeID */
         if (CO_init(CANdevice0Index, nodeId, 0) != CO_ERROR_NO) {
             char s[120];
-            snprintf(s, 120, "Communication reset - CANopen initialization failed, err=%d", err);
+            snprintf(s, 120, "Communication reset - CANopen initialization failed");
             CO_errExit(s);
         }
         /* Configure callback functions for task control */
@@ -213,7 +217,7 @@ int main(int argc, char *argv[]) {
             if (rtPriority > 0) {
                 struct sched_param param;
                 param.sched_priority = rtPriority;
-                if (pthread_setschedparam(rt_thread_id, SCHED_FIFO, &param) != 0){
+                if (pthread_setschedparam(rt_thread_id, SCHED_FIFO, &param) != 0) {
                     CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
                 }
             }
@@ -224,7 +228,7 @@ int main(int argc, char *argv[]) {
             if (rtPriority > 0) {
                 struct sched_param paramc;
                 paramc.sched_priority = rtControlPriority;
-                if (pthread_setschedparam(rt_control_thread_id, SCHED_FIFO, &paramc) != 0){
+                if (pthread_setschedparam(rt_control_thread_id, SCHED_FIFO, &paramc) != 0) {
                     CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
                 }
             }
@@ -232,8 +236,7 @@ int main(int argc, char *argv[]) {
             CO_CANsetNormalMode(CO->CANmodule[0]);
             pthread_mutex_unlock(&CO_CAN_VALID_mtx);
             reset = CO_RESET_NOT;
-            /* Execute optional additional application code */
-            app_communicationReset();
+
             readyToStart = true;
             while (reset == CO_RESET_NOT && endProgram == 0) {
                 /* loop for normal program execution main epoll reading ******************************************/
@@ -256,6 +259,7 @@ int main(int argc, char *argv[]) {
                     /* No file descriptor was processed. */
                     CO_error(0x11200000L);
                 }
+                reset = reset_local;
             }
         }
         /* program exit ***************************************************************/
@@ -323,8 +327,8 @@ static void *rt_thread(void *arg) {
 static void *rt_control_thread(void *arg) {
     struct period_info pinfo;
     periodic_task_init(&pinfo);
-    ros_arg_holder *ros_args = (ros_arg_holder*)arg;
-    app_programStart(ros_args->argc, ros_args->argv);
+    app_programStart();
+
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);
     }
@@ -347,7 +351,7 @@ static void inc_period(struct period_info *pinfo) {
 }
 static void periodic_task_init(struct period_info *pinfo) {
     /* for simplicity, hardcoding a 1ms period */
-    pinfo->period_ns = controlLoopPeriodInms*1000000;
+    pinfo->period_ns = controlLoopPeriodInms * 1000000;
 
     clock_gettime(CLOCK_MONOTONIC, &(pinfo->next_period));
 }

@@ -18,6 +18,9 @@
 #include <cmath>
 #include <vector>
 
+#include "spdlog/helper/LogHelper.h"
+
+
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
 
@@ -61,7 +64,7 @@ class DummyTrajectoryGenerator {
      * and length of time the trajectory will take.
      *
      */
-    bool initialiseTrajectory(Trajectory traj, double time);
+    bool initialiseTrajectory(Trajectory traj, double time, Eigen::VectorXd &startPos_);
 
     /**
      * \brief Implementation of the getSetPoint method in TrajectoryGenerator

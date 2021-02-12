@@ -80,11 +80,17 @@ class Robot {
     virtual bool disable();
 
     /**
+     * \brief Function used to set up the Master Object Dictionary to respond to any PDOs expected from any device. Is called before
+     * the initialisation of the state machine. 
+     * 
+     */
+    virtual bool configureMasterPDOs();
+        /**
      * \brief Pure Virtual function, implemeted by robot designer with specified number of each concrete joint classes
      * for the robot hardware desired.
      *
      */
-    virtual bool initialiseJoints() = 0;
+        virtual bool initialiseJoints() = 0;
     /**
      * \brief Pure Virtual function, implemeted by robot designer with specified number of each concrete input classes
      * for the robot hardware desired.

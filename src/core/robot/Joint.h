@@ -343,6 +343,14 @@ class Joint {
      */
     virtual bool initNetwork() = 0;
 
+    /**
+     * @brief Pure virtual function for initialise the PDOs on the Master (this program)
+     *
+     * @return true if successful
+     * @return false if unsuccessful
+     */
+    virtual bool configureMasterPDOs();
+
     /// Functions for Actuated joints:
 
     /**
@@ -406,6 +414,12 @@ class Joint {
          * \return Return value of drive->start();
          */
     bool start();
+
+    /**
+      * \brief Resets any errors on the drive
+      *
+      */
+    virtual void resetErrors();
     /**
       * \brief Set the joint ready to switch On
       *
@@ -427,6 +441,16 @@ class Joint {
      * \return false if drive is currently not in the correct state to enable
      */
     bool disable();
+
+    /**
+     * \brief Sets the drive of this joint to be in continous position profile mode (or not)
+     * 
+     * \param continuous True if continuous mode is required, false if not
+     *
+     * \return true if succesful
+     * \return false if drive is not in position control
+     */
+    bool setPosControlContinuousProfile(bool continuous);
 };
 
 #endif

@@ -15,6 +15,7 @@
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Float64MultiArray.h>
 #include <std_srvs/Trigger.h>
 
 #include "X2Robot.h"
@@ -22,7 +23,7 @@
 
 class X2DemoMachineROS {
    public:
-    X2DemoMachineROS(X2Robot *robot);
+    X2DemoMachineROS(X2Robot *robot, ros::NodeHandle& nodeHandle);
     ~X2DemoMachineROS();
 
     void update(void);
@@ -32,6 +33,7 @@ class X2DemoMachineROS {
     void setNodeHandle(ros::NodeHandle& nodeHandle);
 
     bool startExoTriggered_;
+    Eigen::VectorXd interactionForceCommand_;
 
    private:
     ros::Publisher jointStatePublisher_;
@@ -40,6 +42,10 @@ class X2DemoMachineROS {
     ros::Publisher rightThighForcePublisher_;
     ros::Publisher rightShankForcePublisher_;
     ros::ServiceServer startExoService_;
+    ros::ServiceServer calibrateForceSensorsService_;
+    ros::Subscriber interactionForceCommandSubscriber_;
+
+    void interactionForceCommandCallback(const std_msgs::Float64MultiArray &msg);
 
     sensor_msgs::JointState jointStateMsg_;
     geometry_msgs::WrenchStamped leftThighForceMsg_;
@@ -51,6 +57,8 @@ class X2DemoMachineROS {
     bool startExoServiceCallback(std_srvs::Trigger::Request& req,
                                  std_srvs::Trigger::Response& res);
 
+    bool calibrateForceSensorsCallback(std_srvs::Trigger::Request& req,
+                                 std_srvs::Trigger::Response& res);
 
     ros::NodeHandle* nodeHandle_;
 };
