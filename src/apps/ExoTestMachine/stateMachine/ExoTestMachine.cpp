@@ -4,7 +4,7 @@
 #define OWNER ((ExoTestMachine *)owner)
 
 ExoTestMachine::ExoTestMachine() {
-    trajectoryGenerator = new DummyTrajectoryGenerator(4);
+    trajectoryGenerator = new DummyTrajectoryGenerator(X2_NUM_JOINTS);
     robot = new X2Robot();
 
     // Create PRE-DESIGNED State Machine events and state objects.
@@ -28,8 +28,8 @@ ExoTestMachine::ExoTestMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    NewTransition(initState, startExo, sitting);
-    NewTransition(initState, startExoCal, sitting);
+    NewTransition(initState, startExo, standing);
+    NewTransition(initState, startExoCal, standing);
     NewTransition(sitting, startStand, standingUp);
     NewTransition(standingUp, endTraj, standing);
     NewTransition(standing, startSit, sittingDwn);
@@ -92,13 +92,16 @@ bool ExoTestMachine::StartExo::check(void) {
 }
 bool ExoTestMachine::StartExoCal::check(void) {
     if (OWNER->robot->keyboard->getA() == true) {
-        spdlog::info("LEAVING INIT and entering Sitting");
-        spdlog::info("Homing");
+        #ifndef NOROBOT
+            spdlog::info("LEAVING INIT and entering Sitting");
+            spdlog::info("Homing");
 
-        OWNER->robot->disable();
-        OWNER->robot->homing();
-        spdlog::info("Finished");
-
+            OWNER->robot->disable();
+            OWNER->robot->homing();
+            spdlog::info("Finished");
+        #else
+            spdlog::warn("Calibration Not Avaiable in Simulation (NoRobot) Mode");
+        #endif
         return true;
     }
     return false;

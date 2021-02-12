@@ -17,7 +17,7 @@ LoopTiming loopTimer;
 
 //Select state machine to use for this application (can be set in cmake)
 #ifndef STATE_MACHINE_TYPE
-#define STATE_MACHINE_TYPE *ExoTestMachine
+#error "State Machine Type not defined"
 #endif
 
 STATE_MACHINE_TYPE *stateMachine;
@@ -28,20 +28,7 @@ STATE_MACHINE_TYPE *stateMachine;
 char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 
-/******************************************************************************/
-void app_programStart(void) {
-    spdlog::info("CORC Start application");
-
-#ifdef NOROBOT
-    spdlog::info("Running in NOROBOT (virtual) mode.");
-#endif  // NOROBOT
-
-//CO_OD
-    stateMachine->init();
-    stateMachine->activate();
-}
-
-/******************************************************************************/
+/******************** RUNS BEFORE CO_init() ********************/
 void app_communicationReset(int argc, char *argv[]) {
 #ifdef USEROS
     stateMachine = new STATE_MACHINE_TYPE(argc, argv);
@@ -50,18 +37,24 @@ void app_communicationReset(int argc, char *argv[]) {
 #endif
     stateMachine->configureMasterPDOs();
 }
-/******************************************************************************/
-void app_programEnd(void) {
-    stateMachine->end();
-    spdlog::info("CORC End application");
-#ifdef TIMING_LOG
-    loopTimer.end();
-#endif
+
+/******************** Runs at the Start of rt_control_thread********************/
+void app_programStart(void) {
+    spdlog::info("CORC Start application");
+
+#ifdef NOROBOT
+    spdlog::info("Running in NOROBOT (virtual) mode.");
+#endif  // NOROBOT
+
+    stateMachine->init();
+    stateMachine->activate();
 }
-/******************************************************************************/
+
+/******************** Runs in low priority thread ********************/
 void app_programAsync(uint16_t timer1msDiffy) {
 }
 
+/******************** Runs in rt_control_thread ********************/
 void app_programControlLoop(void) {
     if (stateMachine->running) {
         stateMachine->hwStateUpdate();
@@ -69,5 +62,15 @@ void app_programControlLoop(void) {
     }
 #ifdef TIMING_LOG
     loopTimer.tick();
+#endif
+}
+
+/******************** Runs at the End of rt_control_thread********************/
+void app_programEnd(void) {
+    stateMachine->end();
+    delete stateMachine;
+    spdlog::info("CORC End application");
+#ifdef TIMING_LOG
+    loopTimer.end();
 #endif
 }
