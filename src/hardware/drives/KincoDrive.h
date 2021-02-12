@@ -100,10 +100,22 @@ class KincoDrive : public Drive {
           *
           */
 
+    /**
+        * \brief Overwrite drive class to ignore this function
+        *
+        * \return true The control word was previously 0 (i.e. successful set point confirm)
+        * \return false The control word was previously 1 (i.e. unsuccessful set point confirm)
+        */
+    bool posControlConfirmSP();
+
     bool initPDOs();
 
     bool resetError();
 
+    std::vector<std::string> writeSDOMessage(int address, int value);
+    std::vector<std::string> readSDOMessage(int address, int len);
+
+    std::vector<std::string> generatePosControlConfigSDO(motorProfile positionProfile);
     std::vector<std::string> generateResetErrorSDO();
 };
 
