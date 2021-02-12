@@ -4,9 +4,9 @@ using namespace Eigen;
 
 RobotM2::RobotM2() : Robot(),
                      calibrated(false),
-                     maxEndEffVel(2),
+                     maxEndEffVel(3),
                      maxEndEffForce(60) {
-    //Define the robot structure: each joint with limits and drive: should be in constructor
+    //Define the robot structure: each joint with limits and drive
     double tau_max = 1.9 * 166;
     joints.push_back(new JointM2(0, 0, 0.625, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new KincoDrive(1), "x"));
     joints.push_back(new JointM2(1, 0, 0.440, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new KincoDrive(2), "y"));

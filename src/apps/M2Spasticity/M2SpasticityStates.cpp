@@ -16,6 +16,9 @@ VM2 impedance(Eigen::Matrix2d K, Eigen::Matrix2d D, VM2 X0, VM2 X, VM2 dX, VM2 d
 double JerkIt(VM2 X0, VM2 Xf, double T, double t, VM2 &Xd, VM2 &dXd) {
     t = std::max(std::min(t, T), .0); //Bound time
     double tn=std::max(std::min(t/T, 1.0), .0);//Normalised time bounded 0-1
+    /**
+    *what does the following mean?
+    */
     double tn3=pow(tn,3.);
     double tn4=tn*tn3;
     double tn5=tn*tn4;
@@ -34,6 +37,7 @@ void M2Calib::entryCode(void) {
     }
     robot->decalibrate();
     robot->initTorqueControl();
+   // robot -> printStatus();
     robot->printJointStatus();
     std::cout << "Calibrating (keep clear)..." << std::flush;
 }
@@ -93,6 +97,7 @@ void M2Transparent::duringCode(void) {
 
     if(iterations%100==1) {
         robot->printStatus();
+     //   robot->printJointStatus();
     }
 }
 void M2Transparent::exitCode(void) {
@@ -107,7 +112,14 @@ void M2ArcCircle::entryCode(void) {
     //dTheta_t =
     //radius =
     //centerPt =
+    theta_s = 180.0;
+    dTheta_t = 10;
+    radius = 0.4;
+    centerPt[0] = 0.4;
+    centerPt[1] = .0;
 
+    thetaRange=90;
+    ddTheta=200;
 
     //Arc starting point
     finished = false;
@@ -174,19 +186,31 @@ void M2ArcCircle::duringCode(void) {
     //desired velocity
     dXd[0] = -radius*sin(theta*M_PI/180.)*dTheta*M_PI/180.;
     dXd[1] = radius*cos(theta*M_PI/180.)*dTheta*M_PI/180.;
+    // dXd[0] = 0.1;
+    // dXd[1] = 0.1;
     //desired position
     Xd[0] = centerPt[0]+radius*cos(theta*M_PI/180.);
     Xd[1] = centerPt[1]+radius*sin(theta*M_PI/180.);
     //PI in velocity-position
+    /**
+    *what does K mean?
+    *what does the below formula mean?
+    */
     float K=5.0;
-    dX = dXd + K*(Xd-robot->getEndEffPosition());
+    //dX=dXd;
+     dX = dXd + K*(Xd-robot->getEndEffPosition());
 
+/**
+* set both 0.1 to test joint movement
+*/
+//dX[0]=0.1;
+//dX[1]=0.1;
 
     //Apply
     robot->setEndEffVelocity(dX);
 
     if(iterations%100==1) {
-        //std::cout << dXd.transpose() << "  ";
+        std::cout << dXd.transpose() << "  ";
         robot->printStatus();
     }
 }
@@ -199,18 +223,35 @@ void M2ArcCircle::exitCode(void) {
 void M2Recording::entryCode(void) {
     robot->initTorqueControl();
     robot->setEndEffForceWithCompensation(VM2::Zero());
+
+    //Define Variables
+    RecordingPoint=0;
+    //PositionRecording=robot->getEndEffPosition();
+    //PositionTesting[10000];
+
 }
 void M2Recording::duringCode(void) {
     //Apply 0 force
     robot->setEndEffForceWithCompensation(VM2::Zero());
 
 	//Record stuff...
-	
+	PositionRecording=robot->getEndEffPosition();
+	PositionTesting[RecordingPoint]=PositionRecording;
+	RecordingPoint++;
 
+    if(iterations%100==1) {
+        robot->printStatus();}
 }
+
 void M2Recording::exitCode(void) {
 	//Identify circle??
-	
+	/**
+	what we care about
+	theta_s
+	radius
+	center point
+	*/
+
     robot->setEndEffForceWithCompensation(VM2::Zero());
 }
 

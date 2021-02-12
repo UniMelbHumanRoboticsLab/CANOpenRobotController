@@ -101,6 +101,10 @@ class KincoDrive : public Drive {
           */
 
     bool initPDOs();
+
+    bool resetError();
+
+    std::vector<std::string> generateResetErrorSDO();
 };
 
 #endif
