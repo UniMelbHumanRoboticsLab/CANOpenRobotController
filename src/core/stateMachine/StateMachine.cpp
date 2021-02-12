@@ -28,6 +28,7 @@ void StateMachine::activate(void) {
 }
 
 void StateMachine::update(void) {
+//    DEBUG_OUT("StateMachine::update")
     Transition *t = currentState->getActiveArc();
     if (t != NULL) {
         currentState->exit();
