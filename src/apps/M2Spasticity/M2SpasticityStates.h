@@ -217,7 +217,7 @@ class M2MinJerkPosition: public M2TimedState {
     unsigned int TrajPtIdx=0;
     double startTime;
     VM2 TrajPt[TrajNbPts]={VM2(0.1, 0.1), VM2(0.3, 0.3), VM2(0.4, 0.1), VM2(0.4, 0.4)};
-    double TrajTime[TrajNbPts]={5, 3, 0.5, 0.5};
+    double TrajTime[TrajNbPts]={5, 3, 1.0, 2.0};
     VM2 Xi, Xf;
     double T;
     float k_i=1.; //Integral gain
@@ -241,6 +241,13 @@ class M2Recording : public M2TimedState {
    private:
     unsigned int nb_samples=10000;
     int new_value;
+
+    /**
+    *Xinliang
+    */
+    int RecordingPoint;
+    VM2 PositionRecording;
+    VM2 PositionTesting[10000];
 };
 
 
