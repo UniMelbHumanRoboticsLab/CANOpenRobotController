@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 
     int can_dev_number = 6;
     char CANdeviceList[can_dev_number][10] = {"vcan0\0", "can0\0", "can1\0", "can2\0", "can3\0", "can4\0"}; /*!< linux CAN device interface for app to bind to: change to can1 for bbb, can0 for BBAI vcan0 for virtual can*/
-    for (unsigned int i = 1; i < argc; i++) {                                                               // skip index 0 because it gives the executable address
+    for (int i = 1; i < argc; i++) {                                                               // skip index 0 because it gives the executable address
         std::string arg = argv[i];
         if (arg.find("-can") != std::string::npos) {  // if there is a -can argument
             spdlog::info("CAN argument found: {}", argv[i + 1]);
@@ -163,7 +163,7 @@ int main(int argc, char *argv[]) {
 
     while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/
-        CO_ReturnError_t err;
+        //CO_ReturnError_t err;
         /*mutex locking for thread safe OD access*/
         pthread_mutex_lock(&CO_CAN_VALID_mtx);
         /* Wait rt_thread. */
@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
         /* initialize CANopen with CAN interface and nodeID */
         if (CO_init(CANdevice0Index, nodeId, 0) != CO_ERROR_NO) {
             char s[120];
-            snprintf(s, 120, "Communication reset - CANopen initialization failed, err=%d", err);
+            snprintf(s, 120, "Communication reset - CANopen initialization failed");
             CO_errExit(s);
         }
         /* Configure callback functions for task control */
