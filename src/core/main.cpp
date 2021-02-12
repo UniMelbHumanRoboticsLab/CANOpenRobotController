@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
 
         CO_configure();
         /* Execute optional additional application code */
-        app_communicationReset();
+        app_communicationReset(argc, argv);
 
 
         /* initialize CANopen with CAN interface and nodeID */
@@ -327,8 +327,7 @@ static void *rt_thread(void *arg) {
 static void *rt_control_thread(void *arg) {
     struct period_info pinfo;
     periodic_task_init(&pinfo);
-    ros_arg_holder *ros_args = (ros_arg_holder *)arg;
-    app_programStart(ros_args->argc, ros_args->argv);
+    app_programStart();
 
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);

@@ -69,11 +69,7 @@ class StateMachine {
      * \brief Custom initialisation of the state machine
      *
      */
-    #ifndef USEROS
     virtual void init(void) = 0;
-    #else
-    virtual void init(int argc, char *argv[]) = 0;
-    #endif
 
     /**
      * \brief End the state machine execution state

@@ -2,8 +2,21 @@
 
 #define OWNER ((X2DemoMachine *)owner)
 
-X2DemoMachine::X2DemoMachine() {
-    robot_ = new X2Robot();
+X2DemoMachine::X2DemoMachine(int argc, char *argv[]) {
+
+    ros::init(argc, argv, "x2", ros::init_options::NoSigintHandler);
+    ros::NodeHandle nodeHandle("~");
+
+    // Get robot name from the node name
+    robotName_ = ros::this_node::getName();
+    robotName_.erase(0,1); // erase the first character which is '/'
+
+    robot_ = new X2Robot(robotName_);
+
+#ifdef SIM
+    robot_->setNodeHandle(nodeHandle);
+#endif
+
     // Create PRE-DESIGNED State Machine events and state objects.
     startExo = new StartExo(this);
     /**f
@@ -14,7 +27,10 @@ X2DemoMachine::X2DemoMachine() {
      */
 
     // Create ros object
-    x2DemoMachineRos_ = new X2DemoMachineROS(robot_);
+    x2DemoMachineRos_ = new X2DemoMachineROS(robot_, nodeHandle);
+
+    // Pass MachineRos to the State to use ROS features
+    x2DemoState_ = new X2DemoState(this, robot_, x2DemoMachineRos_);
 }
 
 /**
@@ -22,32 +38,13 @@ X2DemoMachine::X2DemoMachine() {
  * for example initialising robot objects.
  *
  */
-void X2DemoMachine::init(int argc, char *argv[]) {
+void X2DemoMachine::init() {
     spdlog::debug("X2DemoMachine::init()");
 
-    ros::init(argc, argv, "x2", ros::init_options::NoSigintHandler);
-    ros::NodeHandle nodeHandle("~");
-
-    // Pass nodeHandle to the classes that use ROS features
-    x2DemoMachineRos_->setNodeHandle(nodeHandle);
-
-    // Pass MachineRos to the State to use ROS features
-    x2DemoState = new X2DemoState(this, robot_, x2DemoMachineRos_);
-
     // Create states with ROS features // This should be created after ros::init()
-    StateMachine::initialize(x2DemoState);
+    StateMachine::initialize(x2DemoState_);
 
-    // Get robot name from the node name
-    robotName_ = ros::this_node::getName();
-    robotName_.erase(0,1); // erase the first character which is '/'
-
-#ifdef SIM
-    robot_->setNodeHandle(nodeHandle);
-#endif
-
-    robot_->setRobotName(robotName_);
     initialised = robot_->initialise();
-    x2DemoMachineRos_->initialize();
     running = true;
     time0 = std::chrono::steady_clock::now();
 
@@ -59,13 +56,13 @@ void X2DemoMachine::init(int argc, char *argv[]) {
 
     logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
     logHelper.add(time, "time");
-    logHelper.add(x2DemoState->controller_mode_, "mode");
+    logHelper.add(x2DemoState_->controller_mode_, "mode");
     logHelper.add(robot_->getPosition(), "JointPositions");
     logHelper.add(robot_->getVelocity(), "JointVelocities");
     logHelper.add(robot_->getTorque(), "JointTorques");
-    logHelper.add(x2DemoState->getDesiredJointTorques(), "DesiredJointTorques");
+    logHelper.add(x2DemoState_->getDesiredJointTorques(), "DesiredJointTorques");
     logHelper.add(robot_->getInteractionForce(), "InteractionForces");
-    //    logHelper.add(x2DemoState->virtualMassRatio_, "virtualMassRatio");
+    //    logHelper.add(x2DemoState_->virtualMassRatio_, "virtualMassRatio");
 
     logHelper.startLogger();
 }
@@ -111,5 +108,5 @@ void X2DemoMachine::update() {
 
 bool X2DemoMachine::configureMasterPDOs() {
     spdlog::debug("X2DemoMachine::configureMasterPDOs()");
-    return robot->configureMasterPDOs();
+    return robot_->configureMasterPDOs();
 }

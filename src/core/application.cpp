@@ -15,13 +15,12 @@
 LoopTiming loopTimer;
 #endif
 
-
 //Select state machine to use for this application (can be set in cmake)
 #ifndef STATE_MACHINE_TYPE
-#define STATE_MACHINE_TYPE ExoTestMachine
+#define STATE_MACHINE_TYPE *ExoTestMachine
 #endif
 
-STATE_MACHINE_TYPE stateMachine;
+STATE_MACHINE_TYPE *stateMachine;
 /*For master-> node SDO message sending*/
 #define CO_COMMAND_SDO_BUFFER_SIZE 100000
 #define STRING_BUFFER_SIZE (CO_COMMAND_SDO_BUFFER_SIZE * 4 + 100)
@@ -29,9 +28,8 @@ STATE_MACHINE_TYPE stateMachine;
 char buf[STRING_BUFFER_SIZE];
 char ret[STRING_BUFFER_SIZE];
 
-
 /******************************************************************************/
-void app_programStart(int argc, char *argv[]) {
+void app_programStart(void) {
     spdlog::info("CORC Start application");
 
 #ifdef NOROBOT
@@ -39,21 +37,22 @@ void app_programStart(int argc, char *argv[]) {
 #endif  // NOROBOT
 
 //CO_OD
-#ifndef USEROS
-                                                                  stateMachine.init();
-#else
-                                                                  stateMachine.init(argc, argv);
-#endif
-    stateMachine.activate();
+    stateMachine->init();
+    stateMachine->activate();
 }
 
 /******************************************************************************/
-void app_communicationReset(void) {
-    stateMachine.configureMasterPDOs();
+void app_communicationReset(int argc, char *argv[]) {
+#ifdef USEROS
+    stateMachine = new STATE_MACHINE_TYPE(argc, argv);
+#else
+    stateMachine = new STATE_MACHINE_TYPE();
+#endif
+    stateMachine->configureMasterPDOs();
 }
 /******************************************************************************/
 void app_programEnd(void) {
-    stateMachine.end();
+    stateMachine->end();
     spdlog::info("CORC End application");
 #ifdef TIMING_LOG
     loopTimer.end();
@@ -64,9 +63,9 @@ void app_programAsync(uint16_t timer1msDiffy) {
 }
 
 void app_programControlLoop(void) {
-    if (stateMachine.running) {
-        stateMachine.hwStateUpdate();
-        stateMachine.update();
+    if (stateMachine->running) {
+        stateMachine->hwStateUpdate();
+        stateMachine->update();
     }
 #ifdef TIMING_LOG
     loopTimer.tick();
