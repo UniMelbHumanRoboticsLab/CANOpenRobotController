@@ -35,6 +35,8 @@
 class X2DemoMachine : public StateMachine {
 
 public:
+    X2DemoMachine(int argc, char *argv[]);
+
     X2DemoMachineROS *x2DemoMachineRos_; /*<!Pointer to the ROS Class*/
     X2Robot *robot_; /*<!Pointer to the Robot*/ // NOTE: For some reason; if this is defined later, it doesn't publish
 
@@ -45,8 +47,7 @@ public:
      *
      */
 
-    X2DemoMachine();
-    void init(int argc, char *argv[]);
+    void init();
     void end();
 
     void update();
@@ -58,8 +59,8 @@ public:
      * Pointers to the relevant states - initialised in init
      *
      */
-    IdleState *idleState;
-    X2DemoState *x2DemoState;
+    IdleState *idleState_;
+    X2DemoState *x2DemoState_;
 
 private:
     /**

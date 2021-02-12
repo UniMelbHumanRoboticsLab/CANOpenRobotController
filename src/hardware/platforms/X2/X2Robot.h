@@ -133,7 +133,7 @@ class X2Robot : public Robot {
       * Initialize memory for the Exoskelton <code>Joint</code> + sensors.
       * Load in exoskeleton paramaters to  <code>TrajectoryGenerator.</code>.
       */
-    X2Robot();
+    X2Robot(std::string robotName = XSTR(X2_NAME));
     ~X2Robot();
     Keyboard* keyboard;
     std::vector<Drive*> motorDrives;

@@ -70,7 +70,7 @@ extern "C" {
 /**
  * /brief Function is called on program startup.
  */
-void app_programStart(int argc = 0, char *argv[] = {});
+void app_programStart();
 
 #ifdef USEROS
 /**
@@ -82,7 +82,7 @@ void app_ROSStart(int argc, char *argv[]);
 /**
  * /brief Function is called after CANopen communication reset.
  */
-void app_communicationReset(void);
+void app_communicationReset(int argc = 0, char *argv[] = {});
 
 /**
  * \brief Function is called just before program ends.

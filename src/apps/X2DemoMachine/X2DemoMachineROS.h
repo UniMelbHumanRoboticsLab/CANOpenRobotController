@@ -23,7 +23,7 @@
 
 class X2DemoMachineROS {
    public:
-    X2DemoMachineROS(X2Robot *robot);
+    X2DemoMachineROS(X2Robot *robot, ros::NodeHandle& nodeHandle);
     ~X2DemoMachineROS();
 
     void update(void);
