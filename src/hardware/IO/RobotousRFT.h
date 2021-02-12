@@ -1,7 +1,10 @@
 /*/**
  * \file RobotousRFT.h
  * \author Justin Fong
- * \brief  Class representing a Robotous Force Torque sensor. Note that this is not a CANOpen Device.
+ * \brief  Class representing a Robotous Force Torque sensor. 
+ * 
+ *    NOTE: this is not a CANOpen Device, and the PDO-like messages are send on non-standard COB-IDs
+ * 
  * \version 0.1
  * \date 2021-01-12
  * \version 0.1

@@ -24,18 +24,22 @@ bool LoggingRobot::initialiseInputs() {
 
 LoggingRobot::~LoggingRobot() {
     spdlog::debug("Delete LoggingRobot object begins");
+
+    // Shouldn't be needed
     for (auto p : joints) {
         spdlog::info("Delete Joint ID: {}", p->getId());
         delete p;
     }
-
     joints.clear();
+
+    // Delete the inputs
     delete keyboard;
     for (auto cs : crutchSensors) {
         spdlog::info("Delete Crutch Sensor with CommandID: 0x{0:x}", cs->getCommandID());
         delete cs;
     }
     inputs.clear();
+
     spdlog::debug("LoggingRobot deleted");
 }
 
