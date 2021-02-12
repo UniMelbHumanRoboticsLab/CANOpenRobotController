@@ -6,10 +6,21 @@ M2ForceSensor::M2ForceSensor(int sensorID) : calibrated(false) {
 
 }
 
-void M2ForceSensor::updateInput() {
 
-    forceReading = sensorValueToNewton(*(&CO_OD_RAM.actualSensorForces.sensor1 + sensorID));
+bool M2ForceSensor::configureMasterPDOs() {
+    UNSIGNED16 dataSize[2] = {4, 4};
+    void *dataEntry[2] = {(void *)&rawData[0],
+                           (void *)&rawData[1],};
+
+    rpdo = new RPDO(0x191+sensorID, 0xff, dataEntry, dataSize, 2);
+
+    return true;
 }
+
+void M2ForceSensor::updateInput() {
+    forceReading = sensorValueToNewton((double) rawData[0]);
+}
+
 
 bool M2ForceSensor::calibrate() {
     spdlog::debug("[M2ForceSensor::calibrate]: Force Sensor {} Zeroing", sensorID);

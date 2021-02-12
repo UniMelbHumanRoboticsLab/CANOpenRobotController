@@ -27,6 +27,7 @@ public:
      */
     M2ForceSensor(int sensorID);
 
+
     /**
     * updates the force readings
     *
@@ -48,12 +49,16 @@ public:
 
     bool isCalibrated(){ return calibrated; }
 
+    bool configureMasterPDOs();
+
 private:
+    INTEGER32 rawData[2] = {0};
     int sensorID;
     double sensorValueToNewton(int sensorValue);
     double forceReading;
     bool calibrated;
 
+    RPDO *rpdo;
 };
 
 

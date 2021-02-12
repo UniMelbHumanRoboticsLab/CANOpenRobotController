@@ -86,6 +86,12 @@ void M1DemoMachine::end() {
     }
 }
 
+
+bool M1DemoMachine::configureMasterPDOs() {
+    spdlog::debug("M1DemoMachine::configureMasterPDOs()");
+    return robot->configureMasterPDOs();
+}
+
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////

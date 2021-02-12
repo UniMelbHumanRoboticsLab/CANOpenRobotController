@@ -1,13 +1,23 @@
 #include "M1ForceSensor.h"
 
-M1ForceSensor::M1ForceSensor(int sensorID) {
+M1ForceSensor::M1ForceSensor(int sensor_id): sensorID(sensor_id) {
 
-    this->sensorID = sensorID;
+    spdlog::debug("M1ForceSensor");
+}
 
+bool M1ForceSensor::configureMasterPDOs() {
+    spdlog::debug("M1ForceSensor::configureMasterPDOs");
+    UNSIGNED16 dataSize[2] = {4, 4};
+    void *dataEntry[2] = {(void *)&rawData[0],
+                           (void *)&rawData[1],};
+
+    rpdo = new RPDO(0x191+sensorID, 0xff, dataEntry, dataSize, 2);
+
+    return true;
 }
 
 void M1ForceSensor::updateInput() {
-    forceReading = sensorValueToNewton(*(&CO_OD_RAM.actualSensorForces.sensor1 + sensorID));
+    forceReading = sensorValueToNewton((double) rawData[0]);
 //    DEBUG_OUT("[M1ForceSensor::updateInput]: Force Sensor " << sensorID << " - " <<  forceReading << std::endl);
 }
 

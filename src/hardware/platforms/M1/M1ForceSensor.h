@@ -27,6 +27,7 @@ public:
      */
     M1ForceSensor(int sensorID);
 
+
     /**
     * updates the force readings
     *
@@ -46,10 +47,15 @@ public:
     */
     double getForce();
 
+    bool configureMasterPDOs();
+
 private:
+    INTEGER32 rawData[2] = {0};
     int sensorID;
     double sensorValueToNewton(int sensorValue);
     double forceReading;
+
+    RPDO *rpdo;
 
 };
 
