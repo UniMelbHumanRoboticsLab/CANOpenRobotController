@@ -1,4 +1,6 @@
-# Modifying the Object Dictionary for PDO Messages
+# Modifying the Object Dictionary for PDO Messages (DEPRECIATED)
+
+> Note: This has changed. The PDOs are now programmatic. To create a PDO, one needs to create an RPDO or TPDO object with the appropriate parameters. The PDO is linked directly to a variable in the constructor of the object. 
 
 The CORC implementation uses the CANOpenNode Stack, and their implementation of the object dictionary. 
 

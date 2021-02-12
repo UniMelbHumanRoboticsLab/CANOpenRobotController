@@ -93,6 +93,8 @@ Alternatively, you can use the [script/uploadBB.sh](script/uploadBB.sh) to autom
 
 > Note: The `initRobot` folder contains scripts for setting up the CAN interfaces that CORC uses for communication
 
+In addition, copy the `config` folder to the same directory as the executable - this is used to set some parameters in the X2Robot. 
+
 **[DEPLOY-LOCAL]** This entire step is not required if you are running on your development machine - just note the location of your `ExoTestMachine_APP` and `initRobot` folder. 
 
 ## Run Virtual ExoTestMachine
