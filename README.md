@@ -202,6 +202,9 @@ The following individuals have made contributions to CORC:
 - Vincent Crocher
 - Emek Barış Küçüktabak 
 - Justin Fong
+- Yue Wen
+- Tim Haswell
+- Xinliang Guo
 
 Please contact fong.j[at]unimelb.edu.au with questions or suggestions for continuing development, or if you wish to be more involved in the planning/organisation of CORC.
 
