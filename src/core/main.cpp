@@ -82,12 +82,44 @@ static void sigHandler(int sig) {
     endProgram = 1;
 }
 
+
+/* Privileges management */
+static uid_t uid, gid; //Saved uid and gid
+void save_privileges() {
+    uid = getuid();
+    gid = getgid();
+}
+int drop_privileges() {
+    if (uid == 0) {
+        //Drop group privileges first
+        if( setegid(1000)<0 || seteuid(1000)<0 ) {
+            CO_errExit("Failed to drop privileges.");
+            return -1;
+        }
+    }
+    return 0;
+}
+int restore_privileges() {
+    if( setreuid(uid, gid)<0 ) {
+        CO_errExit("Failed to restore privileges.");
+        return -1;
+    }
+    return 0;
+}
+/* --------------------- */
+
 /******************************************************************************/
 /** Mainline and threads                                                     **/
 /******************************************************************************/
 int main(int argc, char *argv[]) {
+
+    //Drop privileges to create log
+    save_privileges();
+    drop_privileges();
+
     //Initialise console and file logging. Name file can be specified if required (see logging.h)
     init_logging();
+    restore_privileges();
 
     //Check if running with root privilege
     if (getuid() != 0) {
@@ -232,6 +264,10 @@ int main(int argc, char *argv[]) {
                     CO_errExit("Program init - rt_thread set scheduler failed (are you root?)");
                 }
             }
+
+            //Privileges not required anymore
+            drop_privileges();
+
             /* start CAN */
             CO_CANsetNormalMode(CO->CANmodule[0]);
             pthread_mutex_unlock(&CO_CAN_VALID_mtx);
