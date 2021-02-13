@@ -11,8 +11,8 @@ RobotM2::RobotM2() : Robot(),
     joints.push_back(new JointM2(0, 0, 0.625, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new KincoDrive(1), "x"));
     joints.push_back(new JointM2(1, 0, 0.440, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new KincoDrive(2), "y"));
 
-    forceSensors.push_back(new M2ForceSensor(0));
-    forceSensors.push_back(new M2ForceSensor(1));
+    forceSensors.push_back(new FourierForceSensor(3, 4.0)); //TODO: to calibrate!
+    forceSensors.push_back(new FourierForceSensor(4, 4.0));
     for(unsigned int i=0; i<forceSensors.size(); i++)
         inputs.push_back(forceSensors[i]);
 

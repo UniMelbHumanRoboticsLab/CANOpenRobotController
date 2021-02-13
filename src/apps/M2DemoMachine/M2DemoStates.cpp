@@ -146,10 +146,6 @@ void M2Transparent::entryCode(void) {
 }
 void M2Transparent::duringCode(void) {
 
-    //Smooth transition in case a mass is set at startup
-    double settling_time = 3.0;
-    double t=elapsedTime>settling_time?1.0:elapsedTime/settling_time;
-
     //Apply corresponding force
     robot->setEndEffForceWithCompensation(VM2::Zero(), true);
 

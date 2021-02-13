@@ -12,51 +12,15 @@
 #ifndef SRC_M1FORCESENSOR_H
 #define SRC_M1FORCESENSOR_H
 
-#include "InputDevice.h"
-#include <CANopen.h>
-#include <CO_command.h>
-#include <sstream>
+#include "FourierForceSensor.h"
 
 
-class M1ForceSensor : public InputDevice {
-public:
+class M1ForceSensor : public FourierForceSensor {
+  public:
+    M1ForceSensor(int sensor_can_node_ID): FourierForceSensor(sensor_can_node_ID) {}
 
-    /**
-     * Construct a new M1ForceSensor object
-     *
-     */
-    M1ForceSensor(int sensorID);
-
-
-    /**
-    * updates the force readings
-    *
-    */
-    void updateInput();
-
-    /**
-    * calibrate the force sensor. When called, sets the sensor value to 0.
-    *
-    * \return bool success of calibration
-    */
-    bool calibrate();
-
-    /**
-    * returns the force reading of the sensor with sensorID
-    *
-    */
-    double getForce();
-
-    bool configureMasterPDOs();
-
-private:
-    INTEGER32 rawData[2] = {0};
-    int sensorID;
+  private:
     double sensorValueToNewton(int sensorValue);
-    double forceReading;
-
-    RPDO *rpdo;
-
 };
 
 

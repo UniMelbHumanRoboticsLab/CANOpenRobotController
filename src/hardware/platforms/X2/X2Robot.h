@@ -24,7 +24,7 @@
 #include "CopleyDrive.h"
 #include "Keyboard.h"
 #include "Robot.h"
-#include "X2ForceSensor.h"
+#include "FourierForceSensor.h"
 #include "X2Joint.h"
 
 // Logger
@@ -137,7 +137,7 @@ class X2Robot : public Robot {
     ~X2Robot();
     Keyboard* keyboard;
     std::vector<Drive*> motorDrives;
-    std::vector<X2ForceSensor*> forceSensors;
+    std::vector<FourierForceSensor*> forceSensors;
 
     // /**
     //  * \brief Timer Variables for moving through trajectories
@@ -292,8 +292,8 @@ class X2Robot : public Robot {
 
 
     /**
-       * \brief Changes the mode of 
-       * 
+       * \brief Changes the mode of
+       *
        * \return true if successful
        * \return false if not (joints/drive not enabled or in correct mode)
        */

@@ -16,7 +16,7 @@
 #include <map>
 
 #include "JointM2.h"
-#include "M2ForceSensor.h"
+#include "FourierForceSensor.h"
 #include "Keyboard.h"
 #include "Joystick.h"
 #include "Robot.h"
@@ -49,7 +49,7 @@ class RobotM2 : public Robot {
     RobotM2();
     ~RobotM2();
 
-    std::vector<M2ForceSensor*> forceSensors;
+    std::vector<FourierForceSensor*> forceSensors;
 
     Keyboard *keyboard;
     Joystick *joystick;

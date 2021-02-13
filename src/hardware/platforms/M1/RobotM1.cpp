@@ -29,7 +29,7 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
 
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
-    inputs.push_back(m1ForceSensor = new M1ForceSensor(1));
+    inputs.push_back(m1ForceSensor = new M1ForceSensor(2));
     mode = 0;
 
     status = R_SUCCESS;

@@ -18,6 +18,13 @@ else
   SSH_IP_ADDR="192.168.6.2"
 fi
 
+#Check if BB is connected
+ping -W 1 -c 1 $SSH_IP_ADDR >/dev/null 2>&1
+if [ $? -ne 0 ] ; then 
+	echo "Nothing connected on ${SSH_IP_ADDR}. Exiting."
+	exit
+fi
+
 #set in root folder
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd "$parent_path"/..
