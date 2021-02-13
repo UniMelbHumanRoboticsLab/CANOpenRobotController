@@ -80,6 +80,13 @@ void M2DemoMachine::end() {
     }
 }
 
+
+bool M2DemoMachine::configureMasterPDOs() {
+    spdlog::debug("M2DemoMachine::configureMasterPDOs()");
+    return robot->configureMasterPDOs();
+}
+
+
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////

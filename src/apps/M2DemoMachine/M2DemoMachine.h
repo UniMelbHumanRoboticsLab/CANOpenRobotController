@@ -45,6 +45,8 @@ class M2DemoMachine : public StateMachine {
     void init();
     void end();
 
+    bool configureMasterPDOs();
+
     void hwStateUpdate();
 
     /**
