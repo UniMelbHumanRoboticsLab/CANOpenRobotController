@@ -109,14 +109,6 @@ bool RobotM1::calibrateForceSensors() {
     }
 }
 
-//Eigen::VectorXd X2Robot::getInteractionForce() {
-//    Eigen::VectorXd actualInteractionForces(X2_NUM_FORCE_SENSORS);
-//    for (int i = 0; i< X2_NUM_FORCE_SENSORS; i++) {
-//        actualInteractionForces[i] = forceSensors[i]->getForce();
-//    }
-//    return actualInteractionForces;
-//}
-
 void RobotM1::updateRobot() {
 //    std::cout << "RobotM1::updateRobot()" << std::endl;
     Robot::updateRobot();   // Trigger RT data update at the joint level
@@ -345,7 +337,7 @@ JacMtx RobotM1::J() {
 
     return J;
 }
-//*
+
 JointVec RobotM1::calculateGravityTorques() {
     JointVec tau_g;
 
@@ -444,94 +436,3 @@ JointVec RobotM1::compensateJointTor(JointVec tor, JointVec tor_s){
     tor(0) = tor(0) + tor_ff*0.8;
     return tor;
 }
-/*
-EndEffVec RobotM1::getEndEffPos() {
-    //return directKinematic(getJointPos());
-    EndEffVec s;
-    return s;
-}
-
-EndEffVec RobotM1::getEndEffVel() {
-    // return J() * getJointVel();
-    EndEffVec s;
-    return s;
-
-}
-
-EndEffVec RobotM1::getEndEffFor() {
-    //return (J().transpose()).inverse() * getJointTor();
-    EndEffVec s;
-    return s;
-
-}
-
-setMovementReturnCode_t RobotM1::setEndEffPos(EndEffVec X_d) {
-    if (!calibrated) {
-        return NOT_CALIBRATED;
-    }
-
-    //TODO: add a limit check
-    if (false) {
-        return OUTSIDE_LIMITS;
-    }
-
-    Vector3d q_d = inverseKinematic(X_d);
-    if (std::isnan(q_d[0]) || std::isnan(q_d[1]) || std::isnan(q_d[2])) {
-        return OUTSIDE_LIMITS;
-    } else {
-        return setJointPos(q_d);
-    }
-}
-
-setMovementReturnCode_t RobotM1::setEndEffVel(EndEffVec dX_d) {
-    if (!calibrated) {
-        return NOT_CALIBRATED;
-    }
-
-    //TODO: add a limit check
-    if (false) {
-        return OUTSIDE_LIMITS;
-    }
-
-    JointVec dq_d = J().inverse() * dX_d;
-    return setJointVel(dq_d);
-}
-
-setMovementReturnCode_t RobotM1::setEndEffFor(EndEffVec F_d) {
-    if (!calibrated) {
-        return NOT_CALIBRATED;
-    }
-
-    //TODO: add a limit check
-    if (false) {
-        return OUTSIDE_LIMITS;
-    }
-
-    JointVec tau_d = J().transpose() * F_d;
-    return setJointTor(tau_d);
-}
-
-setMovementReturnCode_t RobotM1::setEndEffForWithCompensation(EndEffVec F_d) {
-    if (!calibrated) {
-        return NOT_CALIBRATED;
-    }
-
-    //TODO: add a limit check
-    if (false) {
-        return OUTSIDE_LIMITS;
-    }
-    JointVec tau_g = calculateGravityTorques();  //Gravity compensation torque
-    JointVec tau_f;                              //Friction compensation torque
-    //TODO: how are these values determined? Do they need to be tuned for each device? Joint?
-    double alpha = 0.5, beta = 0.03, threshold = 0.000000;
-    for (uint i = 0; i < nJoints; i++) {
-        //double dq = ((JointM1 *)joints[i])->getVelocity();
-	double dq_t = dq(i);
-        if (abs(dq_t) > threshold) {
-            tau_f(i) = alpha * sign(dq_t) + beta * dq_t;
-        }
-    }
-
-    JointVec tau_d = J().transpose() * F_d + tau_g + tau_f;
-    return setJointTor(tau_d);
-}//*/
