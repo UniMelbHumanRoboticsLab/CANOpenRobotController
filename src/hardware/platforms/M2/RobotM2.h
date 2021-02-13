@@ -49,10 +49,10 @@ class RobotM2 : public Robot {
     RobotM2();
     ~RobotM2();
 
-    std::vector<M2ForceSensor*> forceSensors; //meaning?
+    std::vector<M2ForceSensor*> forceSensors;
 
-    Keyboard *keyboard; //meaning? declare pointer?
-    Joystick *joystick; //meaning? declare pointer?
+    Keyboard *keyboard;
+    Joystick *joystick;
 
     /**
        * \brief Initialises all joints to position control mode.
@@ -162,10 +162,6 @@ class RobotM2 : public Robot {
     Eigen::VectorXd& getInteractionForceRef();
 
     setMovementReturnCode_t setJointPosition(VM2 q);
-    /**
-    * modification done here
-    */
-    // setMovementReturnCode_t setJointVelocity(VM2 q); // original code
     setMovementReturnCode_t setJointVelocity(VM2 dq);
     setMovementReturnCode_t setJointTorque(VM2 tau);
     setMovementReturnCode_t setEndEffPosition(VM2 X);

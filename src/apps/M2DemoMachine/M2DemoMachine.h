@@ -58,9 +58,7 @@ class M2DemoMachine : public StateMachine {
     M2DemoState *testState;
     M2DemoMinJerkPosition* minJerkState;
     M2EndEffDemo *endEffDemoState;
-    M2DemoImpedanceState *impedanceState;
     M2DemoPathState *pathState;
-    M2SamplingEstimationState *timingState;
 
    protected:
     RobotM2 *robot;         /*!< Pointer to the Robot*/

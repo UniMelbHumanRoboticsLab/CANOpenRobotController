@@ -10,10 +10,8 @@ M2DemoMachine::M2DemoMachine() {
     calibState = new M2CalibState(this, robot);
     standbyState = new M2Transparent(this, robot);
     endEffDemoState = new M2EndEffDemo(this, robot);
-    impedanceState = new M2DemoImpedanceState(this, robot);
     pathState = new M2DemoPathState(this, robot);
     minJerkState = new M2DemoMinJerkPosition(this, robot);
-    timingState = new M2SamplingEstimationState(this, robot);
 
     endCalib = new EndCalib(this);
     goToNextState = new GoToNextState(this);
@@ -28,10 +26,8 @@ M2DemoMachine::M2DemoMachine() {
      NewTransition(calibState, endCalib, standbyState);
      NewTransition(standbyState, goToNextState, minJerkState);
      NewTransition(minJerkState, goToNextState, endEffDemoState);
-     NewTransition(endEffDemoState, goToNextState, impedanceState);
-     NewTransition(impedanceState, goToNextState, pathState);
-     NewTransition(pathState, goToNextState, timingState);
-     NewTransition(timingState, goToNextState, standbyState);
+     NewTransition(endEffDemoState, goToNextState, pathState);
+     NewTransition(pathState, goToNextState, standbyState);
 
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.

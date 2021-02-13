@@ -188,32 +188,6 @@ class M2ArcCircle : public M2TimedState {
 };
 
 /**
- * \brief Basic impedance control on a static point.
- *
- */
-class M2DemoImpedanceState : public M2TimedState {
-
-   public:
-    M2DemoImpedanceState(StateMachine *m, RobotM2 *M2, const char *name = "M2 Demo Impedance State"):M2TimedState(m, M2, name){};
-
-    void entryCode(void);
-    void duringCode(void);
-    void exitCode(void);
-
-   private:
-    VM2 Xi;
-    double k = 700;     //! Impedance proportional gain (spring)
-    double d = 2;       //! Impedance derivative gain (damper)
-    bool init=false;
-
-    unsigned int nb_samples=10000;
-    double dts[10000];
-    double dX[10000];
-    int new_value;
-};
-
-
-/**
  * \brief Path contraint with viscous assistance.
  *
  */
@@ -255,32 +229,10 @@ class M2DemoMinJerkPosition: public M2TimedState {
     unsigned int TrajPtIdx=0;
     double startTime;
     VM2 TrajPt[TrajNbPts]={VM2(0.1, 0.1), VM2(0.3, 0.3), VM2(0.4, 0.1), VM2(0.4, 0.4)};
-    double TrajTime[TrajNbPts]={5, 3, 0.5, 0.5};
+    double TrajTime[TrajNbPts]={5, 3, 2.5, 1.5};
     VM2 Xi, Xf;
     double T;
     float k_i=1.; //Integral gain
-};
-
-
-
-/**
- * \brief Sampling frequency estimation state.
- *
- */
-class M2SamplingEstimationState : public M2TimedState {
-
-   public:
-    M2SamplingEstimationState(StateMachine *m, RobotM2 *M2, const char *name = "M2 Sampling time estimation State"):M2TimedState(m, M2, name){};
-
-    void entryCode(void);
-    void duringCode(void);
-    void exitCode(void);
-
-   private:
-    unsigned int nb_samples=10000;
-    double dts[10000];
-    double dX[10000];
-    int new_value;
 };
 
 
