@@ -5,7 +5,7 @@ using namespace Eigen;
 RobotM2::RobotM2() : Robot(),
                      calibrated(false),
                      maxEndEffVel(3),
-                     maxEndEffForce(60) {
+                     maxEndEffForce(80) {
     //Define the robot structure: each joint with limits and drive
     double tau_max = 1.9 * 166;
     joints.push_back(new JointM2(0, 0, 0.625, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new KincoDrive(1), "x"));
@@ -88,6 +88,10 @@ void RobotM2::applyCalibration() {
     for (unsigned int i = 0; i < joints.size(); i++) {
         ((JointM2 *)joints[i])->setPositionOffset(qCalibration[i]);
     }
+    for (unsigned int i = 0; i < forceSensors.size(); i++) {
+        forceSensors[i]->calibrate();
+    }
+
     calibrated = true;
 }
 
@@ -99,6 +103,7 @@ void RobotM2::updateRobot() {
     Matrix2d _J = J();
     endEffVelocities = _J * getVelocity();
     endEffForces = getEndEffForce();
+    interactionForces = getInteractionForceRef();
 
     if (safetyCheck() != SUCCESS) {
         disable();
@@ -112,10 +117,10 @@ setMovementReturnCode_t RobotM2::safetyCheck() {
             spdlog::error("M2: Max velocity reached ({}m.s-1)!", getEndEffVelocity().norm());
             return OUTSIDE_LIMITS;
         }
-        //if(getEndEffForce().norm()>maxEndEffForce) {
-        //   spdlog::error("M2: Max force reached ({}N)!", getEndEffForce().norm());
-        //   return OUTSIDE_LIMITS;
-        //}
+        if(interactionForces.norm()>maxEndEffForce) {
+           spdlog::error("M2: Max force reached ({}N)!", interactionForces.norm());
+           return OUTSIDE_LIMITS;
+        }
     }
     //otherwise basic joint safeties
     else {
@@ -133,7 +138,8 @@ void RobotM2::printStatus() {
     std::cout << std::setprecision(3) << std::fixed;
     std::cout << "X=[ " << getEndEffPosition().transpose() << " ]\t";
     std::cout << "dX=[ " << getEndEffVelocity().transpose() << " ]\t";
-    std::cout << "F=[ " << getEndEffForce().transpose() << " ]\t";
+    std::cout << "Fm=[ " << getEndEffForce().transpose() << " ]\t";
+    std::cout << "Fs=[ " << interactionForces.transpose() << " ]\t";
     std::cout << std::endl;
 }
 void RobotM2::printJointStatus() {
@@ -292,14 +298,7 @@ VM2 RobotM2::getEndEffVelocity() {
     return J() * getVelocity();
 }
 VM2 RobotM2::getEndEffForce() {
-    VM2 Force;
-    for(unsigned int i=0; i< forceSensors.size(); i++) {
-        if(forceSensors[i]->isCalibrated())
-            Force[i]=forceSensors[i]->getForce();
-        else
-            Force[i]=std::nan("Not calibrated");
-    }
-    return Force;
+    return (J().transpose()).inverse() * getTorque();
 }
 
 Eigen::VectorXd& RobotM2::getEndEffPositionRef() {
@@ -317,7 +316,20 @@ Eigen::VectorXd& RobotM2::getEndEffForceRef() {
     endEffForces = getEndEffForce();
     return endEffForces;
 }
+Eigen::VectorXd& RobotM2::getInteractionForceRef() {
+    if((unsigned int)interactionForces.size()!=forceSensors.size()) {
+        interactionForces = Eigen::VectorXd::Zero(forceSensors.size());
+    }
 
+    //Update values from force sensors
+    for(unsigned int i=0; i< forceSensors.size(); i++) {
+        if(forceSensors[i]->isCalibrated())
+            interactionForces[i]=forceSensors[i]->getForce();
+        else
+            interactionForces[i]=std::nan("Not calibrated");
+    }
+    return interactionForces;
+}
 
 setMovementReturnCode_t RobotM2::setJointPosition(VM2 q) {
     std::vector<double> pos{q(0), q(1)};

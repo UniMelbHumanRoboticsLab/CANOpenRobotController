@@ -41,7 +41,8 @@ baseSocket::baseSocket():
 
 //! Destructor releasing memory and closing the socket
 baseSocket::~baseSocket() {
-    Disconnect();
+    if(Connected)
+        Disconnect();
     pthread_mutex_destroy(&ReceivedMutex);
     pthread_mutex_destroy(&ReceivedCmdMutex);
     delete[] ReceivedValues;

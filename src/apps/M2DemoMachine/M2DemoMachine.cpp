@@ -35,6 +35,7 @@ M2DemoMachine::M2DemoMachine() {
     //StateMachine::initialize(testState);
 }
 M2DemoMachine::~M2DemoMachine() {
+    spdlog::debug("M2DemoMachine::~M2DemoMachine()");
     delete UIserver;
     delete robot;
 }
@@ -98,7 +99,6 @@ void M2DemoMachine::hwStateUpdate(void) {
     robot->updateRobot();
     UIserver->sendState();
 }
-
 
 
 bool M2DemoMachine::EndCalib::check() {
