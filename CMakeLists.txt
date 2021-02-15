@@ -64,12 +64,15 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 ## Current state machine (APP) to be build
-add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
-add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
+if(NOT STATE_MACHINE_NAME)
+	message(FATAL_ERROR "ERROR: No state machine (APP) selected: Abort.")
+else()
+	add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
+	add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
+endif()
 if(NO_ROBOT)
 	add_definitions(-DNOROBOT=1)
 endif()
-
 
 ## Get all source and header files (only the target app folder is included)
 file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "src/apps/${STATE_MACHINE_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.cpp" "lib/FLNL/*.cpp")
