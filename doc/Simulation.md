@@ -53,9 +53,9 @@ $ catkin build
 Clone CORC and the required packages into your workspace:
 ```bash
 $ cd ~/catkin_ws/src
-$ git clone github.com/UniMelbHumanRoboticsLab/CANOpenRobotController.git
-$ git clone github.com/emekBaris/x2_description.git
-$ git clone github.com/emekBaris/cob_gazebo_plugins.git
+$ git clone https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController.git
+$ git clone https://github.com/emekBaris/x2_description.git
+$ git clone https://github.com/emekBaris/cob_gazebo_plugins.git
 ```
 
 Make sure `USE_ROS` flag is set to `ON` in CMakeLists.txt:
