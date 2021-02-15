@@ -1,14 +1,15 @@
-/*
- * Application interface for Alex Exoskeleton Software
+ /**
  *
- * @file        application.c
- * @author      William Campbell
+ * \file application.c
+ * \author William Campbell, Justin Fong
+ * \version 0.2
+ * \date 2021-02-15
+ * \copyright Copyright (c) 2020 - 2021
  *
-
+ * \breif  Application interface of CORC. Based on CANopenSocket.
+ *
  */
 #include "application.h"
-
-#include "RobotousRFT.h"
 
 #ifdef TIMING_LOG
 #include "LoopTiming.h"
