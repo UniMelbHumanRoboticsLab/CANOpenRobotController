@@ -2,67 +2,113 @@
 
 #include "HX711.h"
 
-//#define SHIFTIN_WITH_SPEED_SUPPORT(data,clock,order) shiftInSlow(data,clock,order)
 
 #define HIGH true
 #define LOW false
 
-HX711::HX711() {
+HX711::HX711(Eigen::Matrix<int, Eigen::Dynamic, 2> inputPins, Eigen::Vector2i clockPin) {
     iolib_init();
-    iolib_setdir(2, 10, BBBIO_DIR_OUT);
-    iolib_setdir(2, 8, BBBIO_DIR_IN);
-    iolib_setdir(2, 6, BBBIO_DIR_IN);
+    iolib_setdir(clockPin[0], clockPin[1], BBBIO_DIR_OUT);
+    spdlog::info("Clock Pin P{}.{}", clockPin[0], clockPin[1]);
+
+    GAIN = 0;                                      // amplification factor
+    OFFSET = Eigen::VectorXd::Zero(inputPins.rows());  //= 0;     // used for tare weight
+    SCALE = Eigen::VectorXd::Zero(inputPins.rows());   //= 1;     // used to return weight in grams, kg, ounces, whateverc
+    force = Eigen::VectorXd::Zero(inputPins.rows());
+    rawData = Eigen::VectorXi::Zero(inputPins.rows());
+
+    for (int i = 0; i < inputPins.rows(); i++) {
+        iolib_setdir(inputPins(i,0), inputPins(i,1), BBBIO_DIR_IN);
+        SCALE(i) = 1;
+        OFFSET(i) = 0;
+        spdlog::info("Input Pin P{}.{}", inputPins(i, 0), inputPins(i, 1));
+    }
+
+    this->inputPins = inputPins;
+    this->clockPin = clockPin;
 }
 
 HX711::~HX711() {
 }
 
 //half
-void HX711::begin(std::string dout, std::string pd_sck, int gain) {
+void HX711::begin(int gain) {
     set_gain(gain);
 }
 
 void HX711::updateInput() {
-    force = read();
-}
+    //spdlog::info("HX711::updateInput()");
 
-char HX711::shiftInSlow(std::string dataPin, std::string clockPin) {
-    uint8_t value = 0;
-    uint8_t value2 = 0;
+    // Wait for the chip to become ready.
+    clock_digitalWrite(LOW);
+    wait_ready(10);
 
-    for (int i = 0; i < 8; ++i) {
+    // Define structures for reading data into.
+    unsigned long data[inputPins.rows()] = {0};
+
+    timespec startTime;
+    timespec currTime;
+    for (int i = 0; i < 24; ++i) {
+
         clock_digitalWrite(HIGH);
-        value |= digitalRead(6) << (7 - i);
-        value2 |= digitalRead(8) << (7 - i);
+        clock_gettime(CLOCK_MONOTONIC, &startTime);
+        for (int j = 0; j < inputPins.rows(); j++)
+            data[j] |= digitalRead(j) << (24 - i);
 
         clock_digitalWrite(LOW);
+        clock_gettime(CLOCK_MONOTONIC, &currTime);
+        //spdlog::info("{}",(currTime.tv_sec - startTime.tv_sec)*1e6 + (currTime.tv_nsec - startTime.tv_nsec) / 1e3);
     }
-    spdlog::info("{}, {}", value, value2);
-    return value;
+
+    // Set the channel and the gain factor for the next reading using the clock pin.
+    for (int i = 0; i < GAIN; i++) {
+        clock_digitalWrite(HIGH);
+        usleep(1);
+        clock_digitalWrite(LOW);
+    }
+
+    // Replicate the most significant bit to pad out a 32-bit signed integer
+    for (int j = 0; j < inputPins.rows(); j++) {
+        if (data[j] & 0x800000) {
+            data[j] |= 0xFF000000;
+        }
+        //data[j] -= OFFSET(j);
+        //spdlog::info("Input Pin P{}.{}, Reading: {}", inputPins(j, 0), inputPins(j, 1), static_cast<INTEGER32>(data[j]));
+        rawData(j) = static_cast<INTEGER32>(data[j]);
+        force(j) = (rawData(j) - OFFSET(j))*SCALE(j);
+    }
 }
+
+
 
 void HX711::clock_digitalWrite(bool value) {
     if (value) {
-        pin_high(2, 10);
+        pin_high(clockPin[0], clockPin[1]);
     } else {
-        pin_low(2, 10);
+        pin_low(clockPin[0], clockPin[1]);
     }
 }
 
-uint8_t HX711::digitalRead(int pin) {
-    if (is_high(2, pin)) {
-        printf("1");
+uint8_t HX711::digitalRead(int sensorNum) {
+    
+    if (is_high(inputPins(sensorNum, 0), inputPins(sensorNum, 1))) {
+        //printf("1");
         return true;
     } else {
-        printf("0");
-
+        //printf("0");
         return false;
     }
 }
 
 //no
 bool HX711::is_ready() {
-    return digitalRead(6) == LOW && digitalRead(8) == LOW;
+    bool returnValue = true;
+
+    for (int j =0; j< inputPins.rows(); j++){
+        returnValue &= (digitalRead(j)==LOW);
+    }
+
+    return returnValue;
 }
 
 //go
@@ -80,42 +126,6 @@ void HX711::set_gain(uint8_t gain) {
     }
 }
 
-long HX711::read() {
-    spdlog::info("HX711::read()");
-
-    typedef unsigned char uint8_t;
-    // Wait for the chip to become ready.
-    clock_digitalWrite(LOW);
-    wait_ready(10);
-
-    // Define structures for reading data into.
-    unsigned long value = 0;
-    uint8_t data[4] = {0};
-    // Pulse the clock pin 24 times to read the data.
-    data[2] = shiftInSlow(DOUT, PD_SCK);
-    data[1] = shiftInSlow(DOUT, PD_SCK);
-    data[0] = shiftInSlow(DOUT, PD_SCK);
-
-    // Set the channel and the gain factor for the next reading using the clock pin.
-    for (int i = 0; i < GAIN; i++) {
-        clock_digitalWrite(HIGH);
-        usleep(2);
-        clock_digitalWrite(LOW);
-    }
-
-    // Replicate the most significant bit to pad out a 32-bit signed integer
-    if (data[2] & 0x80) {
-        data[3] = 0xFF;
-    } else {
-        data[3] = 0x00;
-    }
-
-    // Construct a 32-bit signed integer
-    value = (static_cast<unsigned long>(data[3]) << 24 | static_cast<unsigned long>(data[2]) << 16 | static_cast<unsigned long>(data[1]) << 8 | static_cast<unsigned long>(data[0]));
-
-    spdlog::info("Reading: {0:x}", value);
-    return static_cast<long>(value);
-}
 
 //go
 void HX711::wait_ready(unsigned long delay_ms) {
@@ -160,48 +170,42 @@ bool HX711::wait_ready_timeout(unsigned long timeout, unsigned long delay_ms) {
 }
 
 //go
-long HX711::read_average(int times) {
-    long sum = 0;
-    for (int i = 0; i < times; i++) {
-        sum += read();
-    }
-    return sum / times;
+Eigen::VectorXi HX711::getAllRawData() {
+    return rawData;
 }
 
 //go
-double HX711::get_value(int times) {
-    return read_average(times) - OFFSET;
+double HX711::getRawData(int sensorNum) {
+    return rawData(sensorNum);
+}
+
+Eigen::VectorXd HX711::getAllForce() {
+    return force;
 }
 
 //go
-float HX711::get_units(int times) {
-    return get_value(times) / SCALE;
+double HX711::getForce(int sensorNum) {
+    return force(sensorNum);
 }
 
 //go
-void HX711::tare(int times) {
-    double sum = read_average(times);
-    set_offset(sum);
+void HX711::set_scale(int sensorNum,double scale) {
+    SCALE[sensorNum] = scale;
 }
 
 //go
-void HX711::set_scale(float scale) {
-    SCALE = scale;
+double HX711::get_scale(int sensorNum) {
+    return SCALE(sensorNum);
 }
 
 //go
-float HX711::get_scale() {
-    return SCALE;
+void HX711::set_offset(int sensorNum, INTEGER32 offset) {
+    OFFSET[sensorNum] = offset;
 }
 
 //go
-void HX711::set_offset(long offset) {
-    OFFSET = offset;
-}
-
-//go
-long HX711::get_offset() {
-    return OFFSET;
+INTEGER32 HX711::get_offset(int sensorNum) {
+    return OFFSET(sensorNum);
 }
 
 //no

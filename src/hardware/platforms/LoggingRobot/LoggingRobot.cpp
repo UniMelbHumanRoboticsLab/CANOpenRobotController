@@ -14,9 +14,16 @@ bool LoggingRobot::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
     spdlog::info("test");
 
-    inputs.push_back(strainGauge = new HX711());
+    Eigen::Matrix<int, 2, 2> inputPins;
+    inputPins(0,0) = 2; // Sensor 1
+    inputPins(0,1) = 4;
+    inputPins(1,0) = 2; // Sensor 2
+    inputPins(1,1) = 6;
+    Eigen::Vector2i clock = {2,2};
+
+    inputs.push_back(strainGauge = new HX711(inputPins, clock));
     spdlog::info("test");
-    strainGauge->begin("","",128);
+    strainGauge->begin(128);
 
     // Add two crutch sensors
     crutchSensors.push_back(new RobotousRFT(0xf8, 0xf9, 0xfa));
@@ -58,6 +65,15 @@ Eigen::VectorXd& LoggingRobot::getCrutchReadings() {
     return crutchReadings;
 }
 
+Eigen::VectorXd& LoggingRobot::getStrainReadings() {
+    strainForces = strainGauge->getAllForces();
+    return crutchReadings;
+}
+
+Eigen::VectorXi LoggingRobot::getRawStrainReadings() {
+    return strainGauge->getAllRawData();
+}
+
 void LoggingRobot::updateCrutchReadings(){
     if ((unsigned int)crutchReadings.size() != 6 * crutchSensors.size()) {
         crutchReadings = Eigen::VectorXd::Zero(6 * crutchSensors.size());  // 6 Forces per sensor
@@ -83,6 +99,7 @@ void LoggingRobot::setCrutchOffsets(Eigen::VectorXd offsets) {
         crutchSensors[i]->setOffsets(offsets.segment(i * 6, 3), offsets.segment(i * 6+3, 3));
     }
 }
+
 bool LoggingRobot::startSensors() {
     if (sensorsOn){
         //do nothing

@@ -4,6 +4,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <Eigen/Dense>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -13,18 +14,24 @@
 
 class HX711 : public InputDevice {
    private:
-    std::string PD_SCK;  // Power Down and Serial Clock Input Pin
-    std::string DOUT;    // Serial Data Output Pin
-    long GAIN;           // amplification factor
-    long OFFSET = 0;     // used for tare weight
-    float SCALE = 1;     // used to return weight in grams, kg, ounces, whatever
-    double force = 0;
+    int GAIN;      // amplification factor. Can only have one for all sensors
+    Eigen::VectorXd OFFSET;  //= 0;     // used for tare weight
+    Eigen::VectorXd SCALE;   //= 1;     // used to return weight in grams, kg, ounces, whatever
 
-    std::ofstream clockPinStream;
-    std::ifstream dataPinStream;
+    Eigen::Matrix<int, Eigen::Dynamic, 2> inputPins;
+    Eigen::Vector2i clockPin;
+
+    Eigen::VectorXd force;  //= 0;
+    Eigen::VectorXi rawData;  //= 0;
+
+    // Write a value to the clock pin
+    void clock_digitalWrite(bool value);
+
+    // Read a value from a data pin
+    uint8_t digitalRead(int sensorNum);
 
    public:
-    HX711();
+    HX711(Eigen::Matrix<int, Eigen::Dynamic, 2> inputPins, Eigen::Vector2i clockPin);
     ~HX711();
 
     void updateInput();
@@ -35,7 +42,7 @@ class HX711 : public InputDevice {
     // - With a gain factor of 64 or 128, channel A is selected
     // - With a gain factor of 32, channel B is selected
     // The library default is "128" (Channel A).
-    void begin(std::string dout, std::string pd_sck, int gain = 128);
+    void begin(int gain = 128);
 
     // Check if HX711 is ready
     // from the datasheet: When output data is not ready for retrieval, digital output pin DOUT is high. Serial clock
@@ -52,43 +59,35 @@ class HX711 : public InputDevice {
     // depending on the parameter, the channel is also set to either A or B
     void set_gain(uint8_t gain = 128);
 
-    // waits for the chip to be ready and returns a reading
-    long read();
+    // Get the latest Raw Data (INTEGER32) from all sensors
+    Eigen::VectorXi getAllRawData();
 
-    // returns an average reading; times = how many times to read
-    long read_average(int times = 10);
+    // Get the latest Raw Data (INTEGER32) from a single sensor
+    double getRawData(int sensorNum);
 
-    // returns (read_average() - OFFSET), that is the current value without the tare weight; times = how many readings to do
-    double get_value(int times = 1);
+    // Get the latest force measurement from all sensors
+    Eigen::VectorXd getAllForce();
 
-    // returns get_value() divided by SCALE, that is the raw value divided by a value obtained via calibration
-    // times = how many readings to do
-    float get_units(int times = 1);
-
-    // set the OFFSET value for tare weight; times = how many times to read the tare value
-    void tare(int times = 10);
+    // Get the latest force measurement from a single
+    double getForce(int sensorNum);
 
     // set the SCALE value; this value is used to convert the raw data to "human readable" data (measure units)
-    void set_scale(float scale = 1.f);
+    void set_scale(int sensorNum,double scale = 1);
 
     // get the current SCALE
-    float get_scale();
+    double get_scale(int sensorNum);
 
     // set OFFSET, the value that's subtracted from the actual reading (tare weight)
-    void set_offset(long offset = 0);
+    void set_offset(int sensorNum,INTEGER32 offset = 0);
 
     // get the current OFFSET
-    long get_offset();
+    INTEGER32 get_offset(int sensorNum);
 
     // puts the chip into power down mode
     void power_down();
 
     // wakes up the chip after power down mode
     void power_up();
-
-    char shiftInSlow(std::string dataPin, std::string clockPin);
-    void clock_digitalWrite(bool value);
-    uint8_t digitalRead(int pin);
 };
 
 #endif /* HX711_h */
