@@ -4,8 +4,8 @@ using namespace Eigen;
 
 RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce(60) {
     // Conversion factors between degrees and radians
-    d2r = M_PIf64 / 180.;
-    r2d = 180. / M_PIf64;
+    d2r = M_PI / 180.;
+    r2d = 180. / M_PI;
 
     //Define the robot structure: each joint with limits and drive - TMH
     // JOINT 0 - the only joint in the case of M1
