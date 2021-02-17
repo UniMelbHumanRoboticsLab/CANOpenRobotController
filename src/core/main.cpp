@@ -178,6 +178,7 @@ int main(int argc, char *argv[]) {
         app_communicationReset(argc, argv);
 
 
+
         /* initialize CANopen with CAN interface and nodeID */
         if (CO_init(CANdevice0Index, nodeId, 0) != CO_ERROR_NO) {
             char s[120];
@@ -328,6 +329,7 @@ static void *rt_control_thread(void *arg) {
     struct period_info pinfo;
     periodic_task_init(&pinfo);
     app_programStart();
+
 
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);

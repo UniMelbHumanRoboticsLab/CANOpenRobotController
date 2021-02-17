@@ -45,12 +45,12 @@ void app_programStart(void) {
 #ifdef NOROBOT
     spdlog::info("Running in NOROBOT (virtual) mode.");
 #endif  // NOROBOT
-
     stateMachine->init();
     stateMachine->activate();
 }
 
 /******************** Runs in low priority thread ********************/
+
 void app_programAsync(uint16_t timer1msDiffy) {
 }
 
