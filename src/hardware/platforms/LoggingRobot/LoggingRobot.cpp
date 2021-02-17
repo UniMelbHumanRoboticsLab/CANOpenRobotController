@@ -5,7 +5,7 @@ LoggingRobot::LoggingRobot() {
 
     initialiseJoints();
     initialiseInputs();
-};
+}
 
 
 bool LoggingRobot::initialiseInputs() {
@@ -67,7 +67,7 @@ Eigen::VectorXd& LoggingRobot::getCrutchReadings() {
 
 Eigen::VectorXd& LoggingRobot::getStrainReadings() {
     strainForces = strainGauge->getAllForces();
-    return crutchReadings;
+    return strainForces;
 }
 
 Eigen::VectorXi LoggingRobot::getRawStrainReadings() {
@@ -100,6 +100,11 @@ void LoggingRobot::setCrutchOffsets(Eigen::VectorXd offsets) {
     }
 }
 
+void LoggingRobot::setStrainOffsets(Eigen::VectorXi offsets) {
+    for (int i = 0; i < offsets.size(); i++) {
+        strainGauge->set_offset(i, offsets(i));
+    }
+}
 bool LoggingRobot::startSensors() {
     if (sensorsOn){
         //do nothing
@@ -113,6 +118,7 @@ bool LoggingRobot::startSensors() {
         return true;
     }
 }
+
 bool LoggingRobot::stopSensors() {
     if (sensorsOn) {
         for (unsigned int i = 0; i < crutchSensors.size(); i++) {

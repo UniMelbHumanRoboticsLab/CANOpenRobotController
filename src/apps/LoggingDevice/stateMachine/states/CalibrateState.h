@@ -15,11 +15,13 @@
 #include "LoggingRobot.h"
 #include "State.h"
 
-#define NUM_CALIBRATE_READINGS 1000
+#define NUM_CALIBRATE_READINGS 200
 
 class CalibrateState : public State {
     private:
         Eigen::ArrayXXd readings;
+        Eigen::ArrayXXi strainReadings;
+
         int currReading = 0;
 
     public :

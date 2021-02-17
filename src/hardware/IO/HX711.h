@@ -15,7 +15,7 @@
 class HX711 : public InputDevice {
    private:
     int GAIN;      // amplification factor. Can only have one for all sensors
-    Eigen::VectorXd OFFSET;  //= 0;     // used for tare weight
+    Eigen::VectorXi OFFSET;  //= 0;     // used for tare weight
     Eigen::VectorXd SCALE;   //= 1;     // used to return weight in grams, kg, ounces, whatever
 
     Eigen::Matrix<int, Eigen::Dynamic, 2> inputPins;
@@ -66,7 +66,7 @@ class HX711 : public InputDevice {
     double getRawData(int sensorNum);
 
     // Get the latest force measurement from all sensors
-    Eigen::VectorXd getAllForce();
+    Eigen::VectorXd& getAllForces();
 
     // Get the latest force measurement from a single
     double getForce(int sensorNum);

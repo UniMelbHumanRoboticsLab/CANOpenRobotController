@@ -47,7 +47,8 @@ class LoggingRobot : public Robot {
     Eigen::VectorXd &getCrutchReadings();
 
     Eigen::VectorXd &getStrainReadings();
-    Eigen::VectorXi getRawStrainReadings() {
+    Eigen::VectorXi getRawStrainReadings();
+    
         /**
      * @brief Takes the forces from the crutches and updates a local copy
      * 
@@ -55,6 +56,7 @@ class LoggingRobot : public Robot {
         void updateCrutchReadings();
 
     void setCrutchOffsets(Eigen::VectorXd offsets);
+    void setStrainOffsets(Eigen::VectorXi offsets);
 
     bool startSensors();
     bool stopSensors();

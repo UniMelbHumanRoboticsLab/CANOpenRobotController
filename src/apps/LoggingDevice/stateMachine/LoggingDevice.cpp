@@ -38,6 +38,8 @@ void LoggingDevice::init() {
     dataLogger.initLogger("test_logger", "logs/testLog.csv", LogFormat::CSV, true);
     dataLogger.add(time, "time");
     dataLogger.add(robot->getCrutchReadings(), "CrutchReadings");
+    dataLogger.add(robot->getStrainReadings(), "StrainReadings");
+
     dataLogger.startLogger();
 }
 

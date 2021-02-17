@@ -12,7 +12,7 @@ HX711::HX711(Eigen::Matrix<int, Eigen::Dynamic, 2> inputPins, Eigen::Vector2i cl
     spdlog::info("Clock Pin P{}.{}", clockPin[0], clockPin[1]);
 
     GAIN = 0;                                      // amplification factor
-    OFFSET = Eigen::VectorXd::Zero(inputPins.rows());  //= 0;     // used for tare weight
+    OFFSET = Eigen::VectorXi::Zero(inputPins.rows());  //= 0;     // used for tare weight
     SCALE = Eigen::VectorXd::Zero(inputPins.rows());   //= 1;     // used to return weight in grams, kg, ounces, whateverc
     force = Eigen::VectorXd::Zero(inputPins.rows());
     rawData = Eigen::VectorXi::Zero(inputPins.rows());
@@ -72,10 +72,17 @@ void HX711::updateInput() {
         if (data[j] & 0x800000) {
             data[j] |= 0xFF000000;
         }
-        //data[j] -= OFFSET(j);
-        //spdlog::info("Input Pin P{}.{}, Reading: {}", inputPins(j, 0), inputPins(j, 1), static_cast<INTEGER32>(data[j]));
-        rawData(j) = static_cast<INTEGER32>(data[j]);
-        force(j) = (rawData(j) - OFFSET(j))*SCALE(j);
+
+        // Sometimes errorneous data comes in. Usually 0xFFFFFFFE or 0xFFFFE. Ignore if this is the case
+        // TODO: Better comparison might be if all of them are equal
+        if((data[j] & 0xFFFE) != 0xFFFE){
+            rawData(j) = static_cast<INTEGER32>(data[j]);
+            force(j) = (rawData(j) - OFFSET(j))*SCALE(j);
+            //spdlog::info("OFFSET: {}", OFFSET(j));
+
+            //spdlog::info("Input Pin P{}.{}, Reading: {}", inputPins(j, 0), inputPins(j, 1), force(j));
+            //spdlog::info("Reading: {0:x}", data[j]);
+        }
     }
 }
 
@@ -140,7 +147,7 @@ bool HX711::wait_ready_retry(int retries, unsigned long delay_ms) {
     while (count < retries) {
         printf("wait_ready_retry\n");
 
-        if (is_ready()) {
+        if (is_ready()) { 
             return true;
         }
         usleep(delay_ms * 1000);
@@ -179,7 +186,7 @@ double HX711::getRawData(int sensorNum) {
     return rawData(sensorNum);
 }
 
-Eigen::VectorXd HX711::getAllForce() {
+Eigen::VectorXd& HX711::getAllForces() {
     return force;
 }
 
@@ -200,7 +207,8 @@ double HX711::get_scale(int sensorNum) {
 
 //go
 void HX711::set_offset(int sensorNum, INTEGER32 offset) {
-    OFFSET[sensorNum] = offset;
+    OFFSET(sensorNum) = offset;
+    spdlog::info("OffsetSet {}, {}", sensorNum, OFFSET(sensorNum));
 }
 
 //go
