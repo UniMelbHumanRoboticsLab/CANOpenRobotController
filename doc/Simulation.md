@@ -70,6 +70,11 @@ If you would like to do a simulation:
 Set your state machine that uses ROS (e.g., X2DemoMachine):
 ```set (STATE_MACHINE_NAME "X2DemoMachine")```
 
+Select your robot model in the launch file `launch\x2_sim.launch` to match a model defined in `config\x2_params.xml`, for example:
+```<arg name="robot_name" default="X2_SRA_A"/>```
+
+
+
 Build CORC:
 ```bash
 $ cd ~/catkin_ws
