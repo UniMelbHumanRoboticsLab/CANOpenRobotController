@@ -14,10 +14,10 @@
 
 JointM1::JointM1(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, KincoDrive *kincoDrive, const std::string& name): Joint(jointID, q_min, q_max, kincoDrive, name),
                                                                                                                                           sign(sign_), qMin(q_min), qMax(q_max), dqMin(dq_min), dqMax(dq_max), tauMin(tau_min), tauMax(tau_max){
-    d2r = M_PIf64 / 180.;
-    r2d = 180. / M_PIf64;
+    d2r = M_PI / 180.;
+    r2d = 180. / M_PI;
     // Define unchanging unit conversion properties
-    double round2radian = 2*M_PIf64;
+    double round2radian = 2*M_PI;
     double correctionFactor = 1875./512;   //magic number
     encoderCounts = 10000;          //Encoder counts per turn
     reductionRatio = 69;            // Reduction ratio due to gear head, seems right, but not sure yet
