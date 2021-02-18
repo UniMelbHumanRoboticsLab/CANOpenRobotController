@@ -133,7 +133,12 @@ class X2Robot : public Robot {
       * Initialize memory for the Exoskelton <code>Joint</code> + sensors.
       * Load in exoskeleton paramaters to  <code>TrajectoryGenerator.</code>.
       */
+
+#ifdef SIM
+    X2Robot(ros::NodeHandle &nodeHandle, std::string robotName = XSTR(X2_NAME));
+#else
     X2Robot(std::string robotName = XSTR(X2_NAME));
+#endif
     ~X2Robot();
     Keyboard* keyboard;
     std::vector<Drive*> motorDrives;
@@ -330,7 +335,7 @@ class X2Robot : public Robot {
     /**
        * \brief Initialize ROS services, publisher ans subscribers
       */
-    void initialiseROS();
+    void initialiseROS(ros::NodeHandle &nodeHandle);
 #endif
 };
 #endif /*EXOROBOT_H*/

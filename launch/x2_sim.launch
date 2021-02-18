@@ -49,7 +49,10 @@
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find x2_description)/rviz/view_robot.rviz"/>
 
   <!-- CORC -->
-  <node name="$(arg robot_name)" pkg="CORC" type="X2DemoMachine_APP_NOROBOT" output="screen"/>
+  <node name="$(arg robot_name)" pkg="CORC" type="X2DemoMachine_APP_NOROBOT" output="screen" args="-can vcan0"/>
+
+  <!-- rqt gui for dynamic params -->
+  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>
 
 </launch>
 

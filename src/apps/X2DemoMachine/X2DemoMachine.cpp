@@ -11,10 +11,10 @@ X2DemoMachine::X2DemoMachine(int argc, char *argv[]) {
     robotName_ = ros::this_node::getName();
     robotName_.erase(0,1); // erase the first character which is '/'
 
-    robot_ = new X2Robot(robotName_);
-
 #ifdef SIM
-    robot_->setNodeHandle(nodeHandle);
+    robot_ = new X2Robot(nodeHandle, robotName_);
+#else
+    robot_ = new X2Robot(robotName_);
 #endif
 
     // Create PRE-DESIGNED State Machine events and state objects.

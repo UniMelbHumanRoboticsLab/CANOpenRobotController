@@ -37,7 +37,11 @@ ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2ra
 
 static volatile sig_atomic_t exitHoming = 0;
 
+#ifdef SIM
+X2Robot::X2Robot(ros::NodeHandle &nodeHandle, std::string robotName):
+#else
 X2Robot::X2Robot(std::string robotName):
+#endif
         robotName_(robotName){
 
     spdlog::debug("{} Created", robotName_);
@@ -64,6 +68,9 @@ X2Robot::X2Robot(std::string robotName):
     spdlog::debug("initialiseJoints call");
     initialiseJoints();
     initialiseInputs();
+#ifdef SIM
+    initialiseROS(nodeHandle);
+#endif
 }
 
 X2Robot::~X2Robot() {
@@ -77,14 +84,14 @@ void X2Robot::signalHandler(int signum) {
 }
 
 #ifdef SIM
-void X2Robot::initialiseROS() {
-    controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
+void X2Robot::initialiseROS(ros::NodeHandle &nodeHandle) {
+    controllerSwitchClient_ = nodeHandle.serviceClient<controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
 
-    positionCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("position_controller/command", 10);
-    velocityCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("velocity_controller/command", 10);
-    torqueCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("torque_controller/command", 10);
+    positionCommandPublisher_ = nodeHandle.advertise<std_msgs::Float64MultiArray>("position_controller/command", 10);
+    velocityCommandPublisher_ = nodeHandle.advertise<std_msgs::Float64MultiArray>("velocity_controller/command", 10);
+    torqueCommandPublisher_ = nodeHandle.advertise<std_msgs::Float64MultiArray>("torque_controller/command", 10);
 
-    jointStateSubscriber_ = nodeHandle_->subscribe("joint_states", 1, &X2Robot::jointStateCallback, this);
+    jointStateSubscriber_ = nodeHandle.subscribe("joint_states", 1, &X2Robot::jointStateCallback, this);
 }
 #endif
 
@@ -463,10 +470,6 @@ bool X2Robot::initialiseNetwork() {
         if (!status)
             return false;
     }
-
-#ifdef SIM
-    initialiseROS();
-#endif
 
     return true;
 }
