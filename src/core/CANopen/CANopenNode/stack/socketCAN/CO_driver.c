@@ -226,6 +226,10 @@ CO_ReturnError_t CO_CANmodule_init(
     if(getsockopt(CANmodule->fd, SOL_SOCKET, SO_RCVTIMEO, &rcvtime0, &timevallen) == 0)
     {
         printf("Socket (%d) option SO_RCVTIMEO: %fs\n", CANmodule->fd, (float)(rcvtime0.tv_sec+(rcvtime0.tv_usec/1000000.)));
+    }
+    if(getsockopt(CANmodule->fd, SOL_SOCKET, SO_SNDTIMEO, &rcvtime0, &timevallen) == 0)
+    {
+        printf("Socket (%d) option SO_SNDTIMEO: %fs\n", CANmodule->fd, (float)(rcvtime0.tv_sec+(rcvtime0.tv_usec/1000000.)));
     }*/
 
     return ret;
