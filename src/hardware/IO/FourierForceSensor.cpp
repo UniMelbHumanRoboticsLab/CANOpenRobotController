@@ -12,7 +12,7 @@ bool FourierForceSensor::configureMasterPDOs() {
     void *dataEntry[2] = {(void *)&rawData[0],
                            (void *)&rawData[1],};
 
-    rpdo = new RPDO(0x190+sensorNodeID, 0xff, dataEntry, dataSize, 2);
+    rpdo = new RPDO(0x180+sensorNodeID, 0xff, dataEntry, dataSize, 2);
 
     return true;
 }
@@ -31,7 +31,7 @@ bool FourierForceSensor::calibrate(double calib_time) {
     //Check error message from sensor first
     std::stringstream sstream;
     char *returnMessage;
-    sstream << "[1] " << 16+sensorNodeID << " read 0x7050 255 i8";
+    sstream << "[1] " << sensorNodeID << " read 0x7050 255 i8";
     std::string strCommand = sstream.str();
     char *SDO_Message = (char *)(strCommand.c_str());
     cancomm_socketFree(SDO_Message, &returnMessage);
