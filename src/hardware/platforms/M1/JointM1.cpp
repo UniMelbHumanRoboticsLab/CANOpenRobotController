@@ -32,7 +32,7 @@ JointM1::JointM1(int jointID, double q_min, double q_max, short int sign_, doubl
     d2j_Trq = sign / Ipeak / 1.414 * motorTorqueConstant * reductionRatio;   // Drive to Joint unit conversion for torque
     j2d_Trq = sign * Ipeak * 1.414 / motorTorqueConstant / reductionRatio;   // Joint to Drive unit conversion for torque
 
-    spdlog::debug("MY JOINT ID: {}", this->id);
+    spdlog::debug("Joint ID {} Created", this->id);
 }
 
 JointM1::~JointM1() {
@@ -40,13 +40,8 @@ JointM1::~JointM1() {
 }
 
 bool JointM1::initNetwork() {
-//    spdlog::debug("JointM1::initNetwork()");
-    std::cout << "JointM1::initNetwork()" << std::endl;
+    spdlog::debug("JointM1::initNetwork()");
     return drive->init();
-//    return drive->init(posControlMotorProfile);
-//    bool status = ((KincoDrive *)drive)->init();
-//    return status;
-
 }
 
 /***************************************************************************************/
@@ -103,12 +98,9 @@ setMovementReturnCode_t JointM1::safetyCheck() {
 /***************************************************************************************/
 // including position command, velocity command, torque command
 setMovementReturnCode_t JointM1::setPosition(double qd) {
-//    DEBUG_OUT("JointM1::setPosition: " << qd)
     if(calibrated) {
         if(qd >= qMin  &&  qd <= qMax) {
             return Joint::setPosition(qd);
-//            drive->setPos(jointPositionToDriveUnit(qd+q0));
-//            return SUCCESS;
         }
         else {
             spdlog::debug("Position out of bound: {}", qd);
@@ -134,7 +126,6 @@ setMovementReturnCode_t JointM1::setVelocity(double dqd) {
     //Capped velocity
     if(dqd>=dqMin && dqd<=dqMax) {
         return Joint::setVelocity(dqd);
-//        drive->setVel(jointVelocityToDriveUnit(dqd));
         return SUCCESS;
 
     }
@@ -168,16 +159,16 @@ void JointM1::errorMessage(setMovementReturnCode_t errorCode){
             spdlog::debug(" ActuatedJoint::Success");
             break; //optional
         case OUTSIDE_LIMITS:
-            spdlog::debug(" ActuatedJoint::Outside of limitations");
+            spdlog::error(" ActuatedJoint::Outside of limitations");
             break; //optional
         case INCORRECT_MODE:
-            spdlog::debug(" ActuatedJoint::Incorrect mode");
+            spdlog::error(" ActuatedJoint::Incorrect mode");
             break; //optional
         case NOT_CALIBRATED:
-            spdlog::debug(" ActuatedJoint::Not calibrated");
+            spdlog::error(" ActuatedJoint::Not calibrated");
             break; //optional
         default : //Optional
-            spdlog::debug(" ActuatedJoint::Unknown error");
+            spdlog::error(" ActuatedJoint::Unknown error");
     }
 }
 

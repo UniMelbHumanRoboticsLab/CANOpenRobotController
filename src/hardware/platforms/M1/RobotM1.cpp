@@ -21,15 +21,14 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
     // Calibration configuration: posture in which the robot is when using the calibration procedure
     qCalibration(0) = 0 * d2r;
 
+    // Set up the motor profile
     posControlMotorProfile.profileVelocity = 600.*512*10000/1875;
     posControlMotorProfile.profileAcceleration = 500.*65535*10000/4000000;
     posControlMotorProfile.profileDeceleration = 500.*65535*10000/4000000;
 
-    joints.push_back(new JointM1(0, -100, 100, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0), new KincoDrive(1), "q1"));
+    initialiseJoints();
+    initialiseInputs();
 
-    inputs.push_back(keyboard = new Keyboard());
-    inputs.push_back(joystick = new Joystick());
-    inputs.push_back(m1ForceSensor = new M1ForceSensor(2));
     mode = 0;
 
     status = R_SUCCESS;
@@ -45,16 +44,15 @@ RobotM1::~RobotM1() {
     joints.clear();
     inputs.clear();
     delete keyboard;
-    delete joystick;
     spdlog::debug("RobotM1 deleted");
 }
 
 bool RobotM1::initialiseJoints() {
+    joints.push_back(new JointM1(0, -100, 100, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0), new KincoDrive(1), "q1"));
     return true;
 }
-bool RobotM1::initialiseNetwork() {
-//    std::cout << "RobotM1::initialiseNetwork()" << std::endl;
 
+bool RobotM1::initialiseNetwork() {
     bool status;
     for (auto joint : joints) {
         status = joint->initNetwork();
@@ -63,24 +61,18 @@ bool RobotM1::initialiseNetwork() {
     }
     //Give time to drives PDO initialisation
     //TODO: Parameterize the number of PDOs for situations like the one below
-    spdlog::debug("...");
-    for (uint i = 0; i < 5; i++) {
-        spdlog::debug(".");
-        usleep(10000);
-    }
-//    std::cout << "RobotM1::initialiseNetwork() end" << std::endl;
+    // spdlog::debug("...");
+    // for (uint i = 0; i < 5; i++) {
+    //     spdlog::debug(".");
+    //     usleep(10000);
+    // }
 
     return true;
 }
 
 bool RobotM1::initialiseInputs() {
-    /*nothing to do*/
-//    inputs.push_back(&keyboard);
-//
-//    for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
-//        forceSensors.push_back(new X2ForceSensor(id));
-//        inputs.push_back(forceSensors[id]);
-//    }
+    inputs.push_back(keyboard = new Keyboard());
+    inputs.push_back(m1ForceSensor = new M1ForceSensor(2));
     return true;
 }
 
@@ -118,21 +110,17 @@ void RobotM1::updateRobot() {
     // sending it in real-time to conserve bandwidth. It would also be good to break
     // down the status word into a vector of booleans and have descriptive indices to
     // be able to clearly access the bits in a meaningful and readable way. -TMH
-//    std::cout << "RobotM1::updateRobot" << std::endl; //YW debug
+
     for(uint i = 0; i < nJoints; i++) {
-//        std::cout << "update values" << std::endl;  //YW debug
         q(i) = ((JointM1 *)joints[i])->getPosition();
         dq(i) = ((JointM1 *)joints[i])->getVelocity();
         tau(i) = ((JointM1 *)joints[i])->getTorque();
         tau_s(i) = m1ForceSensor[i].getForce();
     }
-//    std::cout << "safety check" << std::endl; // YW debug
     if (safetyCheck() != SUCCESS) {
         status = R_OUTSIDE_LIMITS;
         stop();
     }
-//    std::cout << "RobotM1::updateRobot() end" << std::endl;
-//    std::cout << "safety check done" << std::endl; // YW debug
 }
 
 setMovementReturnCode_t RobotM1::safetyCheck() {
@@ -202,10 +190,10 @@ bool RobotM1::initPositionControl() {
     }
 
     // Pause for a bit to let commands go
-//    usleep(2000);
-//    for (auto p : joints) {
-//        ((JointM1 *)p)->enable();
-//    }
+   usleep(2000);
+   for (auto p : joints) {
+       ((JointM1 *)p)->enable();
+   }
     mode = 1;
     return returnValue;
 }
@@ -222,7 +210,6 @@ bool RobotM1::initVelocityControl() {
         // Put into ReadyToSwitchOn()
         ((JointM1 *)p)->readyToSwitchOn();
     }
-
     // Pause for a bit to let commands go
     usleep(2000);
     for (auto p : joints) {
@@ -418,7 +405,6 @@ JointVec RobotM1::compensateJointTor(JointVec tor, JointVec tor_s){
     double tor_ff = 0;
     if(abs(dq(0))<0.32)
     {
-//         tor_ff = f_s*sign(tor_s(0)) + f_d*dq(0)+inertia_c*sin(q(0));
         if(abs(tor_s(0))>0.2)
         {
             tor_ff = f_s*sign(tor_s(0)) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
@@ -430,7 +416,6 @@ JointVec RobotM1::compensateJointTor(JointVec tor, JointVec tor_s){
     }
     else
     {
-//        tor_ff = f_s*sign(dq(0))+ f_d*dq(0)+inertia_c*sin(q(0));
         tor_ff = f_s*sign(dq(0)) + f_d*dq(0) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias) + c2*sqrt(abs(dq(0)))*sign(dq(0));
     }
     tor(0) = tor(0) + tor_ff*0.8;

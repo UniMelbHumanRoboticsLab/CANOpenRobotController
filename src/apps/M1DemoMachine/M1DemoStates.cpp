@@ -20,59 +20,59 @@ void IdleState::entry(void) {
 }
 
 void IdleState::during(void) {
-//    if (chaiServer->IsConnected()) {
-//        double *x = new double[3]{0, 1, 2}; //Chai representation frame is: X towards the operator when facing device, Y towards right hand side and Z up
-//        chaiServer->Send(x);
-//    }
 }
 
 void IdleState::exit(void) {
-//    delete chaiServer;
-//    robot->stop();
     std::cout << "Idle State Exited" << std::endl;
 }
 
 //******************************* Calibration **************************
 void Calibration::entry(void) {
-    std::cout << "Enter calibration ... " << std::endl;
+    spdlog::info("Starting Calibration: Position and Force Zeroing");
     robot->applyCalibration();
     robot->initVelocityControl();
-    robot->m1ForceSensor->calibrate();
     cal_velocity = -20;   // degree per second
     stages = 1;
 }
 
 void Calibration::during(void) {
-    if(stages == 1){
+    if(stages == 1){ 
+        // Stage 1: Position Homing (zeroing)
         dq=robot->getJointVel();
         tau = robot->getJointTor_s();
         JointVec dq_t;
         dq_t(0) = cal_velocity;
-        if(robot->setJointVel(dq_t) != SUCCESS){
-            std::cout << "Error: " << std::endl;
+
+        setMovementReturnCode_t result = robot->setJointVel(dq_t);
+        if (result != SUCCESS) {
+            spdlog::error(setMovementReturnCodeString[result]);
         }
+
         if ((dq(0) <= 2) & (tau(0) >= 1.5)){
             cal_velocity = 0;
             robot->applyCalibration();
             robot->initPositionControl();
             stages = 2;
-//        std::cout << "Calibration done!" << std::endl;
+            spdlog::info("Position Homing Complete. Starting Force Sensor Calibration");
         }
         else {
-//        std::cout << "Calibration velocity :" << cal_velocity<< std::endl;
             robot->printJointStatus();
         }
     }
     else
     {
+        // Stage 2: Force Sensor Zeroing (calibration)
         q(0) = 16; // 16 is vertical for #2
-        if(robot->setJointPos(q) != SUCCESS){
-            std::cout << "Error: " << std::endl;
+        setMovementReturnCode_t result = robot->setJointPos(q);
+        if (result != SUCCESS) {
+            spdlog::error(setMovementReturnCodeString[result]);
         }
         JointVec tau = robot->getJointTor_s();
         if (tau(0)>0.2 || tau(0)<-0.2)
         {
-            robot->m1ForceSensor->calibrate();
+            if(robot->m1ForceSensor->calibrate()){
+                spdlog::info("Force Sensor Calibration Complete, Press Q to exit calibration");
+            }
         }
         robot->printJointStatus();
     }

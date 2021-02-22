@@ -89,7 +89,6 @@ public:
     ~RobotM1();
 
     Keyboard *keyboard;
-    Joystick *joystick;
     M1ForceSensor *m1ForceSensor;
     RobotState status;
     int mode;
