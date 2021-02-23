@@ -21,9 +21,9 @@ void RecordState::entry(void) {
 };
 
 void RecordState::during(void){
-    Eigen::VectorXd force = robot->getCrutchReadings();
-    Eigen::VectorXd strain = robot->getStrainReadings();
-    spdlog::info("Fz1: {}, Fz2: {}, Strain1: {}, Strain 2: {}", force[2], force[5], strain[0], strain[1]);
+    Eigen::VectorXd crutchForce = robot->getCrutchReadings();
+    Eigen::VectorXi forcePlateForce = robot->getForcePlateReadings();
+    spdlog::info("Fz1: {}, Fz2: {}, Strain1: {}, Strain 2: {}", crutchForce[2], crutchForce[5], forcePlateForce[0], forcePlateForce[1]);
 };
 
 void RecordState::exit(void) {

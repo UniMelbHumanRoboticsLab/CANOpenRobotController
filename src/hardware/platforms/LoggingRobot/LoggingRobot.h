@@ -17,14 +17,15 @@
 #include "Robot.h"
 #include "RobotousRFT.h"
 #include "HX711.h"
+#include "ForcePlateSensor.h"
 
 class LoggingRobot : public Robot {
    private:
     std::vector<RobotousRFT *> crutchSensors;
     Eigen::VectorXd crutchReadings;  //6xN Vector containing all crutch readings
 
-    HX711* strainGauge;
-    Eigen::VectorXd strainForces;  //6xN Vector containing all crutch readings
+    ForcePlateSensor* forcePlate;
+    Eigen::VectorXi forcePlateForces;  // Should be a vector of size 4
 
     bool sensorsOn =  false;
 
@@ -45,23 +46,22 @@ class LoggingRobot : public Robot {
      * @return Eigen::VectorXd& a 6xN (N is number of crutches) of crutch sensor readings
      */
     Eigen::VectorXd &getCrutchReadings();
-
-    Eigen::VectorXd &getStrainReadings();
-    Eigen::VectorXi getRawStrainReadings();
+    Eigen::VectorXi &getForcePlateReadings();
     
-        /**
+    /**
      * @brief Takes the forces from the crutches and updates a local copy
      * 
      */
-        void updateCrutchReadings();
+    void updateCrutchReadings();
 
     void setCrutchOffsets(Eigen::VectorXd offsets);
-    void setStrainOffsets(Eigen::VectorXi offsets);
+    void zeroForcePlate();
 
     bool startSensors();
     bool stopSensors();
 
-    bool configureMasterPDOs();
-};
+    bool startCrutchSensors();
+    bool stopCrutchSensors();
+    };
 
 #endif /*LoggingRobot.h*/

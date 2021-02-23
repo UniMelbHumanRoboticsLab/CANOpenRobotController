@@ -52,7 +52,7 @@ static int rtControlPriority = 80; /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
 const float controlLoopPeriodInms = 3;   /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 3; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
+const float CANUpdateLoopPeriodInms = 1000; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
 CO_NMT_reset_cmd_t reset_local = CO_RESET_NOT;
 
 /** @brief Task Timer used for the Control Loop*/

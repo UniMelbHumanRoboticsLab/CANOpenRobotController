@@ -66,7 +66,7 @@ extern "C" {
 #define TMR_TASK_INTERVAL_NS (1000000) /* Interval of taskTmr in nanoseconds */
 #define TMR_TASK_OVERFLOW_US (5000)    /* Overflow detect limit for taskTmr in microseconds */
 #define INCREMENT_1MS(var) (var++)     /* Increment 1ms variable in taskTmr */
-#define NODEID (100)
+#define NODEID (80)
 /**
  * /brief Function is called on program startup.
  */

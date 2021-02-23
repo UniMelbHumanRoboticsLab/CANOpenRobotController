@@ -37,7 +37,7 @@ void HX711::begin(int gain) {
 }
 
 void HX711::updateInput() {
-    //spdlog::info("HX711::updateInput()");
+    spdlog::trace("HX711::updateInput()");
 
     // Wait for the chip to become ready.
     clock_digitalWrite(LOW);
@@ -78,10 +78,6 @@ void HX711::updateInput() {
         if((data[j] & 0xFFFE) != 0xFFFE){
             rawData(j) = static_cast<INTEGER32>(data[j]);
             force(j) = (rawData(j) - OFFSET(j))*SCALE(j);
-            //spdlog::info("OFFSET: {}", OFFSET(j));
-
-            //spdlog::info("Input Pin P{}.{}, Reading: {}", inputPins(j, 0), inputPins(j, 1), force(j));
-            //spdlog::info("Reading: {0:x}", data[j]);
         }
     }
 }
@@ -208,7 +204,7 @@ double HX711::get_scale(int sensorNum) {
 //go
 void HX711::set_offset(int sensorNum, INTEGER32 offset) {
     OFFSET(sensorNum) = offset;
-    spdlog::info("OffsetSet {}, {}", sensorNum, OFFSET(sensorNum));
+    spdlog::debug("OffsetSet {}, {}", sensorNum, OFFSET(sensorNum));
 }
 
 //go

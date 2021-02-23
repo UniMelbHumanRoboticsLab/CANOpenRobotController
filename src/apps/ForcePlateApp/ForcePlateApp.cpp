@@ -1,15 +1,17 @@
 
-#include "LoggingDevice.h"
+#include "ForcePlateApp.h"
 
-#define OWNER ((LoggingDevice *)owner)
+#define OWNER ((ForcePlateApp *)owner)
 
-LoggingDevice::LoggingDevice() {
-    robot = new LoggingRobot();
+ForcePlateApp::ForcePlateApp() {
+    robot = new ForcePlate();
 
     // Events
-    isAPressed = new IsAPressed(this);
-    isSPressed = new IsSPressed(this);
+    startCalibrate = new StartCalibrate(this);
+    startRecord = new StartRecord(this);
+    stopRecord = new StopRecord(this);
     isCalibrationFinished = new IsCalibrationFinished(this);
+    completeInit = new CompleteInit(this);
 
     // States
     initState = new InitState(this, robot);
@@ -18,18 +20,18 @@ LoggingDevice::LoggingDevice() {
     recordState = new RecordState(this, robot);
 
     // Transitions
-    NewTransition(initState, isAPressed, idleState);
-    NewTransition(idleState, isAPressed, calibrateState);
+    NewTransition(initState, completeInit, idleState);
+    NewTransition(idleState, startCalibrate, calibrateState);
     NewTransition(calibrateState, isCalibrationFinished, idleState);
-    NewTransition(idleState, isSPressed, recordState);
-    NewTransition(recordState, isSPressed, idleState);
+    NewTransition(idleState, startRecord, recordState);
+    NewTransition(recordState, stopRecord, idleState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(initState);
 }
 
-void LoggingDevice::init() {
-    spdlog::info("LoggingDevice::init()");
+void ForcePlateApp::init() {
+    spdlog::info("ForcePlateApp::init()");
     initialised = robot->initialise();
     running = true;
 
@@ -37,14 +39,13 @@ void LoggingDevice::init() {
     time0 = std::chrono::steady_clock::now();
     dataLogger.initLogger("test_logger", "logs/testLog.csv", LogFormat::CSV, true);
     dataLogger.add(time, "time");
-    dataLogger.add(robot->getCrutchReadings(), "CrutchReadings");
-    dataLogger.add(robot->getForcePlateReadings(), "ForcePlateReadings");
+    dataLogger.add(robot->getStrainReadings(), "StrainReadings");
 
     dataLogger.startLogger();
 }
 
-void LoggingDevice::end() {
-    spdlog::debug("Ending Logging Device");
+void ForcePlateApp::end() {
+    spdlog::debug("Ending Force Plate App");
     dataLogger.endLog();
     delete robot;
 }
@@ -57,35 +58,39 @@ void LoggingDevice::end() {
      *
      */
 
-bool LoggingDevice::IsAPressed::check(void) {
-    spdlog::trace("IsAPressed");
-    if (OWNER->robot->keyboard->getA() == true) {
-
-        return true;
-    }
-    return false;
-}
-bool LoggingDevice::IsSPressed::check(void) {
-    if (OWNER->robot->keyboard->getS() == true) {
-        return true;
-    }
-    return false;
-}
-bool LoggingDevice::IsSPressed::check(void) {
-    if (OWNER->robot->keyboard->getS() == true) {
-        return true;
-    }
-    return false;
-}
-
-bool LoggingDevice::IsCalibrationFinished::check(void) {
-    if (OWNER->calibrateState->getCurrReading() < NUM_CALIBRATE_READINGS) {
-        return false;
-    }
+bool ForcePlateApp::CompleteInit::check(void) {
     return true;
 }
 
-bool LoggingDevice::IsCalibrationFinished::check(void) {
+bool ForcePlateApp::StartCalibrate::check(void) {
+    if (OWNER->robot->keyboard->getA() == true) {
+        return true;
+    } else if (OWNER->robot->getCommand() == CALIBRATE) {
+        OWNER->robot->resetCommand();
+        return true;
+    }
+    return false;
+}
+bool ForcePlateApp::StartRecord::check(void) {
+    if (OWNER->robot->keyboard->getS() == true) {
+        return true;
+    } else if (OWNER->robot->getCommand() == RECORD) {
+        OWNER->robot->resetCommand();
+        return true;
+    }
+    return false;
+}
+
+bool ForcePlateApp::StopRecord::check(void) {
+    if (OWNER->robot->keyboard->getS() == true) {
+        return true;
+    } else if(OWNER->robot->getCommand() == STOP){
+        OWNER->robot->resetCommand();
+        return true;
+    }
+    return false;
+}
+bool ForcePlateApp::IsCalibrationFinished::check(void) {
     if (OWNER->calibrateState->getCurrReading() < NUM_CALIBRATE_READINGS) {
         return false;
     }
@@ -97,7 +102,7 @@ bool LoggingDevice::IsCalibrationFinished::check(void) {
  * that need to run every program loop update cycle.
  *
  */
-void LoggingDevice::hwStateUpdate(void) {
+void ForcePlateApp::hwStateUpdate(void) {
     robot->updateRobot();
 }
 
@@ -105,7 +110,7 @@ void LoggingDevice::hwStateUpdate(void) {
  * \brief Statemachine update: overloaded to include logging
  *
  */
-void LoggingDevice::update() {
+void ForcePlateApp::update() {
     // Update time (used for log)
     time = (std::chrono::duration_cast<std::chrono::microseconds>(
                 std::chrono::steady_clock::now() - time0)
@@ -115,8 +120,7 @@ void LoggingDevice::update() {
     dataLogger.recordLogData();
 }
 
-void LoggingDevice::configureMasterPDOs() {
-    spdlog::debug("LoggingDevice::configureMasterPDOs()");
+void ForcePlateApp::configureMasterPDOs() {
+    spdlog::debug("ForcePlateApp::configureMasterPDOs()");
     robot->configureMasterPDOs();
 }
-

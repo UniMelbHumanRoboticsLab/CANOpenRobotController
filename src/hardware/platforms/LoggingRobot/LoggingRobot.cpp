@@ -14,16 +14,7 @@ bool LoggingRobot::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
     spdlog::info("test");
 
-    Eigen::Matrix<int, 2, 2> inputPins;
-    inputPins(0,0) = 2; // Sensor 1
-    inputPins(0,1) = 4;
-    inputPins(1,0) = 2; // Sensor 2
-    inputPins(1,1) = 6;
-    Eigen::Vector2i clock = {2,2};
-
-    inputs.push_back(strainGauge = new HX711(inputPins, clock));
-    spdlog::info("test");
-    strainGauge->begin(128);
+    inputs.push_back(forcePlate = new ForcePlateSensor(0x3f0, 0x3f1, 0x3f2));
 
     // Add two crutch sensors
     crutchSensors.push_back(new RobotousRFT(0xf8, 0xf9, 0xfa));
@@ -54,7 +45,7 @@ LoggingRobot::~LoggingRobot() {
         spdlog::info("Delete Crutch Sensor with CommandID: 0x{0:x}", cs->getCommandID());
         delete cs;
     }
-    delete strainGauge;
+    delete forcePlate;
     inputs.clear();
 
     spdlog::debug("LoggingRobot deleted");
@@ -65,13 +56,8 @@ Eigen::VectorXd& LoggingRobot::getCrutchReadings() {
     return crutchReadings;
 }
 
-Eigen::VectorXd& LoggingRobot::getStrainReadings() {
-    strainForces = strainGauge->getAllForces();
-    return strainForces;
-}
-
-Eigen::VectorXi LoggingRobot::getRawStrainReadings() {
-    return strainGauge->getAllRawData();
+Eigen::VectorXi& LoggingRobot::getForcePlateReadings() {
+    return forcePlate->getForces();
 }
 
 void LoggingRobot::updateCrutchReadings(){
@@ -100,11 +86,11 @@ void LoggingRobot::setCrutchOffsets(Eigen::VectorXd offsets) {
     }
 }
 
-void LoggingRobot::setStrainOffsets(Eigen::VectorXi offsets) {
-    for (int i = 0; i < offsets.size(); i++) {
-        strainGauge->set_offset(i, offsets(i));
-    }
+void LoggingRobot::zeroForcePlate() {
+    spdlog::debug("Zeroing Force Plate Sensor");
+    forcePlate->zero();
 }
+
 bool LoggingRobot::startSensors() {
     if (sensorsOn){
         //do nothing
@@ -114,12 +100,39 @@ bool LoggingRobot::startSensors() {
         for (unsigned int i = 0; i < crutchSensors.size(); i++) {
             crutchSensors[i]->startStream();
         }
+        forcePlate->startStream();
         sensorsOn = true; 
         return true;
     }
 }
 
 bool LoggingRobot::stopSensors() {
+    if (sensorsOn) {
+        for (unsigned int i = 0; i < crutchSensors.size(); i++) {
+            crutchSensors[i]->stopStream();
+        }
+        forcePlate->stopStream();
+        crutchReadings = Eigen::VectorXd::Zero(6 * crutchSensors.size());
+        sensorsOn = false;
+        return true;
+    } else {
+        return false;
+    }
+}
+bool LoggingRobot::startCrutchSensors() {
+    if (sensorsOn) {
+        //do nothing
+        return false;
+    } else {
+        for (unsigned int i = 0; i < crutchSensors.size(); i++) {
+            crutchSensors[i]->startStream();
+        }
+        sensorsOn = true;
+        return true;
+    }
+}
+
+bool LoggingRobot::stopCrutchSensors() {
     if (sensorsOn) {
         for (unsigned int i = 0; i < crutchSensors.size(); i++) {
             crutchSensors[i]->stopStream();
