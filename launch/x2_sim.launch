@@ -52,7 +52,7 @@
   <node name="$(arg robot_name)" pkg="CORC" type="X2DemoMachine_APP_NOROBOT" output="screen" args="-can vcan0"/>
 
   <!-- rqt gui for dynamic params -->
-  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" />
+  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>
 
 </launch>
 
