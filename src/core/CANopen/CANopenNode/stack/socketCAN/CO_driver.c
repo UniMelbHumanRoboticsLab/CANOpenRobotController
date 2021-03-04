@@ -206,6 +206,32 @@ CO_ReturnError_t CO_CANmodule_init(
         setsockopt(CANmodule->fd, SOL_CAN_RAW, CAN_RAW_FILTER, NULL, 0);
     }
 
+    /*Code used to dump main socket paameters
+    int opt_names[6] = {SO_DEBUG, SO_RCVBUF, SO_SNDBUF, SO_RCVLOWAT, SO_SNDLOWAT, SO_SNDTIMEO};
+    for(int i=0; i<6; i++)
+    {
+        int val=-1;
+        int vallen = sizeof(val);
+        if(getsockopt(CANmodule->fd, SOL_SOCKET, opt_names[i], &val, &vallen) == 0)
+        {
+            printf("Socket (%d) option (%d:%d): %d\n", CANmodule->fd, i, opt_names[i], val);
+        }
+        else
+        {
+            printf("Error reading socket (%d) option (%d:%d) %s\n", CANmodule->fd, i, opt_names[i], strerror(errno));
+        }
+    }
+    struct timeval rcvtime0;
+    int timevallen = sizeof(rcvtime0);
+    if(getsockopt(CANmodule->fd, SOL_SOCKET, SO_RCVTIMEO, &rcvtime0, &timevallen) == 0)
+    {
+        printf("Socket (%d) option SO_RCVTIMEO: %fs\n", CANmodule->fd, (float)(rcvtime0.tv_sec+(rcvtime0.tv_usec/1000000.)));
+    }
+    if(getsockopt(CANmodule->fd, SOL_SOCKET, SO_SNDTIMEO, &rcvtime0, &timevallen) == 0)
+    {
+        printf("Socket (%d) option SO_SNDTIMEO: %fs\n", CANmodule->fd, (float)(rcvtime0.tv_sec+(rcvtime0.tv_usec/1000000.)));
+    }*/
+
     return ret;
 }
 

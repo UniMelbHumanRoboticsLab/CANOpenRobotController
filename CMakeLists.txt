@@ -11,11 +11,15 @@ project(CORC C CXX)
 ## Select the application by setting the state machine to use
 #(it should be the class name and have corresponding header naming in a corresponding folder)
 # If your application use ROS, don't forget to change the flag bellow too.
+
+set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "M3DemoMachine")
+#set (STATE_MACHINE_NAME "M2DemoMachine")
 #set (STATE_MACHINE_NAME "M3Machining")
 #set (STATE_MACHINE_NAME "M3Chai")
-set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
+#set (STATE_MACHINE_NAME "M1DemoMachine")
+#set (STATE_MACHINE_NAME "LoggingDevice")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT ON)
@@ -25,11 +29,9 @@ set(USE_ROS OFF)
 
 # Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL OFF)
 # INFO is the recommended level in normal operation
-set(CORC_LOGGING_LEVEL INFO) 
+set(CORC_LOGGING_LEVEL INFO)
+
 ################################################################################
-
-add_definitions(-DBASE_DIRECTORY=${CMAKE_SOURCE_DIR})
-
 if(USE_ROS)
 	add_definitions(-DUSEROS)
 endif()
@@ -62,12 +64,15 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 ## Current state machine (APP) to be build
-add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
-add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
+if(NOT STATE_MACHINE_NAME)
+	message(FATAL_ERROR "ERROR: No state machine (APP) selected: Abort.")
+else()
+	add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
+	add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
+endif()
 if(NO_ROBOT)
 	add_definitions(-DNOROBOT=1)
 endif()
-
 
 ## Get all source and header files (only the target app folder is included)
 file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "src/apps/${STATE_MACHINE_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.cpp" "lib/FLNL/*.cpp")
@@ -86,6 +91,12 @@ list (APPEND INCLUDE_DIRS lib/)
 add_subdirectory(lib/yaml-cpp/)
 
 
+## Hack for Yaml files path (absolute path required for ROS use, see X2Robot::initializeRobotParams)
+if(CMAKE_CROSSCOMPILING)
+	add_definitions(-DBASE_DIRECTORY=.)
+else()
+	add_definitions(-DBASE_DIRECTORY=${CMAKE_SOURCE_DIR})
+endif()
 
 ## Add ROS dependencies
 if(USE_ROS)

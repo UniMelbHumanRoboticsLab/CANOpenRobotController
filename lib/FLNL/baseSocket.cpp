@@ -41,7 +41,8 @@ baseSocket::baseSocket():
 
 //! Destructor releasing memory and closing the socket
 baseSocket::~baseSocket() {
-    Disconnect();
+    if(Connected)
+        Disconnect();
     pthread_mutex_destroy(&ReceivedMutex);
     pthread_mutex_destroy(&ReceivedCmdMutex);
     delete[] ReceivedValues;
@@ -253,8 +254,6 @@ void unlock_mutex(void * m) {
 void * receiving(void * c) {
     baseSocket * local=(baseSocket*)c;
 
-    short int remainingtoprocess_n=0;
-
     while(local->Connected) {
         //Read a full frame
         int ret=recv(local->Socket, (char *)local->FullMessageIn, MESSAGE_SIZE, 0);
@@ -287,8 +286,6 @@ void * receiving(void * c) {
                     printf("FLNL::Error receiving (wrong number of params).\n");
                 }
                 #endif
-                //discard any previous remaining data
-                remainingtoprocess_n=0;
             }
             //Is it values?
             else if(local->FullMessageIn[0]==local->InitValueCode && cksum_ok) {
@@ -309,68 +306,7 @@ void * receiving(void * c) {
                     printf("FLNL::Error receiving (wrong number of values).\n");
                 }
                 #endif
-                remainingtoprocess_n=0;
             }
-//            else if() {
-//                //If just recv msg looks ok (init code and checksum)
-//                if(local->FullMessageIn[0]==local->InitValueCode && cksum_ok) {
-//                    //then use it as it is
-//                    unsigned short int nb_values = local->FullMessageIn[1];
-//
-//                    memcpy(local->ToProcess, local->FullMessageIn, MESSAGE_SIZE);
-//                    //discard any previous remaining data
-//                    remainingtoprocess_n=0;
-//                }
-//                else {
-//                    //Use stored init part of message in buffer if any
-//                    memcpy(local->ToProcess, local->MessageRemainingToProcess, remainingtoprocess_n);
-//                    //concatenate with the begining of received sequence and use that
-//                    memcpy(&local->ToProcess[remainingtoprocess_n], local->FullMessageIn, MESSAGE_SIZE-remainingtoprocess_n);
-//
-//                    /*printf("Pre:");
-//                    for(int k=0; k<remainingtoprocess_n; k++)
-//                        printf("%02X", local->MessageRemainingToProcess[k]);
-//                    printf(" + ");
-//                    for(int k=0; k<ret; k++)
-//                        printf("%02X", local->FullMessageIn[k]);
-//                    printf(" = \nPre:");
-//                    for(int k=0; k<MESSAGE_SIZE; k++)
-//                        printf("%02X", local->ToProcess[k]);
-//                    printf(" (%d+%d=?%d)\n", remainingtoprocess_n, ret, MESSAGE_SIZE);*/
-//
-//                    //Store end of message for later use in buffer
-//                    unsigned int i;
-//                    for(i=MESSAGE_SIZE-1; i>=0; i--) {
-//                        remainingtoprocess_n=MESSAGE_SIZE-i;
-//                        if(local->FullMessageIn[i]==local->InitValueCode)
-//                            break;
-//                    }
-//                    memcpy(local->MessageRemainingToProcess, &local->FullMessageIn[i], remainingtoprocess_n);
-//
-//                    /*for(int k=0; k<remainingtoprocess_n; k++)
-//                        printf("%02X", local->MessageRemainingToProcess[k]);
-//                    printf(" = \n");
-//                    for(int k=0; k<remainingtoprocess_n; k++)
-//                        printf("%02X", local->FullMessageIn[i+k]);
-//                    printf(" (%d)\n\n", remainingtoprocess_n);*/
-//                }
-//
-//                //Check init code and checksum
-//                if(local->ToProcess[0]==local->InitValueCode && Checksum(local->ToProcess)==local->ToProcess[MESSAGE_SIZE-1]) {
-//                    //Copy received values
-//                    pthread_mutex_lock(&local->received_mutex);
-//                    pthread_cleanup_push(unlock_mutex, (void *)&local->received_mutex); //Ensure that mutex will be unlock on thread cancelation (disconnect)
-//                    memcpy(local->ReceivedValues, &local->ToProcess[2], local->NbValuesToReceive*sizeof(double)); //TODO!!!!!!!!!!!!!!!!!!!!!
-//                    pthread_cleanup_pop(1); //unlock mutex
-//                    local->IsValues=true;
-//                }
-//                #ifdef VERBOSE
-//                else {
-//                    //Incorrect values
-//                    printf("FLNL::Error receiving (wrong code or checksum).\n");
-//                }
-//                #endif
-//            }
         }
         else if(ret<0) {
             #ifdef VERBOSE

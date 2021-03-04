@@ -6,7 +6,7 @@ void StandingUp::entry(void) {
     std::cout << "===================" << std::endl
               << " GREEN -> STAND UP" << std::endl
               << "===================" << std::endl;
-    trajectoryGenerator->initialiseTrajectory(STAND, 1);
+    trajectoryGenerator->initialiseTrajectory(STAND, 2, robot->getPosition());
     currTrajProgress = 0;
     clock_gettime(CLOCK_MONOTONIC, &prevTime);
 }
@@ -22,12 +22,11 @@ void StandingUp::during(void) {
      *  /todo - Check if the GO button on the robot is pressed
      *
      */
-    if (true) {
+    //if (robot->keyboard->getA() ) {
         currTrajProgress += elapsedSec;
-        spdlog::debug("Elapsed Time: {}", currTrajProgress);
-
         robot->setPosition(trajectoryGenerator->getSetPoint(currTrajProgress));
-    }
+        //}
+
 }
 void StandingUp::exit(void) {
     spdlog::info("Standing Up State Exited");

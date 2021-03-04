@@ -37,11 +37,14 @@ ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2ra
 
 static volatile sig_atomic_t exitHoming = 0;
 
-X2Robot::X2Robot() : Robot() {
+#ifdef SIM
+X2Robot::X2Robot(ros::NodeHandle &nodeHandle, std::string robotName):
+#else
+X2Robot::X2Robot(std::string robotName):
+#endif
+        robotName_(robotName){
 
-    // This is the default name accessed from the MACRO. If ROS is used, under demo machine robot name can be set
-    // by setRobotName() to the ros node name. See X2DemoMachine::init()
-    robotName_ = XSTR(X2_NAME);
+    spdlog::debug("{} Created", robotName_);
 
 #ifdef NOROBOT
     simJointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
@@ -59,6 +62,15 @@ X2Robot::X2Robot() : Robot() {
     x2Parameters.c2 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     x2Parameters.cuffWeights = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
     x2Parameters.forceSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+
+    initializeRobotParams(robotName_);
+
+    spdlog::debug("initialiseJoints call");
+    initialiseJoints();
+    initialiseInputs();
+#ifdef SIM
+    initialiseROS(nodeHandle);
+#endif
 }
 
 X2Robot::~X2Robot() {
@@ -72,16 +84,25 @@ void X2Robot::signalHandler(int signum) {
 }
 
 #ifdef SIM
-void X2Robot::initialiseROS() {
-    controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
+void X2Robot::initialiseROS(ros::NodeHandle &nodeHandle) {
+    controllerSwitchClient_ = nodeHandle.serviceClient<controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
 
-    positionCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("position_controller/command", 10);
-    velocityCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("velocity_controller/command", 10);
-    torqueCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("torque_controller/command", 10);
+    positionCommandPublisher_ = nodeHandle.advertise<std_msgs::Float64MultiArray>("position_controller/command", 10);
+    velocityCommandPublisher_ = nodeHandle.advertise<std_msgs::Float64MultiArray>("velocity_controller/command", 10);
+    torqueCommandPublisher_ = nodeHandle.advertise<std_msgs::Float64MultiArray>("torque_controller/command", 10);
 
-    jointStateSubscriber_ = nodeHandle_->subscribe("joint_states", 1, &X2Robot::jointStateCallback, this);
+    jointStateSubscriber_ = nodeHandle.subscribe("joint_states", 1, &X2Robot::jointStateCallback, this);
 }
 #endif
+
+void X2Robot::resetErrors() {
+    spdlog::debug("Clearing errors on all motor drives ");
+    for (auto p : joints) {
+        // Put into ReadyToSwitchOn()
+        p->resetErrors();
+    }
+}
+
 bool X2Robot::initPositionControl() {
     spdlog::debug("Initialising Position Control on all joints ");
     bool returnValue = true;
@@ -133,7 +154,7 @@ bool X2Robot::initVelocityControl() {
     }
 
     // Pause for a bit to let commands go
-    usleep(2000);
+    usleep(10000);
     for (auto p : joints) {
         p->enable();
     }
@@ -197,6 +218,7 @@ setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
+        spdlog::debug("Joint {}, Target {}, Current {}", i, positions[i], ((X2Joint *)p)->getPosition());
         setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
             spdlog::error("Joint {} is not in Position Control ", p->getId());
@@ -370,6 +392,9 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count() < maxTime * 1000) {
             this->updateRobot();  // because this function has its own loops, updateRobot needs to be called
             this->setVelocity(desiredVelocity);
+            usleep(10000);
+
+
             if (std::abs(this->getTorque()[i]) >= thresholdTorque) {  // if high torque is reached
                 highTorqueReached = true;
                 firstTimeHighTorque = std::chrono::steady_clock::now();
@@ -377,7 +402,10 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
                        (std::chrono::steady_clock::now() - firstTimeHighTorque).count() < delayTime * 1000 &&
                         exitHoming == 0) {
                     this->updateRobot();
+                    usleep(10000);
+
                     if (std::abs(this->getTorque()[i]) < thresholdTorque) {  // if torque value reach below thresholdTorque, goes back
+                        spdlog::debug("Torque drop", this->getTorque()[i]);
                         highTorqueReached = false;
                         break;
                     }
@@ -388,6 +416,7 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
 
         if (success[i]) {
             spdlog::debug("Homing Succeeded for Joint {} .", i);
+            usleep(10000);
             if (i == X2_LEFT_HIP || i == X2_RIGHT_HIP) {  // if it is a hip joint
 
                 // zeroing is done depending on the limits on the homing direction
@@ -425,12 +454,12 @@ bool X2Robot::initialiseJoints() {
         } else if (id == X2_LEFT_KNEE || id == X2_RIGHT_KNEE) {
             joints.push_back(new X2Joint(id, X2JointLimits.kneeMin, X2JointLimits.kneeMax, kneeJDP, motorDrives[id]));
         }
+        spdlog::debug("X2Robot::initialiseJoints() loop");
     }
-
-    initializeRobotParams(robotName_);
 
     return true;
 }
+
 
 bool X2Robot::initialiseNetwork() {
     spdlog::debug("X2Robot::initialiseNetwork()");
@@ -442,17 +471,13 @@ bool X2Robot::initialiseNetwork() {
             return false;
     }
 
-#ifdef SIM
-    initialiseROS();
-#endif
-
     return true;
 }
 bool X2Robot::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
 
     for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
-        forceSensors.push_back(new X2ForceSensor(id, x2Parameters.forceSensorScaleFactor[id]));
+        forceSensors.push_back(new FourierForceSensor(id, x2Parameters.forceSensorScaleFactor[id]));
         inputs.push_back(forceSensors[id]);
     }
 
@@ -512,6 +537,16 @@ void X2Robot::updateRobot() {
     Robot::updateRobot();
 }
 
+bool X2Robot::setPosControlContinuousProfile(bool continuous){
+    bool returnValue = true;
+    for (auto p : joints) {
+        if(!(p->setPosControlContinuousProfile(continuous))){
+            returnValue = false;
+        }
+    }
+    return returnValue;
+}
+
 Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
     float coulombFriction;
     const float velTreshold = 1*M_PI/180.0; // [rad/s]
@@ -541,6 +576,7 @@ std::string & X2Robot::getRobotName() {
 
 RobotParameters& X2Robot::getRobotParameters() {
     return x2Parameters;
+
 }
 
 #ifdef SIM

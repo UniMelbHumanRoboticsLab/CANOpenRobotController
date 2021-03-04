@@ -4,7 +4,7 @@
 #define OWNER ((ExoTestMachine *)owner)
 
 ExoTestMachine::ExoTestMachine() {
-    trajectoryGenerator = new DummyTrajectoryGenerator(6);
+    trajectoryGenerator = new DummyTrajectoryGenerator(X2_NUM_JOINTS);
     robot = new X2Robot();
 
     // Create PRE-DESIGNED State Machine events and state objects.
@@ -12,6 +12,8 @@ ExoTestMachine::ExoTestMachine() {
     endTraj = new EndTraj(this);
     startButtonsPressed = new StartButtonsPressed(this);
     startExo = new StartExo(this);
+    startExoCal = new StartExoCal(this);
+
     startSit = new StartSit(this);
     startStand = new StartStand(this);
     initState = new InitState(this, robot, trajectoryGenerator);
@@ -26,7 +28,8 @@ ExoTestMachine::ExoTestMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-    NewTransition(initState, startExo, sitting);
+    NewTransition(initState, startExo, standing);
+    NewTransition(initState, startExoCal, standing);
     NewTransition(sitting, startStand, standingUp);
     NewTransition(standingUp, endTraj, standing);
     NewTransition(standing, startSit, sittingDwn);
@@ -87,6 +90,23 @@ bool ExoTestMachine::StartExo::check(void) {
     }
     return false;
 }
+bool ExoTestMachine::StartExoCal::check(void) {
+    if (OWNER->robot->keyboard->getA() == true) {
+        #ifndef NOROBOT
+            spdlog::info("LEAVING INIT and entering Sitting");
+            spdlog::info("Homing");
+
+            OWNER->robot->disable();
+            OWNER->robot->homing();
+            spdlog::info("Finished");
+        #else
+            spdlog::warn("Calibration Not Avaiable in Simulation (NoRobot) Mode");
+        #endif
+        return true;
+    }
+    return false;
+}
+
 bool ExoTestMachine::StartStand::check(void) {
     if (OWNER->robot->keyboard->getW() == true) {
         return true;
@@ -109,6 +129,11 @@ void ExoTestMachine::hwStateUpdate(void) {
     robot->updateRobot();
 }
 
+void ExoTestMachine::configureMasterPDOs() {
+    spdlog::debug("ExoTestMachine::configureMasterPDOs()");
+    robot->configureMasterPDOs();
+}
+
 /**
  * \brief Statemachine update: overloaded to include logging
  *
@@ -119,7 +144,7 @@ void ExoTestMachine::update() {
                 std::chrono::steady_clock::now() - time0)
                 .count()) /
            1e6;
-    spdlog::debug("Update()");
+    spdlog::trace("Update()");
     StateMachine::update();
     dataLogger.recordLogData();
 }

@@ -69,6 +69,7 @@ class ExoTestMachine : public StateMachine {
 
     void update();
     void hwStateUpdate();
+    void configureMasterPDOs();
 
     State *gettCurState();
     void initRobot(X2Robot *rb);
@@ -100,6 +101,7 @@ class ExoTestMachine : public StateMachine {
     EventObject(IsAPressed) * isAPressed;
     EventObject(StartButtonsPressed) * startButtonsPressed;
     EventObject(StartExo) * startExo;
+    EventObject(StartExoCal) * startExoCal;
     EventObject(StartSit) * startSit;
     EventObject(StartStand) * startStand;
 };

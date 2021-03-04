@@ -3,6 +3,7 @@
 CANopenSocket/canopend/X2_log.txt
 *.o
 .vs/
+.vscode/
 /.devcontainer/Dockerfile
 /.devcontainer/devcontainer.json
 /build/*

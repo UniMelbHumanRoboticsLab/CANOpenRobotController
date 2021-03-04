@@ -412,8 +412,9 @@ static void command_process(int fd, char *command, size_t commandLength) {
                 err = 1;
                 respErrorCode = respErrorNoDefaultNodeSet;
             }
-            if (err == 0) {
+            if (err == 0) { 
                 err = CO_sendNMTcommand(CO, CO_NMT_ENTER_OPERATIONAL, comm_node) ? 1 : 0;
+
                 if (err == 0) respLen = sprintf(resp, "[%d] OK", sequence);
             }
         }

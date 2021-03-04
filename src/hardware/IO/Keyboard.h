@@ -145,5 +145,11 @@ class Keyboard : public InputDevice {
  *
  */
     void setKeyboardActive(int value);
+
+    /**
+     * \brief Does nothing as there are none here
+     * 
+     */
+    bool configureMasterPDOs(){return true;};
 };
 #endif
