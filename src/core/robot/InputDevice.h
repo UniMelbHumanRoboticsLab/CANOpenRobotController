@@ -17,6 +17,8 @@
 #include <iostream>
 
 #include "logging.h"
+#include "RPDO.h"
+#include "TPDO.h"
 
 /**
  * @brief Abstract class representing any input device to be used in a Robot object
@@ -33,5 +35,7 @@ class InputDevice {
  *
  */
     virtual void updateInput() = 0;
+
+    virtual bool configureMasterPDOs() =0;
 };
 #endif

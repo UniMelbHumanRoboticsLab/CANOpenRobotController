@@ -70,19 +70,12 @@ extern "C" {
 /**
  * /brief Function is called on program startup.
  */
-void app_programStart(int argc = 0, char *argv[] = {});
-
-#ifdef USEROS
-/**
- * /brief Function is called on ROS startup.
- */
-void app_ROSStart(int argc, char *argv[]);
-#endif
+void app_programStart();
 
 /**
- * /brief Function is called after CANopen communication reset.
+ * /brief Function is called before CO_init()
  */
-void app_communicationReset(void);
+void app_communicationReset(int argc = 0, char *argv[] = {});
 
 /**
  * \brief Function is called just before program ends.
@@ -90,7 +83,7 @@ void app_communicationReset(void);
 void app_programEnd(void);
 
 /**
- * \briefFunction is called cyclically from main.
+ * \briefFunction is called cyclically from main (low priority thread)
  *
  * \param timer1msDiff Time difference since last call
  */
@@ -103,13 +96,5 @@ void app_programAsync(uint16_t timer1msDiff);
  */
 void app_programControlLoop(void);
 
-#ifdef USEROS
-/**
- * \brief Function is called cyclically from ROS thread at constant intervals.
- *
- * Code inside this function must be executed fast. Take care on race conditions.
- */
-void app_ROSLoop(void);
-#endif
 
 #endif /*APP_H*/

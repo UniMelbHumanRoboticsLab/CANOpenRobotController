@@ -1,10 +1,14 @@
-#Initializes can0 and can1. Set the queue length top 1000
+#!/bin/bash
 
+#initialisation of CAN interfaces on BB
+
+echo "Enabling CAN0"
 sudo ip link set can0 up type can bitrate 1000000
 sudo ifconfig can0 up
 
+echo "Enabling CAN1"
 sudo ip link set can1 up type can bitrate 1000000
 sudo ifconfig can1 up
 
-sudo ifconfig can0 txqueuelen 1000
-sudo ifconfig can1 txqueuelen 1000
+#echo "can0 up. Dumping (ctrl+c to close):"
+#candump -c -t z can0,080~111111 #Filter out 080 sync messages

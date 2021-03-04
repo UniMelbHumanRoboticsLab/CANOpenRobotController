@@ -201,13 +201,13 @@ class RobotM3 : public Robot {
     VM3 inverseKinematic(VM3 X);
     VM3 calculateGravityTorques();
 
-    VM3 getEndEffPosition();
-    VM3 getEndEffVelocity();
-    VM3 getEndEffForce();
-    Eigen::VectorXd& getEndEffPositionRef();
-    Eigen::VectorXd& getEndEffVelocityRef();
-    Eigen::VectorXd& getEndEffForceRef();
-    Eigen::VectorXd& getInteractionForceRef();
+    VM3 getEndEffPosition();                    //!< Return vector containing end-effector position (in m)
+    VM3 getEndEffVelocity();                    //!< Return vector containing end-effector velocity (in m.s-1)
+    VM3 getEndEffForce();                       //!< Return vector containing end-effector (motors) force (in N)
+    Eigen::VectorXd& getEndEffPositionRef();    //!< Return vector reference containing end-effector position (in m)
+    Eigen::VectorXd& getEndEffVelocityRef();    //!< Return vector reference containing end-effector velocity (in m.s-1)
+    Eigen::VectorXd& getEndEffForceRef();       //!< Return vector reference containing end-effector (motors) force (in N)
+    Eigen::VectorXd& getInteractionForceRef();  //!< Return vector reference containing end-effector interaction force (using model substracting gravity and friction force to motor torque) (in N)
 
     setMovementReturnCode_t setJointPosition(VM3 q);
     setMovementReturnCode_t setJointVelocity(VM3 q);

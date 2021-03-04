@@ -10,6 +10,7 @@ Transition *State::getActiveArc(void) {
     while (i < numarcs) {
         if (arclist[i]->ev->check())
             return arclist[i];
+
         i++;
     }
     return NULL;

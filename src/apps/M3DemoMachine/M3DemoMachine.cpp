@@ -124,3 +124,8 @@ bool M3DemoMachine::GoToNextState::check() {
     //Otherwise false
     return false;
 }
+
+bool M3DemoMachine::configureMasterPDOs() {
+    spdlog::debug("M3DemoMachine::configureMasterPDOs()");
+    return robot->configureMasterPDOs();
+}

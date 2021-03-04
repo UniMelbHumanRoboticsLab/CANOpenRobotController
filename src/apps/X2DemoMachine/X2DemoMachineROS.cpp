@@ -1,15 +1,10 @@
 #include "X2DemoMachineROS.h"
 
-X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot) {
-    robot_ = robot;
-}
+X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot, ros::NodeHandle& nodeHandle):
+    robot_(robot),
+    nodeHandle_(&nodeHandle)
+{
 
-X2DemoMachineROS::~X2DemoMachineROS() {
-    ros::shutdown();
-}
-
-void X2DemoMachineROS::initialize() {
-    spdlog::debug("X2DemoMachineROS::init()");
 #ifndef SIM  // if simulation, these will be published by Gazebo
     jointStatePublisher_ = nodeHandle_->advertise<sensor_msgs::JointState>("joint_states", 10);
     leftThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("left_thigh_wrench", 10);
@@ -22,6 +17,16 @@ void X2DemoMachineROS::initialize() {
     calibrateForceSensorsService_ = nodeHandle_->advertiseService("calibrate_force_sensors", &X2DemoMachineROS::calibrateForceSensorsCallback, this);
     startExoTriggered_ = false;
     interactionForceCommand_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+
+}
+
+X2DemoMachineROS::~X2DemoMachineROS() {
+    ros::shutdown();
+}
+
+void X2DemoMachineROS::initialize() {
+    spdlog::debug("X2DemoMachineROS::init()");
+
 }
 
 void X2DemoMachineROS::update() {
