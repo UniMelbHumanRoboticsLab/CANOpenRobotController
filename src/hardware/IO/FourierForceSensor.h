@@ -57,6 +57,13 @@ class FourierForceSensor : public InputDevice {
     */
     double getForce();
 
+    /**
+    * send SDO command to shift the measurement to a value around 1500.
+    *
+    * \return bool success of internal calibration
+    */
+    bool sendInternalCalibrateSDOMessage();
+
   protected:
     virtual double sensorValueToNewton(int sensorValue);
 
