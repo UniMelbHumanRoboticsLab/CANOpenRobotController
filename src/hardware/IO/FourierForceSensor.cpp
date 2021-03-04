@@ -4,7 +4,8 @@ FourierForceSensor::FourierForceSensor(int sensor_can_node_ID, double scale_fact
                                                                                                         sensorNodeID(sensor_can_node_ID),
                                                                                                         scaleFactor(scale_factor),
                                                                                                         calibrated(false),
-                                                                                                        calibrationTime(calib_time) {
+                                                                                                        calibrationTime(calib_time),
+                                                                                                        calibrationOffset(1500){
 }
 
 bool FourierForceSensor::configureMasterPDOs() {
@@ -22,7 +23,7 @@ void FourierForceSensor::updateInput() {
 }
 
 bool FourierForceSensor::calibrate(double calib_time) {
-    spdlog::debug("[FourierForceSensor::calibrate]: Force Sensor {} Zeroing", sensorNodeID);
+    spdlog::debug("[FourierForceSensor::calibrate]: Force Sensor with nodeID {} Zeroing", sensorNodeID);
 
     if(calib_time>0) {
         calibrationTime = calib_time;
@@ -57,5 +58,26 @@ double FourierForceSensor::getForce() {
 double FourierForceSensor::sensorValueToNewton(int sensorValue) {
 
     return (sensorValue - calibrationOffset) * scaleFactor;
+}
+
+bool FourierForceSensor::sendInternalCalibrateSDOMessage() {
+
+    spdlog::debug("[FourierForceSensor::sendInternalCalibrateSDOMessage]: Force Sensor with nodeID {} Internal calibration", sensorNodeID);
+
+    std::stringstream sstream;
+    char *returnMessage;
+
+    sstream << "[1] " << sensorNodeID << " read 0x7050 255 i8";
+    std::string strCommand = sstream.str();
+    char *SDO_Message = (char *)(strCommand.c_str());
+    cancomm_socketFree(SDO_Message, &returnMessage);
+    std::string retMsg = returnMessage;
+    spdlog::debug(retMsg);
+    if (retMsg.find("ERROR") != std::string::npos) {
+        spdlog::error("[X2ForceSensor::calibrate]: Force Sensor {} error occured during zeroing", sensorNodeID);
+        return false;
+    }
+
+    sleep(1.5); // this is required because after calibration command, sensor values do not get update around 1.2 seconds
 }
 

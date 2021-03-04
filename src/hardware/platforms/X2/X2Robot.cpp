@@ -477,7 +477,7 @@ bool X2Robot::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
 
     for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
-        forceSensors.push_back(new FourierForceSensor(id, x2Parameters.forceSensorScaleFactor[id]));
+        forceSensors.push_back(new FourierForceSensor(id + 17, x2Parameters.forceSensorScaleFactor[id]));
         inputs.push_back(forceSensors[id]);
     }
 
