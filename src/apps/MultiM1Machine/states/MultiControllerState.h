@@ -47,24 +47,41 @@ public:
     double ffRatio_;
     int controller_mode_;
 
+    double control_freq;
     int current_mode;
     double torque_error_last_time_step = 0;
+
     double error;
     double delta_error;
     double integral_error;
+
     double spring_tor;
     double tick_count;
+
     Eigen::VectorXd q;     //positive dorsi flexion
     Eigen::VectorXd dq;
     Eigen::VectorXd tau;
     Eigen::VectorXd tau_s;
     Eigen::VectorXd tau_cmd;
 
+    double alpha_q;
+    double alpha_tau;
+    double q_pre;
+    double tau_pre;
+    double cut_off;
+    double tau_raw;
+    double tau_filtered;
 
 private:
     // dynamic reconfigure server and callback
     dynamic_reconfigure::Server<CORC::dynamic_paramsConfig> server_;
     void dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level);
+
+protected:
+    struct timespec initTime;   /*<! Time of state init */
+    double lastTime;            /*<! Time of last during() call (in seconds since state init())*/
+    double elapsedTime;         /*<! Time since state init() in seconds*/
+    double dt;                  /*<! Time between last two during() calls (in seconds)*/
 };
 
 

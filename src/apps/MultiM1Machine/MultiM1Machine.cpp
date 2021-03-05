@@ -68,6 +68,8 @@ void MultiM1Machine::init(int argc, char *argv[]) {
     logHelper.add(robot_->getVelocity(), "JointVelocities");
     logHelper.add(robot_->getTorque(), "JointTorques");
     logHelper.add(robot_->getJointTor_s(), "SensorTorques");
+    logHelper.add(multiControllerState_->tau_raw, "SensorTorques_raw");
+    logHelper.add(multiControllerState_->tau_filtered, "SensorTorques_filtered");
 
     logHelper.add(multiControllerState_->spk_, "SpringStiffness");
     logHelper.add(multiControllerState_->spring_tor, "SpringTorque");

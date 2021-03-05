@@ -76,6 +76,7 @@ class RobotM1 : public Robot {
 
     // Storage variables for real-time updated values from CANopn
     JointVec q, dq, tau, tau_s, tau_sc;
+    JointVec q_pre, tau_s_pre;
 
     JointVec qCalibration;  // Calibration configuration: posture in which the robot is when using the calibration procedure
 
@@ -99,6 +100,8 @@ public:
     M1ForceSensor *m1ForceSensor;
     RobotState status;
     int mode;
+
+    JointVec tau_spring;
 
     bool initMonitoring();
     /**
@@ -214,6 +217,9 @@ public:
     JointVec getJointVel();
     JointVec getJointTor();
     JointVec& getJointTor_s();
+
+    void filter_q(double alpha_q);
+    void filter_tau(double alpha_tau);
 //    EndEffVec getEndEffPos();
 //    EndEffVec getEndEffVel();
 //    EndEffVec getEndEffFor();

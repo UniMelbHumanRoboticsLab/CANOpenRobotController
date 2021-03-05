@@ -20,6 +20,9 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
 
     // Calibration configuration: posture in which the robot is when using the calibration procedure
     qCalibration(0) = 0 * d2r;
+    tau_motor(0) = 0;
+    q_pre(0) = 0;
+    tau_s_pre(0) = 0;
 
     posControlMotorProfile.profileVelocity = 600.*512*10000/1875;
     posControlMotorProfile.profileAcceleration = 500.*65535*10000/4000000;
@@ -380,6 +383,16 @@ JointVec RobotM1::getJointTor() {
     return tau;
 }
 
+void RobotM1::filter_q(double alpha_q){
+    q(0) = alpha_q*q(0)+(1-alpha_q)*q_pre(0);
+    q_pre(0) = q(0);
+}
+
+void RobotM1::filter_tau(double alpha_tau){
+    tau_s(0) = alpha_tau*tau_s(0)+(1-alpha_tau)*tau_s_pre(0);
+    tau_s_pre(0) = tau_s(0);
+}
+
 JointVec& RobotM1::getJointTor_s() {
     double inertia_s = 1.0592; // m*s*g =
     double inertia_c = 0.3258;
@@ -398,8 +411,8 @@ setMovementReturnCode_t RobotM1::setJointVel(JointVec vel_d) {
 
 setMovementReturnCode_t RobotM1::setJointTor(JointVec tor_d) {
 //    tor_d = compensateJointTor(tor_d);
-    tau_motor = tor_d;
-    return applyTorque(tor_d);
+    tau_motor(0) = (tor_d(0)+tau_motor(0)*2.0)/3.0;
+    return applyTorque(tau_motor);
 }
 
 

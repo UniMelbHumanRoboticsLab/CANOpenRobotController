@@ -1,16 +1,27 @@
 #include "MultiControllerState.h"
 
+double timeval_to_sec_t(struct timespec *ts)
+{
+    return (double)(ts->tv_sec + ts->tv_nsec / 1000000000.0);
+}
+
 void MultiControllerState::entry(void) {
 
     spdlog::info("Multi Controller State is entered.");
+
+    //Timing
+    clock_gettime(CLOCK_MONOTONIC, &initTime);
+    lastTime = timeval_to_sec_t(&initTime);
 
     // set dynamic parameter server
     dynamic_reconfigure::Server<CORC::dynamic_paramsConfig>::CallbackType f;
     f = boost::bind(&MultiControllerState::dynReconfCallback, this, _1, _2);
     server_.setCallback(f);
 
+    robot_->initTorqueControl();
     robot_->applyCalibration();
     robot_->calibrateForceSensors();
+    robot_->tau_spring[0] = 0;   // for ROS publish only
 
     // FOR TRANSPERANCY STUFF
     q = Eigen::VectorXd::Zero(1);
@@ -19,8 +30,28 @@ void MultiControllerState::entry(void) {
     tau_s = Eigen::VectorXd::Zero(1);
     tau_cmd = Eigen::VectorXd::Zero(1);
 
+    // initialize parameters
+    control_freq = 800.0;
+    error = 0;
+    delta_error = 0;
+    integral_error = 0;
+    tick_count = 0;
+    controller_mode_ = -1;
+    cut_off = 10;
+
 }
 void MultiControllerState::during(void) {
+
+    //Compute some basic time values
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+
+    double now = timeval_to_sec_t(&ts);
+    elapsedTime = (now-timeval_to_sec_t(&initTime));
+    dt = now - lastTime;
+    lastTime = now;
+
+    //
     tick_count = tick_count + 1;
     if(controller_mode_ == 0){  // Homing
         if(cali_stage == 1){
@@ -55,7 +86,6 @@ void MultiControllerState::during(void) {
             if (tau(0)>0.2 || tau(0)<-0.2)
             {
                 robot_->m1ForceSensor->calibrate();
-
             }
             robot_->printJointStatus();
             std::cout << "Calibration done!" << std::endl;
@@ -73,45 +103,59 @@ void MultiControllerState::during(void) {
     }
     else if(controller_mode_ == 4){ // virtual spring - torque mode
         tau = robot_->getJointTor();
-        tau_s = (robot_->getJointTor_s()+tau_s)/2;
-        q = robot_->getJointPos();
+        //tau_s = (robot_->getJointTor_s()+tau_s)/2.0;
         dq = robot_->getJointVel();
+
+        // filter q
+        alpha_q = (2*M_PI*dt*cut_off)/(2*M_PI*dt*cut_off+1);
+        robot_->filter_q(alpha_q);
+        q = robot_->getJointPos();
+
+//         filter torque signal
+        tau_s = robot_->getJointTor_s();
+        tau_raw = tau_s(0);
+        alpha_tau = (2*M_PI*dt*cut_off)/(2*M_PI*dt*cut_off+1);
+        robot_->filter_tau(alpha_tau);
+        tau_s = robot_->getJointTor_s();
+        tau_filtered = tau_s(0);
+        std::cout << "Pre :" << tau_raw << "; Post :" << tau_filtered << std::endl;
 
         // get interaction torque from virtual spring
         spring_tor = -multiM1MachineRos_->interactionTorqueCommand_(0);
-//        spring_tor = spk_*M_PIf64*(45-q(0))/180;  //stiffness; q(0) in degree
+//        spring_tor = spk_*M_PIf64*(45-q(0))/180.0;  //stiffness; q(0) in degree
+        robot_->tau_spring[0] = spring_tor;   // for ROS publish only
 
         // torque tracking with PD controller
-        error = tau_s(0) + spring_tor*1.5;  // interaction torque error, desired interaction torque is spring_tor, 1.5 is ratio to achieve the desired torque
-        delta_error = (error-torque_error_last_time_step)*800;  // derivative of interaction torque error;
-        integral_error = integral_error + error;
+        error = tau_s(0) + spring_tor;  // interaction torque error, desired interaction torque is spring_tor, 1.5 is ratio to achieve the desired torque
+        delta_error = (error-torque_error_last_time_step)*control_freq;  // derivative of interaction torque error;
+        integral_error = integral_error + error/control_freq;
         tau_cmd(0) = error*kp_ + delta_error*kd_ + integral_error*ki_;  // tau_cmd = P*error + D*delta_error; 1 and 0.001
         torque_error_last_time_step = error;
 //        std::cout << "spring_tor:" << spring_tor  << "; sensor_tor: " << tau_s(0) << "; cmd_tor: " << tau_cmd(0) << "; motor_tor: " << tau(0) << std::endl;
         robot_->setJointTor_comp(tau_cmd, tau_s, ffRatio_);
 
         // reset integral_error every 1 mins, to be decided
-        if(tick_count >= 800*60){
+        if(tick_count >= control_freq*60){
             integral_error = 0;
             tick_count = 0;
         }
     }
     else if(controller_mode_ == 5){ // transperancy - torque mode
         tau = robot_->getJointTor();
-        tau_s = (robot_->getJointTor_s()+tau_s)/2;
+        tau_s = (robot_->getJointTor_s()+tau_s)/2.0;
         q = robot_->getJointPos();
         dq = robot_->getJointVel();
 
         // torque tracking with PD controller
         error = tau_s(0);  // interaction torque error, desired interaction torque is 0
-        delta_error = (error-torque_error_last_time_step)*800;  // derivative of interaction torque error;
-        integral_error = integral_error + error;
+        delta_error = (error-torque_error_last_time_step)*control_freq;  // derivative of interaction torque error;
+        integral_error = integral_error + error/control_freq;
         tau_cmd(0) = error*kp_ + delta_error*kd_ + integral_error*ki_;  // tau_cmd = P*error + D*delta_error + ; 1 and 0.001
         torque_error_last_time_step = error;
         robot_->setJointTor_comp(tau_cmd, tau_s, ffRatio_);
 
         // reset integral_error every 1 mins, to be decided
-        if(tick_count >= 800*tick_max_){
+        if(tick_count >= control_freq*tick_max_){
             integral_error = 0;
             tick_count = 0;
         }
@@ -138,6 +182,7 @@ void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config,
 //    controller_mode_ = config.controller_mode;
     if(controller_mode_!=config.controller_mode)
     {
+        controller_mode_ = config.controller_mode;
         if(controller_mode_ == 0) {
             robot_->initVelocityControl();
             cali_stage = 1;
@@ -148,7 +193,6 @@ void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config,
         if(controller_mode_ == 3) robot_->initTorqueControl();
         if(controller_mode_ == 4) robot_->initTorqueControl();
         if(controller_mode_ == 5) robot_->initTorqueControl();
-        controller_mode_ = config.controller_mode;
     }
 
     return;

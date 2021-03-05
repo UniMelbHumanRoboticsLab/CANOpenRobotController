@@ -40,7 +40,7 @@ void MultiM1MachineROS::publishJointStates() {
     jointStateMsg_.name[0] = "M1_joint";
     jointStateMsg_.position[0] = jointPositions[0];
     jointStateMsg_.velocity[0] = jointVelocities[0];
-    jointStateMsg_.effort[0] = jointTorques[0];
+    jointStateMsg_.effort[0] = jointTorques[0]; /// BE CAREFUL CHANGED FROM JOINT TORQUE TO DESIRED INTERACTION TORQUE FOR SINGLE ROBOT FORCE CONTROL TEST
 
     jointStatePublisher_.publish(jointStateMsg_);
 }
@@ -51,6 +51,7 @@ void MultiM1MachineROS::publishInteractionForces() {
 
     interactionWrenchMsg_.header.stamp = time;
     interactionWrenchMsg_.header.frame_id = "interaction_torque_sensor";
+    interactionWrenchMsg_.wrench.torque.y = -robot_->tau_spring[0];
     interactionWrenchMsg_.wrench.torque.z = interactionTorque[0];
 
     interactionWrenchPublisher_.publish(interactionWrenchMsg_);
