@@ -20,10 +20,13 @@ void X2DemoState::entry(void) {
 //    robot_->calibrateForceSensors();
 //    robot_->homing();
 
+    robot_->setBackpackIMUMode(IMUOutputMode::QUATERNION);
     time0 = std::chrono::steady_clock::now();
+
 }
 
 void X2DemoState::during(void) {
+//    std::cout<<robot_->getBackPackAngleOnMedianPlane()*180/M_PI<<std::endl;
     if(controller_mode_ == 1){ // zero torque mode
         desiredJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
         robot_->setTorque(desiredJointTorques_);

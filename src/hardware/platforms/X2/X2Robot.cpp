@@ -50,6 +50,8 @@ X2Robot::X2Robot(std::string robotName):
     simJointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    simInteractionForces_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    simBackPackAngleOnMedianPlane_ = 0;
 #endif
 
     // Initializing the parameters to zero
@@ -62,6 +64,10 @@ X2Robot::X2Robot(std::string robotName):
     x2Parameters.c2 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     x2Parameters.cuffWeights = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
     x2Parameters.forceSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    interactionForces_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    backpackAccelerations_ = Eigen::VectorXd::Zero(3);
+    backpackQuaternions_ = Eigen::VectorXd::Zero(4);
+    backPackAngleOnMedianPlane_ = 0;
 
     initializeRobotParams(robotName_);
 
@@ -74,6 +80,7 @@ X2Robot::X2Robot(std::string robotName):
 }
 
 X2Robot::~X2Robot() {
+    if(x2Parameters.imuParameters.useIMU) technaidIMUs->exit();
     freeMemory();
     spdlog::debug("X2Robot deleted");
 }
@@ -332,24 +339,23 @@ Eigen::VectorXd &X2Robot::getTorque() {
 }
 
 Eigen::VectorXd &X2Robot::getInteractionForce() {
-    //TODO: generalise sensors
-    //Initialise vector if not already done
-    if((unsigned int)interactionForces_.size()!=forceSensors.size()) {
-        interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
-    }
-
-    //todo: add backpack angle
-    Eigen::VectorXd cuffCompensation = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    cuffCompensation[0] = x2Parameters.cuffWeights[0] * sin(getPosition()[0]);
-    cuffCompensation[1] = x2Parameters.cuffWeights[1] * sin(getPosition()[1] - getPosition()[0]);
-    cuffCompensation[2] = x2Parameters.cuffWeights[2] * sin(getPosition()[2]);
-    cuffCompensation[3] = x2Parameters.cuffWeights[3] * sin(getPosition()[3] - getPosition()[2]);
-
-    //Update values
-    for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
-        interactionForces_[i] = forceSensors[i]->getForce() + cuffCompensation[i];
-    }
+#ifndef NOROBOT
     return interactionForces_;
+#else
+    return simInteractionForces_; // TODO: add force sensor to simulation
+#endif
+
+}
+
+double & X2Robot::getBackPackAngleOnMedianPlane() {
+
+    if(!x2Parameters.imuParameters.useIMU) spdlog::warn("[X2Robot::getBackPackAngleOnMedianPlane()]: IMU is not being used!");
+
+#ifndef NOROBOT
+    return backPackAngleOnMedianPlane_;
+#else
+    return simBackPackAngleOnMedianPlane_; // TODO: add IMU to simulation
+#endif
 }
 
 bool X2Robot::calibrateForceSensors() {
@@ -366,6 +372,52 @@ bool X2Robot::calibrateForceSensors() {
         spdlog::error("[X2Robot::calibrateForceSensors]: Zeroing failed.");
         return false;
     }
+}
+
+Eigen::VectorXd X2Robot::getBackpackQuaternions() {
+
+    for(int imuIndex = 0; imuIndex<numberOfIMUs_; imuIndex++){
+        if(x2Parameters.imuParameters.location[imuIndex] == 'b'){
+            if(technaidIMUs->getOutputMode_(imuIndex).name != "quat"){
+                spdlog::warn("Backpack IMU mode is not quaternion for imu no: . Returns 0", imuIndex);
+                backpackQuaternions_ = Eigen::VectorXd::Zero(4);
+            }
+            backpackQuaternions_ = technaidIMUs->getQuaternion().col(imuIndex);
+        }
+    }
+    return backpackQuaternions_;
+}
+
+void X2Robot::updateBackpackAngleOnMedianPlane() {
+
+    Eigen::Quaterniond q;
+    Eigen::MatrixXd quatEigen = getBackpackQuaternions();
+    q.x() = quatEigen(0,0);
+    q.y() = quatEigen(1,0);
+    q.z() = quatEigen(2,0);
+    q.w() = quatEigen(3,0);
+
+    Eigen::Matrix3d R = q.toRotationMatrix();
+    double thetaBase = -std::atan2(-R(2,2), -R(2,0));
+
+    backPackAngleOnMedianPlane_ = thetaBase;
+
+}
+
+void X2Robot::updateInteractionForce() {
+
+    //todo: add backpack angle
+    Eigen::VectorXd cuffCompensation = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    cuffCompensation[0] = x2Parameters.cuffWeights[0] * sin(getPosition()[0]);
+    cuffCompensation[1] = x2Parameters.cuffWeights[1] * sin(getPosition()[1] - getPosition()[0]);
+    cuffCompensation[2] = x2Parameters.cuffWeights[2] * sin(getPosition()[2]);
+    cuffCompensation[3] = x2Parameters.cuffWeights[3] * sin(getPosition()[3] - getPosition()[2]);
+
+    //Update values
+    for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
+        interactionForces_[i] = forceSensors[i]->getForce() + cuffCompensation[i];
+    }
+
 }
 
 bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, float delayTime,
@@ -445,6 +497,17 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
     return true;  // will come here if all joints successfully homed
 }
 
+bool X2Robot::setBackpackIMUMode(IMUOutputMode imuOutputMode) {
+
+    for(int i = 0; i<numberOfIMUs_; i++){
+        if(x2Parameters.imuParameters.location[i] == 'b'){
+            if(!technaidIMUs->setOutputMode(i, imuOutputMode)){
+                return false;
+            } else return true;
+        }
+    }
+}
+
 bool X2Robot::initialiseJoints() {
     for (int id = 0; id < X2_NUM_JOINTS; id++) {
         motorDrives.push_back(new CopleyDrive(id + 1));
@@ -481,6 +544,12 @@ bool X2Robot::initialiseInputs() {
         inputs.push_back(forceSensors[id]);
     }
 
+    if(x2Parameters.imuParameters.useIMU){
+        technaidIMUs = new TechnaidIMU(x2Parameters.imuParameters);
+//        inputs.push_back(technaidIMUs); // commented because techIMU class starts its own thread for data update
+        technaidIMUs->initialize();
+    }
+
     return true;
 }
 
@@ -500,6 +569,18 @@ bool X2Robot::initializeRobotParams(std::string robotName) {
         return false;
     }
 
+    if(params[robotName]["m"].size() != X2_NUM_JOINTS || params[robotName]["l"].size() != X2_NUM_JOINTS ||
+       params[robotName]["s"].size() != X2_NUM_JOINTS || params[robotName]["I"].size() != X2_NUM_JOINTS ||
+       params[robotName]["c0"].size() != X2_NUM_JOINTS || params[robotName]["c1"].size() != X2_NUM_JOINTS ||
+       params[robotName]["c2"].size() != X2_NUM_JOINTS || params[robotName]["cuff_weights"].size() != X2_NUM_FORCE_SENSORS ||
+       params[robotName]["force_sensor_scale_factor"].size() != X2_NUM_FORCE_SENSORS){
+
+        spdlog::error("Parameter sizes are not consistent");
+        spdlog::error("All parameters are zero !");
+
+        return false;
+    }
+
     // getting the parameters from the yaml file
     for(int i = 0; i<X2_NUM_JOINTS; i++){
         x2Parameters.m[i] = params[robotName]["m"][i].as<double>();
@@ -513,6 +594,42 @@ bool X2Robot::initializeRobotParams(std::string robotName) {
     for(int i = 0; i<X2_NUM_FORCE_SENSORS; i++) {
         x2Parameters.cuffWeights[i] = params[robotName]["cuff_weights"][i].as<double>();
         x2Parameters.forceSensorScaleFactor[i] = params[robotName]["force_sensor_scale_factor"][i].as<double>();
+    }
+
+    if(!params[robotName]["technaid_imu"]){
+        spdlog::warn("IMU parameters couldn't be found!");
+        x2Parameters.imuParameters.useIMU = false;
+    } else{ // there is imu params
+        if(params[robotName]["technaid_imu"]["network_id"].size() != params[robotName]["technaid_imu"]["serial_no"].size()||
+           params[robotName]["technaid_imu"]["location"].size() != params[robotName]["technaid_imu"]["serial_no"].size()){
+            spdlog::error("IMU parameter sizes are not consistent!");
+            x2Parameters.imuParameters.useIMU = false;
+        }else{ // imu parameters have consistent size
+
+            numberOfIMUs_ = params[robotName]["technaid_imu"]["serial_no"].size();
+            int numberOfContactIMUs = 0;
+            int numberOfBackpackIMUs = 0;
+
+            for(int i = 0; i<numberOfIMUs_; i++) {
+                x2Parameters.imuParameters.serialNo.push_back(params[robotName]["technaid_imu"]["serial_no"][i].as<int>());
+                x2Parameters.imuParameters.networkId.push_back(params[robotName]["technaid_imu"]["network_id"][i].as<int>());
+                x2Parameters.imuParameters.location.push_back(params[robotName]["technaid_imu"]["location"][i].as<char>());
+                if(x2Parameters.imuParameters.location[i] == 'c') numberOfContactIMUs++;
+                else if(x2Parameters.imuParameters.location[i] == 'b') numberOfBackpackIMUs++;
+            }
+
+            if(numberOfContactIMUs == 0 || numberOfBackpackIMUs != 1){
+                spdlog::error("IMU locations are not proper");
+                x2Parameters.imuParameters.useIMU = false;
+            } else{
+                spdlog::info("IMU parameters are succefully parsed");
+                x2Parameters.imuParameters.useIMU = true;
+                x2Parameters.imuParameters.canChannel = params[robotName]["technaid_imu"]["can_channel"].as<std::string>();
+
+                contactAccelerations_ = Eigen::MatrixXd::Zero(3, numberOfContactIMUs);
+                contactQuaternions_ = Eigen::MatrixXd::Zero(4, numberOfContactIMUs);
+            }
+        }
     }
 
     return true;
@@ -534,7 +651,12 @@ void X2Robot::freeMemory() {
 }
 void X2Robot::updateRobot() {
     //TODO: generalise sensors update
+#ifndef SIM
     Robot::updateRobot();
+    if(x2Parameters.imuParameters.useIMU){
+        updateBackpackAngleOnMedianPlane();
+    }
+#endif
 }
 
 bool X2Robot::setPosControlContinuousProfile(bool continuous){

@@ -26,6 +26,7 @@
 #include "Robot.h"
 #include "FourierForceSensor.h"
 #include "X2Joint.h"
+#include "TechnaidIMU.h"
 
 // Logger
 #include "spdlog/helper/LogHelper.h"
@@ -52,7 +53,7 @@
 #define X2_NUM_FORCE_SENSORS 4
 
 // robot name is used to access the properties of the correct robot version
-#define X2_NAME X2_MELB_A
+#define X2_NAME_DEFAULT X2_MELB_A
 
 // Macros
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
@@ -79,6 +80,7 @@ struct RobotParameters {
     Eigen::VectorXd c2; // friction const related to sqrt of vel
     Eigen::VectorXd cuffWeights; // cuff Weights [N]
     Eigen::VectorXd forceSensorScaleFactor; // scale factor of force sensors [N/sensor output]
+    IMUParameters imuParameters;
 };
 
 /**
@@ -98,12 +100,36 @@ class X2Robot : public Robot {
 
     //Todo: generalise sensors
     Eigen::VectorXd interactionForces_;
+    Eigen::VectorXd backpackAccelerations_; // x y z
+    Eigen::VectorXd backpackQuaternions_; // x y z w
+    Eigen::MatrixXd contactAccelerations_; // rows are x y z, columns are different contact points
+    Eigen::MatrixXd contactQuaternions_; // rows are x y z, w columns are different contact points
+    double backPackAngleOnMedianPlane_; // backpack angle wrt gravity vector. leaning front is positive [rad]
+
 
     std::string robotName_;
+    int numberOfIMUs_;
 
     bool initializeRobotParams(std::string robotName);
 
     static void signalHandler(int signum);
+
+    /**
+    * \brief Get backpack quaternion
+    *
+    * \return Eigen::VectorXd qx, qy, qz, qw
+    */
+    Eigen::VectorXd getBackpackQuaternions();
+
+    /**
+    * \brief updates the angle of back pack with respect to - gravity vector on median plane. leaning front is positive
+    */
+    void updateBackpackAngleOnMedianPlane();
+
+    /**
+    * \brief updates the interaction force measurements
+    */
+    void updateInteractionForce();
 
 #ifdef SIM
     ros::NodeHandle* nodeHandle_;
@@ -125,6 +151,8 @@ class X2Robot : public Robot {
     Eigen::VectorXd simJointPositions_;
     Eigen::VectorXd simJointVelocities_;
     Eigen::VectorXd simJointTorques_;
+    Eigen::VectorXd simInteractionForces_;
+    double simBackPackAngleOnMedianPlane_;
 #endif
 
    public:
@@ -135,14 +163,15 @@ class X2Robot : public Robot {
       */
 
 #ifdef SIM
-    X2Robot(ros::NodeHandle &nodeHandle, std::string robotName = XSTR(X2_NAME));
+    X2Robot(ros::NodeHandle &nodeHandle, std::string robotName = XSTR(X2_NAME_DEFAULT));
 #else
-    X2Robot(std::string robotName = XSTR(X2_NAME));
+    X2Robot(std::string robotName = XSTR(X2_NAME_DEFAULT));
 #endif
     ~X2Robot();
     Keyboard* keyboard;
     std::vector<Drive*> motorDrives;
     std::vector<FourierForceSensor*> forceSensors;
+    TechnaidIMU* technaidIMUs;
 
     // /**
     //  * \brief Timer Variables for moving through trajectories
@@ -241,6 +270,13 @@ class X2Robot : public Robot {
     Eigen::VectorXd& getInteractionForce();
 
     /**
+    * \brief Get the backpack angle on median plane with respect to - gravity axes
+    *
+    * \return double& reference to backpack angle
+    */
+    double& getBackPackAngleOnMedianPlane();
+
+    /**
     * \brief Calibrate force sensors
     *
     * \return bool success of calibration
@@ -260,11 +296,13 @@ class X2Robot : public Robot {
     bool homing(std::vector<int> homingDirection = std::vector<int>(X2_NUM_JOINTS, 1), float thresholdTorque = 50.0,
                 float delayTime = 0.2, float homingSpeed = 5 * M_PI / 180.0, float maxTime = 30.0);
 
+
     /**
-   * Determine if the currently generated trajectory is complete.
-   * \return bool
-   */
-    bool isTrajFinished();
+    * \brief Set the backpack IMU Mode
+    *
+    */
+    bool setBackpackIMUMode(IMUOutputMode imuOutputMode);
+
 
     /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.

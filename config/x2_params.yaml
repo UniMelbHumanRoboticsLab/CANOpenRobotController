@@ -8,6 +8,11 @@ X2_SRA_A: # That ends with 0.9999 are not investigated yet
   c2: [2.9999, 2.4839, 2.9999, 2.4839] # friction const related to sqrt of vel
   cuff_weights: [3.69, 3.69, 3.69, 3.69] # cuff Weights [N]
   force_sensor_scale_factor: [0.1999, 0.246, 0.1999, 0.246] # scale factor of force sensors [N/sensor output]
+  technaid_imu:
+    can_channel: "can1"
+    serial_no: [596, 597]
+    network_id: [141, 142]
+    location: ['c', 'b'] # b for backpack, c for cuff/contact
 
 X2_SRA_B: # That ends with 0.9999 are not investigated yet
   m: [5.9999, 2.4755, 5.9999, 2.4755] # masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
