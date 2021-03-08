@@ -95,6 +95,11 @@ void X2DemoMachineROS::setNodeHandle(ros::NodeHandle &nodeHandle) {
     nodeHandle_ = &nodeHandle;
 }
 
+ros::NodeHandle & X2DemoMachineROS::getNodeHandle() {
+
+    return *nodeHandle_;
+}
+
 bool X2DemoMachineROS::startExoServiceCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
     startExoTriggered_ = true;
     res.success = true;
