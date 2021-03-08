@@ -403,12 +403,11 @@ void X2Robot::updateBackpackAngleOnMedianPlane() {
 
 void X2Robot::updateInteractionForce() {
 
-    //todo: add backpack angle
     Eigen::VectorXd cuffCompensation = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    cuffCompensation[0] = x2Parameters.cuffWeights[0] * sin(getPosition()[0]);
-    cuffCompensation[1] = x2Parameters.cuffWeights[1] * sin(getPosition()[1] - getPosition()[0]);
-    cuffCompensation[2] = x2Parameters.cuffWeights[2] * sin(getPosition()[2]);
-    cuffCompensation[3] = x2Parameters.cuffWeights[3] * sin(getPosition()[3] - getPosition()[2]);
+    cuffCompensation[0] = x2Parameters.cuffWeights[0] * sin(getBackPackAngleOnMedianPlane() - getPosition()[0]);
+    cuffCompensation[1] = x2Parameters.cuffWeights[1] * sin(getBackPackAngleOnMedianPlane() - getPosition()[1] + getPosition()[0]);
+    cuffCompensation[2] = x2Parameters.cuffWeights[2] * sin(getBackPackAngleOnMedianPlane() - getPosition()[2]);
+    cuffCompensation[3] = x2Parameters.cuffWeights[3] * sin(getBackPackAngleOnMedianPlane() - getPosition()[3] + getPosition()[2]);
 
     //Update values
     for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
