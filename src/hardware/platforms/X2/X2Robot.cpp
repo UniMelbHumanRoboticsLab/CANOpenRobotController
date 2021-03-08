@@ -348,9 +348,6 @@ Eigen::VectorXd &X2Robot::getInteractionForce() {
 }
 
 double & X2Robot::getBackPackAngleOnMedianPlane() {
-
-    if(!x2Parameters.imuParameters.useIMU) spdlog::warn("[X2Robot::getBackPackAngleOnMedianPlane()]: IMU is not being used!");
-
 #ifndef NOROBOT
     return backPackAngleOnMedianPlane_;
 #else
