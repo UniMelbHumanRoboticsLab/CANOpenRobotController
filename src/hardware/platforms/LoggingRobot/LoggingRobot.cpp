@@ -25,6 +25,10 @@ bool LoggingRobot::initialiseInputs() {
         inputs.push_back(crutchSensors[i]);
     }
 
+    motorPositions = Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1>::Zero(numJoints);
+    motorVelocities = Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1>::Zero(numJoints);
+
+
     return true;
 }
 
@@ -50,6 +54,24 @@ LoggingRobot::~LoggingRobot() {
 
     spdlog::debug("LoggingRobot deleted");
 }
+
+bool LoggingRobot::configureMasterPDOs() {
+
+    // Position/Velocity PDOs
+    for (int i = 0; i < numJoints; i++){
+        void *dataEntryMotor[2] = {(void *)&motorPositions(i), (void *)&motorVelocities(i)};
+        UNSIGNED16 dataSize[2] = {4,4};
+        UNSIGNED8 lengthData = 2;
+        rpdos.push_back(new RPDO(0x281+i, 0xff, dataEntryMotor, dataSize, lengthData));
+    }
+
+    return Robot::configureMasterPDOs();
+}
+
+Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1>& LoggingRobot::getMotorPositions() {
+    return motorPositions;
+}
+
 
 Eigen::VectorXd& LoggingRobot::getCrutchReadings() {
     updateCrutchReadings();

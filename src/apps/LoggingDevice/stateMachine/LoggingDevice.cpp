@@ -39,6 +39,7 @@ void LoggingDevice::init() {
     dataLogger.add(time, "time");
     dataLogger.add(robot->getCrutchReadings(), "CrutchReadings");
     dataLogger.add(robot->getForcePlateReadings(), "ForcePlateReadings");
+    dataLogger.add(robot->getMotorPositions(), "MotorPositions");
 
     dataLogger.startLogger();
 }

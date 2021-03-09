@@ -23,7 +23,7 @@
 
 class LoggingRobot : public Robot {
    private:
-
+    int numJoints = 4;
     // -- Variables assocaited with standalone sensors -- //
     std::vector<RobotousRFT *> crutchSensors;
     Eigen::VectorXd crutchReadings;  //6xN Vector containing all crutch readings
@@ -54,7 +54,7 @@ class LoggingRobot : public Robot {
     // Current Motion
     // Might need an additional about trajectory progress? (or could use target position)
     INTEGER16 state;
-    INTERGER16 currentMotion;
+    INTEGER16 currentMotion;
 
     bool sensorsOn = false;
 
@@ -76,7 +76,8 @@ class LoggingRobot : public Robot {
      */
     Eigen::VectorXd &getCrutchReadings();
     Eigen::VectorXi &getForcePlateReadings();
-    
+    Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1> &getMotorPositions();
+
     /**
      * @brief Takes the forces from the crutches and updates a local copy
      * 
@@ -91,6 +92,9 @@ class LoggingRobot : public Robot {
 
     bool startCrutchSensors();
     bool stopCrutchSensors();
+
+
+    bool configureMasterPDOs();
     };
 
 #endif /*LoggingRobot.h*/
