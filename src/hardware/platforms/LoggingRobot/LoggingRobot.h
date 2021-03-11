@@ -77,6 +77,13 @@ class LoggingRobot : public Robot {
     Eigen::VectorXd &getCrutchReadings();
     Eigen::VectorXi &getForcePlateReadings();
     Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1> &getMotorPositions();
+    Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1> &getMotorVelocities();
+    Eigen::Matrix<INTEGER16, Eigen::Dynamic, 1> &getMotorTorques();
+
+    INTEGER16& getGoButton();
+    INTEGER16&  getCurrentState();
+    INTEGER16&  getCurrentMovement();
+
 
     /**
      * @brief Takes the forces from the crutches and updates a local copy

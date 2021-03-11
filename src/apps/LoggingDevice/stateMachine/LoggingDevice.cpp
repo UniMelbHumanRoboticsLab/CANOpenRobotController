@@ -40,6 +40,11 @@ void LoggingDevice::init() {
     dataLogger.add(robot->getCrutchReadings(), "CrutchReadings");
     dataLogger.add(robot->getForcePlateReadings(), "ForcePlateReadings");
     dataLogger.add(robot->getMotorPositions(), "MotorPositions");
+    dataLogger.add(robot->getMotorVelocities(), "MotorVelocities");
+    dataLogger.add(robot->getMotorTorques(), "MotorTorques");
+    dataLogger.add(robot->getGoButton(), "GoButton");
+    dataLogger.add(robot->getCurrentState(), "CurrentState");
+    dataLogger.add(robot->getCurrentMovement(), "CurrentMovement");
 
     dataLogger.startLogger();
 }

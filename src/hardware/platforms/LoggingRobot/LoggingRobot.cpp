@@ -27,8 +27,13 @@ bool LoggingRobot::initialiseInputs() {
 
     motorPositions = Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1>::Zero(numJoints);
     motorVelocities = Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1>::Zero(numJoints);
+    motorTorques = Eigen::Matrix<INTEGER16, Eigen::Dynamic, 1>::Zero(numJoints);
+    motorStatusWords = Eigen::Matrix<INTEGER16, Eigen::Dynamic, 1>::Zero(numJoints);
+    goButton = -1;
+    nextMotion = -1;
 
-
+    state = -1;
+    currentMotion = -1;
     return true;
 }
 
@@ -61,15 +66,53 @@ bool LoggingRobot::configureMasterPDOs() {
     for (int i = 0; i < numJoints; i++){
         void *dataEntryMotor[2] = {(void *)&motorPositions(i), (void *)&motorVelocities(i)};
         UNSIGNED16 dataSize[2] = {4,4};
-        UNSIGNED8 lengthData = 2;
-        rpdos.push_back(new RPDO(0x281+i, 0xff, dataEntryMotor, dataSize, lengthData));
+        rpdos.push_back(new RPDO(0x281+i, 0xff, dataEntryMotor, dataSize, 2));
     }
+    // Motor Torque PDOs
+    for (int i = 0; i < numJoints; i++){
+        void *dataEntryMotor[1] = {(void *)&motorTorques(i)};
+        UNSIGNED16 dataSize[1] = {2};
+        rpdos.push_back(new RPDO(0x381+i, 0xff, dataEntryMotor, dataSize, 1));
+    }
+    // Motor Status words (NOT CURRENTLY USED)
+    // for (int i = 0; i < numJoints; i++){
+    //     void *dataEntryMotor[1] = {(void *)&motorStatusWords(i)};
+    //     UNSIGNED16 dataSize[1] = {2};
+    //     UNSIGNED8 lengthData = 1;
+    //     rpdos.push_back(new RPDO(0x481+i, 0xff, dataEntryMotor, dataSize, lengthData));
+    // }
+
+    // PDOs for Status Variables
+    void *tempDataEntryPointer[1] = {(void *)&goButton};
+    UNSIGNED16 dataSize[1] = {1};
+    rpdos.push_back(new RPDO(0x192, 0xff, tempDataEntryPointer, dataSize, 1));
+
+    tempDataEntryPointer[0] = {(void *)&state};
+    rpdos.push_back(new RPDO(0x211, 0xff, tempDataEntryPointer, dataSize, 1));
+
+    tempDataEntryPointer[0] = {(void *)&currentMotion};
+    rpdos.push_back(new RPDO(0x212, 0xff, tempDataEntryPointer, dataSize, 1));
 
     return Robot::configureMasterPDOs();
 }
 
 Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1>& LoggingRobot::getMotorPositions() {
     return motorPositions;
+}
+Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1>& LoggingRobot::getMotorVelocities() {
+    return motorVelocities;
+}
+Eigen::Matrix<INTEGER16, Eigen::Dynamic, 1>& LoggingRobot::getMotorTorques() {
+    return motorTorques;
+}
+INTEGER16& LoggingRobot::getGoButton() {
+    return goButton;
+}
+INTEGER16&  LoggingRobot::getCurrentState() {
+    return state;
+}
+INTEGER16&  LoggingRobot::getCurrentMovement() {
+    return currentMotion;
 }
 
 
