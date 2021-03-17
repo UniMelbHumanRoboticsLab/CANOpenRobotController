@@ -387,6 +387,11 @@ Eigen::VectorXd X2Robot::getBackpackQuaternions() {
 
 void X2Robot::updateBackpackAngleOnMedianPlane() {
 
+    if(!x2Parameters.imuParameters.useIMU){ // if IMU not used set backpack angle to zero
+        backPackAngleOnMedianPlane_ = 0.0;
+        return;
+    }
+
     Eigen::Quaterniond q;
     Eigen::MatrixXd quatEigen = getBackpackQuaternions();
     q.x() = quatEigen(0,0);
@@ -652,6 +657,7 @@ void X2Robot::updateRobot() {
     if(x2Parameters.imuParameters.useIMU){
         updateBackpackAngleOnMedianPlane();
     }
+    updateInteractionForce();
 #endif
 }
 
