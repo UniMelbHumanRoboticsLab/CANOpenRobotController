@@ -71,6 +71,8 @@ public:
     double cut_off;
     double tau_raw;
     double tau_filtered;
+    double q_raw;
+    double q_filtered;
 
 private:
     // dynamic reconfigure server and callback

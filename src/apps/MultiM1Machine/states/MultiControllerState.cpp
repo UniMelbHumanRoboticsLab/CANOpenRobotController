@@ -37,7 +37,7 @@ void MultiControllerState::entry(void) {
     integral_error = 0;
     tick_count = 0;
     controller_mode_ = -1;
-    cut_off = 10;
+    cut_off = 6;
 
 }
 void MultiControllerState::during(void) {
@@ -107,18 +107,21 @@ void MultiControllerState::during(void) {
         dq = robot_->getJointVel();
 
         // filter q
-        alpha_q = (2*M_PI*dt*cut_off)/(2*M_PI*dt*cut_off+1);
-        robot_->filter_q(alpha_q);
         q = robot_->getJointPos();
+        q_raw = q(0);
+        alpha_q = (2*M_PI*dt*cut_off)/(2*M_PI*dt*cut_off+1);
+        //robot_->filter_q(alpha_q);
+        q = robot_->getJointPos();
+        q_filtered = q(0);
 
 //         filter torque signal
         tau_s = robot_->getJointTor_s();
         tau_raw = tau_s(0);
         alpha_tau = (2*M_PI*dt*cut_off)/(2*M_PI*dt*cut_off+1);
-        robot_->filter_tau(alpha_tau);
+        //robot_->filter_tau(alpha_tau);
         tau_s = robot_->getJointTor_s();
         tau_filtered = tau_s(0);
-        std::cout << "Pre :" << tau_raw << "; Post :" << tau_filtered << std::endl;
+//        std::cout << "Pre :" << tau_raw << "; Post :" << tau_filtered << std::endl;
 
         // get interaction torque from virtual spring
         spring_tor = -multiM1MachineRos_->interactionTorqueCommand_(0);

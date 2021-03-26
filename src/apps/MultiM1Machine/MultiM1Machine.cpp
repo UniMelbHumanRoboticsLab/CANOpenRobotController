@@ -71,6 +71,9 @@ void MultiM1Machine::init(int argc, char *argv[]) {
     logHelper.add(multiControllerState_->tau_raw, "SensorTorques_raw");
     logHelper.add(multiControllerState_->tau_filtered, "SensorTorques_filtered");
 
+    logHelper.add(multiControllerState_->q_raw, "q_raw");
+    logHelper.add(multiControllerState_->q_filtered, "q_filtered");
+
     logHelper.add(multiControllerState_->spk_, "SpringStiffness");
     logHelper.add(multiControllerState_->spring_tor, "SpringTorque");
     logHelper.add(multiControllerState_->tau_cmd, "CommandTorque");      // motor_torque = command_torque + compensation_torque
@@ -86,7 +89,7 @@ void MultiM1Machine::end() {
     if(initialised) {
         currentState->exit();
         robot_->stop();
-//        logHelper.endLog();
+        logHelper.endLog();
         delete multiM1MachineRos_;
         delete robot_;
     }
@@ -100,7 +103,6 @@ void MultiM1Machine::end() {
 void MultiM1Machine::hwStateUpdate(void) {
     robot_->updateRobot();
     multiM1MachineRos_->update();
-//    logHelper.recordLogData();
     time_ = (std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now() - time0_).count()) / 1e6;
     ros::spinOnce();
