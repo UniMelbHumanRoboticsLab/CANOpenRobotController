@@ -321,7 +321,7 @@ setMovementReturnCode_t RobotM1::applyTorque(JointVec torques) {
             // Something bad happened
             if(setTorCode==R_OUTSIDE_LIMITS)
             {
-                std::cout << "Joint " << p->getId() << ": Torque Outside limit! " << std::endl;
+//                std::cout << "Joint " << p->getId() << ": Torque Outside limit! " << std::endl;
                 returnValue = UNKNOWN_ERROR;
             }
             else
