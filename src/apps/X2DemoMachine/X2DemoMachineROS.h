@@ -31,6 +31,7 @@ class X2DemoMachineROS {
     void publishInteractionForces(void);
     void initialize();
     void setNodeHandle(ros::NodeHandle& nodeHandle);
+    ros::NodeHandle& getNodeHandle();
 
     bool startExoTriggered_;
     Eigen::VectorXd interactionForceCommand_;

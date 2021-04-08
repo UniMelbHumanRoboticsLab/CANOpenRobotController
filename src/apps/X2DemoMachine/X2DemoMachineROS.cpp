@@ -42,18 +42,22 @@ void X2DemoMachineROS::publishJointStates() {
     Eigen::VectorXd jointTorques = robot_->getTorque();
 
     jointStateMsg_.header.stamp = ros::Time::now();
-    jointStateMsg_.name.resize(X2_NUM_JOINTS);
-    jointStateMsg_.position.resize(X2_NUM_JOINTS);
-    jointStateMsg_.velocity.resize(X2_NUM_JOINTS);
-    jointStateMsg_.effort.resize(X2_NUM_JOINTS);
+    jointStateMsg_.name.resize(X2_NUM_JOINTS + 1);
+    jointStateMsg_.position.resize(X2_NUM_JOINTS + 1);
+    jointStateMsg_.velocity.resize(X2_NUM_JOINTS + 1);
+    jointStateMsg_.effort.resize(X2_NUM_JOINTS + 1);
     jointStateMsg_.name[0] = "left_hip_joint";
     jointStateMsg_.name[1] = "left_knee_joint";
     jointStateMsg_.name[2] = "right_hip_joint";
     jointStateMsg_.name[3] = "right_knee_joint";
+    jointStateMsg_.name[4] = "world_to_backpack";
+
     jointStateMsg_.position[0] = jointPositions[0];
     jointStateMsg_.position[1] = jointPositions[1];
     jointStateMsg_.position[2] = jointPositions[2];
     jointStateMsg_.position[3] = jointPositions[3];
+    jointStateMsg_.position[4] = robot_->getBackPackAngleOnMedianPlane();
+
     jointStateMsg_.velocity[0] = jointVelocities[0];
     jointStateMsg_.velocity[1] = jointVelocities[1];
     jointStateMsg_.velocity[2] = jointVelocities[2];
@@ -93,6 +97,11 @@ void X2DemoMachineROS::publishInteractionForces() {
 
 void X2DemoMachineROS::setNodeHandle(ros::NodeHandle &nodeHandle) {
     nodeHandle_ = &nodeHandle;
+}
+
+ros::NodeHandle & X2DemoMachineROS::getNodeHandle() {
+
+    return *nodeHandle_;
 }
 
 bool X2DemoMachineROS::startExoServiceCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
