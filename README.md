@@ -187,6 +187,9 @@ See [here](doc/Simulation.md) for instructions on how to build and run a CORC ap
 ### Network communication
 See [here](doc/NetworkCommunication.md) for instructions on using libFLNL for communication.
 
+### CAN-USB adapters
+See [this page](doc/USBCANadapters.md) for notes on tested USB-CAN adapters.
+
 ## Developer Information
 
 - Detailed documentation: https://exoembedded.readthedocs.io/en/latest/
