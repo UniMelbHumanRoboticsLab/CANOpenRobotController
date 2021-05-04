@@ -110,7 +110,7 @@ void MultiControllerState::during(void) {
         q = robot_->getJointPos();
         q_raw = q(0);
         alpha_q = (2*M_PI*dt*cut_off)/(2*M_PI*dt*cut_off+1);
-        //robot_->filter_q(alpha_q);
+        robot_->filter_q(alpha_q);
         q = robot_->getJointPos();
         q_filtered = q(0);
 
@@ -118,7 +118,7 @@ void MultiControllerState::during(void) {
         tau_s = robot_->getJointTor_s();
         tau_raw = tau_s(0);
         alpha_tau = (2*M_PI*dt*cut_off)/(2*M_PI*dt*cut_off+1);
-        //robot_->filter_tau(alpha_tau);
+        robot_->filter_tau(alpha_tau);
         tau_s = robot_->getJointTor_s();
         tau_filtered = tau_s(0);
 //        std::cout << "Pre :" << tau_raw << "; Post :" << tau_filtered << std::endl;
@@ -145,9 +145,24 @@ void MultiControllerState::during(void) {
     }
     else if(controller_mode_ == 5){ // transperancy - torque mode
         tau = robot_->getJointTor();
-        tau_s = (robot_->getJointTor_s()+tau_s)/2.0;
-        q = robot_->getJointPos();
+        //tau_s = (robot_->getJointTor_s()+tau_s)/2.0;
         dq = robot_->getJointVel();
+
+        // filter q
+        q = robot_->getJointPos();
+        q_raw = q(0);
+        alpha_q = (2*M_PI*dt*cut_off)/(2*M_PI*dt*cut_off+1);
+        robot_->filter_q(alpha_q);
+        q = robot_->getJointPos();
+        q_filtered = q(0);
+
+//         filter torque signal
+        tau_s = robot_->getJointTor_s();
+        tau_raw = tau_s(0);
+        alpha_tau = (2*M_PI*dt*cut_off)/(2*M_PI*dt*cut_off+1);
+        robot_->filter_tau(alpha_tau);
+        tau_s = robot_->getJointTor_s();
+        tau_filtered = tau_s(0);
 
         // torque tracking with PD controller
         error = tau_s(0);  // interaction torque error, desired interaction torque is 0

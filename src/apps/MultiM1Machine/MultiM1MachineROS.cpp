@@ -32,7 +32,7 @@ void MultiM1MachineROS::publishJointStates() {
     Eigen::VectorXd jointVelocities = robot_->getVelocity();
     Eigen::VectorXd jointTorques = robot_->getTorque();
 
-    jointStateMsg_.header.stamp = ros::Time::now();
+    jointStateMsg_.header.stamp = ros::Time::now()-ros::Duration(5);
     jointStateMsg_.name.resize(M1_NUM_JOINTS);
     jointStateMsg_.position.resize(M1_NUM_JOINTS);
     jointStateMsg_.velocity.resize(M1_NUM_JOINTS);

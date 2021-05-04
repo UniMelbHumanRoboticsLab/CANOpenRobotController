@@ -52,8 +52,8 @@ static int rtControlPriority = 80;      /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
 //static int rt_control_thread_epoll_fd;  /*!< epoll file descriptor for control thread */
-const float controlLoopPeriodInms = 0.125; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 0.125; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 (or even 10) leads to unstable communication  */
+const float controlLoopPeriodInms = 2.5; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 1; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 8 (or even 10) leads to unstable communication  */
 //const float controlLoopPeriodInms = 3; /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
 //const float CANUpdateLoopPeriodInms = 3; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
 
@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
     spdlog::info("Starting CANopen device with Node ID {}", nodeId);
 
     //Set synch signal period (in us)
-    CO_OD_RAM.communicationCyclePeriod=CANUpdateLoopPeriodInms*1000;
+    CO_OD_RAM.communicationCyclePeriod=CANUpdateLoopPeriodInms*2000;
 
     while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/

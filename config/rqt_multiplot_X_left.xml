@@ -42,11 +42,11 @@
                                     <field>position/0</field>
                                     <field_type>0</field_type>
                                     <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
+                                        <absolute_maximum>1.2</absolute_maximum>
+                                        <absolute_minimum>0.2</absolute_minimum>
                                         <relative_maximum>0</relative_maximum>
                                         <relative_minimum>-1000</relative_minimum>
-                                        <type>0</type>
+                                        <type>1</type>
                                     </scale>
                                     <topic>/m1_x/joint_commands</topic>
                                     <type>sensor_msgs/JointState</type>
@@ -64,7 +64,7 @@
                             <style>
                                 <lines_interpolate>false</lines_interpolate>
                                 <pen_style>1</pen_style>
-                                <pen_width>3</pen_width>
+                                <pen_width>5</pen_width>
                                 <render_antialias>false</render_antialias>
                                 <steps_invert>false</steps_invert>
                                 <sticks_baseline>0</sticks_baseline>
@@ -93,11 +93,11 @@
                                     <field>position/0</field>
                                     <field_type>0</field_type>
                                     <scale>
-                                        <absolute_maximum>1000</absolute_maximum>
-                                        <absolute_minimum>0</absolute_minimum>
+                                        <absolute_maximum>1.2</absolute_maximum>
+                                        <absolute_minimum>0.2</absolute_minimum>
                                         <relative_maximum>0</relative_maximum>
                                         <relative_minimum>-1000</relative_minimum>
-                                        <type>0</type>
+                                        <type>1</type>
                                     </scale>
                                     <topic>/m1_x/joint_states</topic>
                                     <type>sensor_msgs/JointState</type>
@@ -109,13 +109,13 @@
                             </color>
                             <data>
                                 <circular_buffer_capacity>1000</circular_buffer_capacity>
-                                <time_frame_length>10</time_frame_length>
+                                <time_frame_length>0.1</time_frame_length>
                                 <type>0</type>
                             </data>
                             <style>
                                 <lines_interpolate>false</lines_interpolate>
                                 <pen_style>1</pen_style>
-                                <pen_width>3</pen_width>
+                                <pen_width>12</pen_width>
                                 <render_antialias>false</render_antialias>
                                 <steps_invert>false</steps_invert>
                                 <sticks_baseline>0</sticks_baseline>
