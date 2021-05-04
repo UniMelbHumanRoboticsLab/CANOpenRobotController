@@ -211,9 +211,19 @@ void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config,
         if(controller_mode_ == 3) robot_->initTorqueControl();
         if(controller_mode_ == 4) robot_->initTorqueControl();
         if(controller_mode_ == 5) robot_->initTorqueControl();
+
     }
 
     return;
+}
+
+bool MultiControllerState::sendInitTrigger(bool value) {
+
+    std::string message = value ? "1" : "0";
+
+    char *SDO_Message = (char *)(message.c_str());
+    char *returnMessage;
+    cancomm_socketFree(SDO_Message, &returnMessage);
 }
 
 

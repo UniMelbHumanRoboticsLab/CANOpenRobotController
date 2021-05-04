@@ -51,6 +51,7 @@ void MultiM1Machine::init(int argc, char *argv[]) {
 
     multiM1MachineRos_->initialize();
     time0_ = std::chrono::steady_clock::now();
+    multiControllerState_->sendInitTrigger(1);
 
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);

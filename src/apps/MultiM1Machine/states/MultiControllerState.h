@@ -37,6 +37,13 @@ public:
 
     int cali_stage;
     int cali_velocity;
+    /**
+     * Send SDO message for sending initialization trigger
+     *
+     */
+    bool sendInitTrigger(bool value);
+
+
     // FOR TRANSPERANCY EXPERIMENTS
 
     double kp_;
