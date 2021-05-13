@@ -212,18 +212,31 @@ void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config,
         if(controller_mode_ == 4) robot_->initTorqueControl();
         if(controller_mode_ == 5) robot_->initTorqueControl();
 
+        if(controller_mode_ == 4) sendInitTrigger(1);
+        else sendInitTrigger(0);
     }
 
     return;
 }
 
-bool MultiControllerState::sendInitTrigger(bool value) {
+bool MultiControllerState::sendInitTrigger(int value) {
 
-    std::string message = value ? "1" : "0";
+    std::chrono::steady_clock::time_point time0;
+    time0 = std::chrono::steady_clock::now();
 
-    char *SDO_Message = (char *)(message.c_str());
+    std::string valueStr = value ? "1" : "0";
+
+    std::stringstream sstream;
+    // set mode of operation
+    sstream << "[1] " << 1 << " write 0x2010 14 i16 " << valueStr;
+
+    std::string strCOmmand = sstream.str();
+
+    char *SDO_Message = (char *)(strCOmmand.c_str());
     char *returnMessage;
     cancomm_socketFree(SDO_Message, &returnMessage);
+    double timeInMs = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
+    std::cout<<returnMessage<<"--It took "<<timeInMs<< "ms"<< std::endl;
 }
 
 

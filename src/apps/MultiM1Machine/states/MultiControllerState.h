@@ -41,7 +41,7 @@ public:
      * Send SDO message for sending initialization trigger
      *
      */
-    bool sendInitTrigger(bool value);
+    bool sendInitTrigger(int value);
 
 
     // FOR TRANSPERANCY EXPERIMENTS
