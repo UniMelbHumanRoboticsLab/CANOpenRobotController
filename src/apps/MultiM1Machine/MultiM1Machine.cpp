@@ -83,6 +83,10 @@ void MultiM1Machine::init(int argc, char *argv[]) {
     logHelper.add(multiM1MachineRos_->jointTorqueCommand_, "MM1_DesiredJointTorques");
     logHelper.add(multiM1MachineRos_->jointPositionCommand_, "MM1_DesiredJointPositions");
     logHelper.add(multiM1MachineRos_->interactionTorqueCommand_, "MM1_DesiredInteractionTorques");
+
+    logHelper.add(multiControllerState_->SDOTriggerTime_, "SDOTriggerTime");
+    logHelper.add(multiControllerState_->triggerValue_, "TriggerValue");
+
     logHelper.startLogger();
 }
 

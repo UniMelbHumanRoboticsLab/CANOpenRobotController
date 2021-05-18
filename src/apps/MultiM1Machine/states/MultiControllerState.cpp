@@ -212,8 +212,11 @@ void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config,
         if(controller_mode_ == 4) robot_->initTorqueControl();
         if(controller_mode_ == 5) robot_->initTorqueControl();
 
-        if(controller_mode_ == 4) sendInitTrigger(1);
-        else sendInitTrigger(0);
+
+        if(controller_mode_ == 4) triggerValue_ = 1;
+        else triggerValue_ = 0;
+
+        sendInitTrigger(triggerValue_);
     }
 
     return;
@@ -235,8 +238,8 @@ bool MultiControllerState::sendInitTrigger(int value) {
     char *SDO_Message = (char *)(strCOmmand.c_str());
     char *returnMessage;
     cancomm_socketFree(SDO_Message, &returnMessage);
-    double timeInMs = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
-    std::cout<<returnMessage<<"--It took "<<timeInMs<< "ms"<< std::endl;
+    SDOTriggerTime_ = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
+    std::cout<<returnMessage<<"--It took "<<SDOTriggerTime_<< "ms"<< std::endl;
 }
 
 

@@ -81,6 +81,9 @@ public:
     double q_raw;
     double q_filtered;
 
+    double SDOTriggerTime_;
+    int triggerValue_;
+
 private:
     // dynamic reconfigure server and callback
     dynamic_reconfigure::Server<CORC::dynamic_paramsConfig> server_;
