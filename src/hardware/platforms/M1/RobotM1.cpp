@@ -444,6 +444,7 @@ setMovementReturnCode_t RobotM1::setJointTor_comp(JointVec tor, JointVec tor_s, 
     double tor_ff = 0;
     double vel = 0;
     vel = dq(0);
+
     if(abs(vel)<0.1)
     {
 //         tor_ff = f_s*sign(tor_s(0)) + f_d*dq(0)+inertia_c*sin(q(0));
