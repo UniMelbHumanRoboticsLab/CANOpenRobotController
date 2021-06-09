@@ -18,7 +18,7 @@ bool CopleyDrive::init() {
 }
 
 bool CopleyDrive::initPosControl(motorProfile posControlMotorProfile) {
-    spdlog::debug("NodeID {} Initialising Position Control", NodeID);
+    spdlog::debug("Node     ID {} Initialising Position Control", NodeID);
 
     sendSDOMessages(generatePosControlConfigSDO(posControlMotorProfile));
     /**

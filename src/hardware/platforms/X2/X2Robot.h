@@ -19,15 +19,24 @@
 #include <chrono>
 #include <map>
 #include <thread>
+#include <csignal>
 
 #include "CopleyDrive.h"
 #include "Keyboard.h"
 #include "Robot.h"
-#include "X2ForceSensor.h"
+#include "FourierForceSensor.h"
 #include "X2Joint.h"
+#include "TechnaidIMU.h"
 
 // Logger
 #include "spdlog/helper/LogHelper.h"
+// yaml-parser
+#include <fstream>
+#include "yaml-cpp/yaml.h"
+
+// These are used to access the MACRO: BASE_DIRECTORY
+#define XSTR(x) STR(x)
+#define STR(x) #x
 
 #ifdef SIM
 #include "controller_manager_msgs/SwitchController.h"
@@ -42,6 +51,9 @@
 
 #define X2_NUM_JOINTS 4
 #define X2_NUM_FORCE_SENSORS 4
+
+// robot name is used to access the properties of the correct robot version
+#define X2_NAME_DEFAULT X2_MELB_A
 
 // Macros
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
@@ -58,6 +70,19 @@ struct ExoJointLimits {
     double kneeMin;
 };
 
+struct RobotParameters {
+    Eigen::VectorXd m; // masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
+    Eigen::VectorXd l; // length of left thigh, left shank, right thigh, right shank [kg]
+    Eigen::VectorXd s; // length from previous joint to CoM [m]
+    Eigen::VectorXd I; // mass moment of inertia of left thigh, left shank+foot, right thigh, right shank+foot [kg.m^2]
+    Eigen::VectorXd c0; // viscous fric constant of joints [N.s]
+    Eigen::VectorXd c1; // coulomb friction const of joints [N.m]
+    Eigen::VectorXd c2; // friction const related to sqrt of vel
+    Eigen::VectorXd cuffWeights; // cuff Weights [N]
+    Eigen::VectorXd forceSensorScaleFactor; // scale factor of force sensors [N/sensor output]
+    IMUParameters imuParameters;
+};
+
 /**
  * \brief Example implementation of the Robot class, representing an X2 Exoskeleton.
  *
@@ -71,8 +96,40 @@ class X2Robot : public Robot {
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
     motorProfile velControlMotorProfile{0, 240000, 240000};
 
+    RobotParameters x2Parameters;
+
     //Todo: generalise sensors
     Eigen::VectorXd interactionForces_;
+    Eigen::VectorXd backpackAccelerations_; // x y z
+    Eigen::VectorXd backpackQuaternions_; // x y z w
+    Eigen::MatrixXd contactAccelerations_; // rows are x y z, columns are different contact points
+    Eigen::MatrixXd contactQuaternions_; // rows are x y z, w columns are different contact points
+    double backPackAngleOnMedianPlane_; // backpack angle wrt gravity vector. leaning front is positive [rad]
+
+
+    std::string robotName_;
+    int numberOfIMUs_;
+
+    bool initializeRobotParams(std::string robotName);
+
+    static void signalHandler(int signum);
+
+    /**
+    * \brief Get backpack quaternion
+    *
+    * \return Eigen::VectorXd qx, qy, qz, qw
+    */
+    Eigen::VectorXd getBackpackQuaternions();
+
+    /**
+    * \brief updates the angle of back pack with respect to - gravity vector on median plane. leaning front is positive
+    */
+    void updateBackpackAngleOnMedianPlane();
+
+    /**
+    * \brief updates the interaction force measurements
+    */
+    void updateInteractionForce();
 
 #ifdef SIM
     ros::NodeHandle* nodeHandle_;
@@ -94,6 +151,8 @@ class X2Robot : public Robot {
     Eigen::VectorXd simJointPositions_;
     Eigen::VectorXd simJointVelocities_;
     Eigen::VectorXd simJointTorques_;
+    Eigen::VectorXd simInteractionForces_;
+    double simBackPackAngleOnMedianPlane_;
 #endif
 
    public:
@@ -102,17 +161,28 @@ class X2Robot : public Robot {
       * Initialize memory for the Exoskelton <code>Joint</code> + sensors.
       * Load in exoskeleton paramaters to  <code>TrajectoryGenerator.</code>.
       */
-    X2Robot();
+
+#ifdef SIM
+    X2Robot(ros::NodeHandle &nodeHandle, std::string robotName = XSTR(X2_NAME_DEFAULT));
+#else
+    X2Robot(std::string robotName = XSTR(X2_NAME_DEFAULT));
+#endif
     ~X2Robot();
     Keyboard* keyboard;
     std::vector<Drive*> motorDrives;
-    std::vector<X2ForceSensor*> forceSensors;
+    std::vector<FourierForceSensor*> forceSensors;
+    TechnaidIMU* technaidIMUs;
 
     // /**
     //  * \brief Timer Variables for moving through trajectories
     //  *
     //  */
     struct timeval tv, tv_diff, moving_tv, tv_changed, stationary_tv, start_traj, last_tv;
+
+    /**
+       * \brief Clears (or attempts to clear) errors on the motor drives.
+       */
+   void resetErrors();
 
     /**
        * \brief Initialises all joints to position control mode.
@@ -200,6 +270,13 @@ class X2Robot : public Robot {
     Eigen::VectorXd& getInteractionForce();
 
     /**
+    * \brief Get the backpack angle on median plane with respect to - gravity axes
+    *
+    * \return double& reference to backpack angle
+    */
+    double& getBackPackAngleOnMedianPlane();
+
+    /**
     * \brief Calibrate force sensors
     *
     * \return bool success of calibration
@@ -216,14 +293,16 @@ class X2Robot : public Robot {
     * \param maxTime maximum time to complete the homing [s]
     * \return bool success of homing
     */
-    bool homing(std::vector<int> homingDirection = std::vector<int>(X2_NUM_JOINTS, 1), float thresholdTorque = 45.0,
+    bool homing(std::vector<int> homingDirection = std::vector<int>(X2_NUM_JOINTS, 1), float thresholdTorque = 50.0,
                 float delayTime = 0.2, float homingSpeed = 5 * M_PI / 180.0, float maxTime = 30.0);
 
+
     /**
-   * Determine if the currently generated trajectory is complete.
-   * \return bool
-   */
-    bool isTrajFinished();
+    * \brief Set the backpack IMU Mode
+    *
+    */
+    bool setBackpackIMUMode(IMUOutputMode imuOutputMode);
+
 
     /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
@@ -232,12 +311,12 @@ class X2Robot : public Robot {
        */
     bool initialiseJoints();
 
-    /**
+   /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
        * Initialize each <code>Drive</code> Objects underlying CANOpen Networking.
 
       */
-    bool initialiseNetwork();
+        bool initialiseNetwork();
     /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
        * Initialize each <code>Input</code> Object.
@@ -254,6 +333,38 @@ class X2Robot : public Robot {
        */
     void updateRobot();
 
+
+    /**
+       * \brief Changes the mode of
+       *
+       * \return true if successful
+       * \return false if not (joints/drive not enabled or in correct mode)
+       */
+    bool setPosControlContinuousProfile(bool continuous);
+    /**
+       * \brief returns the feedforward torque to compensate for the gravitational and frictional elements
+       *
+       * \param motionIntend intended direction of the motion. Used to calculate the static friction
+       */
+    Eigen::VectorXd getFeedForwardTorque(int motionIntend);
+
+    /**
+       * \brief sets the Robot name. This name is used to choose the proper set of parameters
+       *
+       * \param std::string robotName name of the robot
+       */
+    void setRobotName(std::string robotName);
+
+    /**
+       * \brief get the robot name
+       */
+    std::string& getRobotName();
+
+    /**
+       * \brief returns the parameters of the robot
+       */
+    RobotParameters& getRobotParameters();
+
 #ifdef SIM
     /**
        * \brief method to pass the nodeHandle. Only available in SIM mode
@@ -262,7 +373,7 @@ class X2Robot : public Robot {
     /**
        * \brief Initialize ROS services, publisher ans subscribers
       */
-    void initialiseROS();
+    void initialiseROS(ros::NodeHandle &nodeHandle);
 #endif
 };
 #endif /*EXOROBOT_H*/

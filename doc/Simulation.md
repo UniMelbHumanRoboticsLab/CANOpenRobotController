@@ -53,9 +53,9 @@ $ catkin build
 Clone CORC and the required packages into your workspace:
 ```bash
 $ cd ~/catkin_ws/src
-$ git clone github.com/UniMelbHumanRoboticsLab/CANOpenRobotController.git
-$ git clone github.com/emekBaris/x2_description.git
-$ git clone github.com/emekBaris/cob_gazebo_plugins.git
+$ git clone https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController.git
+$ git clone https://github.com/emekBaris/x2_description.git
+$ git clone https://github.com/emekBaris/cob_gazebo_plugins.git
 ```
 
 Make sure `USE_ROS` flag is set to `ON` in CMakeLists.txt:
@@ -69,6 +69,11 @@ If you would like to do a simulation:
 
 Set your state machine that uses ROS (e.g., X2DemoMachine):
 ```set (STATE_MACHINE_NAME "X2DemoMachine")```
+
+Select your robot model in the launch file `launch\x2_sim.launch` to match a model defined in `config\x2_params.xml`, for example:
+```<arg name="robot_name" default="X2_SRA_A"/>```
+
+
 
 Build CORC:
 ```bash

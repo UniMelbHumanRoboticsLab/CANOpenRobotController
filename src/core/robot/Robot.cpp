@@ -11,8 +11,12 @@
  */
 #include "Robot.h"
 
+short int sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
+
 Robot::Robot(){
     spdlog::debug("Robot object created");
+    //initialiseJoints();
+    //initialiseInputs();
 }
 
 Robot::~Robot() {
@@ -20,12 +24,8 @@ Robot::~Robot() {
 }
 
 bool Robot::initialise() {
-    if (initialiseJoints()) {
-        if (initialiseNetwork()) {
-            if (initialiseInputs()) {
-                return true;
-            }
-        }
+    if (initialiseNetwork()) {
+            return true;
     }
     return false;
 }
@@ -40,20 +40,22 @@ bool Robot::disable() {
 }
 
 void Robot::updateRobot() {
+
     //Retrieve latest values from hardware
     for (auto joint : joints)
         joint->updateValue();
-    for (auto input : inputs)
+    for (auto input : inputs ){
         input->updateInput();
+    }
 
     //Update local copies of joint values
-    if(jointPositions_.size()!=joints.size()) {
+    if((unsigned int)jointPositions_.size()!=joints.size()) {
         jointPositions_ = Eigen::VectorXd::Zero(joints.size());
     }
-    if(jointVelocities_.size()!=joints.size()) {
+    if((unsigned int)jointVelocities_.size()!=joints.size()) {
         jointVelocities_ = Eigen::VectorXd::Zero(joints.size());
     }
-    if(jointTorques_.size()!=joints.size()) {
+    if((unsigned int)jointTorques_.size()!=joints.size()) {
         jointTorques_ = Eigen::VectorXd::Zero(joints.size());
     }
     unsigned int i = 0;
@@ -67,7 +69,7 @@ void Robot::updateRobot() {
 
 Eigen::VectorXd& Robot::getPosition() {
     //Initialise vector if not already done
-    if(jointPositions_.size()!=joints.size()) {
+    if((unsigned int)jointPositions_.size()!=joints.size()) {
         jointPositions_ = Eigen::VectorXd::Zero(joints.size());
     }
 
@@ -82,7 +84,7 @@ Eigen::VectorXd& Robot::getPosition() {
 
 Eigen::VectorXd& Robot::getVelocity() {
     //Initialise vector if not already done
-    if(jointVelocities_.size()!=joints.size()) {
+    if((unsigned int)jointVelocities_.size()!=joints.size()) {
         jointVelocities_ = Eigen::VectorXd::Zero(joints.size());
     }
 
@@ -97,7 +99,7 @@ Eigen::VectorXd& Robot::getVelocity() {
 
 Eigen::VectorXd& Robot::getTorque() {
     //Initialise vector if not already done
-    if(jointTorques_.size()!=joints.size()) {
+    if((unsigned int)jointTorques_.size()!=joints.size()) {
         jointTorques_ = Eigen::VectorXd::Zero(joints.size());
     }
 
@@ -119,4 +121,14 @@ void Robot::printStatus() {
 
 void Robot::printJointStatus(int J_i) {
     joints[J_i]->printStatus();
+}
+
+bool Robot::configureMasterPDOs() {
+    for (auto j : joints) {
+        j->configureMasterPDOs();
+    }
+    for (auto i : inputs) {
+        i->configureMasterPDOs();
+    }
+    return true;
 }

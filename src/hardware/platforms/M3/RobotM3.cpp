@@ -2,8 +2,6 @@
 
 using namespace Eigen;
 
-short int sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
-
 RobotM3::RobotM3() : Robot(),
                      endEffTool(&M3Handle),
                      calibrated(false),
@@ -89,6 +87,16 @@ void RobotM3::applyCalibration() {
 
 void RobotM3::updateRobot() {
     Robot::updateRobot();
+
+    //Update copies of end-effector values
+    endEffPositions = directKinematic(getPosition());
+    Matrix3d _J = J();
+    endEffVelocities = _J * getVelocity();
+    Matrix3d _Jtinv = (_J.transpose()).inverse();
+    endEffForces = _Jtinv * getTorque();
+    //Todo: improve by including friction compensation (dedicated calculation function...)
+    interactionForces = endEffForces - _Jtinv * calculateGravityTorques();
+
     if (safetyCheck() != SUCCESS) {
         disable();
     }
@@ -369,6 +377,28 @@ VM3 RobotM3::getEndEffVelocity() {
 VM3 RobotM3::getEndEffForce() {
     return (J().transpose()).inverse() * getTorque();
 }
+
+Eigen::VectorXd& RobotM3::getEndEffPositionRef() {
+    //Update values
+    endEffPositions = directKinematic(getPosition());
+    return endEffPositions;
+}
+Eigen::VectorXd& RobotM3::getEndEffVelocityRef() {
+    //Update values
+    endEffVelocities = J() * getVelocity();
+    return endEffVelocities;
+}
+Eigen::VectorXd& RobotM3::getEndEffForceRef() {
+    //Update values
+    endEffForces = (J().transpose()).inverse() * getTorque();
+    return endEffForces;
+}
+Eigen::VectorXd& RobotM3::getInteractionForceRef() {
+    //Update values
+    interactionForces = (J().transpose()).inverse() * (getTorque() - calculateGravityTorques());
+    return interactionForces;
+}
+
 
 setMovementReturnCode_t RobotM3::setJointPosition(VM3 q) {
     std::vector<double> pos{q(0), q(1), q(2)};

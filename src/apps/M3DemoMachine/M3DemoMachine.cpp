@@ -16,10 +16,7 @@ M3DemoMachine::M3DemoMachine() {
     timingState = new M3SamplingEstimationState(this, robot);
 
     endCalib = new EndCalib(this);
-    goToState1 = new GoToState1(this);
-    goToState2 = new GoToState2(this);
-    goToState3 = new GoToState3(this);
-    goToState4 = new GoToState4(this);
+    goToNextState = new GoToNextState(this);
 
 
     /**
@@ -29,19 +26,20 @@ M3DemoMachine::M3DemoMachine() {
      *
      */
      NewTransition(calibState, endCalib, standbyState);
-     NewTransition(standbyState, goToState2, pathState);
-     NewTransition(pathState, goToState2, minJerkState);
-     NewTransition(minJerkState, goToState2, timingState);
-     NewTransition(timingState, goToState2, endEffDemoState);
-     NewTransition(endEffDemoState, goToState2, impedanceState);
-     NewTransition(impedanceState, goToState2, pathState);
+     NewTransition(standbyState, goToNextState, minJerkState);
+     NewTransition(minJerkState, goToNextState, endEffDemoState);
+     NewTransition(endEffDemoState, goToNextState, impedanceState);
+     NewTransition(impedanceState, goToNextState, pathState);
+     NewTransition(pathState, goToNextState, timingState);
+     NewTransition(timingState, goToNextState, standbyState);
+
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(calibState);
     //StateMachine::initialize(testState);
 }
 M3DemoMachine::~M3DemoMachine() {
-    delete testState;
+    delete UIserver;
     delete robot;
 }
 
@@ -60,6 +58,7 @@ void M3DemoMachine::init() {
         logHelper.add(robot->getVelocity(), "JointVelocities");
         logHelper.add(robot->getTorque(), "JointTorques");
         logHelper.startLogger();
+        UIserver = new FLNLHelper(robot, "192.168.7.2");
     }
     else {
         initialised = false;
@@ -75,9 +74,9 @@ void M3DemoMachine::end() {
     if(initialised) {
         if(logHelper.isStarted())
             logHelper.endLog();
+        UIserver->closeConnection();
         currentState->exit();
         robot->disable();
-
     }
 }
 
@@ -94,6 +93,7 @@ void M3DemoMachine::hwStateUpdate(void) {
     time_running = (std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now() - time_init).count()) / 1e6;
     robot->updateRobot();
+    UIserver->sendState();
 }
 
 
@@ -103,16 +103,29 @@ bool M3DemoMachine::EndCalib::check() {
 }
 
 
-bool M3DemoMachine::GoToState1::check() {
-    return (OWNER->robot->joystick->isButtonPressed(0) || OWNER->robot->keyboard->getNb()==0);
-}
-bool M3DemoMachine::GoToState2::check() {
-    return (OWNER->robot->joystick->isButtonPressed(1) || OWNER->robot->keyboard->getNb()==1);
-}
-bool M3DemoMachine::GoToState3::check() {
-    return (OWNER->robot->joystick->isButtonPressed(2) || OWNER->robot->keyboard->getNb()==2);
-}
-bool M3DemoMachine::GoToState4::check() {
-    return (OWNER->robot->joystick->isButtonPressed(3) || OWNER->robot->keyboard->getNb()==3);
+bool M3DemoMachine::GoToNextState::check() {
+    //keyboard or joystick press
+    if ( (OWNER->robot->joystick->isButtonPressed(1) || OWNER->robot->keyboard->getNb()==1) )
+        return true;
+
+    //Check incoming command requesting state change
+    if ( OWNER->UIserver->isCmd() ) {
+        string cmd;
+        vector<double> v;
+        OWNER->UIserver->getCmd(cmd, v);
+        if (cmd == "GTNS") { //Go To Next State command received
+            //Acknowledge
+            OWNER->UIserver->sendCmd(string("OK"));
+
+            return true;
+        }
+    }
+
+    //Otherwise false
+    return false;
 }
 
+bool M3DemoMachine::configureMasterPDOs() {
+    spdlog::debug("M3DemoMachine::configureMasterPDOs()");
+    return robot->configureMasterPDOs();
+}

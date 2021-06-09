@@ -33,31 +33,83 @@ JointDrivePairs kneeJDP{
  * Defines the Joint Limits of the X2 Exoskeleton
  *
  */
-ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-30), deg2rad(120), deg2rad(0)};
+ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-40), deg2rad(120), deg2rad(0)};
 
-X2Robot::X2Robot() : Robot() {
+static volatile sig_atomic_t exitHoming = 0;
+
+#ifdef SIM
+X2Robot::X2Robot(ros::NodeHandle &nodeHandle, std::string robotName):
+#else
+X2Robot::X2Robot(std::string robotName):
+#endif
+        robotName_(robotName){
+
+    spdlog::debug("{} Created", robotName_);
+
 #ifdef NOROBOT
     simJointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    simInteractionForces_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    simBackPackAngleOnMedianPlane_ = 0;
+#endif
+
+    // Initializing the parameters to zero
+    x2Parameters.m = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.l = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.s = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.I = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.c0 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.c1 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.c2 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    x2Parameters.cuffWeights = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    x2Parameters.forceSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    interactionForces_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    backpackAccelerations_ = Eigen::VectorXd::Zero(3);
+    backpackQuaternions_ = Eigen::VectorXd::Zero(4);
+    backPackAngleOnMedianPlane_ = 0;
+
+    initializeRobotParams(robotName_);
+
+    spdlog::debug("initialiseJoints call");
+    initialiseJoints();
+    initialiseInputs();
+#ifdef SIM
+    initialiseROS(nodeHandle);
 #endif
 }
 
 X2Robot::~X2Robot() {
+    if(x2Parameters.imuParameters.useIMU) technaidIMUs->exit();
     freeMemory();
     spdlog::debug("X2Robot deleted");
 }
+
+void X2Robot::signalHandler(int signum) {
+    exitHoming = 1;
+    std::raise(SIGTERM); //Clean exit
+}
+
 #ifdef SIM
-void X2Robot::initialiseROS() {
-    controllerSwitchClient_ = nodeHandle_->serviceClient<controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
+void X2Robot::initialiseROS(ros::NodeHandle &nodeHandle) {
+    controllerSwitchClient_ = nodeHandle.serviceClient<controller_manager_msgs::SwitchController>("controller_manager/switch_controller");
 
-    positionCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("position_controller/command", 10);
-    velocityCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("velocity_controller/command", 10);
-    torqueCommandPublisher_ = nodeHandle_->advertise<std_msgs::Float64MultiArray>("torque_controller/command", 10);
+    positionCommandPublisher_ = nodeHandle.advertise<std_msgs::Float64MultiArray>("position_controller/command", 10);
+    velocityCommandPublisher_ = nodeHandle.advertise<std_msgs::Float64MultiArray>("velocity_controller/command", 10);
+    torqueCommandPublisher_ = nodeHandle.advertise<std_msgs::Float64MultiArray>("torque_controller/command", 10);
 
-    jointStateSubscriber_ = nodeHandle_->subscribe("joint_states", 1, &X2Robot::jointStateCallback, this);
+    jointStateSubscriber_ = nodeHandle.subscribe("joint_states", 1, &X2Robot::jointStateCallback, this);
 }
 #endif
+
+void X2Robot::resetErrors() {
+    spdlog::debug("Clearing errors on all motor drives ");
+    for (auto p : joints) {
+        // Put into ReadyToSwitchOn()
+        p->resetErrors();
+    }
+}
+
 bool X2Robot::initPositionControl() {
     spdlog::debug("Initialising Position Control on all joints ");
     bool returnValue = true;
@@ -109,7 +161,7 @@ bool X2Robot::initVelocityControl() {
     }
 
     // Pause for a bit to let commands go
-    usleep(2000);
+    usleep(10000);
     for (auto p : joints) {
         p->enable();
     }
@@ -173,6 +225,7 @@ setMovementReturnCode_t X2Robot::setPosition(Eigen::VectorXd positions) {
     int i = 0;
     setMovementReturnCode_t returnValue = SUCCESS;
     for (auto p : joints) {
+        spdlog::debug("Joint {}, Target {}, Current {}", i, positions[i], ((X2Joint *)p)->getPosition());
         setMovementReturnCode_t setPosCode = ((X2Joint *)p)->setPosition(positions[i]);
         if (setPosCode == INCORRECT_MODE) {
             spdlog::error("Joint {} is not in Position Control ", p->getId());
@@ -286,17 +339,20 @@ Eigen::VectorXd &X2Robot::getTorque() {
 }
 
 Eigen::VectorXd &X2Robot::getInteractionForce() {
-    //TODO: generalise sensors
-    //Initialise vector if not already done
-    if (interactionForces_.size() != forceSensors.size()) {
-        interactionForces_ = Eigen::VectorXd::Zero(forceSensors.size());
-    }
-
-    //Update values
-    for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
-        interactionForces_[i] = forceSensors[i]->getForce();
-    }
+#ifndef NOROBOT
     return interactionForces_;
+#else
+    return simInteractionForces_; // TODO: add force sensor to simulation
+#endif
+
+}
+
+double & X2Robot::getBackPackAngleOnMedianPlane() {
+#ifndef NOROBOT
+    return backPackAngleOnMedianPlane_;
+#else
+    return simBackPackAngleOnMedianPlane_; // TODO: add IMU to simulation
+#endif
 }
 
 bool X2Robot::calibrateForceSensors() {
@@ -315,16 +371,68 @@ bool X2Robot::calibrateForceSensors() {
     }
 }
 
+Eigen::VectorXd X2Robot::getBackpackQuaternions() {
+
+    for(int imuIndex = 0; imuIndex<numberOfIMUs_; imuIndex++){
+        if(x2Parameters.imuParameters.location[imuIndex] == 'b'){
+            if(technaidIMUs->getOutputMode_(imuIndex).name != "quat"){
+                spdlog::warn("Backpack IMU mode is not quaternion for imu no: . Returns 0", imuIndex);
+                backpackQuaternions_ = Eigen::VectorXd::Zero(4);
+            }
+            backpackQuaternions_ = technaidIMUs->getQuaternion().col(imuIndex);
+        }
+    }
+    return backpackQuaternions_;
+}
+
+void X2Robot::updateBackpackAngleOnMedianPlane() {
+
+    if(!x2Parameters.imuParameters.useIMU){ // if IMU not used set backpack angle to zero
+        backPackAngleOnMedianPlane_ = 0.0;
+        return;
+    }
+
+    Eigen::Quaterniond q;
+    Eigen::MatrixXd quatEigen = getBackpackQuaternions();
+    q.x() = quatEigen(0,0);
+    q.y() = quatEigen(1,0);
+    q.z() = quatEigen(2,0);
+    q.w() = quatEigen(3,0);
+
+    Eigen::Matrix3d R = q.toRotationMatrix();
+    double thetaBase = -std::atan2(-R(2,2), -R(2,0));
+
+    backPackAngleOnMedianPlane_ = thetaBase;
+
+}
+
+void X2Robot::updateInteractionForce() {
+
+    Eigen::VectorXd cuffCompensation = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    cuffCompensation[0] = x2Parameters.cuffWeights[0] * sin(getBackPackAngleOnMedianPlane() - getPosition()[0]);
+    cuffCompensation[1] = x2Parameters.cuffWeights[1] * sin(getBackPackAngleOnMedianPlane() - getPosition()[1] + getPosition()[0]);
+    cuffCompensation[2] = x2Parameters.cuffWeights[2] * sin(getBackPackAngleOnMedianPlane() - getPosition()[2]);
+    cuffCompensation[3] = x2Parameters.cuffWeights[3] * sin(getBackPackAngleOnMedianPlane() - getPosition()[3] + getPosition()[2]);
+
+    //Update values
+    for (int i = 0; i < X2_NUM_FORCE_SENSORS; i++) {
+        interactionForces_[i] = forceSensors[i]->getForce() + cuffCompensation[i];
+    }
+
+}
+
 bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, float delayTime,
                      float homingSpeed, float maxTime) {
     std::vector<bool> success(X2_NUM_JOINTS, false);
     std::chrono::steady_clock::time_point time0;
-    this->initVelocityControl();
+    signal(SIGINT, signalHandler); // check if ctrl + c is pressed
 
     for (int i = 0; i < X2_NUM_JOINTS; i++) {
         if (homingDirection[i] == 0) continue;  // skip the joint if it is not asked to do homing
 
-        Eigen::VectorXd desiredVelocity(X2_NUM_JOINTS);
+        this->initVelocityControl();
+        Eigen::VectorXd desiredVelocity;
+        desiredVelocity = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
         std::chrono::steady_clock::time_point firstTimeHighTorque;  // time at the first time joint exceed thresholdTorque
         bool highTorqueReached = false;
 
@@ -334,17 +442,23 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
         spdlog::debug("Homing Joint {} ...", i);
 
         while (success[i] == false &&
+                exitHoming == 0 &&
                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count() < maxTime * 1000) {
             this->updateRobot();  // because this function has its own loops, updateRobot needs to be called
             this->setVelocity(desiredVelocity);
+            usleep(10000);
+
             if (std::abs(this->getTorque()[i]) >= thresholdTorque) {  // if high torque is reached
                 highTorqueReached = true;
                 firstTimeHighTorque = std::chrono::steady_clock::now();
                 while (std::chrono::duration_cast<std::chrono::milliseconds>  // high torque should be measured for delayTime
-                       (std::chrono::steady_clock::now() - firstTimeHighTorque)
-                           .count() < delayTime * 1000) {
+                       (std::chrono::steady_clock::now() - firstTimeHighTorque).count() < delayTime * 1000 &&
+                        exitHoming == 0) {
                     this->updateRobot();
+                    usleep(10000);
+
                     if (std::abs(this->getTorque()[i]) < thresholdTorque) {  // if torque value reach below thresholdTorque, goes back
+                        spdlog::debug("Torque drop", this->getTorque()[i]);
                         highTorqueReached = false;
                         break;
                     }
@@ -354,7 +468,8 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
         }
 
         if (success[i]) {
-            spdlog::debug("Homing Succeeded for Joint {} .", i);
+            spdlog::info("Homing Succeeded for Joint {} .", i);
+            usleep(10000);
             if (i == X2_LEFT_HIP || i == X2_RIGHT_HIP) {  // if it is a hip joint
 
                 // zeroing is done depending on the limits on the homing direction
@@ -370,6 +485,9 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
                 else
                     ((X2Joint *)this->joints[i])->setPositionOffset(X2JointLimits.kneeMin);
             }
+            // fell joint down from the limit
+            initTorqueControl();
+            sleep(2);
 
         } else {
             spdlog::error("Homing Failed for Joint {} .", i);
@@ -380,7 +498,18 @@ bool X2Robot::homing(std::vector<int> homingDirection, float thresholdTorque, fl
         if (homingDirection[i] == 0) continue;  // skip the joint if it is not asked to do homing
         if (success[i] == false) return false;
     }
-    return true;  // will come here if all hoints successfully homed
+    return true;  // will come here if all joints successfully homed
+}
+
+bool X2Robot::setBackpackIMUMode(IMUOutputMode imuOutputMode) {
+
+    for(int i = 0; i<numberOfIMUs_; i++){
+        if(x2Parameters.imuParameters.location[i] == 'b'){
+            if(!technaidIMUs->setOutputMode(i, imuOutputMode)){
+                return false;
+            } else return true;
+        }
+    }
 }
 
 bool X2Robot::initialiseJoints() {
@@ -392,10 +521,12 @@ bool X2Robot::initialiseJoints() {
         } else if (id == X2_LEFT_KNEE || id == X2_RIGHT_KNEE) {
             joints.push_back(new X2Joint(id, X2JointLimits.kneeMin, X2JointLimits.kneeMax, kneeJDP, motorDrives[id]));
         }
+        spdlog::debug("X2Robot::initialiseJoints() loop");
     }
 
     return true;
 }
+
 
 bool X2Robot::initialiseNetwork() {
     spdlog::debug("X2Robot::initialiseNetwork()");
@@ -407,18 +538,102 @@ bool X2Robot::initialiseNetwork() {
             return false;
     }
 
-#ifdef SIM
-    initialiseROS();
-#endif
-
     return true;
 }
 bool X2Robot::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
 
     for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
-        forceSensors.push_back(new X2ForceSensor(id));
+        forceSensors.push_back(new FourierForceSensor(id + 17, x2Parameters.forceSensorScaleFactor[id]));
         inputs.push_back(forceSensors[id]);
+    }
+
+    if(x2Parameters.imuParameters.useIMU){
+        technaidIMUs = new TechnaidIMU(x2Parameters.imuParameters);
+//        inputs.push_back(technaidIMUs); // commented because techIMU class starts its own thread for data update
+        technaidIMUs->initialize();
+    }
+
+    return true;
+}
+
+bool X2Robot::initializeRobotParams(std::string robotName) {
+
+    // need to use address of base directory because when run with ROS, working directory is ~/.ros
+    std::string baseDirectory = XSTR(BASE_DIRECTORY);
+    std::string relativeFilePath = "/config/x2_params.yaml";
+
+    YAML::Node params = YAML::LoadFile(baseDirectory + relativeFilePath);
+
+    // if the robotName does not match with the name in x2_params.yaml
+    if(!params[robotName]){
+        spdlog::error("Parameters of {} couldn't be found in {} !", robotName, baseDirectory + relativeFilePath);
+        spdlog::error("All parameters are zero !");
+
+        return false;
+    }
+
+    if(params[robotName]["m"].size() != X2_NUM_JOINTS || params[robotName]["l"].size() != X2_NUM_JOINTS ||
+       params[robotName]["s"].size() != X2_NUM_JOINTS || params[robotName]["I"].size() != X2_NUM_JOINTS ||
+       params[robotName]["c0"].size() != X2_NUM_JOINTS || params[robotName]["c1"].size() != X2_NUM_JOINTS ||
+       params[robotName]["c2"].size() != X2_NUM_JOINTS || params[robotName]["cuff_weights"].size() != X2_NUM_FORCE_SENSORS ||
+       params[robotName]["force_sensor_scale_factor"].size() != X2_NUM_FORCE_SENSORS){
+
+        spdlog::error("Parameter sizes are not consistent");
+        spdlog::error("All parameters are zero !");
+
+        return false;
+    }
+
+    // getting the parameters from the yaml file
+    for(int i = 0; i<X2_NUM_JOINTS; i++){
+        x2Parameters.m[i] = params[robotName]["m"][i].as<double>();
+        x2Parameters.l[i] = params[robotName]["l"][i].as<double>();
+        x2Parameters.s[i] = params[robotName]["s"][i].as<double>();
+        x2Parameters.I[i] = params[robotName]["I"][i].as<double>();
+        x2Parameters.c0[i] = params[robotName]["c0"][i].as<double>();
+        x2Parameters.c1[i] = params[robotName]["c1"][i].as<double>();
+        x2Parameters.c2[i] = params[robotName]["c2"][i].as<double>();
+    }
+    for(int i = 0; i<X2_NUM_FORCE_SENSORS; i++) {
+        x2Parameters.cuffWeights[i] = params[robotName]["cuff_weights"][i].as<double>();
+        x2Parameters.forceSensorScaleFactor[i] = params[robotName]["force_sensor_scale_factor"][i].as<double>();
+    }
+
+    if(!params[robotName]["technaid_imu"]){
+        spdlog::warn("IMU parameters couldn't be found!");
+        x2Parameters.imuParameters.useIMU = false;
+    } else{ // there is imu params
+        if(params[robotName]["technaid_imu"]["network_id"].size() != params[robotName]["technaid_imu"]["serial_no"].size()||
+           params[robotName]["technaid_imu"]["location"].size() != params[robotName]["technaid_imu"]["serial_no"].size()){
+            spdlog::error("IMU parameter sizes are not consistent!");
+            x2Parameters.imuParameters.useIMU = false;
+        }else{ // imu parameters have consistent size
+
+            numberOfIMUs_ = params[robotName]["technaid_imu"]["serial_no"].size();
+            int numberOfContactIMUs = 0;
+            int numberOfBackpackIMUs = 0;
+
+            for(int i = 0; i<numberOfIMUs_; i++) {
+                x2Parameters.imuParameters.serialNo.push_back(params[robotName]["technaid_imu"]["serial_no"][i].as<int>());
+                x2Parameters.imuParameters.networkId.push_back(params[robotName]["technaid_imu"]["network_id"][i].as<int>());
+                x2Parameters.imuParameters.location.push_back(params[robotName]["technaid_imu"]["location"][i].as<char>());
+                if(x2Parameters.imuParameters.location[i] == 'c') numberOfContactIMUs++;
+                else if(x2Parameters.imuParameters.location[i] == 'b') numberOfBackpackIMUs++;
+            }
+
+            if(numberOfContactIMUs == 0 || numberOfBackpackIMUs != 1){
+                spdlog::error("IMU locations are not proper");
+                x2Parameters.imuParameters.useIMU = false;
+            } else{
+                spdlog::info("IMU parameters are succefully parsed");
+                x2Parameters.imuParameters.useIMU = true;
+                x2Parameters.imuParameters.canChannel = params[robotName]["technaid_imu"]["can_channel"].as<std::string>();
+
+                contactAccelerations_ = Eigen::MatrixXd::Zero(3, numberOfContactIMUs);
+                contactQuaternions_ = Eigen::MatrixXd::Zero(4, numberOfContactIMUs);
+            }
+        }
     }
 
     return true;
@@ -440,7 +655,55 @@ void X2Robot::freeMemory() {
 }
 void X2Robot::updateRobot() {
     //TODO: generalise sensors update
+#ifndef SIM
     Robot::updateRobot();
+    if(x2Parameters.imuParameters.useIMU){
+        updateBackpackAngleOnMedianPlane();
+    }
+    updateInteractionForce();
+#endif
+}
+
+bool X2Robot::setPosControlContinuousProfile(bool continuous){
+    bool returnValue = true;
+    for (auto p : joints) {
+        if(!(p->setPosControlContinuousProfile(continuous))){
+            returnValue = false;
+        }
+    }
+    return returnValue;
+}
+
+Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
+    float coulombFriction;
+    const float velTreshold = 1*M_PI/180.0; // [rad/s]
+
+    // todo generalized 4 Dof Approach
+    if(abs(jointVelocities_[1]) > velTreshold){ // if in motion
+        coulombFriction = x2Parameters.c1[1]*jointVelocities_[1]/abs(jointVelocities_[1]) +
+        + x2Parameters.c2[1]*sqrt(abs(jointVelocities_[1]))*jointVelocities_[1]/abs(jointVelocities_[1]);
+    }else { // if static
+        coulombFriction = x2Parameters.c1[1]*motionIntend/abs(motionIntend);
+    }
+
+    Eigen::VectorXd ffTorque = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    ffTorque[1] = x2Parameters.m[1]*x2Parameters.s[1]*9.81*sin(jointPositions_[1] - jointPositions_[0]) + coulombFriction + x2Parameters.c0[1]*jointVelocities_[1];
+
+    return ffTorque;
+
+}
+
+void X2Robot::setRobotName(std::string robotName) {
+    robotName_ = robotName;
+}
+
+std::string & X2Robot::getRobotName() {
+    return robotName_;
+}
+
+RobotParameters& X2Robot::getRobotParameters() {
+    return x2Parameters;
+
 }
 
 #ifdef SIM

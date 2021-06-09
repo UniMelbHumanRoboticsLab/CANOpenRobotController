@@ -4,8 +4,8 @@ using namespace Eigen;
 
 RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce(60) {
     // Conversion factors between degrees and radians
-    d2r = M_PIf64 / 180.;
-    r2d = 180. / M_PIf64;
+    d2r = M_PI / 180.;
+    r2d = 180. / M_PI;
 
     //Define the robot structure: each joint with limits and drive - TMH
     // JOINT 0 - the only joint in the case of M1
@@ -24,15 +24,14 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
     q_pre(0) = 0;
     tau_s_pre(0) = 0;
 
+    // Set up the motor profile
     posControlMotorProfile.profileVelocity = 600.*512*10000/1875;
     posControlMotorProfile.profileAcceleration = 500.*65535*10000/4000000;
     posControlMotorProfile.profileDeceleration = 500.*65535*10000/4000000;
 
-    joints.push_back(new JointM1(0, -100, 100, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0), new KincoDrive(1), "q1"));
+    initialiseJoints();
+    initialiseInputs();
 
-    inputs.push_back(keyboard = new Keyboard());
-    inputs.push_back(joystick = new Joystick());
-    inputs.push_back(m1ForceSensor = new M1ForceSensor(1));
     mode = 0;
 
     status = R_SUCCESS;
@@ -48,16 +47,15 @@ RobotM1::~RobotM1() {
     joints.clear();
     inputs.clear();
     delete keyboard;
-    delete joystick;
     spdlog::debug("RobotM1 deleted");
 }
 
 bool RobotM1::initialiseJoints() {
+    joints.push_back(new JointM1(0, -100, 100, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0), new KincoDrive(1), "q1"));
     return true;
 }
-bool RobotM1::initialiseNetwork() {
-//    std::cout << "RobotM1::initialiseNetwork()" << std::endl;
 
+bool RobotM1::initialiseNetwork() {
     bool status;
     for (auto joint : joints) {
         status = joint->initNetwork();
@@ -66,24 +64,18 @@ bool RobotM1::initialiseNetwork() {
     }
     //Give time to drives PDO initialisation
     //TODO: Parameterize the number of PDOs for situations like the one below
-    spdlog::debug("...");
-    for (uint i = 0; i < 5; i++) {
-        spdlog::debug(".");
-        usleep(10000);
-    }
-//    std::cout << "RobotM1::initialiseNetwork() end" << std::endl;
+    // spdlog::debug("...");
+    // for (uint i = 0; i < 5; i++) {
+    //     spdlog::debug(".");
+    //     usleep(10000);
+    // }
 
     return true;
 }
 
 bool RobotM1::initialiseInputs() {
-    /*nothing to do*/
-//    inputs.push_back(&keyboard);
-//
-//    for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
-//        forceSensors.push_back(new X2ForceSensor(id));
-//        inputs.push_back(forceSensors[id]);
-//    }
+    inputs.push_back(keyboard = new Keyboard());
+    inputs.push_back(m1ForceSensor = new M1ForceSensor(2));
     return true;
 }
 
@@ -112,14 +104,6 @@ bool RobotM1::calibrateForceSensors() {
     }
 }
 
-//Eigen::VectorXd X2Robot::getInteractionForce() {
-//    Eigen::VectorXd actualInteractionForces(X2_NUM_FORCE_SENSORS);
-//    for (int i = 0; i< X2_NUM_FORCE_SENSORS; i++) {
-//        actualInteractionForces[i] = forceSensors[i]->getForce();
-//    }
-//    return actualInteractionForces;
-//}
-
 void RobotM1::updateRobot() {
 //    std::cout << "RobotM1::updateRobot()" << std::endl;
     Robot::updateRobot();   // Trigger RT data update at the joint level
@@ -129,9 +113,8 @@ void RobotM1::updateRobot() {
     // sending it in real-time to conserve bandwidth. It would also be good to break
     // down the status word into a vector of booleans and have descriptive indices to
     // be able to clearly access the bits in a meaningful and readable way. -TMH
-//    std::cout << "RobotM1::updateRobot" << std::endl; //YW debug
+
     for(uint i = 0; i < nJoints; i++) {
-//        std::cout << "update values" << std::endl;  //YW debug
         q(i) = ((JointM1 *)joints[i])->getPosition();
         dq(i) = ((JointM1 *)joints[i])->getVelocity();
         tau(i) = ((JointM1 *)joints[i])->getTorque();
@@ -142,13 +125,10 @@ void RobotM1::updateRobot() {
         double theta_bias = 0.1604;
         tau_s(i) =  tau_s(i) - inertia_s*sin(q(i)+theta_bias) - inertia_c*cos(q(i)+theta_bias);
     }
-//    std::cout << "safety check" << std::endl; // YW debug
     if (safetyCheck() != SUCCESS) {
         status = R_OUTSIDE_LIMITS;
         stop();
     }
-//    std::cout << "RobotM1::updateRobot() end" << std::endl;
-//    std::cout << "safety check done" << std::endl; // YW debug
 }
 
 setMovementReturnCode_t RobotM1::safetyCheck() {
@@ -192,7 +172,7 @@ bool RobotM1::initMonitoring() {
             returnValue = false;
         }
         // Put into ReadyToSwitchOn()
-        ((JointM1 *)p)->readyToSwitchOn();
+//        ((JointM1 *)p)->readyToSwitchOn();
     }
 
     // Pause for a bit to let commands go
@@ -218,10 +198,10 @@ bool RobotM1::initPositionControl() {
     }
 
     // Pause for a bit to let commands go
-//    usleep(2000);
-//    for (auto p : joints) {
-//        ((JointM1 *)p)->enable();
-//    }
+   usleep(2000);
+   for (auto p : joints) {
+       ((JointM1 *)p)->enable();
+   }
     mode = 1;
     return returnValue;
 }
@@ -238,7 +218,6 @@ bool RobotM1::initVelocityControl() {
         // Put into ReadyToSwitchOn()
         ((JointM1 *)p)->readyToSwitchOn();
     }
-
     // Pause for a bit to let commands go
     usleep(2000);
     for (auto p : joints) {
@@ -300,7 +279,7 @@ setMovementReturnCode_t RobotM1::applyVelocity(JointVec velocities) {
             returnValue = INCORRECT_MODE;
         } else if (setVelCode != SUCCESS) {
             // Something bad happened
-            std::cout << "Joint " << p->getId() << ": velocity error " << std::endl;
+            std::cout << "Joint " << p->getId() << " velocity : " << std::endl;
             ((JointM1 *)p)->errorMessage(setVelCode);
             returnValue = UNKNOWN_ERROR;
         }
@@ -319,16 +298,8 @@ setMovementReturnCode_t RobotM1::applyTorque(JointVec torques) {
             returnValue = INCORRECT_MODE;
         } else if (setTorCode != SUCCESS) {
             // Something bad happened
-            if(setTorCode==R_OUTSIDE_LIMITS)
-            {
-//                std::cout << "Joint " << p->getId() << ": Torque Outside limit! " << std::endl;
-                returnValue = UNKNOWN_ERROR;
-            }
-            else
-            {
-                std::cout << "Joint " << p->getId() << ": Torque Unknown Error :) " << std::endl;
-                returnValue = UNKNOWN_ERROR;
-            }
+            std::cout << "Joint " << p->getId() << ": Unknown Error " << std::endl;
+            returnValue = UNKNOWN_ERROR;
         }
         i++;
     }
@@ -361,7 +332,7 @@ JacMtx RobotM1::J() {
 
     return J;
 }
-//*
+
 JointVec RobotM1::calculateGravityTorques() {
     JointVec tau_g;
 
@@ -468,95 +439,3 @@ setMovementReturnCode_t RobotM1::setJointTor_comp(JointVec tor, JointVec tor_s, 
 }
 
 short RobotM1::sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
-
-/*
-EndEffVec RobotM1::getEndEffPos() {
-    //return directKinematic(getJointPos());
-    EndEffVec s;
-    return s;
-}
-
-EndEffVec RobotM1::getEndEffVel() {
-    // return J() * getJointVel();
-    EndEffVec s;
-    return s;
-
-}
-
-EndEffVec RobotM1::getEndEffFor() {
-    //return (J().transpose()).inverse() * getJointTor();
-    EndEffVec s;
-    return s;
-
-}
-
-setMovementReturnCode_t RobotM1::setEndEffPos(EndEffVec X_d) {
-    if (!calibrated) {
-        return NOT_CALIBRATED;
-    }
-
-    //TODO: add a limit check
-    if (false) {
-        return OUTSIDE_LIMITS;
-    }
-
-    Vector3d q_d = inverseKinematic(X_d);
-    if (std::isnan(q_d[0]) || std::isnan(q_d[1]) || std::isnan(q_d[2])) {
-        return OUTSIDE_LIMITS;
-    } else {
-        return setJointPos(q_d);
-    }
-}
-
-setMovementReturnCode_t RobotM1::setEndEffVel(EndEffVec dX_d) {
-    if (!calibrated) {
-        return NOT_CALIBRATED;
-    }
-
-    //TODO: add a limit check
-    if (false) {
-        return OUTSIDE_LIMITS;
-    }
-
-    JointVec dq_d = J().inverse() * dX_d;
-    return setJointVel(dq_d);
-}
-
-setMovementReturnCode_t RobotM1::setEndEffFor(EndEffVec F_d) {
-    if (!calibrated) {
-        return NOT_CALIBRATED;
-    }
-
-    //TODO: add a limit check
-    if (false) {
-        return OUTSIDE_LIMITS;
-    }
-
-    JointVec tau_d = J().transpose() * F_d;
-    return setJointTor(tau_d);
-}
-
-setMovementReturnCode_t RobotM1::setEndEffForWithCompensation(EndEffVec F_d) {
-    if (!calibrated) {
-        return NOT_CALIBRATED;
-    }
-
-    //TODO: add a limit check
-    if (false) {
-        return OUTSIDE_LIMITS;
-    }
-    JointVec tau_g = calculateGravityTorques();  //Gravity compensation torque
-    JointVec tau_f;                              //Friction compensation torque
-    //TODO: how are these values determined? Do they need to be tuned for each device? Joint?
-    double alpha = 0.5, beta = 0.03, threshold = 0.000000;
-    for (uint i = 0; i < nJoints; i++) {
-        //double dq = ((JointM1 *)joints[i])->getVelocity();
-	double dq_t = dq(i);
-        if (abs(dq_t) > threshold) {
-            tau_f(i) = alpha * sign(dq_t) + beta * dq_t;
-        }
-    }
-
-    JointVec tau_d = J().transpose() * F_d + tau_g + tau_f;
-    return setJointTor(tau_d);
-}//*/

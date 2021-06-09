@@ -25,7 +25,8 @@
 #include <vector>
 
 #include "logging.h"
-
+#include "RPDO.h"
+#include "TPDO.h"
 /**
  * Map of standard SDOs return error codes
  */
@@ -119,26 +120,56 @@ class Drive {
     int NodeID;
 
     /**
+     * \brief Lists of PDOs
+     * 
+     */
+    std::vector<RPDO *> rpdos;
+    std::vector<TPDO *> tpdos;
+    
+    /**
         * \brief Generates the list of commands required to configure TPDOs on the drives
         *
         * \param items A list of OD_Entry_t items which are to be configured with this TPDO
         * \param PDO_Num The number/index of this PDO
+        * \param COB_ID the COB-ID of the PDO 
         * \param SyncRate The rate at which this PDO transmits (e.g. number of Sync Messages. 0xFF represents internal trigger event)
         * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int SyncRate, int sub_idx = 0);
+    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int COB_ID, int SyncRate, int sub_idx = 0);
+
+    /**
+        * \brief Creates a RPDO in the Local Object Dictionary for the equivalent TPDO on the drive
+        *
+        * \param items A list of OD_Entry_t items which are to be configured with this RPDO
+        * \param COB_ID the COB-ID of the PDO 
+        * \param RPDOSyncRate The rate at which the RPDO processes NOTE: This is not the same as for the equivalent TPDO
+        */
+    void generateEquivalentMasterRPDO(std::vector<OD_Entry_t> items,  int COB_ID, int RPDOSyncRate);
+
+
 
     /**
         * \brief Generates the list of commands required to configure RPDOs on the drives
         *
         * \param items A list of OD_Entry_t items which are to be configured with this RPDO
         * \param PDO_Num The number/index of this PDO
+        * \param COB_ID the COB-ID of the PDO 
         * \param UpdateTiming 0-240 represents hold until next sync message, 0xFF represents immediate update
         * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int UpdateTiming, int sub_idx = 0);
+    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int COB_ID,int UpdateTiming, int sub_idx = 0);
+
+    /**
+        * \brief Creates a TPDO in the Local Object Dictionary for the equivalent RPDO on the drive
+        *
+        * \param items A list of OD_Entry_t items which are to be configured with this TPDO
+        * \param COB_ID the COB-ID of the PDO 
+        * \param RPDOSyncRate The rate at which the TPDO sends messages NOTE: This is not the same as for the equivalent RPDO
+        */
+    void generateEquivalentMasterTPDO(std::vector<OD_Entry_t> items, int COB_ID, int TPDOSyncRate);
+
 
     /**
        *
@@ -206,21 +237,62 @@ class Drive {
               */
     int sendSDOMessages(std::vector<std::string> messages);
 
+
     /**
-     * \brief Map between the Commonly-used OD entries and their data lengths - used to generate PDO Configurations
-     *        NOTE: These are written in hexadecimal. They can be altered in derived classes if required.
+     * \brief Map between the TPDO Number and their Mapped Objects 
      *
      */
-    std::map<OD_Entry_t, int> OD_Data_Size = {
-        {STATUS_WORD, 0x0010},
-        {ERROR_WORD, 0x0010},
-        {ACTUAL_POS, 0x0020},
-        {ACTUAL_VEL, 0x0020},
-        {ACTUAL_TOR, 0x0010},
-        {CONTROL_WORD, 0x0010},
-        {TARGET_POS, 0x0020},
-        {TARGET_VEL, 0x0020},
-        {TARGET_TOR, 0x0010}};
+    std::map<UNSIGNED8, std::vector<OD_Entry_t>> TPDO_MappedObjects = {
+        {1, {STATUS_WORD}},
+        {2, {ACTUAL_POS, ACTUAL_VEL}},
+        {3, {ACTUAL_TOR}}};
+
+        /**
+     * \brief Map between the RPDO Number and their Mapped Objects 
+     *
+     */
+    std::map<UNSIGNED8, std::vector<OD_Entry_t>> RPDO_MappedObjects = {
+        {1, {CONTROL_WORD}},
+        {2, {TARGET_POS}},
+        {3, {TARGET_VEL}},
+        {4, {TARGET_TOR}}};
+
+    /**
+     * \brief Map between the RPDO Number and their base COB-ID (actualy is base COB-ID + Node_ID) 
+     *
+     * NOTE: This is an arbitrary default mapping unique to CORC. This can be changed in derived classes
+     */
+    std::map<UNSIGNED8, UNSIGNED32> TPDO_COBID = {
+        {1, 0x180},
+        {2, 0x280},
+        {3, 0x380}};
+
+    /**
+     * \brief Map between the RPDO Number and their base COB-ID (actualy is base COB-ID + Node_ID) 
+     *
+     * NOTE: This is an arbitrary default mapping unique to CORC. This can be changed in derived classes
+     */
+    std::map<UNSIGNED8, UNSIGNED32> RPDO_COBID = {
+        {1, 0x200},
+        {2, 0x300},
+        {3, 0x400},
+        {4, 0x500}};
+
+    /**
+     * \brief Map between the Commonly-used OD entries and their data lengths - used to generate PDO Configurations
+     *        NOTE: These are in bytes. The PDO configurations requires this to be in bits, so a conversion is required.
+     *
+     */
+    std::map<OD_Entry_t, int> OD_DataSize = {
+        {STATUS_WORD, 2},
+        {ERROR_WORD, 2},
+        {ACTUAL_POS, 4},
+        {ACTUAL_VEL, 4},
+        {ACTUAL_TOR, 2},
+        {CONTROL_WORD, 2},
+        {TARGET_POS, 4},
+        {TARGET_VEL, 4},
+        {TARGET_TOR, 2}};
 
     /**
      * \brief Map between the Commonly-used OD entries and their addresses - used to generate PDO Configurations
@@ -238,13 +310,31 @@ class Drive {
         {TARGET_VEL, 0x60FF},
         {TARGET_TOR, 0x6071}};
 
+    std::map<OD_Entry_t, void *> OD_MappedObjectAddresses = {
+        {STATUS_WORD, (void *)&statusWord},
+        {ERROR_WORD, (void *)&errorWord},
+        {ACTUAL_POS, (void *)&actualPos},
+        {ACTUAL_VEL, (void *)&actualVel},
+        {ACTUAL_TOR, (void *)&actualTor},
+        {CONTROL_WORD, (void *)&controlWord},
+        {TARGET_POS, (void *)&targetPos},
+        {TARGET_VEL, (void *)&targetVel},
+        {TARGET_TOR, (void *)&targetTor}};
+
    private:
     /**
         * \brief Current status word of the drive
         *
         */
-    int statusWord;
-
+    UNSIGNED16 statusWord =0;
+    UNSIGNED16 errorWord=0;
+    INTEGER32 actualPos=0;
+    INTEGER32 actualVel=0;
+    INTEGER16 actualTor=0;
+    UNSIGNED16 controlWord=0;
+    INTEGER32 targetPos=0;
+    INTEGER32 targetVel=0;
+    INTEGER16 targetTor=0;
     /**
      * \brief Current error state of the drive
      *
@@ -327,13 +417,15 @@ class Drive {
            */
     virtual bool initPDOs();
 
+    bool configureMasterPDOs();
+
     /**
            * \brief Initialises velocity and acceleration profiles (used by position and velocity controls) through SDOs write
            *
            * \return true if sucessfull
            * \return false otherwise
            */
-    virtual bool setMotorProfile(motorProfile profile);
+        virtual bool setMotorProfile(motorProfile profile);
 
     /**
            * Sets the drive to Position control with set parameters (through SDO messages)
@@ -423,6 +515,17 @@ class Drive {
 
     // Drive State Modifiers
     /**
+           * \brief Clears errors (and changes the state of the drive to "disabled".
+           *
+           * This is equivalent to setting bits 7 Control Word (0x6064) to 1.
+           * See also the CANopen Programmer's Manual (from Copley Controls)
+           *
+           * \return true if operation successful
+           * \return false if operation unsuccessful
+           */
+    virtual DriveState resetErrors();
+
+    /**
            * \brief Changes the state of the drive to "ready to switch on".
            *
            * This is equivalent to setting bits 2 and 3 of Control Word (0x6064) to 1.
@@ -462,6 +565,15 @@ class Drive {
         * \return false The control word was previously 1 (i.e. unsuccessful set point confirm)
         */
     virtual bool posControlConfirmSP();
+
+    /**
+        * \brief Sets the continous/not continous profile bit
+        *
+        * \param continuous if this is true, continous movement is enabled, otherwise it is disabled
+        * \return true If change is successful 
+        * \return false If drive was not in position control mode
+        */
+    virtual bool posControlSetContinuousProfile(bool continuous);
 
     /**
         * \brief Get the current state of the drive

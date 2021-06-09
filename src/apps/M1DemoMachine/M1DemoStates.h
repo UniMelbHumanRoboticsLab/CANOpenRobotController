@@ -18,7 +18,7 @@
 #include "RobotM1.h"
 #include "State.h"
 
-#include "server.h"
+#include "FLNLHelper.h"
 #include <csignal> //For raise()
 #include "spdlog/helper/LogHelper.h"
 #include "logging.h"
@@ -161,6 +161,7 @@ public:
     JointVec dq;
     JointVec tau;
     double cal_velocity;
+    double stages;
 };
 
 class M1DemoState : public M1TimedState {
@@ -202,7 +203,10 @@ public:
     JointVec q;     //positive dorsi flexion
     JointVec dq;
     JointVec tau;
+    JointVec tau_s;
+    JointVec tau_cmd;
 
+    double cfreq;
     double Ks;
     double dt;
     double B;
@@ -210,16 +214,18 @@ public:
     double net_tau;
     double gain;
     double acc;
-
+    double torque_error_last_time_step = 0;
 
     EndEffVec Xi;
     bool flag = true;
     double freq;
     double counter;
     bool status = true;
-    int mode = 1;
+    int mode = 1;   // 1 for position control; 2 for velocity control; 3 for torque control; 4 for admittance control
+    int sub_mode = 1;
     int cycle = 0;
     bool dir = true;
+    double sflag = 0;
     double magnitude = 20;
     double step;
 
