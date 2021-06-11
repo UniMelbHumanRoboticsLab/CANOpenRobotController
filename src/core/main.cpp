@@ -212,7 +212,6 @@ int main(int argc, char *argv[]) {
         /* Execute optional additional application code */
         app_communicationReset(argc, argv);
 
-
         /* initialize CANopen with CAN interface and nodeID */
         if (CO_init(CANdevice0Index, nodeId, 0) != CO_ERROR_NO) {
             char s[120];

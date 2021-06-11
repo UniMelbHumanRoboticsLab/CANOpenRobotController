@@ -100,6 +100,11 @@ void MultiM1Machine::end() {
     }
 }
 
+bool MultiM1Machine::configureMasterPDOs() {
+    spdlog::debug("M1DemoMachine::configureMasterPDOs()");
+    return robot_->configureMasterPDOs();
+}
+
 /**
  * \brief Statemachine to hardware interface method. Run any hardware update methods
  * that need to run every program loop update cycle.

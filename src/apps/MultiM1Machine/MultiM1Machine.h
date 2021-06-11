@@ -46,6 +46,8 @@ class MultiM1Machine : public StateMachine {
     void init(int argc, char *argv[]);
     void end();
 
+    bool configureMasterPDOs();
+
     void hwStateUpdate();
 
     /**

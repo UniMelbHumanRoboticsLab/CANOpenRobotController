@@ -124,8 +124,8 @@ if(USE_ROS)
 		endif()
 
 		generate_dynamic_reconfigure_options(
-				config/x2_dynamic_params.cfg
 				config/m1_dynamic_params.cfg
+#				config/x2_dynamic_params.cfg
 		)
 
 
