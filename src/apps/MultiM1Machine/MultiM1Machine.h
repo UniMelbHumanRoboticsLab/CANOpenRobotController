@@ -41,9 +41,11 @@ class MultiM1Machine : public StateMachine {
      *  \todo Pilot Parameters would be set in constructor here
      *
      */
-    MultiM1Machine();
+//    MultiM1Machine();
+    MultiM1Machine(int argc, char *argv[]);
     ~MultiM1Machine();
-    void init(int argc, char *argv[]);
+//    void init(int argc, char *argv[]);
+    void init();
     void end();
 
     bool configureMasterPDOs();
@@ -61,6 +63,7 @@ class MultiM1Machine : public StateMachine {
     MultiM1MachineROS *multiM1MachineRos_; /*<!Pointer to the ROS Class*/
 
    private:
+    std::string robotName_; // robot name(obtained from node name)
     std::chrono::steady_clock::time_point time0_; // initial time that machine started
     double time_; // time passed after tim0 in [s]
 };

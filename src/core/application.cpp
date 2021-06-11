@@ -32,9 +32,9 @@ char ret[STRING_BUFFER_SIZE];
 /******************** RUNS BEFORE CO_init() ********************/
 void app_communicationReset(int argc, char *argv[]) {
 #ifdef USEROS
-//    stateMachine = new STATE_MACHINE_TYPE(argc, argv);
-    stateMachine = new STATE_MACHINE_TYPE();
-    stateMachine->init(argc, argv);
+    stateMachine = new STATE_MACHINE_TYPE(argc, argv);
+//    stateMachine = new STATE_MACHINE_TYPE();
+//    stateMachine->init(argc, argv);
 #else
     stateMachine = new STATE_MACHINE_TYPE();
 #endif
@@ -49,14 +49,14 @@ void app_programStart(int argc, char *argv[]) {
     spdlog::info("Running in NOROBOT (virtual) mode.");
 #endif  // NOROBOT
 
-#ifndef USEROS
-    spdlog::info("stateMachine.init();");
-    stateMachine->init();
-#else
-    stateMachine->init(argc, argv);
-#endif
-
+//#ifndef USEROS
+//    spdlog::info("stateMachine.init();");
+//    stateMachine->init();
+//#else
+//    stateMachine->init(argc, argv);
+//#endif
     spdlog::info(" stateMachine.activate()");
+    stateMachine->init();
     stateMachine->activate();
 }
 

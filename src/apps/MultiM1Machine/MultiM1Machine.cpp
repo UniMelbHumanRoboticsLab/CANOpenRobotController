@@ -2,8 +2,15 @@
 
 #define OWNER ((MultiM1Machine *)owner)
 
-MultiM1Machine::MultiM1Machine() {
+MultiM1Machine::MultiM1Machine(int argc, char *argv[]){
     spdlog::debug("MultiM1Machine::constructed!");
+
+    ros::init(argc, argv, "m1", ros::init_options::NoSigintHandler);
+    ros::NodeHandle nodeHandle("~");
+
+    // Get robot name from the node name
+    robotName_ = ros::this_node::getName();
+    robotName_.erase(0,1); // erase the first character which is '/'
 
     // create robot
     robot_ = new RobotM1();
@@ -11,6 +18,15 @@ MultiM1Machine::MultiM1Machine() {
     // Create ros object
     multiM1MachineRos_ = new MultiM1MachineROS(robot_);
 
+    // Pass nodeHandle to the classes that use ROS features
+    multiM1MachineRos_->setNodeHandle(nodeHandle);
+    multiM1MachineRos_->initialize();
+
+    // Create states with ROS features // This should be created after ros::init()
+    multiControllerState_ = new MultiControllerState(this, robot_, multiM1MachineRos_);
+
+    //Initialize the state machine with first state of the designed state machine, using baseclass function.
+    StateMachine::initialize(multiControllerState_);
 }
 
 MultiM1Machine::~MultiM1Machine() {
@@ -26,18 +42,12 @@ MultiM1Machine::~MultiM1Machine() {
  *
  */
 
-void MultiM1Machine::init(int argc, char *argv[]) {
-    ros::init(argc, argv, "m1", ros::init_options::NoSigintHandler);
-    ros::NodeHandle nodeHandle("~");
+void MultiM1Machine::init() {
+//    ros::init(argc, argv, "m1", ros::init_options::NoSigintHandler);
+//    ros::NodeHandle nodeHandle("~");
 
-    // Pass nodeHandle to the classes that use ROS features
-    multiM1MachineRos_->setNodeHandle(nodeHandle);
-
-    // Create states with ROS features // This should be created after ros::init()
-    multiControllerState_ = new MultiControllerState(this, robot_, multiM1MachineRos_);
-
-    //Initialize the state machine with first state of the designed state machine, using baseclass function.
-    StateMachine::initialize(multiControllerState_);
+//    // Pass nodeHandle to the classes that use ROS features
+//    multiM1MachineRos_->setNodeHandle(nodeHandle);
 
     if(robot_->initialise()) {
         initialised = true;
@@ -49,7 +59,6 @@ void MultiM1Machine::init(int argc, char *argv[]) {
     }
     running = true;
 
-    multiM1MachineRos_->initialize();
     time0_ = std::chrono::steady_clock::now();
     multiControllerState_->sendInitTrigger(1);
 
@@ -57,7 +66,7 @@ void MultiM1Machine::init(int argc, char *argv[]) {
     auto tm = *std::localtime(&t);
     std::stringstream logFileName;
 
-    std::string robotName_ = ros::this_node::getName();
+//    std::string robotName_ = ros::this_node::getName();
 
     logFileName << "spdlogs/" << robotName_<< std::put_time(&tm, "/%d-%m-%Y_%H-%M-%S") << ".csv";
 

@@ -31,7 +31,7 @@ void MultiControllerState::entry(void) {
     tau_cmd = Eigen::VectorXd::Zero(1);
 
     // initialize parameters
-    control_freq = 800.0;
+    control_freq = 400.0;
     error = 0;
     delta_error = 0;
     integral_error = 0;
@@ -222,7 +222,7 @@ void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config,
     return;
 }
 
-bool MultiControllerState::sendInitTrigger(int value) {
+void MultiControllerState::sendInitTrigger(int value) {
 
     std::chrono::steady_clock::time_point time0;
     time0 = std::chrono::steady_clock::now();
