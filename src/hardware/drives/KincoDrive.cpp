@@ -70,7 +70,7 @@ bool KincoDrive::initVelControl(motorProfile velControlMotorProfile) {
 bool KincoDrive::initVelControl() {
     spdlog::debug("NodeID {} Initialising Velocity Control", NodeID);
 
-    sendSDOMessages(generateVelControlConfigSDO());
+    sendSDOMessages(Drive::generateVelControlConfigSDO());
     return true;
 }
 bool KincoDrive::initTorqueControl() {

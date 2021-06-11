@@ -228,7 +228,7 @@ public:
     setMovementReturnCode_t setJointPos(JointVec pos);
     setMovementReturnCode_t setJointVel(JointVec vel);
     setMovementReturnCode_t setJointTor(JointVec tor);
-    setMovementReturnCode_t setJointTor_comp(JointVec tor, JointVec tor_s);
-    JointVec compensateJointTor(JointVec tor, JointVec tor_s);
+    setMovementReturnCode_t setJointTor_comp(JointVec tor, JointVec tor_s, double ffRatio);
+    JointVec compensateJointTor(JointVec tor);
 };
 #endif /*RobotM1_H*/

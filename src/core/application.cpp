@@ -37,12 +37,12 @@ void app_programStart(int argc, char *argv[]) {
 #endif // NOROBOT
 #ifndef USEROS
     spdlog::info("stateMachine.init();");
-    stateMachine.init();
+    stateMachine->init();
 #else
-    stateMachine.init(argc, argv);
+    stateMachine->init(argc, argv);
 #endif
     spdlog::info(" stateMachine.activate()");
-    stateMachine.activate();
+    stateMachine->activate();
 }
 
 /******************************************************************************/
@@ -62,10 +62,10 @@ void app_programAsync(uint16_t timer1msDiffy) {
 }
 
 void app_programControlLoop(void) {
-    if (stateMachine.running) {
+    if (stateMachine->running) {
 //        spdlog::info("CORC app update");
-        stateMachine.update();
-        stateMachine.hwStateUpdate();
+        stateMachine->update();
+        stateMachine->hwStateUpdate();
     }
 #ifdef TIMING_LOG
     loopTimer.tick();

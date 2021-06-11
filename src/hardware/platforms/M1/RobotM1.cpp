@@ -386,7 +386,6 @@ setMovementReturnCode_t RobotM1::setJointTor(JointVec tor_d) {
     return applyTorque(tau_motor);
 }
 
-
 JointVec RobotM1::compensateJointTor(JointVec tor){
     double f_s = 1.4;
     double f_d = 0.5;
