@@ -131,6 +131,14 @@ void RobotM1::updateRobot() {
     }
 }
 
+bool RobotM1::setDigitalOut(int digital_out) {
+    ((JointM1 *)joints[0])->setDigitalOut(digital_out);
+}
+
+int RobotM1::getDigitalIn() {
+    return ((JointM1 *)joints[0])->getDigitalIn();
+}
+
 setMovementReturnCode_t RobotM1::safetyCheck() {
     //End-effector safeties if calibrated
     for (uint i = 0; i < nJoints; i++) {    // Error found, YW

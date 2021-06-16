@@ -182,12 +182,12 @@ void MultiControllerState::during(void) {
     }
     else if (controller_mode_ == 11){ // SEND HIGH
 
-        robot_->motorDrives[0]->setDigitalOut(1);
+        robot_->setDigitalOut(1);
 
     }
     else if (controller_mode_ == 12){ // SEND LOW
 
-        robot_->motorDrives[0]->setDigitalOut(0);
+        robot_->setDigitalOut(0);
 
     }
     else if (controller_mode_ == 13){ // SEND HIH-LOW perodically
@@ -197,15 +197,14 @@ void MultiControllerState::during(void) {
         if(time>1.0){
 
             digitalOutValue_ = (digitalOutValue_ == 1) ? 0 : 1;
-            robot_->motorDrives[0]->setDigitalOut(digitalOutValue_);
+            robot_->setDigitalOut(digitalOutValue_);
+
             time0 = std::chrono::steady_clock::now();
         }
     }
-    digitalInValue_ = robot_->motorDrives[0]->getDigitalIn();
+    digitalInValue_ = robot_->getDigitalIn();
 }
 
-
-}
 void MultiControllerState::exit(void) {
     if(controller_mode_ == 13) time0 = std::chrono::steady_clock::now();
 }

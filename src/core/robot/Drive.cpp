@@ -83,6 +83,11 @@ bool Drive::setTorque(int torque) {
     return true;
 }
 
+bool Drive::setDigitalOut(int digital_out) {
+    spdlog::trace("Drive {} Writing {} to 0x{0:x}", NodeID, (short int)digitalOut, OD_Addresses[DIGITAL_OUT]);
+    digitalOut = digital_out;
+    return true;
+}
 
 int Drive::getPos() {
     return actualPos;
@@ -102,6 +107,10 @@ int Drive::getTorque() {
     } else {
         return 0;
     }
+}
+
+int Drive::getDigitalIn() {
+    return digitalIn;
 }
 
 DriveState Drive::resetErrors() {

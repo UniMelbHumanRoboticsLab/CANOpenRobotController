@@ -197,6 +197,20 @@ public:
     void updateRobot();
 
     /**
+       * Writes the desired digital out value to the drive
+       *
+       * \return true if successful
+       * \return false if not
+       */
+    bool setDigitalOut(int digital_out);
+
+    /**
+           * Returns the value of digital IN
+           * \return Digital in state from the motor drive
+           */
+    virtual int getDigitalIn();
+
+    /**
      * \brief Check if current end effector force and velocities are within limits (if calibrated, otherwise
      *  check that joints velocity and torque are within limits).
      *

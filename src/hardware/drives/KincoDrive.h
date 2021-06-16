@@ -60,6 +60,7 @@ class KincoDrive : public Drive {
          */
     bool initPosControl(motorProfile posControlMotorProfile);
     bool initPosControl();
+
     /**
          * Sets the drive to Velocity control with default parameters (through SDO messages)
          *

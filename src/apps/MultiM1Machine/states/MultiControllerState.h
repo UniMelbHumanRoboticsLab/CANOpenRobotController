@@ -83,6 +83,8 @@ private:
     dynamic_reconfigure::Server<CORC::dynamic_paramsConfig> server_;
     void dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level);
 
+    std::chrono::steady_clock::time_point time0;
+
 protected:
     struct timespec initTime;   /*<! Time of state init */
     double lastTime;            /*<! Time of last during() call (in seconds since state init())*/

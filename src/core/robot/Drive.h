@@ -414,6 +414,14 @@ class Drive {
     int stop();
 
     /**
+           * Writes the desired digital out value to the drive
+           *
+           * \return true if successful
+           * \return false if not
+           */
+    virtual bool setDigitalOut(int digital_out);
+
+    /**
            * \brief Initialises a standard set of PDOs for the use of the drive. These are:
            *
            *   TPDO1: COB-ID 180+{NODE-ID}: Status Word (0x6041), Send on Internal Event Trigger
@@ -503,14 +511,6 @@ class Drive {
            * \return false if not
            */
     virtual bool setTorque(int torque);
-
-    /**
-           * Writes the desired digital out value to the drive
-           *
-           * \return true if successful
-           * \return false if not
-           */
-    virtual bool setDigitalOut(int digital_out);
 
     /**
            * Returns the current position from the motor drive (0x6064)

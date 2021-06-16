@@ -80,20 +80,10 @@ bool KincoDrive::initTorqueControl() {
     return true;
 }
 
-bool KincoDrive::setDigitalOut(int digital_out) {
-    spdlog::trace("Drive {} Writing {} to 0x{0:x}", NodeID, (short int)digitalOut, OD_Addresses[DIGITAL_OUT]);
-    digitalOut = digital_out;
-    return true;
-}
-
 bool KincoDrive::resetError(){
     spdlog::debug("NodeID {} reset error", NodeID);
     sendSDOMessages(generateResetErrorSDO());
     return true;
-}
-
-int KincoDrive::getDigitalIn() {
-    return digitalIn;
 }
 
 bool KincoDrive::initPDOs() {
