@@ -37,12 +37,6 @@ public:
 
     int cali_stage;
     int cali_velocity;
-    /**
-     * Send SDO message for sending initialization trigger
-     *
-     */
-    void sendInitTrigger(int value);
-
 
     // FOR TRANSPERANCY EXPERIMENTS
 
@@ -71,6 +65,9 @@ public:
     Eigen::VectorXd tau_s;
     Eigen::VectorXd tau_cmd;
 
+    int digitalInValue_;
+    int digitalOutValue_;
+
     double alpha_q;
     double alpha_tau;
     double q_pre;
@@ -80,9 +77,6 @@ public:
     double tau_filtered;
     double q_raw;
     double q_filtered;
-
-    double SDOTriggerTime_;
-    int triggerValue_;
 
 private:
     // dynamic reconfigure server and callback

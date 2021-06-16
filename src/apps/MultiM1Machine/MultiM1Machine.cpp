@@ -60,7 +60,6 @@ void MultiM1Machine::init() {
     running = true;
 
     time0_ = std::chrono::steady_clock::now();
-    multiControllerState_->sendInitTrigger(1);
 
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);
@@ -93,8 +92,8 @@ void MultiM1Machine::init() {
     logHelper.add(multiM1MachineRos_->jointPositionCommand_, "MM1_DesiredJointPositions");
     logHelper.add(multiM1MachineRos_->interactionTorqueCommand_, "MM1_DesiredInteractionTorques");
 
-    logHelper.add(multiControllerState_->SDOTriggerTime_, "SDOTriggerTime");
-    logHelper.add(multiControllerState_->triggerValue_, "TriggerValue");
+    logHelper.add(multiControllerState_->digitalInValue_, "digitalIn");
+    logHelper.add(multiControllerState_->digitalOutValue_, "digitalOut");
 
     logHelper.startLogger();
 }

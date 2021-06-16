@@ -39,6 +39,8 @@ void MultiControllerState::entry(void) {
     controller_mode_ = -1;
     cut_off = 6;
 
+    digitalInValue_ = 0;
+    digitalOutValue_ = 0;
 }
 void MultiControllerState::during(void) {
 
@@ -178,9 +180,34 @@ void MultiControllerState::during(void) {
             tick_count = 0;
         }
     }
+    else if (controller_mode_ == 11){ // SEND HIGH
+
+        robot_->motorDrives[0]->setDigitalOut(1);
+
+    }
+    else if (controller_mode_ == 12){ // SEND LOW
+
+        robot_->motorDrives[0]->setDigitalOut(0);
+
+    }
+    else if (controller_mode_ == 13){ // SEND HIH-LOW perodically
+
+        double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
+
+        if(time>1.0){
+
+            digitalOutValue_ = (digitalOutValue_ == 1) ? 0 : 1;
+            robot_->motorDrives[0]->setDigitalOut(digitalOutValue_);
+            time0 = std::chrono::steady_clock::now();
+        }
+    }
+    digitalInValue_ = robot_->motorDrives[0]->getDigitalIn();
+}
+
+
 }
 void MultiControllerState::exit(void) {
-
+    if(controller_mode_ == 13) time0 = std::chrono::steady_clock::now();
 }
 
 void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level) {
@@ -211,35 +238,9 @@ void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config,
         if(controller_mode_ == 3) robot_->initTorqueControl();
         if(controller_mode_ == 4) robot_->initTorqueControl();
         if(controller_mode_ == 5) robot_->initTorqueControl();
-
-
-        if(controller_mode_ == 4) triggerValue_ = 1;
-        else triggerValue_ = 0;
-
-        sendInitTrigger(triggerValue_);
     }
 
     return;
-}
-
-void MultiControllerState::sendInitTrigger(int value) {
-
-    std::chrono::steady_clock::time_point time0;
-    time0 = std::chrono::steady_clock::now();
-
-    std::string valueStr = value ? "1" : "0";
-
-    std::stringstream sstream;
-    // set mode of operation
-    sstream << "[1] " << 1 << " write 0x2010 14 i16 " << valueStr;
-
-    std::string strCOmmand = sstream.str();
-
-    char *SDO_Message = (char *)(strCOmmand.c_str());
-    char *returnMessage;
-    cancomm_socketFree(SDO_Message, &returnMessage);
-    SDOTriggerTime_ = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
-    std::cout<<returnMessage<<"--It took "<<SDOTriggerTime_<< "ms"<< std::endl;
 }
 
 

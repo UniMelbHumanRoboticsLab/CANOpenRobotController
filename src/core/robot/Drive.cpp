@@ -161,7 +161,7 @@ bool Drive::posControlSetContinuousProfile(bool continuous) {
 
 bool Drive::configureMasterPDOs(){
     // Set up the PDOs in the OD here
-    for (int TPDO_Num = 1; TPDO_Num <= 3; TPDO_Num++){
+    for (int TPDO_Num = 1; TPDO_Num <= 4; TPDO_Num++){
         generateEquivalentMasterRPDO(TPDO_MappedObjects[TPDO_Num], TPDO_COBID[TPDO_Num] + NodeID, 0xff);
         }
     for (int RPDO_Num = 1; RPDO_Num <= 4; RPDO_Num++){

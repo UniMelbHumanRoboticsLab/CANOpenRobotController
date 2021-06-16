@@ -80,10 +80,20 @@ bool KincoDrive::initTorqueControl() {
     return true;
 }
 
+bool KincoDrive::setDigitalOut(int digital_out) {
+    spdlog::trace("Drive {} Writing {} to 0x{0:x}", NodeID, (short int)digitalOut, OD_Addresses[DIGITAL_OUT]);
+    digitalOut = digital_out;
+    return true;
+}
+
 bool KincoDrive::resetError(){
     spdlog::debug("NodeID {} reset error", NodeID);
     sendSDOMessages(generateResetErrorSDO());
     return true;
+}
+
+int KincoDrive::getDigitalIn() {
+    return digitalIn;
 }
 
 bool KincoDrive::initPDOs() {
@@ -109,14 +119,29 @@ bool KincoDrive::initPDOs() {
         return false;
     }
 
-    // Calculate COB_ID. If RPDO:
-    //int COB_ID = 0x100 * (PDO_Num+1) + NodeID;
-    spdlog::info("Set up CONTROL_WORD RPDO on Node {}", NodeID);
-    int RPDO_Num = 1;
-    if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
-        spdlog::error("Set up CONTROL_WORD RPDO FAILED on node {}", NodeID);
+    TPDO_Num = 4;
+    if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01, 11)) < 0) {
+        spdlog::error("Set up DIGITAL IN TPDO FAILED on node {}", NodeID);
         return false;
     }
+
+    // Calculate COB_ID. If RPDO:
+    //int COB_ID = 0x100 * (PDO_Num+1) + NodeID;
+
+    //spdlog::info("Set up CONTROL_WORD RPDO on Node {}", NodeID);
+    //int RPDO_Num = 1;
+    //if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
+    //    spdlog::error("Set up CONTROL_WORD RPDO FAILED on node {}", NodeID);
+    //    return false;
+    //}
+
+    spdlog::info("Set up DIGITAL_OUT RPDO on Node {}", NodeID);
+    int RPDO_Num = 1;
+    if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff, 14)) < 0) {
+        spdlog::error("Set up DIGITAL_OUT RPDO FAILED on node {}", NodeID);
+        return false;
+    }
+
     spdlog::info("Set up TARGET_POS RPDO on Node {}", NodeID);
     RPDO_Num = 2;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
