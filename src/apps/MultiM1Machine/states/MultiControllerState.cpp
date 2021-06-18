@@ -181,13 +181,29 @@ void MultiControllerState::during(void) {
         }
     }
     else if (controller_mode_ == 11){ // SEND HIGH
+//        std::cout<<"SET HIGH"<<std::endl;
 
-        robot_->setDigitalOut(1);
+        double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
+
+        if(robot_->getRobotName() == "m1_x"){
+            std::cout<<"ROBOT X"<<std::endl;
+        }
+
+        if(time > 1.0){
+        digitalOutValue_ = 1;
+        robot_->setDigitalOut(digitalOutValue_);
+        }
 
     }
     else if (controller_mode_ == 12){ // SEND LOW
+//        std::cout<<"SET LOW"<<std::endl;
 
-        robot_->setDigitalOut(0);
+        double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
+
+        if(time > 1.0){
+            digitalOutValue_ = 0;
+            robot_->setDigitalOut(digitalOutValue_);
+        }
 
     }
     else if (controller_mode_ == 13){ // SEND HIH-LOW perodically
@@ -198,6 +214,7 @@ void MultiControllerState::during(void) {
 
             digitalOutValue_ = (digitalOutValue_ == 1) ? 0 : 1;
             robot_->setDigitalOut(digitalOutValue_);
+//            std::cout<<"Out value: "<<digitalOutValue_<<std::endl;
 
             time0 = std::chrono::steady_clock::now();
         }
@@ -237,6 +254,9 @@ void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config,
         if(controller_mode_ == 3) robot_->initTorqueControl();
         if(controller_mode_ == 4) robot_->initTorqueControl();
         if(controller_mode_ == 5) robot_->initTorqueControl();
+
+        if(controller_mode_ == 11) time0 = std::chrono::steady_clock::now();
+        if(controller_mode_ == 12) time0 = std::chrono::steady_clock::now();
     }
 
     return;

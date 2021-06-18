@@ -13,7 +13,7 @@ MultiM1Machine::MultiM1Machine(int argc, char *argv[]){
     robotName_.erase(0,1); // erase the first character which is '/'
 
     // create robot
-    robot_ = new RobotM1();
+    robot_ = new RobotM1(robotName_);
 
     // Create ros object
     multiM1MachineRos_ = new MultiM1MachineROS(robot_);

@@ -84,6 +84,8 @@ class RobotM1 : public Robot {
     double maxEndEffVel; /*!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.*/
     double maxEndEffForce; /*!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated. */
 
+    std::string robotName_;
+
     short int sign(double val);
 
 public:
@@ -92,7 +94,7 @@ public:
       * Initialize memory for the <code>Joint</code> + sensor.
       * Load in parameters to  <code>TrajectoryGenerator.</code>.
       */
-    RobotM1();
+    RobotM1(std::string robotName);
     ~RobotM1();
     JointVec tau_motor;
     Keyboard *keyboard;
@@ -217,6 +219,14 @@ public:
      * \return OUTSIDE_LIMITS if outside the limits (!), SUCCESS otherwise
      */
     setMovementReturnCode_t safetyCheck();
+
+
+    /**
+     * \brief get the name of the robot that is obtained from node name
+     *
+     * \return std::string name of the robot
+     */
+    std::string & getRobotName();
 
     void printStatus();
     void printJointStatus();

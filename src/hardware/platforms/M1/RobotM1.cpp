@@ -2,7 +2,7 @@
 
 using namespace Eigen;
 
-RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce(60) {
+RobotM1::RobotM1(std::string robotName) : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce(60), robotName_(robotName) {
     // Conversion factors between degrees and radians
     d2r = M_PI / 180.;
     r2d = 180. / M_PI;
@@ -443,6 +443,10 @@ setMovementReturnCode_t RobotM1::setJointTor_comp(JointVec tor, JointVec tor_s, 
     }
     tor(0) = tor(0) + tor_ff*ffRatio;
     return setJointTor(tor);
+}
+
+std::string & RobotM1::getRobotName() {
+    return robotName_;
 }
 
 short RobotM1::sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }
