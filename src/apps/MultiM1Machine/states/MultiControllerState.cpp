@@ -186,40 +186,41 @@ void MultiControllerState::during(void) {
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
 
         if(robot_->getRobotName() == "m1_x"){
-            std::cout<<"ROBOT X"<<std::endl;
+            //std::cout<<"ROBOT X"<<std::endl;
+            if(time > 1.0){
+                digitalOutValue_ = 1;
+                robot_->setDigitalOut(digitalOutValue_);
+            }
         }
-
-        if(time > 1.0){
-        digitalOutValue_ = 1;
-        robot_->setDigitalOut(digitalOutValue_);
-        }
-
     }
     else if (controller_mode_ == 12){ // SEND LOW
 //        std::cout<<"SET LOW"<<std::endl;
 
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
 
-        if(time > 1.0){
-            digitalOutValue_ = 0;
-            robot_->setDigitalOut(digitalOutValue_);
+        if(robot_->getRobotName() == "m1_x"){
+            //std::cout<<"ROBOT X"<<std::endl;
+            if(time > 1.0){
+                digitalOutValue_ = 0;
+                robot_->setDigitalOut(digitalOutValue_);
+            }
         }
-
     }
     else if (controller_mode_ == 13){ // SEND HIH-LOW perodically
 
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
 
-        if(time>1.0){
-
-            digitalOutValue_ = (digitalOutValue_ == 1) ? 0 : 1;
-            robot_->setDigitalOut(digitalOutValue_);
-//            std::cout<<"Out value: "<<digitalOutValue_<<std::endl;
-
-            time0 = std::chrono::steady_clock::now();
+        if(robot_->getRobotName() == "m1_x"){
+            if (time > 1.0) {
+                digitalOutValue_ = (digitalOutValue_ == 1) ? 0 : 1;
+                robot_->setDigitalOut(digitalOutValue_);
+                time0 = std::chrono::steady_clock::now();
+            }
         }
     }
-    digitalInValue_ = robot_->getDigitalIn();
+    if(robot_->getRobotName() == "m1_x"){
+        digitalInValue_ = robot_->getDigitalIn();
+    }
 }
 
 void MultiControllerState::exit(void) {
