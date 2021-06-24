@@ -39,6 +39,13 @@ typedef unsigned short uint16_t;
 typedef unsigned char uint8_t;
 #endif /* _UINT8_T */
 
+/* Maximum size of Object Dictionary variable transmitted via SDO. */
+#ifndef CO_COMMAND_SDO_BUFFER_SIZE
+#define CO_COMMAND_SDO_BUFFER_SIZE 100000
+#define STRING_BUFFER_SIZE (CO_COMMAND_SDO_BUFFER_SIZE * 4 + 100)
+#endif
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -69,7 +76,7 @@ int CO_command_clear(void);
 /**
  * Allow main thread to send SDO messages to nodes
  *
- * @return message recieved on success 
+ * @return message recieved on success
  * @return error on failure
  */
 void cancomm_socketFree(char *command, char **ret);

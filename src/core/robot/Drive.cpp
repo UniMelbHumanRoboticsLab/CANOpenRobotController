@@ -168,7 +168,7 @@ bool Drive::configureMasterPDOs(){
         generateEquivalentMasterTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
     }
 
-    return true; 
+    return true;
 }
 
 bool Drive::initPDOs() {
@@ -180,14 +180,14 @@ bool Drive::initPDOs() {
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0xFF)) < 0) {
         spdlog::error("Set up STATUS_WORD TPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
 
     spdlog::info("Set up ACTUAL_POS and ACTUAL_VEL TPDO on Node {}", NodeID);
     TPDO_Num = 2;
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01)) < 0) {
         spdlog::error("Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
 
 
     spdlog::info("Set up ACTUAL_TOR TPDO on Node {}", NodeID);
@@ -195,7 +195,7 @@ bool Drive::initPDOs() {
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01)) < 0) {
         spdlog::error("Set up ACTUAL_TOR TPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
 
     // Calculate COB_ID. If RPDO:
     //int COB_ID = 0x100 * (PDO_Num+1) + NodeID;
@@ -204,25 +204,25 @@ bool Drive::initPDOs() {
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up CONTROL_WORD RPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
     spdlog::info("Set up TARGET_POS RPDO on Node {}", NodeID);
     RPDO_Num = 2;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up TARGET_POS RPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
     spdlog::info("Set up TARGET_VEL RPDO on Node {}", NodeID);
     RPDO_Num = 3;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up ARGET_VEL RPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
     spdlog::info("Set up TARGET_TOR RPDO on Node {}", NodeID);
     RPDO_Num = 4;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up TARGET_TOR RPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
     return true;
     }
 
@@ -493,8 +493,8 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
 #ifndef NOROBOT
         // explicitly cast c++ string to from const char* to char* for use by cancomm function
         char *SDO_Message = (char *)(strCommand.c_str());
-        char *returnMessage;
-        cancomm_socketFree(SDO_Message, &returnMessage);
+        char returnMessage[STRING_BUFFER_SIZE];
+        cancomm_socketFree(SDO_Message, (char**)&returnMessage);
         std::string retMsg = returnMessage;
 
         // Because returnMessage includes sequence it is possible value is "[1] OK".

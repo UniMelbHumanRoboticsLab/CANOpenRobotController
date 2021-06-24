@@ -41,12 +41,6 @@
 #include "CO_comm_helpers.h"
 #include "CO_master.h"
 
-/* Maximum size of Object Dictionary variable transmitted via SDO. */
-#ifndef CO_COMMAND_SDO_BUFFER_SIZE
-#define CO_COMMAND_SDO_BUFFER_SIZE 100000
-#endif
-
-#define STRING_BUFFER_SIZE (CO_COMMAND_SDO_BUFFER_SIZE * 4 + 100)
 #define LISTEN_BACKLOG 50
 
 /* Globals */
@@ -412,7 +406,7 @@ static void command_process(int fd, char *command, size_t commandLength) {
                 err = 1;
                 respErrorCode = respErrorNoDefaultNodeSet;
             }
-            if (err == 0) { 
+            if (err == 0) {
                 err = CO_sendNMTcommand(CO, CO_NMT_ENTER_OPERATIONAL, comm_node) ? 1 : 0;
 
                 if (err == 0) respLen = sprintf(resp, "[%d] OK", sequence);
