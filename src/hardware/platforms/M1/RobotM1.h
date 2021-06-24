@@ -21,7 +21,7 @@
 #include "Keyboard.h"
 #include "Joystick.h"
 #include "Robot.h"
-#include "M1ForceSensor.h"
+#include "FourierForceSensor.h"
 #include "KincoDrive.h"
 
 #define M1_NUM_JOINTS 1
@@ -99,7 +99,7 @@ public:
     JointVec tau_motor;
     Keyboard *keyboard;
     Joystick *joystick;
-    M1ForceSensor *m1ForceSensor;
+    FourierForceSensor *m1ForceSensor;
     RobotState status;
     int mode;
 
