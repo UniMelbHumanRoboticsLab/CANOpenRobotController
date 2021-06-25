@@ -70,7 +70,7 @@ bool FourierForceSensor::sendInternalCalibrateSDOMessage() {
     sstream << "[1] " << sensorNodeID << " read 0x7050 255 i8";
     std::string strCommand = sstream.str();
     char *SDO_Message = (char *)(strCommand.c_str());
-    cancomm_socketFree(SDO_Message, (char**)&returnMessage);
+    cancomm_socketFree(SDO_Message, returnMessage);
     std::string retMsg = returnMessage;
     spdlog::debug(retMsg);
     if (retMsg.find("ERROR") != std::string::npos) {

@@ -494,7 +494,7 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
         // explicitly cast c++ string to from const char* to char* for use by cancomm function
         char *SDO_Message = (char *)(strCommand.c_str());
         char returnMessage[STRING_BUFFER_SIZE];
-        cancomm_socketFree(SDO_Message, (char**)&returnMessage);
+        cancomm_socketFree(SDO_Message, returnMessage);
         std::string retMsg = returnMessage;
 
         // Because returnMessage includes sequence it is possible value is "[1] OK".
