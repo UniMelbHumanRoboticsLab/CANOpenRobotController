@@ -75,7 +75,7 @@ bool RobotM1::initialiseNetwork() {
 
 bool RobotM1::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
-    inputs.push_back(m1ForceSensor = new FourierForceSensor(17, 0.1, 1)); // todo CHANGE HARDWARE TO HEX 11 and update code
+    inputs.push_back(m1ForceSensor = new FourierForceSensor(17, 0.1, 1));
     return true;
 }
 

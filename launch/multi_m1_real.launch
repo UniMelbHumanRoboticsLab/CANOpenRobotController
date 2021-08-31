@@ -21,4 +21,7 @@
     <node name="rqt" pkg="CORC" type="rqt.sh">
     </node>
 
+    <!-- sound_play -->
+    <node name="sound_play" pkg="sound_play" type="soundplay_node.py" output="screen"/>
+
 </launch>
