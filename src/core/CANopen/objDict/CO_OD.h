@@ -937,8 +937,7 @@ extern OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO];
  *
  * @return Success or failure of the configuration
  */
-    bool_t
-    CO_configure(void);
+bool_t CO_configure(void);
 
 /**
  * Configures a single element in the object dictionary
@@ -946,8 +945,30 @@ extern OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO];
  * @return Success or failure of the configuration
  */
 bool_t CO_OD_set_entry(uint16_t element_, uint16_t index_, uint8_t maxSubIndex_, uint16_t attribute_, uint16_t length_, void *pData_);
-int CO_setRPDO(OD_RPDOCommunicationParameter_t *RPDOcommPara, OD_RPDOMappingParameter_t *RPDOmapparam, CO_OD_entryRecord_t *PRDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *RPDOmapparamEntry);
-int CO_setTPDO(OD_TPDOCommunicationParameter_t *TPDOcommPara, OD_TPDOMappingParameter_t *TPDOmapparam, CO_OD_entryRecord_t *TPDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *TPDOmapparamEntry);
+
+/**
+ * \brief Sets up a RPDO on the CANOpen Stack, including setting up the PDO backend and adding to the OD 
+ * 
+ * \param RPDOCommParams Communication Paramters of the RPDO
+ * \param RPDOMapParams Mapping Parameters of the RPDO
+ * \param RPDOCommEntry A OD Entry pointing to the Communication Parameters
+ * \param dataStoreRecord An OD Entry pointing to the location of the stored data 
+ * \param RPDOMapParamsEntry An OD Entry pointing to the mapping parameters
+ * \return int The Number of the RPDO which was created 
+ */
+int CO_setRPDO(OD_RPDOCommunicationParameter_t *RPDOCommParams, OD_RPDOMappingParameter_t *RPDOMapParams, CO_OD_entryRecord_t *RPDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *RPDOMapParamsEntry);
+
+/**
+ * \brief Sets up a TPDO on the CANOpen Stack, including setting up the PDO backend and adding to the OD 
+ * 
+ * \param TPDOCommParams Communication Paramters of the TPDO
+ * \param TPDOMapParams Mapping Parameters of the TPDO
+ * \param TPDOCommEntry A OD Entry pointing to the Communication Parameters
+ * \param dataStoreRecord An OD Entry pointing to the location of the stored data 
+ * \param TPDOMapParamsEntry An OD Entry pointing to the mapping parameters
+ * \return int The Number of the RPDO which was created 
+ */
+int CO_setTPDO(OD_TPDOCommunicationParameter_t *TPDOCommParams, OD_TPDOMappingParameter_t *TPDOMapParams, CO_OD_entryRecord_t *TPDOCommEntry, CO_OD_entryRecord_t *dataStoreRecord, CO_OD_entryRecord_t *TPDOmapparamEntry);
 
 /**
  * \brief Sets up a RPDO on the CANOpen Stack, including setting up the PDO backend and adding to the OD 

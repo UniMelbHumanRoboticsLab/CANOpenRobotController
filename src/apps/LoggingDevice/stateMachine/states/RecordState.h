@@ -16,6 +16,12 @@
 #include "State.h"
 
 class RecordState : public State {
+    private:
+    int ticker = 0;
+    Eigen::VectorXd lastCrutchForce;
+    Eigen::VectorXi lastForcePlateForce;
+    Eigen::VectorXi lastFootSensorForce;
+
    public:
     LoggingRobot *robot;
     RecordState(StateMachine *m, LoggingRobot *robot, const char *name = NULL);

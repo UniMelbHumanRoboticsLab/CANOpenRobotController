@@ -248,20 +248,6 @@ INTEGER16 junkData =8;
     {(void *)&junkData, 0xfe, 0x2},
 };
 
-INTEGER16 junkData =8;
-
-/*Junk data Test*/ const CO_OD_entryRecord_t OD_DummyDataStoreLocation[9] = {
-    {(void *)&junkData, 0xfe, 0x2},
-    {(void *)&junkData, 0xfe, 0x2},
-    {(void *)&junkData, 0xfe, 0x2},
-    {(void *)&junkData, 0xfe, 0x2},
-    {(void *)&junkData, 0xfe, 0x2},
-    {(void *)&junkData, 0xfe, 0x2},
-    {(void *)&junkData, 0xfe, 0x2},
-    {(void *)&junkData, 0xfe, 0x2},
-    {(void *)&junkData, 0xfe, 0x2},
-};
-
 /*******************************************************************************
    OBJECT DICTIONARY
 *******************************************************************************/

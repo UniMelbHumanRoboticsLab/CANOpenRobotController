@@ -41,6 +41,7 @@ if(NO_ROBOT AND USE_ROS)
     add_definitions(-DSIM)
 endif()
 
+
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_${CORC_LOGGING_LEVEL})
 
 

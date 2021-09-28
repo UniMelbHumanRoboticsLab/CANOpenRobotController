@@ -40,7 +40,7 @@ extern "C" {
 
 
 // uncomment to enable debug
-//#define BBBIO_LIB_DBG 
+#define BBBIO_LIB_DBG 
 
 #define BBBIO_DIR_IN 0
 #define BBBIO_DIR_OUT 1

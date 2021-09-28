@@ -18,7 +18,6 @@
 LoopTiming loopTimer;
 #endif
 
-
 //Select state machine to use for this application (can be set in cmake)
 #ifndef STATE_MACHINE_TYPE
 #error "State Machine Type not defined"
@@ -43,7 +42,6 @@ void app_programStart(void) {
 #ifdef NOROBOT
     spdlog::info("Running in NOROBOT (virtual) mode.");
 #endif  // NOROBOT
-
     stateMachine->init();
     stateMachine->activate();
 }

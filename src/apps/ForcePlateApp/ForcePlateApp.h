@@ -20,6 +20,7 @@
 #include <string>
 
 #include "ForcePlate.h"
+//#include "ForcePlate4.h"
 #include "StateMachine.h"
 
 // State Classes

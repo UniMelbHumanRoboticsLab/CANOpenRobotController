@@ -70,15 +70,18 @@ bool ForcePlate::configureMasterPDOs(){
     strainForcesTPDO = Eigen::VectorXi(4);
 
     UNSIGNED16 dataSize[2] = {4,4};
-    void *dataPointer[] = {(void *)&strainForcesTPDO(0), (void *)&strainForcesTPDO(1)};
-    tpdo1 = new TPDO(0x3f1, 0xff, dataPointer, dataSize, 2);
+    UNSIGNED16 RPDO_CMD = FP_CMDRPDO;
+    UNSIGNED16 TPDOStart = FP_STARTTPDO;
 
-    void *dataPointer2[] = {(void *)&strainForcesTPDO(2), (void *)&strainForcesTPDO(3)};
-    tpdo2 = new TPDO(0x3f2, 0xff, dataPointer2, dataSize, 2);
+    // Create TPODs for the measurements
+    for (int i = 0; i < 2; i++) {
+        void *dataPointer[] = {(void *)&strainForcesTPDO(2 * i), (void *)&strainForcesTPDO(2 * i + 1)};
+        tpdos.push_back(new TPDO(TPDOStart + i, 0xff, dataPointer, dataSize, 2));
+    }
 
     UNSIGNED16 dataCmdSize[2] = {4};
     void *cmdPointer[] = {(void *)&currCommand};
-    rpdoCmd = new RPDO(0x3f0, 0xff, cmdPointer, dataCmdSize, 1);
+    rpdoCmd = new RPDO(RPDO_CMD, 0xff, cmdPointer, dataCmdSize, 1);
 
     return true;
 }

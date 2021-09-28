@@ -50,9 +50,7 @@ class HX711 : public InputDevice {
     bool is_ready();
 
     // Wait for the HX711 to become ready
-    void wait_ready(unsigned long delay_ms = 0);
-    bool wait_ready_retry(int retries = 3, unsigned long delay_ms = 0);
-    bool wait_ready_timeout(unsigned long timeout = 1000, unsigned long delay_ms = 0);
+    void wait_ready(unsigned long delay_ns = 0);
 
     // set the gain factor; takes effect only after a call to read()
     // channel A can be set for a 128 or 64 gain; channel B has a fixed 32 gain

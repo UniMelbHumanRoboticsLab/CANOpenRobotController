@@ -1,19 +1,19 @@
 /**
  *
- * \file ForcePlate.h
+ * \file ForcePlate4.h
  * \author Justin Fong
  * \version 0.1
  * \date 2021-02-23
  * \copyright Copyright (c) 2021
  *
- * \brief  The<code> ForcePlate</ code> class is a force plate object, which measures 4 strain gauages - designed to provide force and COP measurements
+ * \brief  The<code> ForcePlate4</ code> class is a force plate object, which measures 4 strain gauages - designed to provide force and COP measurements
  * 
  * This class is designed to work with the sensor system developed at the University of Melbourne's Human Robotics Laboratory
  *
  */
 
-#ifndef FORCEPLATE_H_INCLUDED
-#define FORCEPLATE_H_INCLUDED
+#ifndef FORCEPLATE4_H_INCLUDED
+#define FORCEPLATE4_H_INCLUDED
 
 #include "ForcePlateConstants.h"
 
@@ -22,25 +22,24 @@
 #include "HX711.h"
 
 
-class ForcePlate : public Robot {
+class ForcePlate4 : public Robot {
    private:
 
-    HX711* strainGauge;
+    std::vector<HX711*> strainGauges;
     Eigen::VectorXd strainForces;
     Eigen::VectorXi strainForcesTPDO;  // Smaller data format for better sending over bus
     bool sensorsOn =  false;
     ForcePlateCommand currCommand = NONE;
 
     std::vector<TPDO*> tpdos;
-
     RPDO* rpdoCmd;
     void updatePDOs();
 
    public:
     Keyboard *keyboard;
 
-    ForcePlate();
-    ~ForcePlate();
+    ForcePlate4();
+    ~ForcePlate4();
 
     // Functions which are needed for the Robot Class - they don't do anything at the moment
     bool initialiseJoints() { return true; };

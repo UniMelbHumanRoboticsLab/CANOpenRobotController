@@ -28,8 +28,11 @@ class LoggingRobot : public Robot {
     std::vector<RobotousRFT *> crutchSensors;
     Eigen::VectorXd crutchReadings;  //6xN Vector containing all crutch readings
 
-    ForcePlateSensor* forcePlate;
-    Eigen::VectorXi forcePlateForces;  // Should be a vector of size 4
+    std::vector<ForcePlateSensor*> forcePlates;
+    Eigen::VectorXi forcePlateForces;  // Should be a vector of size 4xN
+
+    std::vector<ForcePlateSensor *> footSensors;
+    Eigen::VectorXi footSensorForces;  // Should be a vector of size 4xN
 
     // -- Variables assoacited with parameters already transmitted from the robot -- // 
     std::vector<RPDO *> rpdos;
@@ -53,8 +56,8 @@ class LoggingRobot : public Robot {
     // Current State
     // Current Motion
     // Might need an additional about trajectory progress? (or could use target position)
-    INTEGER16 state;
-    INTEGER16 currentMotion;
+    INTEGER8 state;
+    INTEGER8 currentMotion;
 
     bool sensorsOn = false;
 
@@ -76,13 +79,15 @@ class LoggingRobot : public Robot {
      */
     Eigen::VectorXd &getCrutchReadings();
     Eigen::VectorXi &getForcePlateReadings();
+    Eigen::VectorXi &getFootSensorReadings();
+
     Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1> &getMotorPositions();
     Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1> &getMotorVelocities();
     Eigen::Matrix<INTEGER16, Eigen::Dynamic, 1> &getMotorTorques();
 
     INTEGER16& getGoButton();
-    INTEGER16&  getCurrentState();
-    INTEGER16&  getCurrentMovement();
+    INTEGER8&  getCurrentState();
+    INTEGER8&  getCurrentMovement();
 
 
     /**
@@ -93,6 +98,8 @@ class LoggingRobot : public Robot {
 
     void setCrutchOffsets(Eigen::VectorXd offsets);
     void zeroForcePlate();
+    void zeroLeftFoot();
+    void zeroRightFoot();
 
     bool startSensors();
     bool stopSensors();

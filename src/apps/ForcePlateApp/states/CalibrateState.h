@@ -13,6 +13,7 @@
 #define FORCEPLATE_CALIBRATESTATE_H
 
 #include "ForcePlate.h"
+//#include "ForcePlate4.h"
 #include "State.h"
 
 #define NUM_CALIBRATE_READINGS 100

@@ -13,6 +13,7 @@
 #define FORCEPLATE_INITSTATE_H
 
 #include "ForcePlate.h"
+//#include "ForcePlate4.h"
 #include "State.h"
 
 extern CO_NMT_reset_cmd_t reset_local;

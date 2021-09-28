@@ -51,8 +51,8 @@ static int rt_thread_epoll_fd; /*!< epoll file descriptor for rt thread */
 static int rtControlPriority = 80; /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
-const float controlLoopPeriodInms = 3;   /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 1000; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
+const float controlLoopPeriodInms = 10;   /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 0; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
 CO_NMT_reset_cmd_t reset_local = CO_RESET_NOT;
 
 /** @brief Task Timer used for the Control Loop*/
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
 
     int can_dev_number = 6;
     char CANdeviceList[can_dev_number][10] = {"vcan0\0", "can0\0", "can1\0", "can2\0", "can3\0", "can4\0"}; /*!< linux CAN device interface for app to bind to: change to can1 for bbb, can0 for BBAI vcan0 for virtual can*/
-    for (unsigned int i = 1; i < argc; i++) {                                                               // skip index 0 because it gives the executable address
+    for (int i = 1; i < argc; i++) {                                                               // skip index 0 because it gives the executable address
         std::string arg = argv[i];
         if (arg.find("-can") != std::string::npos) {  // if there is a -can argument
             spdlog::info("CAN argument found: {}", argv[i + 1]);
@@ -364,11 +364,11 @@ static void *rt_control_thread(void *arg) {
     struct period_info pinfo;
     periodic_task_init(&pinfo);
     app_programStart();
-
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);
     }
     while (endProgram == 0) {
+        periodic_task_init(&pinfo);
         app_programControlLoop();
         wait_rest_of_period(&pinfo);
     }

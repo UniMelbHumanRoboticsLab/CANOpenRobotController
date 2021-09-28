@@ -114,8 +114,8 @@ Eigen::VectorXd& Robot::getTorque() {
 
 void Robot::printStatus() {
     std::cout << "q=[ " << jointPositions_.transpose() * 180 / M_PI << " ]\t";
-    std::cout << "dq=[ " << jointVelocities_.transpose() * 180 / M_PI << " ]\t";
-    std::cout << "tau=[ " << jointTorques_.transpose() << " ]\t";
+    //std::cout << "dq=[ " << jointVelocities_.transpose() * 180 / M_PI << " ]\t";
+    //std::cout << "tau=[ " << jointTorques_.transpose() << " ]\t";
     std::cout << std::endl;
 }
 

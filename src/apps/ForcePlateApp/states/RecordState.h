@@ -13,6 +13,7 @@
 #define FORCEPLATE_RECORDSTATE_H
 
 #include "ForcePlate.h"
+//#include "ForcePlate4.h"
 #include "State.h"
 
 class RecordState : public State {

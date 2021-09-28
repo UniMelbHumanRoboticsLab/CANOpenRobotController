@@ -4,8 +4,8 @@
 #define OWNER ((ForcePlateApp *)owner)
 
 ForcePlateApp::ForcePlateApp() {
+    //robot = new ForcePlate4();
     robot = new ForcePlate();
-
     // Events
     startCalibrate = new StartCalibrate(this);
     startRecord = new StartRecord(this);

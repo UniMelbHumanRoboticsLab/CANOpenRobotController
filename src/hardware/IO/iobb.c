@@ -44,7 +44,7 @@ const unsigned int GPIO_AddressOffset[]={BBBIO_GPIO0_ADDR, BBBIO_GPIO1_ADDR, BBB
 // for the example above, it would be 1<<17 and for any pin which isn't a gpio, the number
 // 0 is stored in the array.
 
-// PocketBeagle Port 1
+// ALEXCrutchController Port 1
 const signed char p1_PortSet[] = {-1, 2, -1,  2, -1, 0, -1, 0,
 	                          -1,  0,-1,  0, -1,-1, -1,-1,
 				  -1, -1,-1,  0, -1,-1, -1,-1,
@@ -57,7 +57,7 @@ const unsigned int p1_PortIDSet[]={0,  1<<23,    0,  1<<25,     0,    1<<5,  0, 
 				   0, 1<<12,      0, 1<<13, 1<<21, 1<<11,1<<18,1<<10,
 				   1<<15,1<<26,1<<24,1<<14};
 
-// PocketBeagle Port 2
+// ALEXCrutchController Port 2
 const signed char p2_PortSet[] = { 1,  1,  0,  1,  0,  1,  0,  1,
 	                           0,  1,  0, -1, -1, -1, -1, -1,
 				   2,  1,  0,  2, -1,  1, -1,  1,
@@ -609,7 +609,7 @@ int BBBIO_sys_pinmux_check(unsigned int port, unsigned int pin, unsigned int Cfl
 	// sanity checks
 	if (port<=2)
 	{
-		printf("BBBIO_sys_pin_mux_check : error, needs porting for PocketBeagle!\n");
+		printf("BBBIO_sys_pin_mux_check : error, needs porting for ALEXCrutchController!\n");
 	}
 	if (sanity_check(port, pin)==1)
 		goto PARAM_ERROR ;
@@ -1007,7 +1007,7 @@ int BBBIO_GPIO_set_dir(unsigned int  gpio, unsigned int inset , unsigned int out
  *
  *      Warring : if you nedd this function , please check value you input , or it may effect other chip or device .
  */
-// NOTE: these functions are not PocketBeagle checked! Need to verify them.
+// NOTE: these functions are not ALEXCrutchController checked! Need to verify them.
 
 // BBBIO_GPIO_SAFE_MASK expresses the usable gpio in BBB Expansion Header P8 and P9 .
 // and mask the BBBIO_GPIO_high and BBBIO_GPIO_low to avoid the error access of the pin which not in P8 and P9 .

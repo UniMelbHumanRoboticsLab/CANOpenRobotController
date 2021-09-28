@@ -21,7 +21,7 @@ void CalibrateState::entry(void) {
     Eigen::VectorXd force = robot->getCrutchReadings();
     readings = Eigen::ArrayXXd::Zero(NUM_CALIBRATE_READINGS, force.size());
 
-    robot->zeroForcePlate();
+    //robot->zeroForcePlate();
     robot->startCrutchSensors();
     currReading =0;
 };
@@ -42,8 +42,16 @@ void CalibrateState::exit(void) {
     // Set offsets for crutches
     for (int i = 0; i < readings.cols(); i++) {
         offsets[i] = readings.col(i).sum()/NUM_CALIBRATE_READINGS;
-        spdlog::info("Crutch Offset {}", offsets[i]);
+        spdlog::debug("Crutch Offset {}", offsets[i]);
     }
+    spdlog::info("Crutch Sensor Calibration Complete");
+
+    for (int i = 0; i < readings.cols()/6; i++){
+        if (offsets.segment(i*6, 6).isApprox(Eigen::VectorXd::Zero(6))){
+            spdlog::warn("Crutches may not be connected");
+        }
+    }
+
     robot->setCrutchOffsets(offsets);
     robot->stopCrutchSensors();
 
