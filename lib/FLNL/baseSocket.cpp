@@ -254,6 +254,8 @@ void unlock_mutex(void * m) {
 void * receiving(void * c) {
     baseSocket * local=(baseSocket*)c;
 
+    short int remainingtoprocess_n;
+
     while(local->Connected) {
         //Read a full frame
         int ret=recv(local->Socket, (char *)local->FullMessageIn, MESSAGE_SIZE, 0);
