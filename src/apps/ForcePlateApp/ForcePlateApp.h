@@ -30,7 +30,7 @@
 #include "RecordState.h"
 
 // Logger
-#include "spdlog/helper/LogHelper.h"
+#include "LogHelper.h"
 
 /**
  * @brief Example implementation of a StateMachine for the ExoRobot class. States should implemented ExoTestState

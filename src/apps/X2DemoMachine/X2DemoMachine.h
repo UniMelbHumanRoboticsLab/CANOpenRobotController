@@ -30,7 +30,7 @@
 #include "X2DemoMachineROS.h"
 
 // Logger
-#include "spdlog/helper/LogHelper.h"
+#include "LogHelper.h"
 
 class X2DemoMachine : public StateMachine {
 

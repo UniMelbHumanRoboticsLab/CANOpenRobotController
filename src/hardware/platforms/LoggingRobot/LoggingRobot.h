@@ -106,8 +106,7 @@ class LoggingRobot : public Robot {
 
     bool startCrutchSensors();
     bool stopCrutchSensors();
-
-
+    
     bool configureMasterPDOs();
     };
 

@@ -138,3 +138,119 @@ bool KincoDrive::initPDOs() {
     } 
     return true;
 }
+
+std::vector<std::string> KincoDrive::generatePosControlConfigSDO(motorProfile positionProfile) {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+    // start drive
+    sstream << "[1] " << NodeID << " start";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //Set control word to power up (enable)
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x0f";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //enable profile position mode
+    sstream << "[1] " << NodeID << " write 0x6060 0 i8 1";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //Set velocity profile
+    sstream << "[1] " << NodeID << " write 0x6081 0 i32 " << std::dec << positionProfile.profileVelocity;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //Set acceleration profile
+    sstream << "[1] " << NodeID << " write 0x6083 0 i32 " << std::dec << positionProfile.profileAcceleration;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //Set deceleration profile
+    sstream << "[1] " << NodeID << " write 0x6084 0 i32 " << std::dec << positionProfile.profileDeceleration;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    //Set instant position mode; important for kinco
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x103f";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    return CANCommands;
+}
+
+std::vector<std::string> KincoDrive::generateResetErrorSDO() {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+
+    // shutdown
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x06";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    // reset fault
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x80";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    // reset fault
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x06";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    return CANCommands;
+}
+
+std::vector<std::string> KincoDrive::readSDOMessage(int address, int datetype) {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+    // read message from drive
+    sstream.str(std::string());
+
+    switch (datetype) {
+        case 1:
+            sstream << "[1] " << NodeID << " read 0x" << std::hex << address << " 0 u8";
+            break;
+        case 2:
+            sstream << "[1] " << NodeID << " read 0x" << std::hex << address << " 0 u16";
+            break;
+        case 3:
+            sstream << "[1] " << NodeID << " read 0x" << std::hex << address << " 0 i8";
+            break;
+        case 4:
+            sstream << "[1] " << NodeID << " read 0x" << std::hex << address << " 0 i32";
+            break;
+        default:
+            sstream << "[1] " << NodeID << " read 0x" << std::hex << address << " 0 u8";
+            break;
+    }
+
+    std::cout << sstream.str() << "\n";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    sendSDOMessages(CANCommands);
+    return CANCommands;
+}
+
+std::vector<std::string> KincoDrive::writeSDOMessage(int address, int value) {
+    // Define Vector to be returned as part of this method
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+    // read message from drive
+    sstream.str(std::string());
+    sstream << "[1] " << NodeID << " write 0x" << std::hex << address << " 0 i32 0x" << std::hex << value;
+    std::cout << sstream.str() << "\n";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    return CANCommands;
+}

@@ -18,7 +18,7 @@
 #include <cmath>
 #include <vector>
 
-#include "spdlog/helper/LogHelper.h"
+#include "LogHelper.h"
 
 
 #define deg2rad(deg) ((deg)*M_PI / 180.0)

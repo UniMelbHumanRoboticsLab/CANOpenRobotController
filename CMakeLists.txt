@@ -12,13 +12,13 @@ project(CORC C CXX)
 #(it should be the class name and have corresponding header naming in a corresponding folder)
 # If your application use ROS, don't forget to change the flag bellow too.
 
-set (STATE_MACHINE_NAME "ExoTestMachine")
+#set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "M2DemoMachine")
 #set (STATE_MACHINE_NAME "M3Machining")
 #set (STATE_MACHINE_NAME "M3Chai")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
-#set (STATE_MACHINE_NAME "M1DemoMachine")
+set (STATE_MACHINE_NAME "M1DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
@@ -42,6 +42,14 @@ if(NO_ROBOT AND USE_ROS)
 endif()
 
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_${CORC_LOGGING_LEVEL})
+
+# For Force Plates
+#add_definitions(-DFP_BBB)
+add_definitions(-DFP_PB)
+add_definitions(-DFP_CMDRPDO=0x3E0)
+add_definitions(-DFP_STARTTPDO=0x3E1)
+
+#######################
 
 ## Compile as C++11
 set(CMAKE_CXX_STANDARD 11)

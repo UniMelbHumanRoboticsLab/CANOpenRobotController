@@ -223,11 +223,7 @@ bool Drive::initPDOs() {
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up TARGET_TOR RPDO FAILED on node {}", NodeID);
         return false;
-    } else {
-        // Set up equivalent TPDO on the CORC Side (NOTE: THIS IS A TPDO to match the Drive's RPDO)
-        spdlog::info("Set up TARGET_TOR TPDO on Node {}", NodeID);
-        generateEquivalentLocalTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
-    }
+    } 
     return true;
     }
 

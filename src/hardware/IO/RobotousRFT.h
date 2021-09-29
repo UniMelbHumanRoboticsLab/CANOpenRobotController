@@ -58,34 +58,6 @@ class RobotousRFT : public InputDevice {
         // OD Parameters
         // Will need to be modified to take into number of items, data size and location
         // Data size and number of items will be constant, function will be used to change location
-   /*     OD_TPDOMappingParameter_t TPDOMapParam = {0x2L, 0x00000108L, 0x00000238L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L, 0x0L};
-        OD_TPDOCommunicationParameter_t TPDOcommPara = {0x6L, 0x0L, 0xffL, 0x0, 0x0, 0x0, 0x0};  
-
-        // Records which are linked to from the OD
-        // These might need to be public
-        CO_OD_entryRecord_t dataStoreRecordCmd[3] = {
-            {(void *)&lengthCmd, 0x06, 0x1},
-            {(void *)&cmdData, 0xfe, 0x2},
-            {(void *)&cmdDataPad, 0xfe, 0x8},
-        };
-
-        CO_OD_entryRecord_t TPDOCommEntry[3] = {
-            {(void *)&TPDOcommPara.maxSubIndex, 0x06, 0x1},
-            {(void *)&TPDOcommPara.COB_IDUsedByTPDO, 0x8e, 0x4},
-            {(void *)&TPDOcommPara.transmissionType, 0x0e, 0x1},
-        };
-
-        CO_OD_entryRecord_t TPDOMapParamEntry[9] = {
-            {(void *)&TPDOMapParam.numberOfMappedObjects, 0x0e, 0x1},
-            {(void *)&TPDOMapParam.mappedObject1, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject2, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject3, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject4, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject5, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject6, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject7, 0x8e, 0x4},
-            {(void *)&TPDOMapParam.mappedObject8, 0x8e, 0x4},
-        };*/
         // Data variables
         Eigen::VectorXd forces;
         Eigen::VectorXd torques;
@@ -138,31 +110,6 @@ class RobotousRFT : public InputDevice {
          * @return false if the sensor was previously not streaming (i.e. no change in state)
          */
         bool stopStream();
-
-        /**
-         * @brief Check if the system is streaming
-         * 
-         * @return true if streaming
-         * @return false if not streaming
-         */
-        bool getStreaming();
-
-        /**
-         * @brief Starts the Robotous Sensor Streaming data (sends 0x0B)
-         * 
-         * @return true if the sensor was previously not streaming (i.e. the stream is starting)
-         * @return false if the sensor was previously streaming (i.e. no change in state)
-         */
-        bool startStream();
-
-        /**
-         * @brief Stops the Robotous Sensor Streaming data (sends 0x0B)
-         * 
-         * @return true if the sensor was previously streaming (i.e. the stream is starting)
-         * @return false if the sensor was previously not streaming (i.e. no change in state)
-         */
-        bool stopStream();
-
 
         /**
          * @brief Check if the system is streaming

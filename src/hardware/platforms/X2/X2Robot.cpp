@@ -507,9 +507,10 @@ bool X2Robot::setBackpackIMUMode(IMUOutputMode imuOutputMode) {
         if(x2Parameters.imuParameters.location[i] == 'b'){
             if(!technaidIMUs->setOutputMode(i, imuOutputMode)){
                 return false;
-            } else return true;
+            }
         }
     }
+    return true;
 }
 
 bool X2Robot::initialiseJoints() {
@@ -703,16 +704,6 @@ std::string & X2Robot::getRobotName() {
 RobotParameters& X2Robot::getRobotParameters() {
     return x2Parameters;
 
-}
-
-bool X2Robot::setPosControlContinuousProfile(bool continuous){
-    bool returnValue = true;
-    for (auto p : joints) {
-        if(!(p->setPosControlContinuousProfile(continuous))){
-            returnValue = false;
-        }
-    }
-    return returnValue;
 }
 
 #ifdef SIM

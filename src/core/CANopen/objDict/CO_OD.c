@@ -202,30 +202,8 @@ OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO] = {&TPDOMapParamO
     {(void *)&TPDOMapParamOff.mappedObject6, 0x8e, 0x4},
     {(void *)&TPDOMapParamOff.mappedObject7, 0x8e, 0x4},
     {(void *)&TPDOMapParamOff.mappedObject8, 0x8e, 0x4},
-
-OD_RPDOCommunicationParameter_t RPDOCommParamOff = {0x2L, 0x80000000L, 0xffL};
-OD_RPDOMappingParameter_t RPDOMapParamOff = {0x0L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L, 0x0000L};
-
-OD_RPDOCommunicationParameter_t *OD_RPDOCommunicationParameter[CO_NO_RPDO] = {&RPDOCommParamOff};
-OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO] = {&RPDOMapParamOff};
-
-/*0x1400*/ CO_OD_entryRecord_t OD_recordRPDOCommff[3] = {
-    {(void *)&(RPDOCommParamOff.maxSubIndex), 0x06, 0x1},
-    {(void *)&(RPDOCommParamOff.COB_IDUsedByRPDO), 0x8e, 0x4},
-    {(void *)&(RPDOCommParamOff.transmissionType), 0x0e, 0x1},
 };
 
-/*0x1600*/ CO_OD_entryRecord_t OD_recordRPDOMapOff[9] = {
-    {(void *)&RPDOMapParamOff.numberOfMappedObjects, 0x0e, 0x1},
-    {(void *)&RPDOMapParamOff.mappedObject1, 0x8e, 0x4},
-    {(void *)&RPDOMapParamOff.mappedObject2, 0x8e, 0x4},
-    {(void *)&RPDOMapParamOff.mappedObject3, 0x8e, 0x4},
-    {(void *)&RPDOMapParamOff.mappedObject4, 0x8e, 0x4},
-    {(void *)&RPDOMapParamOff.mappedObject5, 0x8e, 0x4},
-    {(void *)&RPDOMapParamOff.mappedObject6, 0x8e, 0x4},
-    {(void *)&RPDOMapParamOff.mappedObject7, 0x8e, 0x4},
-    {(void *)&RPDOMapParamOff.mappedObject8, 0x8e, 0x4},
-};
 
 /*0x2130*/ const CO_OD_entryRecord_t OD_record2130[4] = {
     {(void *)&CO_OD_RAM.time.maxSubIndex, 0x06, 0x1},
@@ -236,7 +214,7 @@ OD_RPDOMappingParameter_t *OD_RPDOMappingParameter[CO_NO_RPDO] = {&RPDOMapParamO
 
 INTEGER16 junkData =8;
 
-/*Junk data Test*/ const CO_OD_entryRecord_t OD_DummyDataStoreLocation[9] = {
+const CO_OD_entryRecord_t OD_DummyDataStoreLocation[9] = {
     {(void *)&junkData, 0xfe, 0x2},
     {(void *)&junkData, 0xfe, 0x2},
     {(void *)&junkData, 0xfe, 0x2},

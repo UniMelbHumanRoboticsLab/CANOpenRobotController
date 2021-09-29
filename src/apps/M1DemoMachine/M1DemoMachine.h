@@ -25,7 +25,7 @@
 
 // State Classes
 #include "M1DemoStates.h"
-#include "spdlog/helper/LogHelper.h"
+#include "LogHelper.h"
 #include "logging.h"
 
 /**
