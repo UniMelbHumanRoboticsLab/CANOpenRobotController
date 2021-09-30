@@ -94,6 +94,7 @@ endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
 ## Add libraries headers
 list (APPEND INCLUDE_DIRS lib/)
+list (APPEND INCLUDE_DIRS lib/eigen/)
 list (APPEND INCLUDE_DIRS lib/spdlog/include/)
 
 add_subdirectory(lib/yaml-cpp/)
