@@ -22,7 +22,7 @@ set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT OFF)
+set(NO_ROBOT ON)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS OFF)
@@ -94,7 +94,7 @@ endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
 ## Add libraries headers
 list (APPEND INCLUDE_DIRS lib/)
-list (APPEND INCLUDE_DIRS lib/eigen/)
+list (APPEND INCLUDE_DIRS lib/Eigen/)
 list (APPEND INCLUDE_DIRS lib/spdlog/include/)
 
 add_subdirectory(lib/yaml-cpp/)
