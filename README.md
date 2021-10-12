@@ -51,10 +51,12 @@ If you are running a Linux-based machine, and wish to execute your CORC applicat
 
 On the host, clone the project from git repository:
 ```bash
-$ git clone https://github.com/UniMelb-Human-Robotics-Lab/CANOpenRobotController
+$ git clone --recursive -j8 https://github.com/UniMelb-Human-Robotics-Lab/CANOpenRobotController
 ```
 
 This repository includes all the sources files required for this example. (If you are running Github Desktop, you can simply clone by using File > Clone Repository...)
+
+> Note: the `--recursive option` is required as external libraries (Eigen, spdlog...) are installed as git submodule (directly from their own repository).
 
 ### Building ExoTestMachine
 CMake is used to generate an appropriate makefile for CORC framework. By default, the generated makefile is configured to compile an executable `ExoTestMachine_APP` using the default C/C++ compilers. To generate a cross-compiled executable (suitable for running on a Beaglebone Black) use the following commands on the host:
