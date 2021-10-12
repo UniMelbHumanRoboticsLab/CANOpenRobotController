@@ -7,3 +7,6 @@
 [submodule "lib/eigen"]
 	path = lib/eigen
 	url = https://github.com/libigl/eigen
+[submodule "lib/FLNL"]
+	path = lib/FLNL
+	url = https://github.com/vcrocher/libFLNL.git

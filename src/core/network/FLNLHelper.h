@@ -1,7 +1,7 @@
 #include <Eigen/Dense>
 #include <string>
 #include <typeinfo>
-#include <FLNL/FLNL.h>
+#include <FLNL.h>
 
 #include "Robot.h"
 #include "RobotM3.h"
