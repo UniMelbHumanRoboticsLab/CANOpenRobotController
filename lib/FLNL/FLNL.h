@@ -98,6 +98,7 @@ class baseSocket
             int GetReceivedValues(std::vector<double> &vals);
             bool IsReceivedCmd();
             int GetReceivedCmd(std::string &cmd, std::vector<double> &vals);
+            void ClearReceivedCmd();
         //@}
 
     protected:
