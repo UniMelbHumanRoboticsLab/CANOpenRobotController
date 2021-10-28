@@ -54,4 +54,3 @@ $ sudo apt install can-utils
 
 ## Other Tools
 It is also useful to have a development environment. If you do not have a preferred environment, VSCode (https://code.visualstudio.com/) is popular and can be configured with a number of extensions which make development easier. 
-
