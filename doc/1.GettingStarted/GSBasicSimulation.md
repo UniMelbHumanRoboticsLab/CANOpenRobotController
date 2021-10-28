@@ -18,15 +18,15 @@ These instructions assume that you have a suitable test platform (i.e. a Target)
 #### Host Installation
 The host is your development computer --- generally running a desktop operating system. Recommended instructions for Windows and Linux systems can be found here:
 
-- [Windows Workbench Setup](doc/InstallWindows.md)
-- [Linux Workbench Setup](doc/InstallLinux.md)
+- [Windows Workbench Setup](doc/1.GettingStarted/InstallWindows.md)
+- [Linux Workbench Setup](doc/1.GettingStarted/InstallLinux.md)
 
 An alternate option would be to use a Virtual Machine as your development enviroment. Instructions can be found in Option B [here](https://exoembedded.readthedocs.io/en/latest/workbench/), but this is not currently maintained. 
 
 #### Target Setup
 The target chosen will ultimately depend on the specific hardware that you are using. CORC was primarily developed to be run on a Beaglebone Black, thus these instructions primarily focus on a BeagleBone Black running Debian Stretch 9.5 [Firmware](http://beagleboard.org/latest-images). Instructions for setting up the Beaglbone Black can be found on [here](http://beagleboard.org/getting-started) on the Beaglebone Website.
 
-> Note: if you use a Beagle Bone AI see instructions [here](doc/BBAISetup.md) to setup the CAN device.
+> Note: if you use a Beagle Bone AI see instructions [here](doc/2.Hardware/BBAISetup.md) to setup the CAN device.
 
 If you are running a Linux-based machine, and wish to execute your CORC application on that machine, no additional setup is necessary (instructions specific to this setup are tagged with **[DEPLOY-LOCAL]** - mostly, this will mean that you do not have to complete some steps.).
 
@@ -74,7 +74,7 @@ Using an FTP Client on the Host (if you do not have one - or a preferred client,
 
 On the host, using the FTP client, transfer the build executable in `build/ExoTestMachine_APP`, along with the contents of the `script` folder, to the Beaglebone.
 
-Alternatively, you can use the [script/uploadBB.sh](script/uploadBB.sh) to automatically upload the content of the script folder and the build/\*APP to the BeagleBone through ssh. 
+Alternatively, you can use the [script/uploadBB.sh](../../script/uploadBB.sh) to automatically upload the content of the script folder and the build/\*APP to the BeagleBone through ssh. 
 
 > Note: The `script` folder contains scripts for setting up the CAN interfaces that CORC uses for communication. In case you use a PEAK CAN USB device, make sure to either use the `initPCAN` script or to manually setup the CAN queue length to 1000 (`ifconfig can0 txqueuelen 1000`).
 

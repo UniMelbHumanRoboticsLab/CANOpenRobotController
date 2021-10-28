@@ -24,7 +24,7 @@ CORC provides a structured way to build event driven Finite State Machines.
 
 The execution flow of a typical state machine with two states A and B is shown on this diagram and detailed below.
    
-   ![CORC State Machine Diagram](img/CORCStateMachineExecutionDiagram.png)
+   ![CORC State Machine Diagram](../img/CORCStateMachineExecutionDiagram.png)
    
 Yellow parts highlights the methods which needs to be overriden with custom application code whereas Green blocks represents transitions that needs to be setup.
 
@@ -126,7 +126,7 @@ This log is organised in several level of priorities: TRACE < DEBUG < INFO < WAR
     
 This log will produce outputs both on console (`cout`) and within a rotating log file (logs/CORC.log).
     
-When compiling your application you can select the desired logging level in the [CMakeLists.txt](../CMakeLists.txt) by setting CORC_LOGGING_LEVEL to one of the above value: 
+When compiling your application you can select the desired logging level in the [CMakeLists.txt](../../CMakeLists.txt) by setting CORC_LOGGING_LEVEL to one of the above value: 
 keeping `set(CORC_LOGGING_LEVEL INFO)` (recommended level) will produce only INFO, WARN, ERROR and CRITICAL outputs for example.
     
 To use this logger in your code, use one of the dedicated function depending on the desired level: 
@@ -174,4 +174,4 @@ Additionnal third-party libraries required in your code can either directly be p
 
 ### ROS
 
-To use ROS in your application, see this [specific page](Simulation.md).
+To use ROS in your application, see this [specific page](../1.GettingStarted/Simulation.md).

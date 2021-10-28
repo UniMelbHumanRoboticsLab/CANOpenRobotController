@@ -36,7 +36,7 @@ This example does not include any visualisation of the robot, with feedback to t
 1. Initial testing of software for applications not using ROS (e.g. some embedded )
 2. Users seeking the simplest 
 
-### Link to page here. 
+### [Basic Simulation - Instructions](GSBasicSimulation.md) 
 
 
 ## Advanced Simulation - Exoskeleton
