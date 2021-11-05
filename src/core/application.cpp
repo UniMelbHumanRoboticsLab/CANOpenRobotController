@@ -11,8 +11,6 @@
  */
 #include "application.h"
 
-#include "RobotousRFT.h"
-
 #ifdef TIMING_LOG
 #include "LoopTiming.h"
 LoopTiming loopTimer;
