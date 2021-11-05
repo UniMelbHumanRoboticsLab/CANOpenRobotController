@@ -13,10 +13,10 @@ project(CORC C CXX)
 # If your application use ROS, don't forget to change the flag bellow too.
 
 set (STATE_MACHINE_NAME "ExoTestMachine")
-#set (STATE_MACHINE_NAME "M3DemoMachine")
-#set (STATE_MACHINE_NAME "M2DemoMachine")
-#set (STATE_MACHINE_NAME "X2DemoMachine")
 #set (STATE_MACHINE_NAME "M1DemoMachine")
+#set (STATE_MACHINE_NAME "M2DemoMachine")
+#set (STATE_MACHINE_NAME "M3DemoMachine")
+#set (STATE_MACHINE_NAME "X2DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
