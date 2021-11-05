@@ -204,6 +204,7 @@ OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO] = {&TPDOMapParamO
     {(void *)&TPDOMapParamOff.mappedObject8, 0x8e, 0x4},
 };
 
+
 /*0x2130*/ const CO_OD_entryRecord_t OD_record2130[4] = {
     {(void *)&CO_OD_RAM.time.maxSubIndex, 0x06, 0x1},
     {(void *)&CO_OD_RAM.time.string, 0x06, 0x1},
@@ -213,7 +214,7 @@ OD_TPDOMappingParameter_t *OD_TPDOMappingParameter[CO_NO_TPDO] = {&TPDOMapParamO
 
 INTEGER16 junkData =8;
 
-/*Junk data Test*/ const CO_OD_entryRecord_t OD_DummyDataStoreLocation[9] = {
+const CO_OD_entryRecord_t OD_DummyDataStoreLocation[9] = {
     {(void *)&junkData, 0xfe, 0x2},
     {(void *)&junkData, 0xfe, 0x2},
     {(void *)&junkData, 0xfe, 0x2},
@@ -228,7 +229,6 @@ INTEGER16 junkData =8;
 /*******************************************************************************
    OBJECT DICTIONARY
 *******************************************************************************/
-
 CO_OD_entry_t CO_OD[CO_OD_NoOfElements];
 
 bool_t CO_OD_set_entry(uint16_t element_, uint16_t index_, uint8_t maxSubIndex_, uint16_t attribute_, uint16_t length_, void *pData_) {
@@ -267,8 +267,6 @@ bool_t CO_configure(void) {
     CO_OD_set_entry(22, 0x1029, 0x06, 0x0e, 1, (void *)&CO_OD_RAM.errorBehavior[0]);
     CO_OD_set_entry(23, 0x1200, 0x02, 0x00, 0, (void *)&OD_record1200);
     CO_OD_set_entry(24, 0x1280, 0x03, 0x00, 0, (void *)&OD_record1280);
-
-
     // Initialise all PDOs to off
     for (i = 0; i < CO_NO_RPDO; i = i + 1) {
         CO_OD_set_entry(25 + i, 0x1400 + i, 0x02, 0x00, 0, (void *)&OD_recordRPDOCommOff);

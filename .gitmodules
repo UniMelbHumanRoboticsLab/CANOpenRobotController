@@ -1,0 +1,9 @@
+[submodule "lib/spdlog"]
+	path = lib/spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "lib/yaml-cpp"]
+	path = lib/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp
+[submodule "lib/FLNL"]
+	path = lib/FLNL
+	url = https://github.com/vcrocher/libFLNL.git

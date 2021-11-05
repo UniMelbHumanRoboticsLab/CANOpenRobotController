@@ -13,12 +13,10 @@ project(CORC C CXX)
 # If your application use ROS, don't forget to change the flag bellow too.
 
 set (STATE_MACHINE_NAME "ExoTestMachine")
-#set (STATE_MACHINE_NAME "M3DemoMachine")
-#set (STATE_MACHINE_NAME "M2DemoMachine")
-#set (STATE_MACHINE_NAME "M3Machining")
-#set (STATE_MACHINE_NAME "M3Chai")
-#set (STATE_MACHINE_NAME "X2DemoMachine")
 #set (STATE_MACHINE_NAME "M1DemoMachine")
+#set (STATE_MACHINE_NAME "M2DemoMachine")
+#set (STATE_MACHINE_NAME "M3DemoMachine")
+#set (STATE_MACHINE_NAME "X2DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
@@ -43,6 +41,13 @@ endif()
 
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_${CORC_LOGGING_LEVEL})
 
+# For Force Plates
+#add_definitions(-DFP_BBB)
+add_definitions(-DFP_PB)
+add_definitions(-DFP_CMDRPDO=0x3E0)
+add_definitions(-DFP_STARTTPDO=0x3E1)
+
+#######################
 
 ## Compile as C++11
 set(CMAKE_CXX_STANDARD 11)
@@ -75,8 +80,8 @@ if(NO_ROBOT)
 endif()
 
 ## Get all source and header files (only the target app folder is included)
-file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "src/apps/${STATE_MACHINE_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.cpp" "lib/FLNL/*.cpp")
-file(GLOB_RECURSE HEADERS "src/core/*.h" "src/hardware/*.h" "src/apps/${STATE_MACHINE_NAME}/*.h")
+file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "src/apps/${STATE_MACHINE_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.cpp" "lib/FLNL/src/*.cpp")
+file(GLOB_RECURSE HEADERS "src/core/*.h" "src/hardware/*.h" "src/apps/${STATE_MACHINE_NAME}/*.h" )
 
 ## Set every folder containing .h file as include directory
 set (INCLUDE_DIRS "")
@@ -87,6 +92,9 @@ endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
 ## Add libraries headers
 list (APPEND INCLUDE_DIRS lib/)
+list (APPEND INCLUDE_DIRS lib/Eigen/)
+list (APPEND INCLUDE_DIRS lib/FLNL/include/)
+list (APPEND INCLUDE_DIRS lib/spdlog/include/)
 
 add_subdirectory(lib/yaml-cpp/)
 

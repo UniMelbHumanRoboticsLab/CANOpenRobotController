@@ -1,7 +1,7 @@
 #include <Eigen/Dense>
 #include <string>
 #include <typeinfo>
-#include <FLNL/FLNL.h>
+#include <FLNL.h>
 
 #include "Robot.h"
 #include "RobotM3.h"
@@ -28,10 +28,10 @@ class FLNLHelper
         FLNLHelper(std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
-            
+
             spdlog::info("Initialised default network communication server ({}:{}) ", ip, port);
         }
-        
+
         /**
         * \brief Specialised constructor also registering joint states
         * \param ip: server (local) ip address to use
@@ -40,17 +40,17 @@ class FLNLHelper
         FLNLHelper(Robot * robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
-            
+
             initTime = std::chrono::steady_clock::now();
-            
+
             registerState(runningTime);
             registerState(robot->getPosition());
             registerState(robot->getVelocity());
             registerState(robot->getTorque());
-            
+
             spdlog::info("Initialised network communication server ({}:{}) for default robot (state size: {})", ip, port, stateValues.size());
         }
-        
+
         /**
         * \brief Dedicated constructor for M3 registering end effector state instead of joint ones
         * \param ip: server (local) ip address to use
@@ -59,17 +59,17 @@ class FLNLHelper
         FLNLHelper(RobotM3 * robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
-            
+
             initTime = std::chrono::steady_clock::now();
-            
+
             registerState(runningTime);
             registerState(robot->getEndEffPositionRef());
             registerState(robot->getEndEffVelocityRef());
             registerState(robot->getInteractionForceRef());
-            
+
             spdlog::info("Initialised network communication server ({}:{}) for M3 robot (state size: {})", ip, port, stateValues.size());
         }
-        
+
          /**
         * \brief Dedicated constructor for M2 registering end effector state instead of joint ones
         * \param ip: server (local) ip address to use
@@ -78,17 +78,17 @@ class FLNLHelper
         FLNLHelper(RobotM2 * robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
-            
+
             initTime = std::chrono::steady_clock::now();
-            
+
             registerState(runningTime);
             registerState(robot->getEndEffPositionRef());
             registerState(robot->getEndEffVelocityRef());
-            registerState(robot->getEndEffForceRef());
-            
+            registerState(robot->getInteractionForceRef());
+
             spdlog::info("Initialised network communication server ({}:{}) for M2 robot (state size: {})", ip, port, stateValues.size());
         }
-        
+
         /**
         * \brief Close existing connection
         */
@@ -96,7 +96,7 @@ class FLNLHelper
             if(FLNLServer.IsConnected())
                 FLNLServer.Disconnect();
         }
-        
+
         /**
         * \brief Default destructor also closing connection
         */
@@ -104,8 +104,8 @@ class FLNLHelper
             if(FLNLServer.IsConnected())
                 FLNLServer.Disconnect();
         }
-        
-        
+
+
         /**
         * \brief Register a double value within state to be send regularly
         * \return registered state size after addition
@@ -116,7 +116,7 @@ class FLNLHelper
             stateReferencesType.push_back(typeid(v).hash_code()); //store type
             return stateValues.size();
         }
-        
+
         /**
         * \brief Register a vector of doubles within state to be send regularly
         * \return registered state size after addition
@@ -129,7 +129,7 @@ class FLNLHelper
             stateReferencesType.push_back(typeid(v).hash_code()); //store type
             return stateValues.size();
         }
-        
+
         /**
         * \brief Register an Eigen vector of doubles within state to be send regularly
         * \return registered state size after addition
@@ -138,21 +138,21 @@ class FLNLHelper
             for(int i=0; i< v.size(); i++)//resize and initialise value
                 stateValues.push_back(v[i]);
             stateReferences.push_back((void*)&v); //store reference
-            stateReferencesType.push_back(typeid(v).hash_code()); //store type 
+            stateReferencesType.push_back(typeid(v).hash_code()); //store type
             return stateValues.size();
         }
-        
-        
+
+
         /**
         * \brief Send registerd state values
         */
         void sendState() {
-            
+
             if(FLNLServer.IsConnected()) {
                 //Update time
                 runningTime = (std::chrono::duration_cast<std::chrono::microseconds>(
                                 std::chrono::steady_clock::now() - initTime).count()) / 1e6;
-                
+
                 //Prepare vector of values to send
                 int k=0;
                 for(unsigned int i=0; i<stateReferences.size(); i++) {
@@ -184,21 +184,21 @@ class FLNLHelper
                 FLNLServer.Send(stateValues);
             }
         }
-        
+
         /**
         * \brief Send a string command (4 characters) to client without parameters
         */
         void sendCmd(const std::string &cmd) {
             FLNLServer.Send(cmd);
         }
-        
+
         /**
         * \brief Send a string command (4 characters) and double parameters
         */
         void sendCmd(const std::string &cmd, const std::vector<double> &v) {
             FLNLServer.Send(cmd, v);
         }
-        
+
         /**
         * \brief Send a string command (4 characters) and double parameters
         */
@@ -213,12 +213,19 @@ class FLNLHelper
         bool isCmd() {
             return FLNLServer.IsReceivedCmd();
         }
-        
+
         /**
         * \brief Return latest received command
         */
         void getCmd(std::string &cmd, std::vector<double> &v) {
             FLNLServer.GetReceivedCmd(cmd, v);
+        }
+
+        /**
+        * \brief Clear received command flag (to call when command is succesfully consumed)
+        */
+        void clearCmd() {
+            FLNLServer.ClearReceivedCmd();
         }
 
         /*//! Return latest received command

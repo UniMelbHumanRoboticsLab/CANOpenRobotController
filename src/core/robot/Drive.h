@@ -148,7 +148,6 @@ class Drive {
     void generateEquivalentMasterRPDO(std::vector<OD_Entry_t> items,  int COB_ID, int RPDOSyncRate);
 
 
-
     /**
         * \brief Generates the list of commands required to configure RPDOs on the drives
         *
@@ -169,7 +168,6 @@ class Drive {
         * \param RPDOSyncRate The rate at which the TPDO sends messages NOTE: This is not the same as for the equivalent RPDO
         */
     void generateEquivalentMasterTPDO(std::vector<OD_Entry_t> items, int COB_ID, int TPDOSyncRate);
-
 
     /**
        *

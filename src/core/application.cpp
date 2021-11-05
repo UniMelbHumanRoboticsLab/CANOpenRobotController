@@ -23,7 +23,6 @@ LoopTiming loopTimer;
 
 STATE_MACHINE_TYPE *stateMachine;
 
-
 /******************** RUNS BEFORE CO_init() ********************/
 void app_communicationReset(int argc, char *argv[]) {
 #ifdef USEROS
@@ -41,7 +40,6 @@ void app_programStart(void) {
 #ifdef NOROBOT
     spdlog::info("Running in NOROBOT (virtual) mode.");
 #endif  // NOROBOT
-
     stateMachine->init();
     stateMachine->activate();
 }

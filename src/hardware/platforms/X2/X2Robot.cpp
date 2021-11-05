@@ -507,9 +507,10 @@ bool X2Robot::setBackpackIMUMode(IMUOutputMode imuOutputMode) {
         if(x2Parameters.imuParameters.location[i] == 'b'){
             if(!technaidIMUs->setOutputMode(i, imuOutputMode)){
                 return false;
-            } else return true;
+            }
         }
     }
+    return true;
 }
 
 bool X2Robot::initialiseJoints() {
@@ -673,7 +674,6 @@ bool X2Robot::setPosControlContinuousProfile(bool continuous){
     }
     return returnValue;
 }
-
 Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
     float coulombFriction;
     const float velTreshold = 1*M_PI/180.0; // [rad/s]

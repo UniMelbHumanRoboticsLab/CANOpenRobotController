@@ -51,8 +51,8 @@ static int rt_thread_epoll_fd; /*!< epoll file descriptor for rt thread */
 static int rtControlPriority = 80; /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
-const float controlLoopPeriodInms = 3;   /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 3; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
+const float controlLoopPeriodInms = 10;   /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
+const float CANUpdateLoopPeriodInms = 10; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
 CO_NMT_reset_cmd_t reset_local = CO_RESET_NOT;
 
 /** @brief Task Timer used for the Control Loop*/
@@ -364,11 +364,11 @@ static void *rt_control_thread(void *arg) {
     struct period_info pinfo;
     periodic_task_init(&pinfo);
     app_programStart();
-
     while (!readyToStart) {
         wait_rest_of_period(&pinfo);
     }
     while (endProgram == 0) {
+        periodic_task_init(&pinfo);
         app_programControlLoop();
         wait_rest_of_period(&pinfo);
     }

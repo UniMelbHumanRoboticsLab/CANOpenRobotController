@@ -9,6 +9,10 @@ LoggingDevice::LoggingDevice() {
     // Events
     isAPressed = new IsAPressed(this);
     isSPressed = new IsSPressed(this);
+    isWPressed = new IsWPressed(this);
+    isXPressed = new IsXPressed(this);
+    isDPressed = new IsDPressed(this);
+
     isCalibrationFinished = new IsCalibrationFinished(this);
 
     // States
@@ -20,6 +24,10 @@ LoggingDevice::LoggingDevice() {
     // Transitions
     NewTransition(initState, isAPressed, idleState);
     NewTransition(idleState, isAPressed, calibrateState);
+    NewTransition(idleState, isWPressed, idleState);
+    NewTransition(idleState, isXPressed, idleState);
+    NewTransition(idleState, isDPressed, idleState);
+
     NewTransition(calibrateState, isCalibrationFinished, idleState);
     NewTransition(idleState, isSPressed, recordState);
     NewTransition(recordState, isSPressed, idleState);
@@ -38,6 +46,15 @@ void LoggingDevice::init() {
     dataLogger.initLogger("test_logger", "logs/testLog.csv", LogFormat::CSV, true);
     dataLogger.add(time, "time");
     dataLogger.add(robot->getCrutchReadings(), "CrutchReadings");
+    dataLogger.add(robot->getForcePlateReadings(), "ForcePlateReadings");
+    dataLogger.add(robot->getFootSensorReadings(), "FootSensorReadings");
+    //dataLogger.add(robot->getMotorPositions(), "MotorPositions");
+    //dataLogger.add(robot->getMotorVelocities(), "MotorVelocities");
+    //dataLogger.add(robot->getMotorTorques(), "MotorTorques");
+    //dataLogger.add(robot->getGoButton(), "GoButton");
+    //dataLogger.add(robot->getCurrentState(), "CurrentState");
+    //dataLogger.add(robot->getCurrentMovement(), "CurrentMovement");
+
     dataLogger.startLogger();
 }
 
@@ -56,6 +73,7 @@ void LoggingDevice::end() {
      */
 
 bool LoggingDevice::IsAPressed::check(void) {
+    spdlog::trace("IsAPressed");
     if (OWNER->robot->keyboard->getA() == true) {
 
         return true;
@@ -64,6 +82,42 @@ bool LoggingDevice::IsAPressed::check(void) {
 }
 bool LoggingDevice::IsSPressed::check(void) {
     if (OWNER->robot->keyboard->getS() == true) {
+        return true;
+    }
+    return false;
+}
+bool LoggingDevice::IsSPressed::check(void) {
+    if (OWNER->robot->keyboard->getS() == true) {
+        return true;
+    }
+    return false;
+}
+
+bool LoggingDevice::IsCalibrationFinished::check(void) {
+    if (OWNER->calibrateState->getCurrReading() < NUM_CALIBRATE_READINGS) {
+        return false;
+    }
+    return true;
+}
+
+bool LoggingDevice::IsWPressed::check(void) {
+    if (OWNER->robot->keyboard->getW() == true) {
+        OWNER->robot->zeroForcePlate();
+        return true;
+    }
+    return false;
+}
+
+bool LoggingDevice::IsXPressed::check(void) {
+    if (OWNER->robot->keyboard->getX() == true) {
+        OWNER->robot->zeroLeftFoot();
+        return true;
+    }
+    return false;
+}
+bool LoggingDevice::IsDPressed::check(void) {
+    if (OWNER->robot->keyboard->getD() == true) {
+        OWNER->robot->zeroRightFoot();
         return true;
     }
     return false;

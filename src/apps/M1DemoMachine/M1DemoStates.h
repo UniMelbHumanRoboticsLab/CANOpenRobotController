@@ -20,7 +20,7 @@
 
 #include "FLNLHelper.h"
 #include <csignal> //For raise()
-#include "spdlog/helper/LogHelper.h"
+#include "LogHelper.h"
 #include "logging.h"
 
 #define IP_ADDRESS "192.168.137.196" //Local IP address to use

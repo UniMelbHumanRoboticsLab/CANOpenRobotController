@@ -138,6 +138,25 @@ class CopleyDrive : public Drive {
          * \return false if not
          */
     bool setPositionOffset(int offset);
-};
 
+    /**
+     * \brief Sends SDO value to set the tracking error window (the value of the tracking error)
+     *
+     * /param window Size of the error allowed before error is thrown
+     *
+     * \return true if successful
+     * \return false if not
+     */
+    bool setTrackingWindow(INTEGER32 window);
+
+    /**
+     * \brief Sends SDO value to set the fault mask 
+     *
+     * /param mask value of the mask (see Copley's CANOpenProgrammer's Manual Index 0x2182, p. 69)
+     *
+     * \return true if successful
+     * \return false if not
+     */
+    bool setFaultMask(UNSIGNED32 mask);
+};
 #endif

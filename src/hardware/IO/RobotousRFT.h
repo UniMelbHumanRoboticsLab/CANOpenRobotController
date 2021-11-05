@@ -7,7 +7,6 @@
  * 
  * \version 0.1
  * \date 2021-01-12
- * \version 0.1
  * \copyright Copyright (c) 2021
  *
  */
@@ -56,6 +55,9 @@ class RobotousRFT : public InputDevice {
         UNSIGNED8 lengthData =8; // 8 for each of the RPDOs - I cheat and reuse this variable
         UNSIGNED8 lengthCmd = 2; // Second one is for padding
 
+        // OD Parameters
+        // Will need to be modified to take into number of items, data size and location
+        // Data size and number of items will be constant, function will be used to change location
         // Data variables
         Eigen::VectorXd forces;
         Eigen::VectorXd torques;

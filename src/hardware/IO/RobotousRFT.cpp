@@ -88,7 +88,6 @@ void RobotousRFT::setOffsets(Eigen::VectorXd forceOffset, Eigen::VectorXd torque
 
 bool RobotousRFT::startStream(){
     spdlog::info("RobotousRFT 0x{0:x} Starting", commandID);
-
     if (!streaming){
         cmdData =0x0B;
         streaming = true;
@@ -98,7 +97,6 @@ bool RobotousRFT::startStream(){
 }
 bool RobotousRFT::stopStream() {
     spdlog::info("RobotousRFT 0x{0:x} Stopping", commandID);
-
     if (streaming){
         cmdData = 0x0C;
         streaming = false;

@@ -18,7 +18,7 @@ class State;
 
 #include "logging.h"
 #include "State.h"
-#include "spdlog/helper/LogHelper.h"
+#include "LogHelper.h"
 
 /**
  * @ingroup stateMachine

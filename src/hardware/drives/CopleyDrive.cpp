@@ -77,10 +77,13 @@ std::vector<std::string> CopleyDrive::generatePositionOffsetSDO(int offset) {
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
     // set control word to start homing
+    sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x0f";
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+    // set control word to start homing
     sstream << "[1] " << NodeID << " write 0x6040 0 u16 0x1f";
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
-
     return CANCommands;
 }
 
@@ -94,3 +97,33 @@ bool CopleyDrive::setPositionOffset(int offset) {
 
 }
 
+
+bool CopleyDrive::setTrackingWindow(INTEGER32 window) {
+    spdlog::debug("NodeID {} Tracking Window", NodeID);
+
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+    sstream << "[1] " << NodeID << " write 0x2120 0 i32 " << std::dec << window;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    sendSDOMessages(CANCommands);
+
+    return true;
+}
+
+bool CopleyDrive::setFaultMask(UNSIGNED32 mask) {
+    spdlog::debug("NodeID {} Fault mask set to {0:x}", NodeID, mask);
+
+    std::vector<std::string> CANCommands;
+    // Define stringstream for ease of constructing hex strings
+    std::stringstream sstream;
+    sstream << "[1] " << NodeID << " write 0x2182 0 i32 " << std::dec << mask;
+    CANCommands.push_back(sstream.str());
+    sstream.str(std::string());
+
+    sendSDOMessages(CANCommands);
+
+    return true;
+}

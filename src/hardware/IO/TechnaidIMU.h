@@ -44,7 +44,7 @@
 #include <Eigen/Dense>
 
 // Logger
-#include "spdlog/helper/LogHelper.h"
+#include "LogHelper.h"
 
 // CAN
 #include <fcntl.h>

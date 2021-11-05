@@ -192,7 +192,10 @@ double Joint::updateVelocity() {
 double Joint::updateTorque() {
     if (actuated) {
         return driveUnitToJointTorque(drive->getTorque());
+        spdlog::info("this happens");
     }
+    spdlog::info("this other thing happens");
+
     return 0;
 }
 
@@ -232,6 +235,7 @@ bool Joint::enable() {
 bool Joint::disable() {
     if (actuated) {
         drive->readyToSwitchOn();  //Ready to switch on is also power off state
+        return true;
     }
     return false;
 }
