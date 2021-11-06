@@ -29,16 +29,16 @@ typedef Eigen::Vector2d VM2; //! Convenience alias for double  Vector of length 
  */
 class RobotM2 : public Robot {
    private:
-    VM2 qCalibration = {0, 0.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
+    VM2 qCalibration = {0, 0.};  //!< Calibration configuration: posture in which the robot is when using the calibration procedure
 
     bool calibrated;
-    double maxEndEffVel; /*!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.*/
-    double maxEndEffForce; /*!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated. */
+    double maxEndEffVel; //!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.
+    double maxEndEffForce; //!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated.
 
-    Eigen::VectorXd endEffPositions;
-    Eigen::VectorXd endEffVelocities;
-    Eigen::VectorXd endEffForces;
-    Eigen::VectorXd interactionForces;
+    VM2 endEffPositions;
+    VM2 endEffVelocities;
+    VM2 endEffForces;
+    VM2 interactionForces;
 
    public:
     /**
@@ -153,13 +153,10 @@ class RobotM2 : public Robot {
     VM2 directKinematic(VM2 q);
     VM2 inverseKinematic(VM2 X);
 
-    VM2 getEndEffPosition();                    //!< Return vector containing end-effector position (in m)
-    VM2 getEndEffVelocity();                    //!< Return vector containing end-effector velocity (in m.s-1)
-    VM2 getEndEffForce();                       //!< Return vector containing end-effector (motors) force (in N)
-    Eigen::VectorXd& getEndEffPositionRef();    //!< Return vector reference containing end-effector position (in m)
-    Eigen::VectorXd& getEndEffVelocityRef();    //!< Return vector reference containing end-effector velocity (in m.s-1)
-    Eigen::VectorXd& getEndEffForceRef();       //!< Return vector reference containing end-effector (motors) force (in N)
-    Eigen::VectorXd& getInteractionForceRef();  //!< Return vector reference containing end-effector interaction force (as per force sensors measurement) (in N)
+    const VM2& getEndEffPosition();       //!< Return vector containing end-effector position (in m)
+    const VM2& getEndEffVelocity();       //!< Return vector containing end-effector velocity (in m.s-1)
+    const VM2& getEndEffForce();          //!< Return vector containing end-effector (motors) force (in N)
+    const VM2& getInteractionForce();  //!< Return vector reference containing end-effector interaction force (as per force sensors measurement) (in N)
 
     setMovementReturnCode_t setJointPosition(VM2 q);
     setMovementReturnCode_t setJointVelocity(VM2 dq);

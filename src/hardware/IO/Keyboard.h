@@ -1,26 +1,27 @@
 /**
  *
- * \file ExoTestMachine.h
- * \author William Campbell
- * \version 0.1
- * \date 2019-09-24
- * \copyright Copyright (c) 2020
+ * \file Keyboard.h
+ * \author William Campbell, Vincent Crocher
+ * \version 0.3
+ * \date 2021-06-18
+ * \copyright Copyright (c) 2020,2021
  *
  * \breif The <code>Keyboard</code> class is an implementation of the abstract <class>Input</class>class for a computer keyboard.
  *    The device has key states which maintain the current values for a given programs update frame or refresh rate.
  *
  *
- * Version 0.1
- * Date: 07/04/2020
+ * Version 0.3
+ * Date: 18/06/2021
  */
 
 #ifndef KEYBOARD_H_INCLUDED
 #define KEYBOARD_H_INCLUDED
 
 #include <unistd.h>
+#include <vector>
+#include "termios.h"
 
 #include "InputDevice.h"
-#include "termios.h"
 #define NB_DISABLE 0
 #define NB_ENABLE 1
 
@@ -35,7 +36,8 @@ typedef struct keys {
     bool w;
     bool x;
     bool q;
-    bool Nb[10];//Number keys
+    std::vector<bool> Nb;//Number keys
+    int key_code;
 } key_states;
 
 /**
@@ -44,7 +46,7 @@ typedef struct keys {
  */
 class Keyboard : public InputDevice {
    private:
-    key_states currentKeyStates = {false, false, false, false, false, false};
+    key_states currentKeyStates;
     int keyboardActive;
 
    public:
@@ -57,11 +59,6 @@ class Keyboard : public InputDevice {
          */
     Keyboard();
     ~Keyboard();
-    /**
- * \brief getter method for key_states.
- *
- */
-    key_states getStates();
     /**
  * \brief reads one character from stdin and updates coresponding key state (if one occured)
  *
@@ -119,6 +116,16 @@ class Keyboard : public InputDevice {
  * \return Return nb of first nb key pressed, -1 if no number key is pressed.
  */
     int getNb();
+/**
+ * \brief Getter method for any key nb pressed
+ * \return Return the code of the key currently pressed, -1 if nothing pressed.
+ */
+    int getKeyCode();
+    /**
+ * \brief Getter method for any letter key pressed
+ * \return Return the key character currently pressed (converted to lower-case), -1 if nothing is pressed or not a character
+ */
+    int getKeyUC();
     /**
  * \brief Termios structs for turning on and off terminal echo
  *
@@ -148,7 +155,7 @@ class Keyboard : public InputDevice {
 
     /**
      * \brief Does nothing as there are none here
-     * 
+     *
      */
     bool configureMasterPDOs(){return true;};
 };

@@ -36,7 +36,9 @@ M2DemoMachine::M2DemoMachine() {
 }
 M2DemoMachine::~M2DemoMachine() {
     spdlog::debug("M2DemoMachine::~M2DemoMachine()");
-    delete UIserver;
+    if(initialised) {
+        delete UIserver;
+    }
     delete robot;
 }
 
@@ -51,9 +53,9 @@ void M2DemoMachine::init() {
         initialised = true;
         logHelper.initLogger("M2DemoMachineLog", "logs/M2DemoMachine.csv", LogFormat::CSV, true);
         logHelper.add(time_running, "Time (s)");
-        logHelper.add(robot->getEndEffPositionRef(), "Position");
-        logHelper.add(robot->getEndEffVelocityRef(), "Velocity");
-        logHelper.add(robot->getEndEffForceRef(), "Force");
+        logHelper.add(robot->getEndEffPosition(), "Position");
+        logHelper.add(robot->getEndEffVelocity(), "Velocity");
+        logHelper.add(robot->getEndEffForce(), "Force");
         logHelper.startLogger();
         UIserver = new FLNLHelper(robot, "192.168.7.2");
     }
