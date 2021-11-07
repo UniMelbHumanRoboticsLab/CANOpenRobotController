@@ -1,4 +1,4 @@
-X2_MELB_A: # That ends with 0.9999 are not investigated yet
+X2_SRA_A: # That ends with 0.9999 are not investigated yet
   m: [5.9999, 2.4076, 5.9999, 2.4076] # masses of left thigh, left shank+foot, right thigh, right shank+foot [kg]
   l: [0.37, 0.38, 0.37, 0.38] # length of left thigh, left shank, right thigh, right shank [kg]
   s: [0.19999, 0.3213, 0.19999, 0.3213] # length from previous joint to CoM [m]
