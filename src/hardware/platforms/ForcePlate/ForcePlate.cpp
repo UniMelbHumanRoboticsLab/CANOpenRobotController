@@ -1,7 +1,10 @@
 #include "ForcePlate.h"
 
-ForcePlate::ForcePlate() {
+ForcePlate::ForcePlate(std::string robot_name, std::string yaml_config_file) :  Robot(robot_name, yaml_config_file) {
     spdlog::info("New ForcePlate Robot");
+
+    //Check if YAML file exists and contain robot parameters
+    initialiseFromYAML(yaml_config_file);
 
     initialiseJoints();
     initialiseInputs();
@@ -11,7 +14,7 @@ bool ForcePlate::initialiseInputs() {
     // Useful for testing, not really required but doesn't hurt to have it, even without a keyboard
     inputs.push_back(keyboard = new Keyboard());
 
-    // There are 4 Strain guage objects on this 
+    // There are 4 Strain guage objects on this
     Eigen::Matrix<int, 4, 2> inputPins;
     inputPins(0,0) = 2; // Sensor 1
     inputPins(0,1) = 4;
@@ -22,7 +25,7 @@ bool ForcePlate::initialiseInputs() {
     inputPins(3, 0) = 2;  // Sensor 4
     inputPins(3, 1) = 10;
 
-    Eigen::Vector2i clock = {2,2}; // Clock Pin 
+    Eigen::Vector2i clock = {2,2}; // Clock Pin
 
     inputs.push_back(strainGauge = new HX711(inputPins, clock));
     strainGauge->begin(128);

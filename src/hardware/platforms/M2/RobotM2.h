@@ -13,7 +13,6 @@
 #ifndef RobotM2_H_INCLUDED
 #define RobotM2_H_INCLUDED
 
-#include <map>
 
 #include "JointM2.h"
 #include "FourierForceSensor.h"
@@ -27,7 +26,7 @@ typedef Eigen::Vector2d VM2; //! Convenience alias for double  Vector of length 
 /**
  * \brief Implementation of the M2 robot class, representing an M2 using 2 JointM2
  */
-class RobotM2 : public Robot {
+class RobotM2: public Robot {
    private:
     VM2 qCalibration = {0, 0.};  //!< Calibration configuration: posture in which the robot is when using the calibration procedure
 
@@ -46,7 +45,7 @@ class RobotM2 : public Robot {
       * Initialize memory for the Exoskelton <code>Joint</code> + sensors.
       * Load in exoskeleton paramaters to  <code>TrajectoryGenerator.</code>.
       */
-    RobotM2();
+    RobotM2(std::string robot_name="", std::string yaml_config_file="");
     ~RobotM2();
 
     std::vector<FourierForceSensor*> forceSensors;

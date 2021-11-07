@@ -6,14 +6,13 @@
  * \date 2021-06-30
  * \copyright Copyright (c) 2020
  *
- * \brief  The<code> RobotM3</ code> class represents an M3 Robot.
+ * \brief  The RobotM3 class represents an M3 Robot.
  *
  */
 
 #ifndef RobotM3_H_INCLUDED
 #define RobotM3_H_INCLUDED
 
-#include <map>
 
 #include "JointM3.h"
 #include "Keyboard.h"
@@ -70,12 +69,23 @@ static M3Tool M3MachiningTool(0.060, 0.100, "Machining tool"); //TODO YAML
  */
 class RobotM3 : public Robot {
    private:
-    const std::vector<float> LinkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};   /*!< Link lengths used for kinematic models (in m), excluding tool*/
-    const std::vector<float> LinkMasses = {0, 0.450, 0.400, 0.100, .0};                  /*!< Link masses used for gravity compensation (in kg), excluding tool*/
+    /** @name Kinematic and dynamic parameters
+    *  These constant parameters have a default value which may be overwritten by a YAML configuration file
+    *  if one is provided to the constructor and the parameter is defined in the configuration file.
+    */
+    /* @{ */
+    double dqMax = 360 * M_PI / 180.;                                           //!< Max joint speed (rad.s-1)
+    double tauMax = 1.9 * 22;                                                   //!< Max joint torque (Nm)
+    std::vector<float> linkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};//!< Link lengths used for kinematic models (in m), excluding tool
+    std::vector<float> linkMasses = {0, 0.450, 0.400, 0.100, .0};               //!< Link masses used for gravity compensation (in kg), excluding tool
+    std::vector<double> frictionVis = {0.2, 0.2, 0.2};                          //!< Joint viscous friction compensation coefficients
+    std::vector<double> frictionCoul = {0.5, 0.5, 0.5};                         //!< Joint Coulomb (static) friction compensation coefficients
 
-    M3Tool *endEffTool; /*!< End-effector representation (transformation and mass) */
+    std::vector<double> qLimits = {/*q1_min*/ -45 * M_PI / 180.,/*q1_max*/ 45 * M_PI / 180., /*q2_min*/ -15 * M_PI / 180., /*q2_max*/70 * M_PI / 180., /*q3_min*/ 0 * M_PI / 180., /*q3_max*/ 95 * M_PI / 180.}; //!< Joints limits (in rad)
+    VM3 qCalibration = {-38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};             //!< Calibration configuration: posture in which the robot is when using the calibration procedure
+    /*@}*/
 
-    VM3 qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
+    M3Tool *endEffTool; //!< End-effector representation (transformation and mass)
 
     bool calibrated;
     double maxEndEffVel; //!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.
@@ -93,11 +103,11 @@ class RobotM3 : public Robot {
 
    public:
     /**
-      * \brief Default <code>RobotM3</code> constructor.
-      * Initialize memory for the Exoskelton <code>Joint</code> + sensors.
-      * Load in exoskeleton paramaters to  <code>TrajectoryGenerator.</code>.
+      * \brief Default RobotM3 constructor.
+      * Creates joints and inputs.
+      * \param yaml_config_file the name of a valide YAML file describing kinematic and dynamic parameters of the M3. If absent or incomplete default parameters are used instead.
       */
-    RobotM3();
+    RobotM3(std::string robot_name="", std::string yaml_config_file="");
     ~RobotM3();
 
     Keyboard *keyboard;
@@ -127,7 +137,15 @@ class RobotM3 : public Robot {
        */
     bool initTorqueControl();
 
-    private:
+   private:
+    /**
+    * \brief Load parameters from YAML file if valid one specified in constructor.
+    * If absent or incomplete (some parameters only) default parameters are used instead.
+    * \params params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
+    * \return true
+    */
+    bool loadParametersFromYAML(YAML::Node params);
+
     /**
     * \brief Set the target positions for each of the joints
     *
@@ -152,7 +170,7 @@ class RobotM3 : public Robot {
     */
     setMovementReturnCode_t applyTorque(std::vector<double> torques);
 
-    public:
+   public:
     /**
     * \brief Apply current configuration as calibration configuration using qcalibration such that:
     *  q=qcalibration in current configuration.

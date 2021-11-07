@@ -3,7 +3,7 @@
 #define OWNER ((M3DemoMachine *)owner)
 
 M3DemoMachine::M3DemoMachine() {
-    robot = new RobotM3();
+    robot = new RobotM3("EMU_MELB", "M3_params.yaml");
 
     // Create PRE-DESIGNED State Machine events and state objects.
     testState = new M3DemoState(this, robot);
@@ -27,10 +27,10 @@ M3DemoMachine::M3DemoMachine() {
      */
      NewTransition(calibState, endCalib, standbyState);
      NewTransition(standbyState, goToNextState, minJerkState);
-     NewTransition(minJerkState, goToNextState, endEffDemoState);
-     NewTransition(endEffDemoState, goToNextState, impedanceState);
+     NewTransition(minJerkState, goToNextState, impedanceState);
      NewTransition(impedanceState, goToNextState, pathState);
-     NewTransition(pathState, goToNextState, timingState);
+     NewTransition(pathState, goToNextState, endEffDemoState);
+     NewTransition(endEffDemoState, goToNextState, timingState);
      NewTransition(timingState, goToNextState, standbyState);
 
 
@@ -39,7 +39,9 @@ M3DemoMachine::M3DemoMachine() {
     //StateMachine::initialize(testState);
 }
 M3DemoMachine::~M3DemoMachine() {
-    delete UIserver;
+    if(initialised) {
+        delete UIserver;
+    }
     delete robot;
 }
 
@@ -51,14 +53,16 @@ M3DemoMachine::~M3DemoMachine() {
 void M3DemoMachine::init() {
     spdlog::debug("M3DemoMachine::init()");
     if(robot->initialise()) {
-        initialised = true;
         logHelper.initLogger("M3DemoMachineLog", "logs/M3DemoMachine.csv", LogFormat::CSV, true);
         logHelper.add(time_running, "Time (s)");
-        logHelper.add(robot->getPosition(), "JointPositions");
-        logHelper.add(robot->getVelocity(), "JointVelocities");
-        logHelper.add(robot->getTorque(), "JointTorques");
+        logHelper.add(robot->getEndEffPosition(), "X");
+        logHelper.add(robot->getEndEffVelocity(), "dX");
+        logHelper.add(robot->getInteractionForce(), "F");
+        logHelper.add(robot->getEndEffAcceleration(), "ddX");
+        logHelper.add(robot->getEndEffVelocityFiltered(), "dXFilt");
         logHelper.startLogger();
-        UIserver = new FLNLHelper(robot, "192.168.7.2");
+        UIserver = new FLNLHelper(robot, "192.168.6.2");
+        initialised = true;
     }
     else {
         initialised = false;
@@ -105,7 +109,7 @@ bool M3DemoMachine::EndCalib::check() {
 
 bool M3DemoMachine::GoToNextState::check() {
     //keyboard or joystick press
-    if ( (OWNER->robot->joystick->isButtonPressed(1) || OWNER->robot->keyboard->getNb()==1) )
+    if ( (OWNER->robot->joystick->isButtonTransition(3)>0 || OWNER->robot->keyboard->getNb()==1) )
         return true;
 
     //Check incoming command requesting state change
@@ -114,6 +118,7 @@ bool M3DemoMachine::GoToNextState::check() {
         vector<double> v;
         OWNER->UIserver->getCmd(cmd, v);
         if (cmd == "GTNS") { //Go To Next State command received
+            OWNER->UIserver->clearCmd();
             //Acknowledge
             OWNER->UIserver->sendCmd(string("OK"));
 

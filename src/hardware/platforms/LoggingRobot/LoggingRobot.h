@@ -7,7 +7,7 @@
  * \copyright Copyright (c) 2020
  *
  * \brief  The<code> LogginRobot</ code> class represents a logging robot. This Robot doesn't actually do anything, except give options to act as a logger.
- * 
+ *
  * It has two functions: 1) To trigger data acquision devices not associate with the operation of the robot, and 2) to log data from existing devices
  *
  */
@@ -34,7 +34,7 @@ class LoggingRobot : public Robot {
     std::vector<ForcePlateSensor *> footSensors;
     Eigen::VectorXi footSensorForces;  // Should be a vector of size 4xN
 
-    // -- Variables assoacited with parameters already transmitted from the robot -- // 
+    // -- Variables assoacited with parameters already transmitted from the robot -- //
     std::vector<RPDO *> rpdos;
 
     // Motor Positions, Velocity
@@ -64,7 +64,7 @@ class LoggingRobot : public Robot {
    public:
     Keyboard *keyboard;
 
-    LoggingRobot();
+    LoggingRobot(std::string robot_name="", std::string yaml_config_file="");
     ~LoggingRobot();
 
     // Functions which are needed for the Robot Class - they don't do anything at the moment
@@ -74,7 +74,7 @@ class LoggingRobot : public Robot {
 
     /**
      * @brief Updates local copy of forces, and returns them
-     * 
+     *
      * @return Eigen::VectorXd& a 6xN (N is number of crutches) of crutch sensor readings
      */
     Eigen::VectorXd &getCrutchReadings();
@@ -92,7 +92,7 @@ class LoggingRobot : public Robot {
 
     /**
      * @brief Takes the forces from the crutches and updates a local copy
-     * 
+     *
      */
     void updateCrutchReadings();
 
@@ -106,7 +106,7 @@ class LoggingRobot : public Robot {
 
     bool startCrutchSensors();
     bool stopCrutchSensors();
-    
+
     bool configureMasterPDOs();
     };
 

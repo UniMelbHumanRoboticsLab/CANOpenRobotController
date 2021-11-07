@@ -1,16 +1,18 @@
 /**
  * \file Robot.h
  * \author William Campbell, Justin Fong, Vincent Crocher
- * \brief  The <code>Robot</code> class is a abstract class which is a software representation of a Robot
+ * \brief  The Robot class is a abstract class which is a software representation of a Robot
  * with a flexible representation in terms of number of joints, number of sensors and type of I/O
  * the real world or virtual robot has. The class specificall represents a robot with an underlying
  * bus network connecting components to a master node, being the robots computer or processor.
  * Implementations have been designed <code>ExoRobot<code> under CANOpen protocol, however others
  * may be implemented by future developers.
  *
- * \version 0.2
- * \date 2020-10-14
- * \copyright Copyright (c) 2020
+ * @version 0.3
+ * @date 2021-11-06
+ *
+ * @copyright Copyright (c) 2020,2021
+ *
  */
 /**
  *  @defgroup Robot Robot Module
@@ -20,6 +22,13 @@
 #define ROBOT_H_INCLUDED
 #include <vector>
 #include <Eigen/Dense>
+// yaml-parser
+#include <fstream>
+#include "yaml-cpp/yaml.h"
+
+// These are used to access the MACRO: BASE_DIRECTORY
+#define XSTR(x) STR(x)
+#define STR(x) #x
 
 #include "InputDevice.h"
 #include "Joint.h"
@@ -41,6 +50,8 @@ class Robot {
     * any of their explicit implementations.
     *
     */
+    std::string robotName;
+
     std::vector<Joint *> joints;
     std::vector<InputDevice *> inputs;
 
@@ -52,9 +63,11 @@ class Robot {
     /** @name Constructors and Destructors */
     //@{
     /**
-    * \brief Default <code>Robot</code> constructor.
+    * \brief Default Robot constructor.
+    * \param robot_name a name of the robot. If a yaml_config_file is also provided, the name will be used to seek parameters in this file (and so should match robot name in the YAML file).
+    * \param yaml_config_file the name of a valide YAML file describing kinematic and dynamic parameters of the M3. If absent or incomplete default parameters are used instead.
     */
-    Robot();
+    Robot(std::string robot_name="", std::string yaml_config_file="");
     virtual ~Robot();
     //@}
 
@@ -71,6 +84,24 @@ class Robot {
      */
     bool initialise();
 
+   protected:
+    /**
+    * \brief Attempts to read specified parameters YAML file (in config folder) if a filename is specified.
+    * Load configuration associated with RobotName (if specified) and pass it to specialised initialiseFromYAML.
+    * \params a YAML filename (assume located in config folder)
+    * \return true if succesfully open the YAML file and a robot with RobotName exists. false otherwise
+    */
+    virtual bool initialiseFromYAML(std::string yaml_config_file) final;
+    /**
+    * \brief Load parameters from YAML file if valid one specified in constructor.
+    * Default base version not doing anything. See derived class for implementation.
+    * \params params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
+    * \return true
+    */
+    virtual bool loadParametersFromYAML(YAML::Node params) {  spdlog::info("Robot does not support YAML: using default robot parameters."); return false; };
+
+   public:
+
     /**
      * \brief Stop the robot: disable all actuated joints.
      *
@@ -81,8 +112,8 @@ class Robot {
 
     /**
      * \brief Function used to set up the Master Object Dictionary to respond to any PDOs expected from any device. Is called before
-     * the initialisation of the state machine. 
-     * 
+     * the initialisation of the state machine.
+     *
      */
     virtual bool configureMasterPDOs();
         /**
@@ -90,7 +121,7 @@ class Robot {
      * for the robot hardware desired.
      *
      */
-        virtual bool initialiseJoints() = 0;
+    virtual bool initialiseJoints() = 0;
     /**
      * \brief Pure Virtual function, implemeted by robot designer with specified number of each concrete input classes
      * for the robot hardware desired.
@@ -205,14 +236,6 @@ class Robot {
     virtual setMovementReturnCode_t setTorque(std::vector<double> torques) { return INCORRECT_MODE; };
     //@}
 
-
-
-    /** @name Logging methods */
-    //@{
-    /**
-     * /todo The default logging function has not yet been implemented.
-     *
-     */
 
     /**
     * \brief Initialises Logging to specified file

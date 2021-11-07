@@ -30,13 +30,6 @@
 
 // Logger
 #include "LogHelper.h"
-// yaml-parser
-#include <fstream>
-#include "yaml-cpp/yaml.h"
-
-// These are used to access the MACRO: BASE_DIRECTORY
-#define XSTR(x) STR(x)
-#define STR(x) #x
 
 #ifdef SIM
 #include "controller_manager_msgs/SwitchController.h"
@@ -94,7 +87,7 @@ class X2Robot : public Robot {
      *
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
-    
+
     motorProfile velControlMotorProfile{0, 240000, 240000};
 
     RobotParameters x2Parameters;
@@ -107,11 +100,15 @@ class X2Robot : public Robot {
     Eigen::MatrixXd contactQuaternions_; // rows are x y z, w columns are different contact points
     double backPackAngleOnMedianPlane_; // backpack angle wrt gravity vector. leaning front is positive [rad]
 
-
-    std::string robotName_;
     int numberOfIMUs_;
 
-    bool initializeRobotParams(std::string robotName);
+    /**
+    * \brief Load parameters from YAML file if valid one specified in constructor.
+    * If absent or incomplete (some parameters only) default parameters are used instead (0).
+    * \params params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
+    * \return true
+    */
+    bool loadParametersFromYAML(YAML::Node params);
 
     static void signalHandler(int signum);
 
@@ -164,9 +161,9 @@ class X2Robot : public Robot {
       */
 
 #ifdef SIM
-    X2Robot(ros::NodeHandle &nodeHandle, std::string robotName = XSTR(X2_NAME_DEFAULT));
+    X2Robot(ros::NodeHandle &nodeHandle, std::string robotName = XSTR(X2_NAME_DEFAULT), std::string yaml_config_file="x2_params.yaml");
 #else
-    X2Robot(std::string robotName = XSTR(X2_NAME_DEFAULT));
+    X2Robot(std::string robotName = XSTR(X2_NAME_DEFAULT), std::string yaml_config_file="x2_params.yaml");
 #endif
     ~X2Robot();
     Keyboard* keyboard;
@@ -317,7 +314,7 @@ class X2Robot : public Robot {
        * Initialize each <code>Drive</code> Objects underlying CANOpen Networking.
 
       */
-        bool initialiseNetwork();
+    bool initialiseNetwork();
     /**
        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
        * Initialize each <code>Input</code> Object.
@@ -337,7 +334,7 @@ class X2Robot : public Robot {
 
     /**
        * \brief Sets the position control profile to be continuous (i.e. movements do not to complete before a new command is issued) or not
-       * 
+       *
        * \return true if successful
        * \return false if not (joints/drive not enabled or in correct mode)
        */

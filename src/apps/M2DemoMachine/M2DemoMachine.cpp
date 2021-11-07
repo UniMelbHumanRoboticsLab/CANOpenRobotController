@@ -3,7 +3,7 @@
 #define OWNER ((M2DemoMachine *)owner)
 
 M2DemoMachine::M2DemoMachine() {
-    robot = new RobotM2();
+    robot = new RobotM2("M2_MELB");
 
     // Create PRE-DESIGNED State Machine events and state objects.
     testState = new M2DemoState(this, robot);

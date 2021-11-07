@@ -1,11 +1,15 @@
 #include "RobotM2.h"
 
 using namespace Eigen;
+using namespace std;
 
-RobotM2::RobotM2() : Robot(),
-                     calibrated(false),
-                     maxEndEffVel(3),
-                     maxEndEffForce(80) {
+RobotM2::RobotM2(string robot_name, string yaml_config_file) :  Robot(robot_name, yaml_config_file),
+                                                                calibrated(false),
+                                                                maxEndEffVel(3),
+                                                                maxEndEffForce(80) {
+    //Check if YAML file exists and contain robot parameters
+    initialiseFromYAML(yaml_config_file);
+
     //Define the robot structure: each joint with limits and drive
     double tau_max = 1.9 * 166;
     joints.push_back(new JointM2(0, 0, 0.625, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new KincoDrive(1), "x"));
