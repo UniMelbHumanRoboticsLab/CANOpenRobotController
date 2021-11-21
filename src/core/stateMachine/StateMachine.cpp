@@ -29,11 +29,16 @@ void StateMachine::activate(void) {
 
 void StateMachine::update(void) {
     spdlog::trace("StateMachine::update()");
-    Transition *t = currentState->getActiveArc();
+    hwStateUpdate(); //Call specialised state machine hardware update method
+
+    //TODO:
+    State *t;
+    //Transition *t = currentState->getActiveArc();
 
     if (t != NULL) {
         currentState->exit();
-        this->currentState = t->target;
+        //TODO:
+        //this->currentState = t->target;
         currentState->entry();
     }
     currentState->during();

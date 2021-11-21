@@ -51,7 +51,6 @@ void app_programAsync(uint16_t timer1msDiffy) {
 /******************** Runs in rt_control_thread ********************/
 void app_programControlLoop(void) {
     if (stateMachine->running) {
-        stateMachine->hwStateUpdate();
         stateMachine->update();
     }
 #ifdef TIMING_LOG

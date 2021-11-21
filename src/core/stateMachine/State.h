@@ -13,14 +13,21 @@
 
 #include <cstddef>
 #include <iostream>
+#include <vector>
+#include <memory>
 #include <string>
 #include <Eigen/Dense>
 
-class StateMachine;
-class Transition;
 
-#include "StateMachine.h"
-#include "Transition.h"
+#include "StateMachine.h" //TODO remove?
+class State;
+
+
+typedef std::function<bool()> TransitionCallback_t; //TODO: make w/ template and pointer on specialised stateMachine?
+typedef std::pair<const std::shared_ptr<State> &, TransitionCallback_t> Transition_t; //TODO: rename?
+
+
+
 #define MAXARCS 10 /*<!Define the max number of arcs (transitions) any state can have*/
 /**
  *  @ingroup stateMachine
@@ -28,7 +35,7 @@ class Transition;
  *
  */
 class State {
-    friend class StateMachine;
+    //friend class StateMachine; //TODO remove
     // A State machine class can access the private and protected members of a state class  */
    public:
      EIGEN_MAKE_ALIGNED_OPERATOR_NEW // Required to use eigen fixed size vectors/objects in states. See first section of http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html.
@@ -37,24 +44,24 @@ class State {
      * \brief Pointer to the owning state machine
      *
      */
-    StateMachine *owner;
+    //StateMachine *owner;
 
     /**
      * \brief Construct a new State object
      *
-     * \param p Pointer to the owning state machine
      * \param n Name of the state machine
      */
-    State(StateMachine *p, const char n[] = NULL): owner(p), numarcs(0) {
+    State(const char n[] = NULL) {
         if(n==NULL)
             name = "";
         else
             name = n;
     };
     ~State();
-    // Arc creating and accessing functions
-    bool addArc(Transition *t);
-    Transition *getActiveArc(void);
+
+    void allowTransitionTo(const std::shared_ptr<State> &s, TransitionCallback_t f) {
+        transitions.push_back(Transition_t(s, f));
+    }
 
     /**
      * \brief Called once when the state is entered. Pure virtual function, must be overwritten by each state
@@ -87,14 +94,15 @@ class State {
      */
     void printName(void);
 
+    const std::shared_ptr<State> & getActiveArc(void);
+
    private:
     /**
     * \brief List of possible transitions
     *
     */
-    Transition *arclist[MAXARCS];  /*<!Array of transition objects this state can transition to on exit*/
-    std::string name;              /*<!Pointer to the name of this State*/
-    int numarcs;
+    std::string name;                       /*<!Name of this State*/
+    std::vector<Transition_t> transitions; //Vector of std::pair
 };
 
 #endif  //EXO_STATE_H

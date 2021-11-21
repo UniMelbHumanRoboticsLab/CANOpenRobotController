@@ -5,24 +5,10 @@
 
 #include "State.h"
 
-Transition *State::getActiveArc(void) {
-    int i = 0;
-    while (i < numarcs) {
-        if (arclist[i]->ev->check())
-            return arclist[i];
-
-        i++;
-    }
-    return NULL;
+const std::shared_ptr<State> &State::getActiveArc(void) {
+    //TODO
+    return transitions[0].first;
 }
-
-bool State::addArc(Transition *t) {
-    if (numarcs < MAXARCS) {
-        arclist[numarcs++] = t;
-        return true;
-    } else
-        return false;
-};
 
 const std::string &State::getName(void) {
     return name;

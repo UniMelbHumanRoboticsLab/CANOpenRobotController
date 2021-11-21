@@ -27,11 +27,16 @@
 // State Classes
 #include "M3DemoStates.h"
 
+
+
+
+
 /**
  * @brief Example implementation of a StateMachine for the M3Robot class. States should implemented M3DemoState
  *
  */
 class M3DemoMachine : public StateMachine {
+
    public:
     bool running = false;
     std::chrono::steady_clock::time_point time_init; // initial time that machine started
@@ -66,8 +71,8 @@ class M3DemoMachine : public StateMachine {
     FLNLHelper *UIserver;   /*!< Pointer to communication server*/
 
    private:
-    EventObject(EndCalib) * endCalib;
-    EventObject(GoToNextState) * goToNextState;
+//    EventObject(EndCalib) * endCalib;
+//    EventObject(GoToNextState) * goToNextState;
 };
 
 #endif /*M3_SM_H*/

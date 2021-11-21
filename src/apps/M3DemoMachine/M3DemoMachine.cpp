@@ -2,8 +2,19 @@
 
 #define OWNER ((M3DemoMachine *)owner)
 
+bool to() {
+    return false;
+}
+
+
 M3DemoMachine::M3DemoMachine() {
-    robot = new RobotM3("EMU_MELB", "M3_params.yaml");
+    robot = new RobotM3("EMU_MELB", "M3_params.yaml"); //TODO: make_shared
+    //TODO: local template for one occurence only?
+
+    addState("TestState", std::make_shared<M3DemoState>(this, robot));
+    addState("CalibState", std::make_shared<M3CalibState>(this, robot));
+
+    states["TestState"]->allowTransitionTo(states["CalibState"], &to);
 
     // Create PRE-DESIGNED State Machine events and state objects.
     testState = new M3DemoState(this, robot);
@@ -15,8 +26,8 @@ M3DemoMachine::M3DemoMachine() {
     minJerkState = new M3DemoMinJerkPosition(this, robot);
     timingState = new M3SamplingEstimationState(this, robot);
 
-    endCalib = new EndCalib(this);
-    goToNextState = new GoToNextState(this);
+//    endCalib = new EndCalib(this);
+//    goToNextState = new GoToNextState(this);
 
 
     /**
@@ -25,13 +36,13 @@ M3DemoMachine::M3DemoMachine() {
      * NewTranstion(State A,Event c, State B)
      *
      */
-     NewTransition(calibState, endCalib, standbyState);
-     NewTransition(standbyState, goToNextState, minJerkState);
-     NewTransition(minJerkState, goToNextState, impedanceState);
-     NewTransition(impedanceState, goToNextState, pathState);
-     NewTransition(pathState, goToNextState, endEffDemoState);
-     NewTransition(endEffDemoState, goToNextState, timingState);
-     NewTransition(timingState, goToNextState, standbyState);
+//     NewTransition(calibState, endCalib, standbyState);
+//     NewTransition(standbyState, goToNextState, minJerkState);
+//     NewTransition(minJerkState, goToNextState, impedanceState);
+//     NewTransition(impedanceState, goToNextState, pathState);
+//     NewTransition(pathState, goToNextState, endEffDemoState);
+//     NewTransition(endEffDemoState, goToNextState, timingState);
+//     NewTransition(timingState, goToNextState, standbyState);
 
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
@@ -101,34 +112,34 @@ void M3DemoMachine::hwStateUpdate(void) {
 }
 
 
-
-bool M3DemoMachine::EndCalib::check() {
-    return OWNER->calibState->isCalibDone();
-}
-
-
-bool M3DemoMachine::GoToNextState::check() {
-    //keyboard or joystick press
-    if ( (OWNER->robot->joystick->isButtonTransition(3)>0 || OWNER->robot->keyboard->getNb()==1) )
-        return true;
-
-    //Check incoming command requesting state change
-    if ( OWNER->UIserver->isCmd() ) {
-        string cmd;
-        vector<double> v;
-        OWNER->UIserver->getCmd(cmd, v);
-        if (cmd == "GTNS") { //Go To Next State command received
-            OWNER->UIserver->clearCmd();
-            //Acknowledge
-            OWNER->UIserver->sendCmd(string("OK"));
-
-            return true;
-        }
-    }
-
-    //Otherwise false
-    return false;
-}
+//
+//bool M3DemoMachine::EndCalib::check() {
+//    return OWNER->calibState->isCalibDone();
+//}
+//
+//
+//bool M3DemoMachine::GoToNextState::check() {
+//    //keyboard or joystick press
+//    if ( (OWNER->robot->joystick->isButtonTransition(3)>0 || OWNER->robot->keyboard->getNb()==1) )
+//        return true;
+//
+//    //Check incoming command requesting state change
+//    if ( OWNER->UIserver->isCmd() ) {
+//        string cmd;
+//        vector<double> v;
+//        OWNER->UIserver->getCmd(cmd, v);
+//        if (cmd == "GTNS") { //Go To Next State command received
+//            OWNER->UIserver->clearCmd();
+//            //Acknowledge
+//            OWNER->UIserver->sendCmd(string("OK"));
+//
+//            return true;
+//        }
+//    }
+//
+//    //Otherwise false
+//    return false;
+//}
 
 bool M3DemoMachine::configureMasterPDOs() {
     spdlog::debug("M3DemoMachine::configureMasterPDOs()");

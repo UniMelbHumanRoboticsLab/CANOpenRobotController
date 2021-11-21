@@ -18,6 +18,7 @@ class State;
 
 #include "logging.h"
 #include "State.h"
+#include "Robot.h"
 #include "LogHelper.h"
 
 /**
@@ -42,7 +43,7 @@ class StateMachine {
      *
      * \param i Pointer to the desired current state.
      */
-    void initialize(State *i);
+    void initialize(State *i);//TODO: overload: with int i for state id and default 0 and string state_name
 
     /**
      * \brief Returns a pointer to the current state
@@ -77,14 +78,32 @@ class StateMachine {
      */
     virtual void end(void) = 0;
 
+    /**
+     * \brief Hardware update method called every loop (first thing) to update robot state...
+     *
+     */
+    virtual void hwStateUpdate() = 0;
+
+    //template<class S=State> //TODO???
+    void addState(std::string state_name, std::shared_ptr<State> s_ptr) {
+       states[state_name]=s_ptr;
+    };
+
+    //TODO: addTransition method either by state name or index
+    //for state name use a states.find(name) to check if exists.
+
    protected:
     /**
      * \brief Pointer to the current state
      *
      */
     State *currentState;
+    std::map<std::string, std::shared_ptr<State>> states;
 
     bool initialised = false;
+
+    //TODO: to template, somehow?
+    Robot *robot;
 
     /**
      * \brief Custom spdlogger allowing to conveniently log Eigen Vectors (among other things)
@@ -93,29 +112,5 @@ class StateMachine {
     LogHelper logHelper;
 
 };
-
-/**
- * \brief Macros to quickly create event objects given their names as input.
- * useage: EventObject ( MyEvent ) * myEvent;
- */
-#define EventObject(_name_)             \
-    class _name_;                       \
-    friend class _name_;                \
-    class _name_ : public Event {       \
-       public:                          \
-        _name_(StateMachine *m,         \
-               const char *name = NULL) \
-            : Event(m, name){};         \
-        bool check(void);               \
-    };                                  \
-    _name_
-/**
- * \brief Macro to create statemachine transitions.
- *  Add a tranition object to the from states arch list
- * _to_ a specific state object, triggered by the occurence of _event_.
- *
- */
-#define NewTransition(_from_, _event_, _to_) \
-    _from_->addArc(new Transition(_to_, _event_))
 
 #endif  //STATEMACHINE_H
