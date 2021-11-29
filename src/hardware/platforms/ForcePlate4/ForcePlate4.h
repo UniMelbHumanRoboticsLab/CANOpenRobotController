@@ -7,7 +7,7 @@
  * \copyright Copyright (c) 2021
  *
  * \brief  The<code> ForcePlate4</ code> class is a force plate object, which measures 4 strain gauages - designed to provide force and COP measurements
- * 
+ *
  * This class is designed to work with the sensor system developed at the University of Melbourne's Human Robotics Laboratory
  *
  */
@@ -38,7 +38,7 @@ class ForcePlate4 : public Robot {
    public:
     Keyboard *keyboard;
 
-    ForcePlate4();
+    ForcePlate4(std::string robot_name="", std::string yaml_config_file="");
     ~ForcePlate4();
 
     // Functions which are needed for the Robot Class - they don't do anything at the moment

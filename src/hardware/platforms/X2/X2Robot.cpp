@@ -38,13 +38,13 @@ ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-40), deg2rad(120), deg2ra
 static volatile sig_atomic_t exitHoming = 0;
 
 #ifdef SIM
-X2Robot::X2Robot(ros::NodeHandle &nodeHandle, std::string robotName):
+X2Robot::X2Robot(ros::NodeHandle &nodeHandle, std::string robot_name, std::string yaml_config_file)
 #else
-X2Robot::X2Robot(std::string robotName):
+X2Robot::X2Robot(std::string robot_name, std::string yaml_config_file)
 #endif
-        robotName_(robotName){
+        {
 
-    spdlog::debug("{} Created", robotName_);
+    spdlog::debug("{} Created", robotName);
 
 #ifdef NOROBOT
     simJointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
@@ -69,7 +69,8 @@ X2Robot::X2Robot(std::string robotName):
     backpackQuaternions_ = Eigen::VectorXd::Zero(4);
     backPackAngleOnMedianPlane_ = 0;
 
-    initializeRobotParams(robotName_);
+    //Check if YAML file exists and contain robot parameters
+    initialiseFromYAML(yaml_config_file);
 
     spdlog::debug("initialiseJoints call");
     initialiseJoints();
@@ -558,21 +559,8 @@ bool X2Robot::initialiseInputs() {
     return true;
 }
 
-bool X2Robot::initializeRobotParams(std::string robotName) {
 
-    // need to use address of base directory because when run with ROS, working directory is ~/.ros
-    std::string baseDirectory = XSTR(BASE_DIRECTORY);
-    std::string relativeFilePath = "/config/x2_params.yaml";
-
-    YAML::Node params = YAML::LoadFile(baseDirectory + relativeFilePath);
-
-    // if the robotName does not match with the name in x2_params.yaml
-    if(!params[robotName]){
-        spdlog::error("Parameters of {} couldn't be found in {} !", robotName, baseDirectory + relativeFilePath);
-        spdlog::error("All parameters are zero !");
-
-        return false;
-    }
+bool X2Robot::loadParametersFromYAML(YAML::Node params) {
 
     if(params[robotName]["m"].size() != X2_NUM_JOINTS || params[robotName]["l"].size() != X2_NUM_JOINTS ||
        params[robotName]["s"].size() != X2_NUM_JOINTS || params[robotName]["I"].size() != X2_NUM_JOINTS ||
@@ -638,6 +626,7 @@ bool X2Robot::initializeRobotParams(std::string robotName) {
     }
 
     return true;
+
 }
 
 void X2Robot::freeMemory() {
@@ -693,12 +682,12 @@ Eigen::VectorXd X2Robot::getFeedForwardTorque(int motionIntend) {
 
 }
 
-void X2Robot::setRobotName(std::string robotName) {
-    robotName_ = robotName;
+void X2Robot::setRobotName(std::string robot_name) {
+    robotName = robot_name;
 }
 
 std::string & X2Robot::getRobotName() {
-    return robotName_;
+    return robotName;
 }
 
 RobotParameters& X2Robot::getRobotParameters() {

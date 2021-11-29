@@ -207,7 +207,6 @@ bool Joint::start() {
     else{
         return false;
     }
-
 }
 
 void Joint::resetErrors() {

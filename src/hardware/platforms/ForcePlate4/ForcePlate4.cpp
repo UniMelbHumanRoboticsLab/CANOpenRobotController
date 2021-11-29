@@ -1,7 +1,10 @@
 #include "ForcePlate4.h"
 
-ForcePlate4::ForcePlate4() {
+ForcePlate4::ForcePlate4(std::string robot_name, std::string yaml_config_file) :  Robot(robot_name, yaml_config_file) {
     spdlog::info("New ForcePlate Robot");
+
+    //Check if YAML file exists and contain robot parameters
+    initialiseFromYAML(yaml_config_file);
 
     initialiseJoints();
     initialiseInputs();
@@ -25,9 +28,9 @@ bool ForcePlate4::initialiseInputs() {
 
 
     // Force Plate 2
-    inputPins2 <<   8, 9, 
+    inputPins2 <<   8, 9,
                     8, 11,
-                    8, 15, 
+                    8, 15,
                     8, 17;
     Eigen::Vector2i clock2 = {8, 7};  // Clock Pin
     #endif
@@ -41,11 +44,11 @@ bool ForcePlate4::initialiseInputs() {
 
 
     // Force Plate 2
-    inputPins2 <<   2, 18, 
+    inputPins2 <<   2, 18,
                     2, 20,
-                    2, 22, 
+                    2, 22,
                     2, 24;
-    Eigen::Vector2i clock2 = {2, 17};  // Clock Pin  
+    Eigen::Vector2i clock2 = {2, 17};  // Clock Pin
     #endif
 
     strainGauges.push_back(new HX711(inputPins, clock));

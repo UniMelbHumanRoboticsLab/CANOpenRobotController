@@ -130,6 +130,29 @@ bool LoggingDevice::IsCalibrationFinished::check(void) {
     return true;
 }
 
+bool LoggingDevice::IsWPressed::check(void) {
+    if (OWNER->robot->keyboard->getW() == true) {
+        OWNER->robot->zeroForcePlate();
+        return true;
+    }
+    return false;
+}
+
+bool LoggingDevice::IsXPressed::check(void) {
+    if (OWNER->robot->keyboard->getX() == true) {
+        OWNER->robot->zeroLeftFoot();
+        return true;
+    }
+    return false;
+}
+bool LoggingDevice::IsDPressed::check(void) {
+    if (OWNER->robot->keyboard->getD() == true) {
+        OWNER->robot->zeroRightFoot();
+        return true;
+    }
+    return false;
+}
+
 /**
  * \brief Statemachine to hardware interface method. Run any hardware update methods
  * that need to run every program loop update cycle.

@@ -1,11 +1,15 @@
 #include "RobotM2.h"
 
 using namespace Eigen;
+using namespace std;
 
-RobotM2::RobotM2() : Robot(),
-                     calibrated(false),
-                     maxEndEffVel(3),
-                     maxEndEffForce(80) {
+RobotM2::RobotM2(string robot_name, string yaml_config_file) :  Robot(robot_name, yaml_config_file),
+                                                                calibrated(false),
+                                                                maxEndEffVel(3),
+                                                                maxEndEffForce(80) {
+    //Check if YAML file exists and contain robot parameters
+    initialiseFromYAML(yaml_config_file);
+
     //Define the robot structure: each joint with limits and drive
     double tau_max = 1.9 * 166;
     joints.push_back(new JointM2(0, 0, 0.625, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new KincoDrive(1), "x"));
@@ -103,7 +107,7 @@ void RobotM2::updateRobot() {
     Matrix2d _J = J();
     endEffVelocities = _J * getVelocity();
     endEffForces = getEndEffForce();
-    interactionForces = getInteractionForceRef();
+    interactionForces = getInteractionForce();
 
     if (safetyCheck() != SUCCESS) {
         disable();
@@ -291,32 +295,22 @@ Matrix2d RobotM2::J() {
 }
 
 
-VM2 RobotM2::getEndEffPosition() {
-    return directKinematic(getPosition());
-}
-VM2 RobotM2::getEndEffVelocity() {
-    return J() * getVelocity();
-}
-VM2 RobotM2::getEndEffForce() {
-    return (J().transpose()).inverse() * getTorque();
-}
-
-Eigen::VectorXd& RobotM2::getEndEffPositionRef() {
+const VM2& RobotM2::getEndEffPosition() {
     //Update values
     endEffPositions = directKinematic(getPosition());
     return endEffPositions;
 }
-Eigen::VectorXd& RobotM2::getEndEffVelocityRef() {
+const VM2& RobotM2::getEndEffVelocity() {
     //Update values
     endEffVelocities = J() * getVelocity();
     return endEffVelocities;
 }
-Eigen::VectorXd& RobotM2::getEndEffForceRef() {
+const VM2& RobotM2::getEndEffForce() {
     //Update values
-    endEffForces = getEndEffForce();
+    endEffForces = (J().transpose()).inverse() * getTorque();
     return endEffForces;
 }
-Eigen::VectorXd& RobotM2::getInteractionForceRef() {
+const VM2& RobotM2::getInteractionForce() {
     if((unsigned int)interactionForces.size()!=forceSensors.size()) {
         interactionForces = Eigen::VectorXd::Zero(forceSensors.size());
     }

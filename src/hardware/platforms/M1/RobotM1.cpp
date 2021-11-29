@@ -1,8 +1,13 @@
 #include "RobotM1.h"
 
 using namespace Eigen;
+using namespace std;
 
-RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce(60) {
+RobotM1::RobotM1(string robot_name, string yaml_config_file):   Robot(robot_name, yaml_config_file),
+                                                                calibrated(false),
+                                                                maxEndEffVel(2),
+                                                                maxEndEffForce(60) {
+
     // Conversion factors between degrees and radians
     d2r = M_PI / 180.;
     r2d = 180. / M_PI;
@@ -25,6 +30,9 @@ RobotM1::RobotM1() : Robot(), calibrated(false), maxEndEffVel(2), maxEndEffForce
     posControlMotorProfile.profileVelocity = 600.*512*10000/1875;
     posControlMotorProfile.profileAcceleration = 500.*65535*10000/4000000;
     posControlMotorProfile.profileDeceleration = 500.*65535*10000/4000000;
+
+    //Check if YAML file exists and contain robot parameters
+    initialiseFromYAML(yaml_config_file);
 
     initialiseJoints();
     initialiseInputs();

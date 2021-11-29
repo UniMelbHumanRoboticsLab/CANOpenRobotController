@@ -1,7 +1,7 @@
 #include "Joystick.h"
 
-Joystick::Joystick() : initialised(false) {
-    device = "/dev/input/js0";
+Joystick::Joystick(int id) : initialised(false) {
+    snprintf(device, 50, "/dev/input/js%d",id);
     js = open(device, O_RDONLY | O_NONBLOCK);
     if (js == -1) {
         spdlog::info("Could not open joystick ({})", device);
@@ -39,7 +39,7 @@ int read_event(int fd, struct js_event *event) {
  * Returns the number of axes on the controller or 0 if an error occurs.
  */
 size_t get_axis_count(int fd) {
-    __u8 axes;
+    uint8_t axes;
 
     if (ioctl(fd, JSIOCGAXES, &axes) == -1)
         return 0;
@@ -51,7 +51,7 @@ size_t get_axis_count(int fd) {
  * Returns the number of buttons on the controller or 0 if an error occurs.
  */
 size_t get_button_count(int fd) {
-    __u8 buttons;
+    uint8_t buttons;
     if (ioctl(fd, JSIOCGBUTTONS, &buttons) == -1)
         return 0;
 
@@ -86,10 +86,14 @@ size_t get_axis_state(struct js_event *event, struct axis_state axes[MAX_NB_STIC
 
 void Joystick::updateInput() {
     if(initialised) {
+        //reset transitions
+        for(int i=0; i<MAX_NB_BUTTONS; i++)
+            button_transition[i] = 0;
         read_event(js, &event);
         switch (event.type)
         {
             case JS_EVENT_BUTTON:
+                button_transition[event.number] = event.value-button[event.number]; //log transition
                 button[event.number] = event.value; //true for pressed, false for released
                 break;
             case JS_EVENT_AXIS:
