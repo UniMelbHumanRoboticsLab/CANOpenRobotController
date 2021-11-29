@@ -15,7 +15,7 @@
 #include <iostream>
 
 #include "RobotM3.h"
-#include "State.h"
+#include "StateMachine.h"
 
 using namespace std;
 
@@ -37,7 +37,7 @@ class M3TimedState : public State {
     */
     RobotM3 *robot;                               /*<!Pointer to state machines robot object*/
 
-    M3TimedState(StateMachine *m, RobotM3 *M3, const char *name = NULL): State(name), robot(M3){};
+    M3TimedState(StateMachine *m, RobotM3 *M3, const char *name = NULL): State(name), robot(M3){spdlog::debug("Created M3TimedState {}", name);};
    private:
     void entry(void) final {
         std::cout

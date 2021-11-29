@@ -19,13 +19,7 @@
 #include <Eigen/Dense>
 
 
-#include "StateMachine.h" //TODO remove?
-class State;
-
-
-typedef std::function<bool()> TransitionCallback_t; //TODO: make w/ template and pointer on specialised stateMachine?
-typedef std::pair<const std::shared_ptr<State> &, TransitionCallback_t> Transition_t; //TODO: rename?
-
+//#include "StateMachine.h" //TODO remove?
 
 
 #define MAXARCS 10 /*<!Define the max number of arcs (transitions) any state can have*/
@@ -59,9 +53,9 @@ class State {
     };
     ~State();
 
-    void allowTransitionTo(const std::shared_ptr<State> &s, TransitionCallback_t f) {
+    /*void allowTransitionTo(const std::shared_ptr<State> &s, TransitionCallback_t f) {
         transitions.push_back(Transition_t(s, f));
-    }
+    }*/
 
     /**
      * \brief Called once when the state is entered. Pure virtual function, must be overwritten by each state
@@ -94,15 +88,10 @@ class State {
      */
     void printName(void);
 
-    const std::shared_ptr<State> & getActiveArc(void);
+    //const std::shared_ptr<State> & getActiveArc(void); //TODO: remove??
 
    private:
-    /**
-    * \brief List of possible transitions
-    *
-    */
-    std::string name;                       /*<!Name of this State*/
-    std::vector<Transition_t> transitions; //Vector of std::pair
+    std::string name;                       /*!< Name of this State*/
 };
 
 #endif  //EXO_STATE_H

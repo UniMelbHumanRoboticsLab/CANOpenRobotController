@@ -14,12 +14,17 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
-class State;
-
+#include <csignal> //For raise()
 #include "logging.h"
 #include "State.h"
 #include "Robot.h"
 #include "LogHelper.h"
+
+class StateMachine;
+
+typedef std::function<bool(const StateMachine &)> TransitionCb_t; //TODO: make w/ template and pointer on specialised stateMachine?
+typedef std::pair<TransitionCb_t, std::string> Transition_t;
+
 
 /**
  * @ingroup stateMachine
@@ -32,7 +37,7 @@ class StateMachine {
      * \brief Construct a new State Machine object
      *
      */
-    StateMachine(void);
+    StateMachine();
     /**
      * \brief Default destructor
      *
@@ -43,20 +48,14 @@ class StateMachine {
      *
      * \param i Pointer to the desired current state.
      */
-    void initialize(State *i);//TODO: overload: with int i for state id and default 0 and string state_name
+    void setInitState(std::string state_name);//TODO: overload: with int i for state id and default 0 and string state_name
 
-    /**
-     * \brief Returns a pointer to the current state
-     *
-     * \return State* Pointer to the current state
-     */
-    State *getCurState(void);
 
     /**
      * \brief Calls the entry method of the current state
      *
      */
-    void activate(void);
+    void activate();
 
     /**
      * \brief Processes the state machine. For each possible transition, checks if that transition should be made
@@ -64,19 +63,63 @@ class StateMachine {
      *  If yes, calls exit() on the current state, entry() and then during() on the new state.
      *
      */
-    virtual void update(void);
+    virtual void update();
 
     /**
      * \brief Custom initialisation of the state machine
      *
      */
-    virtual void init(void) = 0;
+    virtual void init() = 0;
 
     /**
      * \brief End the state machine execution state
      *
      */
-    virtual void end(void) = 0;
+    virtual void end() = 0;
+
+    //TODO: doc. If setInitState() is not used to define first execution state, the first added state is used instead.
+    void addState(std::string state_name, std::shared_ptr<State> s_ptr) {
+       states[state_name]=s_ptr;
+       //Set first added state as default first for execution
+       if(states.size()==1) {
+          currentState=state_name;
+       }
+    }
+
+    //TODO: doc. If setInitState() is not used to define first execution state, the first added state is used instead.
+    void addTransition(std::string from, TransitionCb_t t_cb, std::string to) {
+        if(states.count(from)>0 && states.count(to)>0) {
+            transitions[from].push_back(Transition_t(t_cb, to));
+        }
+        else {
+            spdlog::error("State {} or {} do not exist. Cannot create requested transition.", from, to);
+        }
+    }
+
+    //TODO: doc.
+    void addTransitionFromAny(TransitionCb_t t_cb, std::string to) {
+        if(states.count(to)>0) {
+            //Add transitions to all states (but target)
+            for(const auto& [key, s]: states) {
+                if(key!=to) {
+                    transitions[key].push_back(Transition_t(t_cb, to));
+                }
+            }
+        }
+        else {
+            spdlog::error("State {} do not exist. Cannot create requested transitions.", to);
+        }
+    }
+
+    bool isRunning() { return running; }
+
+
+    std::shared_ptr<State> & getCurrentState();
+    std::shared_ptr<State> & getState(std::string state_name);
+
+   private:
+    std::vector<Transition_t> & getCurrentStateTransitions();
+
 
     /**
      * \brief Hardware update method called every loop (first thing) to update robot state...
@@ -84,33 +127,26 @@ class StateMachine {
      */
     virtual void hwStateUpdate() = 0;
 
-    //template<class S=State> //TODO???
-    void addState(std::string state_name, std::shared_ptr<State> s_ptr) {
-       states[state_name]=s_ptr;
-    };
-
-    //TODO: addTransition method either by state name or index
-    //for state name use a states.find(name) to check if exists.
-
-   protected:
     /**
      * \brief Pointer to the current state
      *
      */
-    State *currentState;
-    std::map<std::string, std::shared_ptr<State>> states;
+    std::string currentState;
+    std::map<std::string, std::shared_ptr<State>> states; //Map of states
 
-    bool initialised = false;
+    std::map<std::string, std::vector<Transition_t>> transitions; //Map holding for each state a vector of possible std::pair transistions.
 
+    bool running;
+
+   protected:
     //TODO: to template, somehow?
-    Robot *robot;
+    //Robot *robot;
 
     /**
      * \brief Custom spdlogger allowing to conveniently log Eigen Vectors (among other things)
      * Required to be initialised in the derived state machine init()
      */
     LogHelper logHelper;
-
 };
 
 #endif  //STATEMACHINE_H

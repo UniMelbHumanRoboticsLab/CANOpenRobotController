@@ -5,43 +5,61 @@
 
 #include "StateMachine.h"
 
-//State machine constructors
-StateMachine::StateMachine(void) {
-    currentState = NULL;
-};
 
-void StateMachine::initialize(State *i) {
-    currentState = i;
-    spdlog::debug("StateMachine::initialize()");
-    initialised = true;
+
+StateMachine::StateMachine(): running(false) {
 }
 
-State *StateMachine::getCurState(void) {
-    return currentState;
+void StateMachine::setInitState(std::string state_name) {
+    currentState = state_name;
+    if(states.count(currentState)<1) {
+        spdlog::error("Requested initial state {} does not exists. Left to default.", currentState);
+    }
 }
 
 void StateMachine::activate(void) {
     spdlog::debug("StateMachine::Activate()");
-    if(initialised) {
-        currentState->entry();
+    if(states.count(currentState)>0) {
+        states[currentState]->entry();
+        running = true;
     }
+    else {
+        spdlog::critical("StateMachine activation state ({}) does not exist. Exiting...", currentState);
+        std::raise(SIGTERM); //Clean exit
+    }
+}
+
+std::shared_ptr<State> & StateMachine::getCurrentState() {
+    return states[currentState];
+}
+
+std::shared_ptr<State> & StateMachine::getState(std::string state_name) {
+    return states[state_name];
 }
 
 void StateMachine::update(void) {
     spdlog::trace("StateMachine::update()");
     hwStateUpdate(); //Call specialised state machine hardware update method
 
-    //TODO:
-    State *t;
-    //Transition *t = currentState->getActiveArc();
-
-    if (t != NULL) {
-        currentState->exit();
-        //TODO:
-        //this->currentState = t->target;
-        currentState->entry();
+    //Manage possible transition
+    bool transitioned = false;
+    for (auto& tr : transitions[currentState]) {
+        //Transition is active?
+        if(tr.first(*this)) {
+            states[currentState]->exit();
+            currentState=tr.second;
+            states[currentState]->entry();
+            transitioned=true;
+            break;
+        }
     }
-    currentState->during();
+
+    //Execute (if not just transitioned)
+    if(!transitioned) {
+        states[currentState]->during();
+    }
+
+    //Logging
     if(logHelper.isStarted() && logHelper.isInitialised())
         logHelper.recordLogData();
 }

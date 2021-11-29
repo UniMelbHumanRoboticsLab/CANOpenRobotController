@@ -18,7 +18,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <csignal> //For raise()
 
 #include "RobotM3.h"
 #include "StateMachine.h"
@@ -38,7 +37,6 @@
 class M3DemoMachine : public StateMachine {
 
    public:
-    bool running = false;
     std::chrono::steady_clock::time_point time_init; // initial time that machine started
     double time_running; // time passed after initialisation in [s]
     /**
@@ -53,26 +51,9 @@ class M3DemoMachine : public StateMachine {
     void hwStateUpdate();
     bool configureMasterPDOs();
 
-        /**
-     * Pointers to the relevant states - initialised in init
-     *
-     */
-    M3CalibState *calibState;
-    M3MassCompensation *standbyState;
-    M3DemoState *testState;
-    M3DemoMinJerkPosition* minJerkState;
-    M3EndEffDemo *endEffDemoState;
-    M3DemoImpedanceState *impedanceState;
-    M3DemoPathState *pathState;
-    M3SamplingEstimationState *timingState;
-
-   protected:
-    RobotM3 *robot;         /*!< Pointer to the Robot*/
-    FLNLHelper *UIserver;   /*!< Pointer to communication server*/
-
-   private:
-//    EventObject(EndCalib) * endCalib;
-//    EventObject(GoToNextState) * goToNextState;
+    //std::shared_ptr<RobotM3> robot;
+    RobotM3 *robot;                     /*!< Pointer to the Robot*/ //TODO: to generic statemachine
+    FLNLHelper *UIserver = nullptr;     /*!< Pointer to communication server*/ //TODO: use unique_ptr or shared_ptr
 };
 
 #endif /*M3_SM_H*/
