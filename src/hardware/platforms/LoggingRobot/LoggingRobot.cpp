@@ -1,7 +1,10 @@
 #include "LoggingRobot.h"
 
-LoggingRobot::LoggingRobot() {
+LoggingRobot::LoggingRobot(std::string robot_name, std::string yaml_config_file) :  Robot(robot_name, yaml_config_file) {
     spdlog::info("New Logging Robot");
+
+    //Check if YAML file exists and contain robot parameters
+    initialiseFromYAML(yaml_config_file);
 
     initialiseJoints();
     initialiseInputs();
@@ -220,7 +223,7 @@ bool LoggingRobot::startSensors() {
             fs->startStream();
             spdlog::info("{}", (void*)fs);
         }
-        sensorsOn = true; 
+        sensorsOn = true;
         return true;
     }
 }

@@ -85,7 +85,7 @@ public:
       * Initialize memory for the <code>Joint</code> + sensor.
       * Load in parameters to  <code>TrajectoryGenerator.</code>.
       */
-    RobotM1();
+    RobotM1(std::string robot_name="", std::string yaml_config_file="");
     ~RobotM1();
 
     Keyboard *keyboard;

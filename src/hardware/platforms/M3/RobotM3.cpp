@@ -1,21 +1,27 @@
 #include "RobotM3.h"
 
 using namespace Eigen;
+using namespace std;
 
-RobotM3::RobotM3() : Robot(),
-                     endEffTool(&M3Handle),
-                     calibrated(false),
-                     maxEndEffVel(2),
-                     maxEndEffForce(60) {
-    //Define the robot structure: each joint with limits and drive: should be in constructor
-    double max_speed = 360 * M_PI / 180.;
-    double tau_max = 1.9 * 23;
-    joints.push_back(new JointM3(0, -45 * M_PI / 180., 45 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(1), "q1"));
-    joints.push_back(new JointM3(1, -15 * M_PI / 180., 70 * M_PI / 180., 1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(2), "q2"));
-    joints.push_back(new JointM3(2, 0 * M_PI / 180., 95 * M_PI / 180., -1, -max_speed, max_speed, -tau_max, tau_max, new KincoDrive(3), "q3"));
+RobotM3::RobotM3(string robot_name, string yaml_config_file) :  Robot(robot_name, yaml_config_file),
+                                                                endEffTool(&M3Handle),
+                                                                calibrated(false),
+                                                                maxEndEffVel(2),
+                                                                maxEndEffForce(60),
+                                                                velFilt(2, VM3::Zero()) {
+    //Check if YAML file exists and contain robot parameters
+    initialiseFromYAML(yaml_config_file);
 
+    //Define the robot structure: each joint with limits and drive
+    joints.push_back(new JointM3(0, qLimits[0], qLimits[1], 1, -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(1), "q1"));
+    joints.push_back(new JointM3(1, qLimits[2], qLimits[3], 1, -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(2), "q2"));
+    joints.push_back(new JointM3(2, qLimits[4], qLimits[5], -1, -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(3), "q3"));
+
+    //Possible inputs: keyboard and joystick
     inputs.push_back(keyboard = new Keyboard());
-    inputs.push_back(joystick = new Joystick());
+    inputs.push_back(joystick = new Joystick(1));
+
+    last_update_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() / 1e6;
 }
 RobotM3::~RobotM3() {
     spdlog::debug("Delete RobotM3 object begins");
@@ -28,6 +34,49 @@ RobotM3::~RobotM3() {
     delete joystick;
     inputs.clear();
     spdlog::debug("RobotM3 deleted");
+}
+
+bool RobotM3::loadParametersFromYAML(YAML::Node params) {
+    if(params["dqMax"]){
+        dqMax = fmin(fmax(0., params["dqMax"].as<double>()), 360.) * M_PI / 180.; //Hard constrained for safety
+    }
+
+    if(params["tauMax"]){
+        tauMax = fmin(fmax(0., params["tauMax"].as<double>()), 50.); //Hard constrained for safety
+    }
+
+    if(params["linkLengths"]){
+        for(unsigned int i=0; i<linkLengths.size(); i++)
+            linkLengths[i]=params["linkLengths"][i].as<double>();
+    }
+
+    if(params["linkMasses"]){
+        for(unsigned int i=0; i<linkMasses.size(); i++)
+            linkMasses[i]=params["linkMasses"][i].as<double>();
+    }
+
+    if(params["frictionVis"]){
+        for(unsigned int i=0; i<frictionVis.size(); i++)
+            frictionVis[i]=params["frictionVis"][i].as<double>();
+    }
+
+    if(params["frictionCoul"]){
+        for(unsigned int i=0; i<frictionCoul.size(); i++)
+            frictionCoul[i]=params["frictionCoul"][i].as<double>();
+    }
+
+    if(params["qLimits"]){
+        for(unsigned int i=0; i<qLimits.size(); i++)
+            qLimits[i]=params["qLimits"][i].as<double>() * M_PI / 180.;
+    }
+
+    if(params["qCalibration"]){
+        for(unsigned int i=0; i<qCalibration.size(); i++)
+            qCalibration[i]=params["qCalibration"][i].as<double>() * M_PI / 180.;
+    }
+
+    spdlog::info("Using YAML M3 parameters of {}.", robotName);
+    return true;
 }
 
 bool RobotM3::initialiseJoints() {
@@ -92,6 +141,7 @@ void RobotM3::updateRobot() {
     endEffPositions = directKinematic(getPosition());
     Matrix3d _J = J();
     endEffVelocities = _J * getVelocity();
+    endEffAccelerations = calculateEndEffAcceleration();
     Matrix3d _Jtinv = (_J.transpose()).inverse();
     endEffForces = _Jtinv * getTorque();
     //Todo: improve by including friction compensation (dedicated calculation function...)
@@ -100,6 +150,7 @@ void RobotM3::updateRobot() {
     if (safetyCheck() != SUCCESS) {
         disable();
     }
+    last_update_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() / 1e6;
 }
 
 setMovementReturnCode_t RobotM3::safetyCheck() {
@@ -127,14 +178,15 @@ setMovementReturnCode_t RobotM3::safetyCheck() {
 }
 
 void RobotM3::printStatus() {
-    std::cout << std::setprecision(3) << std::fixed;
+    std::cout << std::setprecision(3) << std::fixed << std::showpos;
     std::cout << "X=[ " << getEndEffPosition().transpose() << " ]\t";
     std::cout << "dX=[ " << getEndEffVelocity().transpose() << " ]\t";
     std::cout << "F=[ " << getEndEffForce().transpose() << " ]\t";
-    std::cout << std::endl;
+    std::cout <<  std::endl;
+    std::cout <<  std::noshowpos;
 }
 void RobotM3::printJointStatus() {
-    std::cout << std::setprecision(1) << std::fixed;
+    std::cout << std::setprecision(1) << std::fixed << std::showpos;
     std::cout << "q=[ " << getPosition().transpose() * 180 / M_PI << " ]\t";
     std::cout << "dq=[ " << getVelocity().transpose() * 180 / M_PI << " ]\t";
     std::cout << "tau=[ " << getTorque().transpose() << " ]\t";
@@ -142,6 +194,7 @@ void RobotM3::printJointStatus() {
     for (auto joint : joints)
         std::cout << "0x" << std::hex << ((JointM3 *)joint)->getDriveStatus() << "; ";
     std::cout << "}" << std::endl;
+    std::cout <<  std::noshowpos;
 }
 
 bool RobotM3::initPositionControl() {
@@ -268,7 +321,7 @@ setMovementReturnCode_t RobotM3::applyTorque(std::vector<double> torques) {
 VM3 RobotM3::directKinematic(VM3 q) {
     VM3 X;
 
-    std::vector<float> L = LinkLengths;
+    std::vector<float> L = linkLengths;
 
     double F1 = (L[2] * sin(q[1]) + (L[3]+endEffTool->length) * cos(q[2]) + L[0]);
 
@@ -281,7 +334,7 @@ VM3 RobotM3::directKinematic(VM3 q) {
 VM3 RobotM3::inverseKinematic(VM3 X) {
     VM3 q;
 
-    std::vector<float> L = LinkLengths;
+    std::vector<float> L = linkLengths;
 
     //Check accessible workspace
     double normX = X.norm();
@@ -321,7 +374,7 @@ Matrix3d RobotM3::J() {
         q(i) = ((JointM3 *)joints[i])->getPosition();
     }
 
-    std::vector<float> L = LinkLengths;
+    std::vector<float> L = linkLengths;
 
     //Pre calculate factors for optimisation
     double F1 = (L[3]+endEffTool->length) * sin(q[2]);
@@ -348,8 +401,8 @@ VM3 RobotM3::calculateGravityTorques() {
     VM3 tau_g;
 
     //For convenience
-    std::vector<float> L = LinkLengths;
-    std::vector<float> M = LinkMasses;
+    std::vector<float> L = linkLengths;
+    std::vector<float> M = linkMasses;
 
     float g = 9.81;  //Gravitational constant: remember to change it if using the robot on the Moon or another planet
 
@@ -367,35 +420,49 @@ VM3 RobotM3::calculateGravityTorques() {
     return tau_g;
 }
 
+VM3 RobotM3::calculateEndEffAcceleration() {
 
-VM3 RobotM3::getEndEffPosition() {
-    return directKinematic(getPosition());
-}
-VM3 RobotM3::getEndEffVelocity() {
-    return J() * getVelocity();
-}
-VM3 RobotM3::getEndEffForce() {
-    return (J().transpose()).inverse() * getTorque();
+    VM3 endEffVelocitiesFiltered_new = VM3::Zero();
+    double dt = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() / 1e6) - last_update_time;
+
+    //Filter
+    if(!velFilt.isInitialised()) {
+        //Initialise filter at 10Hz w/ current sampling freq (Butterworth order 2)
+        if(dt<1.) { //dt not reliable at startup
+            velFilt.initButter2low(10.*dt);
+        }
+        endEffVelocitiesFiltered = VM3::Zero();
+    }
+    else {
+        //Filter velocity
+        endEffVelocitiesFiltered_new = velFilt.filt(endEffVelocities);
+    }
+
+    //Diff
+    endEffAccelerations = (endEffVelocitiesFiltered_new - endEffVelocitiesFiltered) / dt;
+
+    //Update value
+    endEffVelocitiesFiltered = endEffVelocitiesFiltered_new;
+
+    return endEffAccelerations;
 }
 
-Eigen::VectorXd& RobotM3::getEndEffPositionRef() {
-    //Update values
-    endEffPositions = directKinematic(getPosition());
+const VM3& RobotM3::getEndEffPosition() {
     return endEffPositions;
 }
-Eigen::VectorXd& RobotM3::getEndEffVelocityRef() {
-    //Update values
-    endEffVelocities = J() * getVelocity();
+const VM3& RobotM3::getEndEffVelocity() {
     return endEffVelocities;
 }
-Eigen::VectorXd& RobotM3::getEndEffForceRef() {
-    //Update values
-    endEffForces = (J().transpose()).inverse() * getTorque();
+const VM3& RobotM3::getEndEffVelocityFiltered() {
+    return endEffVelocitiesFiltered;
+}
+const VM3& RobotM3::getEndEffAcceleration() {
+    return endEffAccelerations;
+}
+const VM3& RobotM3::getEndEffForce() {
     return endEffForces;
 }
-Eigen::VectorXd& RobotM3::getInteractionForceRef() {
-    //Update values
-    interactionForces = (J().transpose()).inverse() * (getTorque() - calculateGravityTorques());
+const VM3& RobotM3::getInteractionForce() {
     return interactionForces;
 }
 
@@ -467,11 +534,11 @@ setMovementReturnCode_t RobotM3::setEndEffForceWithCompensation(VM3 F, bool fric
     VM3 tau_g = calculateGravityTorques();  //Gravity compensation torque
     VM3 tau_f(0, 0, 0);                     //Friction compensation torque
     if (friction_comp) {
-        double alpha = 0.5, beta = 0.2, threshold = 0.000000;
+        double threshold = 0.000000;
         for (unsigned int i = 0; i < 3; i++) {
             double dq = ((JointM3 *)joints[i])->getVelocity();
             if (abs(dq) > threshold) {
-                tau_f(i) = alpha * sign(dq) + beta * dq;
+                tau_f(i) = frictionCoul[i] * sign(dq) + frictionVis[i] * dq;
             } else {
                 tau_f(i) = .0;
             }

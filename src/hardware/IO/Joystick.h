@@ -32,6 +32,7 @@ struct axis_state {
 
 #define MAX_NB_STICKS 5
 #define STICK_MAX_VALUE 65535.0
+#define MAX_NB_BUTTONS 20
 
 /**
  * \brief Joystick support class. Mostly stollen from Jason White (https://gist.github.com/jasonwhite/)
@@ -39,12 +40,18 @@ struct axis_state {
 class Joystick : public InputDevice
 {
     public:
-        Joystick();
+        /**
+         * \brief Standard joystick on /dev/input/js#id#
+         * \param id: the joystick id (#id#), default is 0
+         *
+         */
+        Joystick(int id=0);
         ~Joystick();
 
         void updateInput();
 
-        bool isButtonPressed(int id) {return button[id];}
+        bool isButtonPressed(int id) {return button[id];} //!< True if button currently pressed (at last call of updateInput())
+        int isButtonTransition(int id) {return button_transition[id];} //!< Return +1 if pressing transition detected, -1 if releasing one, 0 otherwise. Reseted every call of updateInput() ( every loop )
         double getAxis(int axis_id) {
             int stick = axis_id / 2;
             if (axis_id % 2 == 0)
@@ -55,19 +62,20 @@ class Joystick : public InputDevice
 
         /**
          * \brief Does nothing as there are none here
-         * 
+         *
          */
         bool configureMasterPDOs(){return true;};
 
        protected:
        private:
         bool initialised;
-        const char *device;
+        char device[50];
         int js;
         struct js_event event;
         struct axis_state axes[MAX_NB_STICKS] = {0};
         size_t axis;
-        bool button[100];
+        bool button[MAX_NB_BUTTONS] = {false};
+        int8_t button_transition[MAX_NB_BUTTONS] = {0};
 };
 
 #endif // JOYSTICK_H

@@ -2,31 +2,27 @@
  *
  * \file RobotM3.h
  * \author Vincent Crocher
- * \version 0.2
- * \date 2020-07-27
+ * \version 0.3
+ * \date 2021-06-30
  * \copyright Copyright (c) 2020
  *
- * \brief  The<code> RobotM3</ code> class represents an M3 Robot.
+ * \brief  The RobotM3 class represents an M3 Robot.
  *
  */
 
 #ifndef RobotM3_H_INCLUDED
 #define RobotM3_H_INCLUDED
 
-#include <map>
 
 #include "JointM3.h"
 #include "Keyboard.h"
 #include "Joystick.h"
 #include "Robot.h"
+#include "SignalProcessing.h"
 
 
-typedef Eigen::Vector3d VM3; //! Convenience alias for double  Vector of length 3
+typedef Eigen::Vector3d VM3; //!< Convenience alias for double  Vector of length 3
 
-/**
-     * \todo Load in paramaters and dictionary entries from JSON file.
-     *
-     */
 
 typedef struct M3Tool
 {
@@ -37,9 +33,9 @@ typedef struct M3Tool
 } M3Tool;
 
 //Classic tools attached to M3
-static M3Tool M3NoTool(0, .0, "No Tool"); //! No Tool
-static M3Tool M3Handle(0.140, 0.800, "Handle"); //! Default handle with 3 rotational DoFs 0.465
-static M3Tool M3MachiningTool(0.060, 0.100, "Machining tool"); //!
+static M3Tool M3NoTool(0, .0, "No Tool"); //!< No Tool
+static M3Tool M3Handle(0.140, 0.800, "Handle"); //!< Default handle with 3 rotational DoFs 0.465 //TODO YAML
+static M3Tool M3MachiningTool(0.060, 0.100, "Machining tool"); //TODO YAML
 
 /**
  * \brief Implementation of the M3 robot class, representing an M3 using 3 JointM3 (and so Kinco drives).
@@ -73,29 +69,45 @@ static M3Tool M3MachiningTool(0.060, 0.100, "Machining tool"); //!
  */
 class RobotM3 : public Robot {
    private:
-    const std::vector<float> LinkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};   /*!< Link lengths used for kinematic models (in m), excluding tool*/
-    const std::vector<float> LinkMasses = {0, 0.450, 0.400, 0.100, .0};                  /*!< Link masses used for gravity compensation (in kg), excluding tool*/
+    /** @name Kinematic and dynamic parameters
+    *  These constant parameters have a default value which may be overwritten by a YAML configuration file
+    *  if one is provided to the constructor and the parameter is defined in the configuration file.
+    */
+    /* @{ */
+    double dqMax = 360 * M_PI / 180.;                                           //!< Max joint speed (rad.s-1)
+    double tauMax = 1.9 * 22;                                                   //!< Max joint torque (Nm)
+    std::vector<float> linkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};//!< Link lengths used for kinematic models (in m), excluding tool
+    std::vector<float> linkMasses = {0, 0.450, 0.400, 0.100, .0};               //!< Link masses used for gravity compensation (in kg), excluding tool
+    std::vector<double> frictionVis = {0.2, 0.2, 0.2};                          //!< Joint viscous friction compensation coefficients
+    std::vector<double> frictionCoul = {0.5, 0.5, 0.5};                         //!< Joint Coulomb (static) friction compensation coefficients
 
-    M3Tool *endEffTool; /*!< End-effector representation (transformation and mass) */
+    std::vector<double> qLimits = {/*q1_min*/ -45 * M_PI / 180.,/*q1_max*/ 45 * M_PI / 180., /*q2_min*/ -15 * M_PI / 180., /*q2_max*/70 * M_PI / 180., /*q3_min*/ 0 * M_PI / 180., /*q3_max*/ 95 * M_PI / 180.}; //!< Joints limits (in rad)
+    VM3 qCalibration = {-38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};             //!< Calibration configuration: posture in which the robot is when using the calibration procedure
+    /*@}*/
 
-    VM3 qCalibration = {38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};  /*!< Calibration configuration: posture in which the robot is when using the calibration procedure */
+    M3Tool *endEffTool; //!< End-effector representation (transformation and mass)
 
     bool calibrated;
-    double maxEndEffVel; /*!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.*/
-    double maxEndEffForce; /*!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated. */
+    double maxEndEffVel; //!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.
+    double maxEndEffForce; //!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated.
 
-    Eigen::VectorXd endEffPositions;
-    Eigen::VectorXd endEffVelocities;
-    Eigen::VectorXd endEffForces;
-    Eigen::VectorXd interactionForces;
+    Filter velFilt;
+    double last_update_time; //!< Last time updateRobot has been called (in s)
+
+    VM3 endEffPositions;
+    VM3 endEffVelocities;
+    VM3 endEffAccelerations;
+    VM3 endEffForces;
+    VM3 interactionForces;
+    VM3 endEffVelocitiesFiltered;
 
    public:
     /**
-      * \brief Default <code>RobotM3</code> constructor.
-      * Initialize memory for the Exoskelton <code>Joint</code> + sensors.
-      * Load in exoskeleton paramaters to  <code>TrajectoryGenerator.</code>.
+      * \brief Default RobotM3 constructor.
+      * Creates joints and inputs.
+      * \param yaml_config_file the name of a valide YAML file describing kinematic and dynamic parameters of the M3. If absent or incomplete default parameters are used instead.
       */
-    RobotM3();
+    RobotM3(std::string robot_name="", std::string yaml_config_file="");
     ~RobotM3();
 
     Keyboard *keyboard;
@@ -125,6 +137,15 @@ class RobotM3 : public Robot {
        */
     bool initTorqueControl();
 
+   private:
+    /**
+    * \brief Load parameters from YAML file if valid one specified in constructor.
+    * If absent or incomplete (some parameters only) default parameters are used instead.
+    * \params params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
+    * \return true
+    */
+    bool loadParametersFromYAML(YAML::Node params);
+
     /**
     * \brief Set the target positions for each of the joints
     *
@@ -149,6 +170,7 @@ class RobotM3 : public Robot {
     */
     setMovementReturnCode_t applyTorque(std::vector<double> torques);
 
+   public:
     /**
     * \brief Apply current configuration as calibration configuration using qcalibration such that:
     *  q=qcalibration in current configuration.
@@ -160,27 +182,26 @@ class RobotM3 : public Robot {
 
 
     /**
-       * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
-       * Create designed <code>Joint</code> and <code>Driver</code> objects and load into
+       * \brief Implementation of Pure Virtual function from Robot Base class.
+       * Create designed Joint and Driver objects and load into
        * Robot joint vector.
        */
     bool initialiseJoints();
     /**
-       * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
-       * Initialize each <code>Drive</code> Objects underlying CANOpen Networking.
+       * \brief Implementation of Pure Virtual function from Robot Base class.
+       * Initialize each Drive Objects underlying CANOpen Networking.
 
       */
     bool initialiseNetwork();
     /**
-       * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
-       * Initialize each <code>Input</code> Object.
+       * \brief Implementation of Pure Virtual function from Robot Base class.
+       * Initialize each Input Object.
 
       */
     bool initialiseInputs();
     /**
        * \brief update current state of the robot, including input and output devices.
        * Overloaded Method from the Robot Class.
-       * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
        */
     void updateRobot();
 
@@ -196,18 +217,18 @@ class RobotM3 : public Robot {
     void printJointStatus();
 
 
-    Eigen::Matrix3d J();
-    VM3 directKinematic(VM3 q);
-    VM3 inverseKinematic(VM3 X);
-    VM3 calculateGravityTorques();
+    Eigen::Matrix3d J();                        //!< Robot Jacobian matrix at current configuration
+    VM3 directKinematic(VM3 q);                 //!< Apply robot direct kinematic model at configuration q (rad) and return end-effector position X (m)
+    VM3 inverseKinematic(VM3 X);                //!< Apply robot inverse kinematic model at position X (m) and return corresponding configuration q (rad)
+    VM3 calculateGravityTorques();              //!< Conpute gravity compensation torques for current configuration
+    VM3 calculateEndEffAcceleration();          //!< Calculate end effector acceleration through differentiation of velocity filtered at 1Hz cutoff
 
-    VM3 getEndEffPosition();                    //!< Return vector containing end-effector position (in m)
-    VM3 getEndEffVelocity();                    //!< Return vector containing end-effector velocity (in m.s-1)
-    VM3 getEndEffForce();                       //!< Return vector containing end-effector (motors) force (in N)
-    Eigen::VectorXd& getEndEffPositionRef();    //!< Return vector reference containing end-effector position (in m)
-    Eigen::VectorXd& getEndEffVelocityRef();    //!< Return vector reference containing end-effector velocity (in m.s-1)
-    Eigen::VectorXd& getEndEffForceRef();       //!< Return vector reference containing end-effector (motors) force (in N)
-    Eigen::VectorXd& getInteractionForceRef();  //!< Return vector reference containing end-effector interaction force (using model substracting gravity and friction force to motor torque) (in N)
+    const VM3& getEndEffPosition();                    //!< Return vector containing end-effector position (in m)
+    const VM3& getEndEffVelocity();                    //!< Return vector containing end-effector velocity (in m.s-1)
+    const VM3& getEndEffVelocityFiltered();            //!< Return vector containing end-effector velocity filtered (in m.s-1). Used to compute acceleration
+    const VM3& getEndEffAcceleration();                //!< Return vector containing end-effector acceleration (in m.s-2), calculated through differentiation of velocity filtered at 1Hz cutoff
+    const VM3& getEndEffForce();                       //!< Return vector containing end-effector (motors) force (in N)
+    const VM3& getInteractionForce();                  //!< Return vector containing end-effector interaction force (using model substracting gravity and friction force to motor torque) (in N)
 
     setMovementReturnCode_t setJointPosition(VM3 q);
     setMovementReturnCode_t setJointVelocity(VM3 q);

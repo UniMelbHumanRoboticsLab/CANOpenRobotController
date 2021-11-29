@@ -63,9 +63,9 @@ class FLNLHelper
             initTime = std::chrono::steady_clock::now();
 
             registerState(runningTime);
-            registerState(robot->getEndEffPositionRef());
-            registerState(robot->getEndEffVelocityRef());
-            registerState(robot->getInteractionForceRef());
+            registerState(robot->getEndEffPosition());
+            registerState(robot->getEndEffVelocity());
+            registerState(robot->getInteractionForce());
 
             spdlog::info("Initialised network communication server ({}:{}) for M3 robot (state size: {})", ip, port, stateValues.size());
         }
@@ -82,9 +82,9 @@ class FLNLHelper
             initTime = std::chrono::steady_clock::now();
 
             registerState(runningTime);
-            registerState(robot->getEndEffPositionRef());
-            registerState(robot->getEndEffVelocityRef());
-            registerState(robot->getInteractionForceRef());
+            registerState(robot->getEndEffPosition());
+            registerState(robot->getEndEffVelocity());
+            registerState(robot->getInteractionForce());
 
             spdlog::info("Initialised network communication server ({}:{}) for M2 robot (state size: {})", ip, port, stateValues.size());
         }
