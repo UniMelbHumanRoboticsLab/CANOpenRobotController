@@ -51,7 +51,7 @@ class M3DemoMachine : public StateMachine {
      * Pointers to the relevant states - initialised in init
      *
      */
-        M3CalibState *calibState;
+    M3CalibState *calibState;
     M3MassCompensation *standbyState;
     M3DemoState *testState;
     M3DemoMinJerkPosition* minJerkState;

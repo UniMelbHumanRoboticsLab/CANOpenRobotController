@@ -10,8 +10,6 @@
  * 
  * It has two functions: 1) To trigger data acquision devices not associate with the operation of the robot, and 2) to log data from existing devices
  *
- * It has two functions: 1) To trigger data acquision devices not associate with the operation of the robot, and 2) to log data from existing devices
- *
  */
 
 #ifndef LOGGINGROBOT_H_INCLUDED
