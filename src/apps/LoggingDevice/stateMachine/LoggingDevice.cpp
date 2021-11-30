@@ -86,42 +86,6 @@ bool LoggingDevice::IsSPressed::check(void) {
     }
     return false;
 }
-bool LoggingDevice::IsSPressed::check(void) {
-    if (OWNER->robot->keyboard->getS() == true) {
-        return true;
-    }
-    return false;
-}
-
-bool LoggingDevice::IsCalibrationFinished::check(void) {
-    if (OWNER->calibrateState->getCurrReading() < NUM_CALIBRATE_READINGS) {
-        return false;
-    }
-    return true;
-}
-
-bool LoggingDevice::IsWPressed::check(void) {
-    if (OWNER->robot->keyboard->getW() == true) {
-        OWNER->robot->zeroForcePlate();
-        return true;
-    }
-    return false;
-}
-
-bool LoggingDevice::IsXPressed::check(void) {
-    if (OWNER->robot->keyboard->getX() == true) {
-        OWNER->robot->zeroLeftFoot();
-        return true;
-    }
-    return false;
-}
-bool LoggingDevice::IsDPressed::check(void) {
-    if (OWNER->robot->keyboard->getD() == true) {
-        OWNER->robot->zeroRightFoot();
-        return true;
-    }
-    return false;
-}
 
 bool LoggingDevice::IsCalibrationFinished::check(void) {
     if (OWNER->calibrateState->getCurrReading() < NUM_CALIBRATE_READINGS) {
