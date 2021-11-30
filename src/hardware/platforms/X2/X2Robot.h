@@ -87,7 +87,6 @@ class X2Robot : public Robot {
      *
      */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
-
     motorProfile velControlMotorProfile{0, 240000, 240000};
 
     RobotParameters x2Parameters;

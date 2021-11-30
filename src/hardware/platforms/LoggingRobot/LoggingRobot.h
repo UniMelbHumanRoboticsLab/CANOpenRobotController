@@ -7,7 +7,7 @@
  * \copyright Copyright (c) 2020
  *
  * \brief  The<code> LogginRobot</ code> class represents a logging robot. This Robot doesn't actually do anything, except give options to act as a logger.
- *
+ * 
  * It has two functions: 1) To trigger data acquision devices not associate with the operation of the robot, and 2) to log data from existing devices
  *
  */
@@ -106,7 +106,6 @@ class LoggingRobot : public Robot {
 
     bool startCrutchSensors();
     bool stopCrutchSensors();
-
     bool configureMasterPDOs();
     };
 
