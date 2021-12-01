@@ -3,6 +3,7 @@
  * \author William Campbell
  * \version 0.1
  * \date 2019-09-24
+ //TODO: UPdate this: a generic state machine, managing a Robot and to be derived fr each app (see...)
  * For more detail on the architecture and mechanics of the state machine class see: https://embeded.readthedocs.io/en/latest/StaeMachines/.
  * \copyright Copyright (c) 2019
  *
@@ -22,7 +23,7 @@
 
 class StateMachine;
 
-typedef std::function<bool(const StateMachine &)> TransitionCb_t; //TODO: make w/ template and pointer on specialised stateMachine?
+typedef std::function<bool(StateMachine &)> TransitionCb_t; //TODO: make w/ template and pointer on specialised stateMachine?
 typedef std::pair<TransitionCb_t, std::string> Transition_t;
 
 
@@ -48,7 +49,7 @@ class StateMachine {
      *
      * \param i Pointer to the desired current state.
      */
-    void setInitState(std::string state_name);//TODO: overload: with int i for state id and default 0 and string state_name
+    void setInitState(std::string state_name);
 
 
     /**
@@ -77,49 +78,34 @@ class StateMachine {
      */
     virtual void end() = 0;
 
-    //TODO: doc. If setInitState() is not used to define first execution state, the first added state is used instead.
-    void addState(std::string state_name, std::shared_ptr<State> s_ptr) {
-       states[state_name]=s_ptr;
-       //Set first added state as default first for execution
-       if(states.size()==1) {
-          currentState=state_name;
-       }
-    }
+    //TODO: doc.
+    void setRobot(std::shared_ptr<Robot> r);
 
     //TODO: doc. If setInitState() is not used to define first execution state, the first added state is used instead.
-    void addTransition(std::string from, TransitionCb_t t_cb, std::string to) {
-        if(states.count(from)>0 && states.count(to)>0) {
-            transitions[from].push_back(Transition_t(t_cb, to));
-        }
-        else {
-            spdlog::error("State {} or {} do not exist. Cannot create requested transition.", from, to);
-        }
+    void addState(std::string state_name, std::shared_ptr<State> s_ptr);
+    //TODO: doc. If setInitState() is not used to define first execution state, the first added state is used instead.
+    void addTransition(std::string from, TransitionCb_t t_cb, std::string to);
+    //TODO: doc.
+    void addTransitionFromAny(TransitionCb_t t_cb, std::string to);
+
+    //TODO: doc.
+    std::shared_ptr<State> state(std::string state_name) {
+        return _states[state_name];
+    }
+    //TODO: doc.
+    template <typename S>
+    std::shared_ptr<S> state(std::string state_name) {
+        return std::static_pointer_cast<S>(_states[state_name]);
+    }
+    //TODO: doc.
+    std::shared_ptr<State> state() {
+        return _states[_currentState];
     }
 
     //TODO: doc.
-    void addTransitionFromAny(TransitionCb_t t_cb, std::string to) {
-        if(states.count(to)>0) {
-            //Add transitions to all states (but target)
-            for(const auto& [key, s]: states) {
-                if(key!=to) {
-                    transitions[key].push_back(Transition_t(t_cb, to));
-                }
-            }
-        }
-        else {
-            spdlog::error("State {} do not exist. Cannot create requested transitions.", to);
-        }
-    }
-
-    bool isRunning() { return running; }
-
-
-    std::shared_ptr<State> & getCurrentState();
-    std::shared_ptr<State> & getState(std::string state_name);
+    bool isRunning() { return _running; }
 
    private:
-    std::vector<Transition_t> & getCurrentStateTransitions();
-
 
     /**
      * \brief Hardware update method called every loop (first thing) to update robot state...
@@ -131,16 +117,14 @@ class StateMachine {
      * \brief Pointer to the current state
      *
      */
-    std::string currentState;
-    std::map<std::string, std::shared_ptr<State>> states; //Map of states
-
-    std::map<std::string, std::vector<Transition_t>> transitions; //Map holding for each state a vector of possible std::pair transistions.
-
-    bool running;
+    std::string _currentState;
+    std::map<std::string, std::shared_ptr<State>> _states; //Map of states
+    std::map<std::string, std::vector<Transition_t>> _transitions; //Map holding for each state a vector of possible std::pair transistions.
+    bool _running;
 
    protected:
-    //TODO: to template, somehow?
-    //Robot *robot;
+    //TODO: Ok like that?
+    std::shared_ptr<Robot> _robot = nullptr;
 
     /**
      * \brief Custom spdlogger allowing to conveniently log Eigen Vectors (among other things)

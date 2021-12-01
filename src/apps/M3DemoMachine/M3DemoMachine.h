@@ -27,9 +27,6 @@
 #include "M3DemoStates.h"
 
 
-
-
-
 /**
  * @brief Example implementation of a StateMachine for the M3Robot class. States should implemented M3DemoState
  *
@@ -51,9 +48,9 @@ class M3DemoMachine : public StateMachine {
     void hwStateUpdate();
     bool configureMasterPDOs();
 
-    //std::shared_ptr<RobotM3> robot;
-    RobotM3 *robot;                     /*!< Pointer to the Robot*/ //TODO: to generic statemachine
-    FLNLHelper *UIserver = nullptr;     /*!< Pointer to communication server*/ //TODO: use unique_ptr or shared_ptr
+    std::shared_ptr<RobotM3> robot() { return static_pointer_cast<RobotM3>(_robot); } //!< Robot getter with specialised type
+
+    FLNLHelper *UIserver = nullptr;     //!< Pointer to communication server //TODO: use unique_ptr or shared_ptr
 };
 
 #endif /*M3_SM_H*/

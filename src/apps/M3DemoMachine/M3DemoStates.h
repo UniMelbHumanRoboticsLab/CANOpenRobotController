@@ -35,9 +35,9 @@ class M3TimedState : public State {
     *  \todo Might be good to make these Const
     *
     */
-    RobotM3 *robot;                               /*<!Pointer to state machines robot object*/
+    std::shared_ptr<RobotM3> robot;                               /*<!Pointer to state machines robot object*/
 
-    M3TimedState(StateMachine *m, RobotM3 *M3, const char *name = NULL): State(name), robot(M3){spdlog::debug("Created M3TimedState {}", name);};
+    M3TimedState(StateMachine *m, std::shared_ptr<RobotM3> M3, const char *name = NULL): State(name), robot(M3){spdlog::debug("Created M3TimedState {}", name);};
    private:
     void entry(void) final {
         std::cout
@@ -98,7 +98,7 @@ class M3TimedState : public State {
 class M3DemoState : public M3TimedState {
 
    public:
-    M3DemoState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Test State"):M3TimedState(m, M3, name){};
+    M3DemoState(StateMachine *m, std::shared_ptr<RobotM3> M3, const char *name = "M3 Test State"):M3TimedState(m, M3, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -116,7 +116,7 @@ class M3DemoState : public M3TimedState {
 class M3CalibState : public M3TimedState {
 
    public:
-    M3CalibState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Calib State"):M3TimedState(m, M3, name){};
+    M3CalibState(StateMachine *m, std::shared_ptr<RobotM3> M3, const char *name = "M3 Calib State"):M3TimedState(m, M3, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -139,7 +139,7 @@ class M3CalibState : public M3TimedState {
 class M3MassCompensation : public M3TimedState {
 
    public:
-    M3MassCompensation(StateMachine *m, RobotM3 *M3, const char *name = "M3 Mass Compensation"):M3TimedState(m, M3, name){};
+    M3MassCompensation(StateMachine *m, std::shared_ptr<RobotM3> M3, const char *name = "M3 Mass Compensation"):M3TimedState(m, M3, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -158,7 +158,7 @@ class M3MassCompensation : public M3TimedState {
 class M3EndEffDemo : public M3TimedState {
 
    public:
-    M3EndEffDemo(StateMachine *m, RobotM3 *M3, const char *name = "M3 Velocity Control Demo"):M3TimedState(m, M3, name){};
+    M3EndEffDemo(StateMachine *m, std::shared_ptr<RobotM3> M3, const char *name = "M3 Velocity Control Demo"):M3TimedState(m, M3, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -172,7 +172,7 @@ class M3EndEffDemo : public M3TimedState {
 class M3DemoImpedanceState : public M3TimedState {
 
    public:
-    M3DemoImpedanceState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Demo Impedance State"):M3TimedState(m, M3, name){};
+    M3DemoImpedanceState(StateMachine *m, std::shared_ptr<RobotM3> M3, const char *name = "M3 Demo Impedance State"):M3TimedState(m, M3, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -198,7 +198,7 @@ class M3DemoImpedanceState : public M3TimedState {
 class M3DemoPathState : public M3TimedState {
 
    public:
-    M3DemoPathState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Demo Path State"):M3TimedState(m, M3, name){};
+    M3DemoPathState(StateMachine *m, std::shared_ptr<RobotM3> M3, const char *name = "M3 Demo Path State"):M3TimedState(m, M3, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -222,7 +222,7 @@ class M3DemoPathState : public M3TimedState {
 class M3DemoMinJerkPosition: public M3TimedState {
 
    public:
-    M3DemoMinJerkPosition(StateMachine *m, RobotM3 *M3, const char *name = "M3 Demo Minimum Jerk Position"):M3TimedState(m, M3, name){};
+    M3DemoMinJerkPosition(StateMachine *m, std::shared_ptr<RobotM3> M3, const char *name = "M3 Demo Minimum Jerk Position"):M3TimedState(m, M3, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -248,7 +248,7 @@ class M3DemoMinJerkPosition: public M3TimedState {
 class M3SamplingEstimationState : public M3TimedState {
 
    public:
-    M3SamplingEstimationState(StateMachine *m, RobotM3 *M3, const char *name = "M3 Sampling time estimation State"):M3TimedState(m, M3, name){};
+    M3SamplingEstimationState(StateMachine *m, std::shared_ptr<RobotM3> M3, const char *name = "M3 Sampling time estimation State"):M3TimedState(m, M3, name){};
 
     void entryCode(void);
     void duringCode(void);

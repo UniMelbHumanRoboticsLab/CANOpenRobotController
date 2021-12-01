@@ -1,19 +1,16 @@
 #include "M3DemoMachine.h"
 
-#define OWNER ((M3DemoMachine *)owner)
+bool endCalib(StateMachine & sm) {
+    M3DemoMachine & SM = static_cast<M3DemoMachine &>(sm); //annoying....
 
-bool endCalib(const StateMachine & SM) {
-    const M3DemoMachine & sm = static_cast<const M3DemoMachine &>(SM); //annoying....
-
-    return true;
-    //return (sm.getState("CalibState")->isCalibDone(); //annoying as well... template by state type???
+    return (sm.state<M3CalibState>("CalibState"))->isCalibDone(); //annoying as well...
 }
 
-bool goToNextState(const StateMachine & SM) {
-    const M3DemoMachine & sm = static_cast<const M3DemoMachine &>(SM); //annoying....
+bool goToNextState(StateMachine & SM) {
+    M3DemoMachine & sm = static_cast<M3DemoMachine &>(SM); //annoying....
 
     //keyboard or joystick press
-    if ( (sm.robot->joystick->isButtonTransition(3)>0 || sm.robot->keyboard->getNb()==1) )
+    if ( (sm.robot()->joystick->isButtonTransition(3)>0 || sm.robot()->keyboard->getNb()==1) )
         return true;
 
     //Check incoming command requesting state change
@@ -34,26 +31,31 @@ bool goToNextState(const StateMachine & SM) {
     return false;
 }
 
-bool standby(const StateMachine & SM) {
-    const M3DemoMachine & sm = (const M3DemoMachine &)SM; //annoying....
-    return true;
+bool standby(StateMachine & SM) {
+    M3DemoMachine & sm = (M3DemoMachine &)SM; //annoying....
+
+    if (sm.robot()->keyboard->getQ()==1) {
+        return true;
+    }
+    return false;
 }
 
 
 M3DemoMachine::M3DemoMachine() {
     //robot = std::make_shared<RobotM3>("EMU_MELB", "M3_params.yaml"); //???
-    robot = new RobotM3("EMU_MELB", "M3_params.yaml");
+    setRobot(std::make_shared<RobotM3>("EMU_MELB", "M3_params.yaml"));
+    //robot = new RobotM3("EMU_MELB", "M3_params.yaml");
     //TODO: local template for one occurence only?
 
     //Create state instances and add to the State Machine
-    addState("TestState", std::make_shared<M3DemoState>(this, robot));
-    addState("CalibState", std::make_shared<M3CalibState>(this, robot));
-    addState("StandbyState", std::make_shared<M3MassCompensation>(this, robot));
-    addState("MinJerkState", std::make_shared<M3DemoMinJerkPosition>(this, robot));
-    addState("EndEffState", std::make_shared<M3EndEffDemo>(this, robot));
-    addState("TimingState", std::make_shared<M3SamplingEstimationState>(this, robot));
-    addState("PathState", std::make_shared<M3DemoPathState>(this, robot));
-    addState("ImpedanceState", std::make_shared<M3DemoImpedanceState>(this, robot));
+    addState("TestState", std::make_shared<M3DemoState>(this, robot()));
+    addState("CalibState", std::make_shared<M3CalibState>(this, robot()));
+    addState("StandbyState", std::make_shared<M3MassCompensation>(this, robot()));
+    addState("MinJerkState", std::make_shared<M3DemoMinJerkPosition>(this, robot()));
+    addState("EndEffState", std::make_shared<M3EndEffDemo>(this, robot()));
+    addState("TimingState", std::make_shared<M3SamplingEstimationState>(this, robot()));
+    addState("PathState", std::make_shared<M3DemoPathState>(this, robot()));
+    addState("ImpedanceState", std::make_shared<M3DemoImpedanceState>(this, robot()));
 
     //Define transitions between states
     addTransition("CalibState", &endCalib, "StandbyState");
@@ -72,7 +74,7 @@ M3DemoMachine::~M3DemoMachine() {
     if(UIserver) {
         delete UIserver;
     }
-    delete robot;//TODO: remove if unique or shared
+    //delete robot;//TODO: remove if unique or shared
 }
 
 /**
@@ -82,14 +84,14 @@ M3DemoMachine::~M3DemoMachine() {
  */
 void M3DemoMachine::init() {
     spdlog::debug("M3DemoMachine::init()");
-    if(robot->initialise()) {
+    if(robot()->initialise()) {
         logHelper.initLogger("M3DemoMachineLog", "logs/M3DemoMachine.csv", LogFormat::CSV, true);
         logHelper.add(time_running, "Time (s)");
-        logHelper.add(robot->getEndEffPosition(), "X");
-        logHelper.add(robot->getEndEffVelocity(), "dX");
-        logHelper.add(robot->getInteractionForce(), "F");
-        logHelper.add(robot->getEndEffAcceleration(), "ddX");
-        logHelper.add(robot->getEndEffVelocityFiltered(), "dXFilt");
+        logHelper.add(robot()->getEndEffPosition(), "X");
+        logHelper.add(robot()->getEndEffVelocity(), "dX");
+        logHelper.add(robot()->getInteractionForce(), "F");
+        logHelper.add(robot()->getEndEffAcceleration(), "ddX");
+        logHelper.add(robot()->getEndEffVelocityFiltered(), "dXFilt");
         logHelper.startLogger();
 //        UIserver = new FLNLHelper(robot, "192.168.6.2");//TODO
         UIserver = new FLNLHelper("192.168.6.2");
@@ -107,14 +109,11 @@ void M3DemoMachine::end() {
         if(logHelper.isStarted())
             logHelper.endLog();
         UIserver->closeConnection();
-        getCurrentState()->exit();
-        robot->disable();
+        state()->exit();
+        robot()->disable();
     }
 }
 
-////////////////////////////////////////////////////////////////
-// Events ------------------------------------------------------
-///////////////////////////////////////////////////////////////
 
 /**
  * \brief Statemachine to hardware interface method. Run any hardware update methods
@@ -124,41 +123,12 @@ void M3DemoMachine::end() {
 void M3DemoMachine::hwStateUpdate(void) {
     time_running = (std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now() - time_init).count()) / 1e6;
-    robot->updateRobot();
+    robot()->updateRobot();
     UIserver->sendState();
 }
 
 
-//
-//bool M3DemoMachine::EndCalib::check() {
-//    return OWNER->calibState->isCalibDone();
-//}
-//
-//
-//bool M3DemoMachine::GoToNextState::check() {
-//    //keyboard or joystick press
-//    if ( (OWNER->robot->joystick->isButtonTransition(3)>0 || OWNER->robot->keyboard->getNb()==1) )
-//        return true;
-//
-//    //Check incoming command requesting state change
-//    if ( OWNER->UIserver->isCmd() ) {
-//        string cmd;
-//        vector<double> v;
-//        OWNER->UIserver->getCmd(cmd, v);
-//        if (cmd == "GTNS") { //Go To Next State command received
-//            OWNER->UIserver->clearCmd();
-//            //Acknowledge
-//            OWNER->UIserver->sendCmd(string("OK"));
-//
-//            return true;
-//        }
-//    }
-//
-//    //Otherwise false
-//    return false;
-//}
-
 bool M3DemoMachine::configureMasterPDOs() {
     spdlog::debug("M3DemoMachine::configureMasterPDOs()");
-    return robot->configureMasterPDOs();
+    return robot()->configureMasterPDOs();
 }
