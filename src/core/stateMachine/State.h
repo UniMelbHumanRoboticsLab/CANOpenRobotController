@@ -35,12 +35,6 @@ class State {
      EIGEN_MAKE_ALIGNED_OPERATOR_NEW // Required to use eigen fixed size vectors/objects in states. See first section of http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html.
 
     /**
-     * \brief Pointer to the owning state machine
-     *
-     */
-    //StateMachine *owner;
-
-    /**
      * \brief Construct a new State object
      *
      * \param n Name of the state machine
@@ -52,10 +46,6 @@ class State {
             name = n;
     };
     ~State();
-
-    /*void allowTransitionTo(const std::shared_ptr<State> &s, TransitionCallback_t f) {
-        transitions.push_back(Transition_t(s, f));
-    }*/
 
     /**
      * \brief Called once when the state is entered. Pure virtual function, must be overwritten by each state
@@ -87,8 +77,6 @@ class State {
      *
      */
     void printName(void);
-
-    //const std::shared_ptr<State> & getActiveArc(void); //TODO: remove??
 
    private:
     std::string name;                       /*!< Name of this State*/

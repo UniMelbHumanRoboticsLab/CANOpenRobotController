@@ -5,11 +5,22 @@ StateMachine::StateMachine(): _running(false) {
 }
 
 void StateMachine::setRobot(std::shared_ptr<Robot> r) {
+    spdlog::debug("StateMachine::setRobot()");
     if(!_robot) {
         _robot = r;
     }
     else {
         spdlog::error("Robot already set to state machine. Can't re-set.");
+    }
+}
+
+bool StateMachine::configureMasterPDOs() {
+    spdlog::debug("StateMachine::configureMasterPDOs()");
+    if(_robot) {
+        return _robot->configureMasterPDOs();
+    }
+    else {
+        return false;
     }
 }
 
@@ -21,6 +32,7 @@ void StateMachine::setInitState(std::string state_name) {
 }
 
 void StateMachine::addState(std::string state_name, std::shared_ptr<State> s_ptr) {
+   spdlog::debug("StateMachine::addState({})", state_name);
    _states[state_name]=s_ptr;
    //Set first added state as default first for execution
    if(_states.size()==1) {
@@ -29,6 +41,7 @@ void StateMachine::addState(std::string state_name, std::shared_ptr<State> s_ptr
 }
 
 void StateMachine::addTransition(std::string from, TransitionCb_t t_cb, std::string to) {
+    spdlog::debug("StateMachine::addTransition({} -> {})", from, to);
     if(_states.count(from)>0 && _states.count(to)>0) {
         _transitions[from].push_back(Transition_t(t_cb, to));
     }
@@ -38,6 +51,7 @@ void StateMachine::addTransition(std::string from, TransitionCb_t t_cb, std::str
 }
 
 void StateMachine::addTransitionFromAny(TransitionCb_t t_cb, std::string to) {
+    spdlog::debug("StateMachine::addTransition(ANY -> {})", to);
     if(_states.count(to)>0) {
         //Add transitions to all states (but target)
         for(const auto& [key, s]: _states) {
@@ -51,10 +65,12 @@ void StateMachine::addTransitionFromAny(TransitionCb_t t_cb, std::string to) {
     }
 }
 
-void StateMachine::activate(void) {
+void StateMachine::activate() {
     spdlog::debug("StateMachine::activate()");
     if(_states.count(_currentState)>0) {
         _running = true;
+        _time_init = std::chrono::steady_clock::now();
+        _time_running = 0;
         _states[_currentState]->entry();
     }
     else {
@@ -63,9 +79,15 @@ void StateMachine::activate(void) {
     }
 }
 
-void StateMachine::update(void) {
+void StateMachine::update() {
     spdlog::trace("StateMachine::update()");
-    hwStateUpdate(); //Call specialised state machine hardware update method
+
+    //Keep running time
+    _time_running = (std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now() - _time_init).count()) / 1e6;
+
+    //Call state machine hardware update method (specialised)
+    hwStateUpdate();
 
     //Manage possible transition
     bool transitioned = false;
@@ -88,4 +110,11 @@ void StateMachine::update(void) {
     //Logging
     if(logHelper.isStarted() && logHelper.isInitialised())
         logHelper.recordLogData();
+}
+
+void StateMachine::hwStateUpdate() {
+    spdlog::trace("StateMachine::hwStateUpdate()");
+    if(_robot) {
+        _robot->updateRobot();
+    }
 }

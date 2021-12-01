@@ -11,11 +11,6 @@
  */
 #include "application.h"
 
-#ifdef TIMING_LOG
-#include "LoopTiming.h"
-LoopTiming loopTimer;
-#endif
-
 //Select state machine to use for this application (can be set in cmake)
 #ifndef STATE_MACHINE_TYPE
 #error "State Machine Type not defined"
@@ -50,12 +45,9 @@ void app_programAsync(uint16_t timer1msDiffy) {
 
 /******************** Runs in rt_control_thread ********************/
 void app_programControlLoop(void) {
-    if (stateMachine->isRunning()) {
+    if (stateMachine->running()) {
         stateMachine->update();
     }
-#ifdef TIMING_LOG
-    loopTimer.tick();
-#endif
 }
 
 /******************** Runs at the End of rt_control_thread********************/
@@ -63,7 +55,4 @@ void app_programEnd(void) {
     stateMachine->end();
     delete stateMachine;
     spdlog::info("CORC End application");
-#ifdef TIMING_LOG
-    loopTimer.end();
-#endif
 }

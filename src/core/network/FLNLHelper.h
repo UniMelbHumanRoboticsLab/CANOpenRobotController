@@ -228,10 +228,21 @@ class FLNLHelper
             FLNLServer.ClearReceivedCmd();
         }
 
-        /*//! Return latest received command
-        void getCmd(std::string &cmd, Eigen::VectorXd &v) {
-        }*/
-
+        //TODO: bool isCmd(std:string cmd): test if it is last cmd, and if yes consumes it (clear)
+        //Not tested
+        bool isCmd(std::string cmd, std::vector<double> &v) {
+            if(isCmd()) {
+                std::string cmd_r;
+                FLNLServer.GetReceivedCmd(cmd_r, v);
+                if(cmd_r==cmd) {
+                    clearCmd();
+                    return true;
+                }
+            }
+            else {
+                return false;
+            }
+        }
 
     private:
         server FLNLServer;

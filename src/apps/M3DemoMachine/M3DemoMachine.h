@@ -34,8 +34,6 @@
 class M3DemoMachine : public StateMachine {
 
    public:
-    std::chrono::steady_clock::time_point time_init; // initial time that machine started
-    double time_running; // time passed after initialisation in [s]
     /**
      *  \todo Pilot Parameters would be set in constructor here
      *
@@ -46,7 +44,6 @@ class M3DemoMachine : public StateMachine {
     void end();
 
     void hwStateUpdate();
-    bool configureMasterPDOs();
 
     std::shared_ptr<RobotM3> robot() { return static_pointer_cast<RobotM3>(_robot); } //!< Robot getter with specialised type
 

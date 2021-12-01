@@ -79,6 +79,9 @@ class StateMachine {
     virtual void end() = 0;
 
     //TODO: doc.
+    virtual bool configureMasterPDOs();
+
+    //TODO: doc.
     void setRobot(std::shared_ptr<Robot> r);
 
     //TODO: doc. If setInitState() is not used to define first execution state, the first added state is used instead.
@@ -103,26 +106,19 @@ class StateMachine {
     }
 
     //TODO: doc.
-    bool isRunning() { return _running; }
+    bool running() { return _running; }
 
-   private:
+    //TODO: doc: Running tie of the state machine in [s]
+    double & runningTime() { return _time_running; }
 
-    /**
-     * \brief Hardware update method called every loop (first thing) to update robot state...
-     *
-     */
-    virtual void hwStateUpdate() = 0;
-
-    /**
-     * \brief Pointer to the current state
-     *
-     */
-    std::string _currentState;
-    std::map<std::string, std::shared_ptr<State>> _states; //Map of states
-    std::map<std::string, std::vector<Transition_t>> _transitions; //Map holding for each state a vector of possible std::pair transistions.
-    bool _running;
 
    protected:
+    /**
+     * \brief Hardware update method called every loop (first thing) to update the hardware (robot)
+     * The default version update the robot registered with the StateMachine (using setRobot).
+     */
+    virtual void hwStateUpdate();
+
     //TODO: Ok like that?
     std::shared_ptr<Robot> _robot = nullptr;
 
@@ -131,6 +127,20 @@ class StateMachine {
      * Required to be initialised in the derived state machine init()
      */
     LogHelper logHelper;
+
+
+   private:
+    /**
+     * \brief Pointer to the current state
+     *
+     */
+    std::string _currentState;
+    std::map<std::string, std::shared_ptr<State>> _states; //Map of states
+    std::map<std::string, std::vector<Transition_t>> _transitions; //Map holding for each state a vector of possible std::pair transistions.
+
+    bool _running;
+    std::chrono::steady_clock::time_point _time_init; // initial time that machine started
+    double _time_running=0; // time passed after initialisation in [s]
 };
 
 #endif  //STATEMACHINE_H

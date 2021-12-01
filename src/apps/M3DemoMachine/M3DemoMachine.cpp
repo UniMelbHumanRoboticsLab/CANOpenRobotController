@@ -42,10 +42,8 @@ bool standby(StateMachine & SM) {
 
 
 M3DemoMachine::M3DemoMachine() {
-    //robot = std::make_shared<RobotM3>("EMU_MELB", "M3_params.yaml"); //???
+    //Create a Robot and set it to generic state machine
     setRobot(std::make_shared<RobotM3>("EMU_MELB", "M3_params.yaml"));
-    //robot = new RobotM3("EMU_MELB", "M3_params.yaml");
-    //TODO: local template for one occurence only?
 
     //Create state instances and add to the State Machine
     addState("TestState", std::make_shared<M3DemoState>(this, robot()));
@@ -74,7 +72,6 @@ M3DemoMachine::~M3DemoMachine() {
     if(UIserver) {
         delete UIserver;
     }
-    //delete robot;//TODO: remove if unique or shared
 }
 
 /**
@@ -86,7 +83,7 @@ void M3DemoMachine::init() {
     spdlog::debug("M3DemoMachine::init()");
     if(robot()->initialise()) {
         logHelper.initLogger("M3DemoMachineLog", "logs/M3DemoMachine.csv", LogFormat::CSV, true);
-        logHelper.add(time_running, "Time (s)");
+        logHelper.add(runningTime(), "Time (s)");
         logHelper.add(robot()->getEndEffPosition(), "X");
         logHelper.add(robot()->getEndEffVelocity(), "dX");
         logHelper.add(robot()->getInteractionForce(), "F");
@@ -100,12 +97,10 @@ void M3DemoMachine::init() {
         spdlog::critical("Failed robot initialisation. Exiting...");
         std::raise(SIGTERM); //Clean exit
     }
-    time_init = std::chrono::steady_clock::now();
-    time_running = 0;
 }
 
 void M3DemoMachine::end() {
-    if(isRunning()) {
+    if(running()) {
         if(logHelper.isStarted())
             logHelper.endLog();
         UIserver->closeConnection();
@@ -120,15 +115,8 @@ void M3DemoMachine::end() {
  * that need to run every program loop update cycle.
  *
  */
-void M3DemoMachine::hwStateUpdate(void) {
-    time_running = (std::chrono::duration_cast<std::chrono::microseconds>(
-            std::chrono::steady_clock::now() - time_init).count()) / 1e6;
-    robot()->updateRobot();
+void M3DemoMachine::hwStateUpdate() {
+    StateMachine::hwStateUpdate();
+    //Also send robot state over network
     UIserver->sendState();
-}
-
-
-bool M3DemoMachine::configureMasterPDOs() {
-    spdlog::debug("M3DemoMachine::configureMasterPDOs()");
-    return robot()->configureMasterPDOs();
 }
