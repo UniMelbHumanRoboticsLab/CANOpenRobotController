@@ -8,21 +8,15 @@
  *
  */
 
-#ifndef EXO_STATE_H
-#define EXO_STATE_H
+#ifndef STATE_H
+#define STATE_H
 
-#include <cstddef>
 #include <iostream>
-#include <vector>
-#include <memory>
+
 #include <string>
 #include <Eigen/Dense>
 
 
-//#include "StateMachine.h" //TODO remove?
-
-
-#define MAXARCS 10 /*<!Define the max number of arcs (transitions) any state can have*/
 /**
  *  @ingroup stateMachine
  * \brief Abstract class representing a state in a StateMachine
@@ -39,47 +33,81 @@ class State {
      *
      * \param n Name of the state machine
      */
-    State(const char n[] = NULL) {
-        if(n==NULL)
-            name = "";
-        else
-            name = n;
+    State(std::string n=""): _name(n) {};
+    ~State() {};
+
+
+    void doEntry() {
+        _time_init = std::chrono::steady_clock::now();
+        _time_running = 0;
+        _iterations = 0;
+        _time_dt = 0;
+        spdlog::debug("Entering {} state...", _name);
+        entry();
     };
-    ~State();
 
-    /**
-     * \brief Called once when the state is entered. Pure virtual function, must be overwritten by each state
-     *
-     */
-    virtual void entry(void) = 0;
+    void doDuring() {
+        _iterations++;
+        double tmp = (std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::steady_clock::now() - _time_init).count()) / 1e6;
+        _time_dt = tmp - _time_running;
+        _time_running = tmp;
+        during();
+    };
 
-    /**
-     * \brief Called continuously whilst in that state. Pure virtual function, must be overwritten by each state
-     *
-     */
-    virtual void during(void) = 0;
+    void doExit() {
+        double tmp = (std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::steady_clock::now() - _time_init).count()) / 1e6;
+        _time_dt = tmp - _time_running;
+        _time_running = tmp;
+        exit();
+        spdlog::debug("Exited {} state...", _name);
+    };
 
-    /**
-     * \brief Called once when the state exits. Pure virtual function, must be overwritten by each state
-     *
-     */
-    virtual void exit(void) = 0;
 
     /**
      * \brief Returns the name of the state
      *
      * \return The name of the state
      */
-    const std::string &getName(void);
+    const std::string &getName() {
+        return _name;
+    }
 
     /**
      * \brief Prints the name of the state
      *
      */
-    void printName(void);
+    void printName() {
+        std::cout << _name << std::endl;
+    }
 
-   private:
-    std::string name;                       /*!< Name of this State*/
+    const unsigned long int & iterations() { return _iterations; }
+    const double & dt() { return _time_dt; }
+    const double & running() { return _time_running; }
+
+   protected:
+    /**
+     * \brief Called once when the state is entered. Pure virtual function, must be overwritten by each state
+     *
+     */
+    virtual void entry() = 0;
+
+    /**
+     * \brief Called continuously whilst in that state. Pure virtual function, must be overwritten by each state
+     *
+     */
+    virtual void during() = 0;
+
+    /**
+     * \brief Called once when the state exits. Pure virtual function, must be overwritten by each state
+     *
+     */
+    virtual void exit() = 0;
+
+    std::string _name;                                  //!< Name of this State
+    unsigned long int _iterations = 0;                  //!< Number of iterations (running loops) of the state
+    std::chrono::steady_clock::time_point _time_init;   //!< Initial time that state started
+    double _time_dt = 0;                                //!< Last loop time in [s]
+    double _time_running = 0;                           //!< Time elapsed since state entry in [s]
 };
 
-#endif  //EXO_STATE_H
+#endif  //STATE_H

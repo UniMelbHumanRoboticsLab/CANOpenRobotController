@@ -116,7 +116,7 @@ class Robot {
      *
      */
     virtual bool configureMasterPDOs();
-        /**
+    /**
      * \brief Pure Virtual function, implemeted by robot designer with specified number of each concrete joint classes
      * for the robot hardware desired.
      *

@@ -11,19 +11,12 @@
 #ifndef M3DemoSTATE_H_DEF
 #define M3DemoSTATE_H_DEF
 
-#include <time.h>
 #include <iostream>
 
 #include "RobotM3.h"
 #include "StateMachine.h"
 
 using namespace std;
-
-/**
- * \brief Conversion from a timespec structure to seconds (double)
- *
- */
-double timeval_to_sec(struct timespec *ts);
 
 /**
  * \brief Generic state type for used with M3DemoMachine, providing running time and iterations number.
@@ -46,28 +39,10 @@ class M3TimedState : public State {
         << "----------------------------------" << std::endl
         << std::endl;
 
-        //Timing
-        clock_gettime(CLOCK_MONOTONIC, &initTime);
-        lastTime = timeval_to_sec(&initTime);
-
-        elapsedTime=0;
-        iterations=0;
-
         //Actual state entry
         entryCode();
     };
     void during(void) final {
-        //Compute some basic time values
-        struct timespec ts;
-        clock_gettime(CLOCK_MONOTONIC, &ts);
-
-        double now = timeval_to_sec(&ts);
-        elapsedTime = (now-timeval_to_sec(&initTime));
-        dt = now - lastTime;
-        lastTime = now;
-
-        iterations++;
-
         //Actual state during
         duringCode();
     };
@@ -84,14 +59,6 @@ class M3TimedState : public State {
     virtual void entryCode(){};
     virtual void duringCode(){};
     virtual void exitCode(){};
-
-
-   protected:
-    struct timespec initTime;   /*<! Time of state init */
-    double lastTime;            /*<! Time of last during() call (in seconds since state init())*/
-    double elapsedTime;         /*<! Time since state init() in seconds*/
-    double dt;                  /*<! Time between last two during() calls (in seconds)*/
-    unsigned long int iterations;
 };
 
 

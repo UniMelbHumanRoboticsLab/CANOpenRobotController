@@ -71,7 +71,7 @@ void StateMachine::activate() {
         _running = true;
         _time_init = std::chrono::steady_clock::now();
         _time_running = 0;
-        _states[_currentState]->entry();
+        _states[_currentState]->doEntry();
     }
     else {
         spdlog::critical("StateMachine activation state ({}) does not exist. Exiting...", _currentState);
@@ -94,9 +94,9 @@ void StateMachine::update() {
     for (auto& tr : _transitions[_currentState]) {
         //Transition is active?
         if(tr.first(*this)) {
-            _states[_currentState]->exit();
+            _states[_currentState]->doExit();
             _currentState=tr.second;
-            _states[_currentState]->entry();
+            _states[_currentState]->doEntry();
             transitioned=true;
             break;
         }
@@ -104,7 +104,7 @@ void StateMachine::update() {
 
     //Execute (if not just transitioned)
     if(!transitioned) {
-        _states[_currentState]->during();
+        _states[_currentState]->doDuring();
     }
 
     //Logging

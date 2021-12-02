@@ -34,10 +34,6 @@
 class M3DemoMachine : public StateMachine {
 
    public:
-    /**
-     *  \todo Pilot Parameters would be set in constructor here
-     *
-     */
     M3DemoMachine();
     ~M3DemoMachine();
     void init();

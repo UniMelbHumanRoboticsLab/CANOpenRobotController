@@ -1,8 +1,6 @@
 #include "M3DemoMachine.h"
 
 bool endCalib(StateMachine & sm) {
-    M3DemoMachine & SM = static_cast<M3DemoMachine &>(sm); //annoying....
-
     return (sm.state<M3CalibState>("CalibState"))->isCalibDone(); //annoying as well...
 }
 
@@ -100,11 +98,12 @@ void M3DemoMachine::init() {
 }
 
 void M3DemoMachine::end() {
+    //TODO: Move most of it to generic
     if(running()) {
         if(logHelper.isStarted())
             logHelper.endLog();
         UIserver->closeConnection();
-        state()->exit();
+        state()->doExit();
         robot()->disable();
     }
 }
