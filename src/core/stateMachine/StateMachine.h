@@ -120,7 +120,7 @@ class StateMachine {
     virtual void hwStateUpdate();
 
     //TODO: Ok like that?
-    std::shared_ptr<Robot> _robot = nullptr;
+    std::shared_ptr<Robot> _robot = nullptr;        //!< Set using setRobot method. Can be left null.
 
     /**
      * \brief Custom spdlogger allowing to conveniently log Eigen Vectors (among other things)
@@ -134,13 +134,13 @@ class StateMachine {
      * \brief Pointer to the current state
      *
      */
-    std::string _currentState;
-    std::map<std::string, std::shared_ptr<State>> _states; //Map of states
-    std::map<std::string, std::vector<Transition_t>> _transitions; //Map holding for each state a vector of possible std::pair transistions.
+    std::string _currentState;                                      //!< Current active state index
+    std::map<std::string, std::shared_ptr<State>> _states;          //!< Map of states, indexed and accessed by their names (string)
+    std::map<std::string, std::vector<Transition_t>> _transitions;  //!< Map holding for each state a vector of possible std::pair transistions.
 
-    bool _running;
-    std::chrono::steady_clock::time_point _time_init; // initial time that machine started
-    double _time_running=0; // time passed after initialisation in [s]
+    bool _running;                                      //!< running flag (set true at activate() stage)
+    std::chrono::steady_clock::time_point _time_init;   //!< Initial time that machine started
+    double _time_running=0;                             //!< Time elapsed since initialisation in [s]
 };
 
 #endif  //STATEMACHINE_H

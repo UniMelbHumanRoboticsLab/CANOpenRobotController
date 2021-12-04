@@ -42,6 +42,7 @@ class State {
         _time_running = 0;
         _iterations = 0;
         _time_dt = 0;
+        _active = true;
         spdlog::debug("Entering {} state...", _name);
         entry();
     };
@@ -59,6 +60,7 @@ class State {
         _time_dt = tmp - _time_running;
         _time_running = tmp;
         exit();
+        _active = false;
         spdlog::debug("Exited {} state...", _name);
     };
 
@@ -83,6 +85,7 @@ class State {
     const unsigned long int & iterations() { return _iterations; }
     const double & dt() { return _time_dt; }
     const double & running() { return _time_running; }
+    bool active() { return _active; }                               //!< True if state currently active, false otherwise.
 
    protected:
     /**
@@ -104,6 +107,7 @@ class State {
     virtual void exit() = 0;
 
     std::string _name;                                  //!< Name of this State
+    bool _active = false;
     unsigned long int _iterations = 0;                  //!< Number of iterations (running loops) of the state
     std::chrono::steady_clock::time_point _time_init;   //!< Initial time that state started
     double _time_dt = 0;                                //!< Last loop time in [s]

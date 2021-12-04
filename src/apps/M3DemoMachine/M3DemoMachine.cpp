@@ -63,7 +63,7 @@ M3DemoMachine::M3DemoMachine() {
     addTransition("TimingState", &goToNextState, "StandbyState");
     addTransitionFromAny(&standby, "StandbyState");
 
-    //Initialize the state machine with first state of the designed state machine, using baseclass function.
+    //Initialize the state machine with first state of the designed state machine
     setInitState("CalibState");
 }
 M3DemoMachine::~M3DemoMachine() {
@@ -88,8 +88,7 @@ void M3DemoMachine::init() {
         logHelper.add(robot()->getEndEffAcceleration(), "ddX");
         logHelper.add(robot()->getEndEffVelocityFiltered(), "dXFilt");
         logHelper.startLogger();
-//        UIserver = new FLNLHelper(robot, "192.168.6.2");//TODO
-        UIserver = new FLNLHelper("192.168.6.2");
+        UIserver = new FLNLHelper(robot(), "192.168.6.2");//TODO
     }
     else {
         spdlog::critical("Failed robot initialisation. Exiting...");

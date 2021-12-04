@@ -37,7 +37,7 @@ class FLNLHelper
         * \param ip: server (local) ip address to use
         * \param port: communication port
         */
-        FLNLHelper(Robot * robot, std::string ip, int port = 2048) {
+        FLNLHelper(std::shared_ptr<Robot>robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
 
@@ -56,7 +56,7 @@ class FLNLHelper
         * \param ip: server (local) ip address to use
         * \param port: communication port
         */
-        FLNLHelper(RobotM3 * robot, std::string ip, int port = 2048) {
+        FLNLHelper(std::shared_ptr<RobotM3> robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
 
@@ -75,7 +75,7 @@ class FLNLHelper
         * \param ip: server (local) ip address to use
         * \param port: communication port
         */
-        FLNLHelper(RobotM2 * robot, std::string ip, int port = 2048) {
+        FLNLHelper(std::shared_ptr<RobotM2> robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
 
