@@ -41,7 +41,7 @@ class M3DemoMachine : public StateMachine {
 
     void hwStateUpdate();
 
-    std::shared_ptr<RobotM3> robot() { return static_pointer_cast<RobotM3>(_robot); } //!< Robot getter with specialised type
+    RobotM3 * robot() { return static_cast<RobotM3*>(_robot.get()); } //!< Robot getter with specialised type
 
     FLNLHelper *UIserver = nullptr;     //!< Pointer to communication server //TODO: use unique_ptr or shared_ptr
 };

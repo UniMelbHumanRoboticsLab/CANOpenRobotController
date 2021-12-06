@@ -4,10 +4,10 @@
 StateMachine::StateMachine(): _running(false) {
 }
 
-void StateMachine::setRobot(std::shared_ptr<Robot> r) {
+void StateMachine::setRobot(std::unique_ptr<Robot> r) {
     spdlog::debug("StateMachine::setRobot()");
     if(!_robot) {
-        _robot = r;
+        _robot = move(r);
     }
     else {
         spdlog::error("Robot already set to state machine. Can't re-set.");

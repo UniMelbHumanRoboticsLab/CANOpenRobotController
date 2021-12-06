@@ -41,7 +41,7 @@ bool standby(StateMachine & SM) {
 
 M3DemoMachine::M3DemoMachine() {
     //Create a Robot and set it to generic state machine
-    setRobot(std::make_shared<RobotM3>("EMU_MELB", "M3_params.yaml"));
+    setRobot(std::make_unique<RobotM3>("EMU_MELB", "M3_params.yaml"));
 
     //Create state instances and add to the State Machine
     addState("TestState", std::make_shared<M3DemoState>(this, robot()));

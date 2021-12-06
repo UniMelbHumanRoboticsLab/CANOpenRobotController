@@ -12,7 +12,6 @@
 #define STATE_H
 
 #include <iostream>
-
 #include <string>
 #include <Eigen/Dense>
 

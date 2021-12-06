@@ -82,7 +82,7 @@ class StateMachine {
     virtual bool configureMasterPDOs();
 
     //TODO: doc.
-    void setRobot(std::shared_ptr<Robot> r);
+    void setRobot(std::unique_ptr<Robot> r);
 
     //TODO: doc. If setInitState() is not used to define first execution state, the first added state is used instead.
     void addState(std::string state_name, std::shared_ptr<State> s_ptr);
@@ -120,7 +120,7 @@ class StateMachine {
     virtual void hwStateUpdate();
 
     //TODO: make unique instead? and pass as *_robot and Robot &r ?
-    std::shared_ptr<Robot> _robot = nullptr;        //!< Set using setRobot method. Can be left null.
+    std::unique_ptr<Robot> _robot = nullptr;        //!< Set using setRobot method. Can be left null.
 
     /**
      * \brief Custom spdlogger allowing to conveniently log Eigen Vectors (among other things)
