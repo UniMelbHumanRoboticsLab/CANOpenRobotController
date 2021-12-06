@@ -37,16 +37,16 @@ class FLNLHelper
         * \param ip: server (local) ip address to use
         * \param port: communication port
         */
-        FLNLHelper(std::shared_ptr<Robot>robot, std::string ip, int port = 2048) {
+        FLNLHelper(Robot &robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
 
             initTime = std::chrono::steady_clock::now();
 
             registerState(runningTime);
-            registerState(robot->getPosition());
-            registerState(robot->getVelocity());
-            registerState(robot->getTorque());
+            registerState(robot.getPosition());
+            registerState(robot.getVelocity());
+            registerState(robot.getTorque());
 
             spdlog::info("Initialised network communication server ({}:{}) for default robot (state size: {})", ip, port, stateValues.size());
         }
@@ -56,16 +56,16 @@ class FLNLHelper
         * \param ip: server (local) ip address to use
         * \param port: communication port
         */
-        FLNLHelper(std::shared_ptr<RobotM3> robot, std::string ip, int port = 2048) {
+        FLNLHelper(RobotM3 &robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
 
             initTime = std::chrono::steady_clock::now();
 
             registerState(runningTime);
-            registerState(robot->getEndEffPosition());
-            registerState(robot->getEndEffVelocity());
-            registerState(robot->getInteractionForce());
+            registerState(robot.getEndEffPosition());
+            registerState(robot.getEndEffVelocity());
+            registerState(robot.getInteractionForce());
 
             spdlog::info("Initialised network communication server ({}:{}) for M3 robot (state size: {})", ip, port, stateValues.size());
         }
@@ -75,16 +75,16 @@ class FLNLHelper
         * \param ip: server (local) ip address to use
         * \param port: communication port
         */
-        FLNLHelper(std::shared_ptr<RobotM2> robot, std::string ip, int port = 2048) {
+        FLNLHelper(RobotM2 &robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
 
             initTime = std::chrono::steady_clock::now();
 
             registerState(runningTime);
-            registerState(robot->getEndEffPosition());
-            registerState(robot->getEndEffVelocity());
-            registerState(robot->getInteractionForce());
+            registerState(robot.getEndEffPosition());
+            registerState(robot.getEndEffVelocity());
+            registerState(robot.getInteractionForce());
 
             spdlog::info("Initialised network communication server ({}:{}) for M2 robot (state size: {})", ip, port, stateValues.size());
         }

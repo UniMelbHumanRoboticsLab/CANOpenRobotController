@@ -1,9 +1,9 @@
 /**
  * \file M3DemoMachine.h
  * \author Vincent Crocher
- * /brief The <code>M3DemoMachine</code> class represents an example implementation of an M3 state machine.
- * \version 0.2
- * \date 2020-07-27
+ * /brief The M3DemoMachine class represents an example implementation of an M3 state machine.
+ * \version 0.3
+ * \date 2021-12-05
  *
  * \copyright Copyright (c) 2020
  *

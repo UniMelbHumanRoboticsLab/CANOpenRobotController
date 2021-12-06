@@ -115,11 +115,11 @@ class StateMachine {
    protected:
     /**
      * \brief Hardware update method called every loop (first thing) to update the hardware (robot)
-     * The default version update the robot registered with the StateMachine (using setRobot).
+     * This default (base) version update the robot registered with the StateMachine (using setRobot).
      */
     virtual void hwStateUpdate();
 
-    //TODO: Ok like that?
+    //TODO: make unique instead? and pass as *_robot and Robot &r ?
     std::shared_ptr<Robot> _robot = nullptr;        //!< Set using setRobot method. Can be left null.
 
     /**
@@ -128,12 +128,7 @@ class StateMachine {
      */
     LogHelper logHelper;
 
-
    private:
-    /**
-     * \brief Pointer to the current state
-     *
-     */
     std::string _currentState;                                      //!< Current active state index
     std::map<std::string, std::shared_ptr<State>> _states;          //!< Map of states, indexed and accessed by their names (string)
     std::map<std::string, std::vector<Transition_t>> _transitions;  //!< Map holding for each state a vector of possible std::pair transistions.

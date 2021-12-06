@@ -24,11 +24,7 @@ using namespace std;
  */
 class M3TimedState : public State {
    protected:
-    /**
-    *  \todo Might be good to make these Const
-    *
-    */
-    std::shared_ptr<RobotM3> robot;                               /*<!Pointer to state machines robot object*/
+    std::shared_ptr<RobotM3> robot;                               //!< Pointer to state machines robot object
 
     M3TimedState(StateMachine *m, std::shared_ptr<RobotM3> M3, const char *name = NULL): State(name), robot(M3){spdlog::debug("Created M3TimedState {}", name);};
    private:
@@ -183,7 +179,7 @@ class M3DemoPathState : public M3TimedState {
 
 
 /**
- * \brief Point to tpoint position control with min jerk trajectory interpolation
+ * \brief Point to point position control with min jerk trajectory interpolation
  *
  */
 class M3DemoMinJerkPosition: public M3TimedState {

@@ -1,11 +1,11 @@
 #include "M3DemoMachine.h"
 
 bool endCalib(StateMachine & sm) {
-    return (sm.state<M3CalibState>("CalibState"))->isCalibDone(); //annoying as well...
+    return (sm.state<M3CalibState>("CalibState"))->isCalibDone();
 }
 
 bool goToNextState(StateMachine & SM) {
-    M3DemoMachine & sm = static_cast<M3DemoMachine &>(SM); //annoying....
+    M3DemoMachine & sm = static_cast<M3DemoMachine &>(SM);
 
     //keyboard or joystick press
     if ( (sm.robot()->joystick->isButtonTransition(3)>0 || sm.robot()->keyboard->getNb()==1) )
@@ -88,7 +88,7 @@ void M3DemoMachine::init() {
         logHelper.add(robot()->getEndEffAcceleration(), "ddX");
         logHelper.add(robot()->getEndEffVelocityFiltered(), "dXFilt");
         logHelper.startLogger();
-        UIserver = new FLNLHelper(robot(), "192.168.6.2");//TODO
+        UIserver = new FLNLHelper(*robot(), "192.168.6.2");
     }
     else {
         spdlog::critical("Failed robot initialisation. Exiting...");
@@ -97,9 +97,9 @@ void M3DemoMachine::init() {
 }
 
 void M3DemoMachine::end() {
-    //TODO: Move most of it to generic
+    //TODO: Move most of it to base?
     if(running()) {
-        if(logHelper.isStarted())
+        if(logHelper.isInitialised())
             logHelper.endLog();
         UIserver->closeConnection();
         state()->doExit();
