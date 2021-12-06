@@ -44,14 +44,14 @@ M3DemoMachine::M3DemoMachine() {
     setRobot(std::make_unique<RobotM3>("EMU_MELB", "M3_params.yaml"));
 
     //Create state instances and add to the State Machine
-    addState("TestState", std::make_shared<M3DemoState>(this, robot()));
-    addState("CalibState", std::make_shared<M3CalibState>(this, robot()));
-    addState("StandbyState", std::make_shared<M3MassCompensation>(this, robot()));
-    addState("MinJerkState", std::make_shared<M3DemoMinJerkPosition>(this, robot()));
-    addState("EndEffState", std::make_shared<M3EndEffDemo>(this, robot()));
-    addState("TimingState", std::make_shared<M3SamplingEstimationState>(this, robot()));
-    addState("PathState", std::make_shared<M3DemoPathState>(this, robot()));
-    addState("ImpedanceState", std::make_shared<M3DemoImpedanceState>(this, robot()));
+    addState("TestState", std::make_shared<M3DemoState>(robot()));
+    addState("CalibState", std::make_shared<M3CalibState>(robot()));
+    addState("StandbyState", std::make_shared<M3MassCompensation>(robot()));
+    addState("MinJerkState", std::make_shared<M3DemoMinJerkPosition>(robot()));
+    addState("EndEffState", std::make_shared<M3EndEffDemo>(robot()));
+    addState("TimingState", std::make_shared<M3SamplingEstimationState>(robot()));
+    addState("PathState", std::make_shared<M3DemoPathState>(robot()));
+    addState("ImpedanceState", std::make_shared<M3DemoImpedanceState>(robot()));
 
     //Define transitions between states
     addTransition("CalibState", &endCalib, "StandbyState");
