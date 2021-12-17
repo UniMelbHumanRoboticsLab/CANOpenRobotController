@@ -1,11 +1,10 @@
 /**
  * \file StateMachine.h
- * \author William Campbell
- * \version 0.1
- * \date 2019-09-24
- //TODO: UPdate this: a generic state machine, managing a Robot and to be derived fr each app (see...)
- * For more detail on the architecture and mechanics of the state machine class see: https://embeded.readthedocs.io/en/latest/StaeMachines/.
- * \copyright Copyright (c) 2019
+ * \author William Campbell, Vincent Crocher
+ * \version 0.2
+ * \date 2021-12-17
+ * A generic state machine, managing States and Transitions between them as well as a Robot object. To be derived for each specific app (see examples and main documentation).
+ * \copyright Copyright (c) 2019-2021
  *
  */
 /**
@@ -23,7 +22,7 @@
 
 class StateMachine;
 
-typedef std::function<bool(StateMachine &)> TransitionCb_t; //TODO: make w/ template and pointer on specialised stateMachine?
+typedef std::function<bool(StateMachine &)> TransitionCb_t; //!< Type of Transition function callbacks to register using AddTransition()
 typedef std::pair<TransitionCb_t, std::string> Transition_t;
 
 
@@ -44,13 +43,13 @@ class StateMachine {
      *
      */
     virtual ~StateMachine(){};
+
     /**
      * \brief Sets the initial (starting) state. If not used the first added state is used instead.
      *
      * \param state_name Registered name of the state.
      */
     void setInitState(std::string state_name);
-
 
     /**
      * \brief Calls the entry method of the current state
@@ -78,37 +77,68 @@ class StateMachine {
      */
     virtual void end() = 0;
 
-    //TODO: doc.
+    /**
+     * \brief Default configureMasterPDOs() which call configureMasterPDOs() of set robot if one is set (using setRobot) in the derived stateMachine.
+     * Can be overloaded if more configuration is required.
+     *
+     */
     virtual bool configureMasterPDOs();
 
-    //TODO: doc.
+    /**
+     * \brief Assign a Robot to the stateMachine (optional). Typically called in derived stateMachine constructor at robot instantiation.
+     * \param r A unique_ptr to a Robot object (e.g. setRobot(std::make_unique<RobotM3>("ROBOT_NAME")) )
+     *
+     */
     void setRobot(std::unique_ptr<Robot> r);
 
-    //TODO: doc. If setInitState() is not used to define first execution state, the first added state is used instead.
+     /**
+     * \brief Add a State instance to the stateMachine.
+     * If setInitState() is not used to define first execution state, the first added state is used instead.
+     * \param state_name A unique state name, used to access the state
+     * \param s_ptr A shared_ptr to the State to be added.
+     */
     void addState(std::string state_name, std::shared_ptr<State> s_ptr);
-    //TODO: doc. If setInitState() is not used to define first execution state, the first added state is used instead.
+    /**
+     * \brief Add a Transition (as a cb function) between two states registered using AddState()
+     * \param t_cb A callback function (of type TransitionCb_t) to return true if transition is active and false otherwise
+     * \param from Name of the state to allow Transition from
+     * \param to Name of the state to allow Transition to
+     */
     void addTransition(std::string from, TransitionCb_t t_cb, std::string to);
-    //TODO: doc.
+    /**
+     * \brief Add a Transition (as a cb function) from any state already registered to one state.
+     * \param t_cb A callback function (of type TransitionCb_t) to return true if transition is active and false otherwise
+     * \param to Name of the state to allow Transition to
+     */
     void addTransitionFromAny(TransitionCb_t t_cb, std::string to);
 
-    //TODO: doc.
-    std::shared_ptr<State> state(std::string state_name) {
-        return _states[state_name];
-    }
-    //TODO: doc.
+    /**
+     * \brief Return pointer to the State specified by its state_name
+     *
+     */
+    std::shared_ptr<State> state(std::string state_name) { return _states[state_name]; }
+    /**
+     * \brief Return pointer to the State specified by its name with specicialised State type
+     *
+     */
     template <typename S>
-    std::shared_ptr<S> state(std::string state_name) {
-        return std::static_pointer_cast<S>(_states[state_name]);
-    }
-    //TODO: doc.
-    std::shared_ptr<State> state() {
-        return _states[_currentState];
-    }
+    std::shared_ptr<S> state(std::string state_name) { return std::static_pointer_cast<S>(_states[state_name]); }
+    /**
+     * \brief Return pointer to current active State of the stateMachine
+     *
+     */
+    std::shared_ptr<State> state() { return _states[_currentState]; }
 
-    //TODO: doc.
+    /**
+     * \brief Is stateMachine running?
+     *
+     */
     bool running() { return _running; }
 
-    //TODO: doc: Running tie of the state machine in [s]
+    /**
+     * \brief Return stateMachine running time in [s]
+     *
+     */
     double & runningTime() { return _time_running; }
 
 

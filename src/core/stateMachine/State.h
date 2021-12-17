@@ -1,10 +1,9 @@
 /**
  * \file State.h
- * \author William Campbell
- * \version 0.1
- * \date 2019-09-24
- * For more detail on the architecture and mechanics of the state machine class see: https://embeded.readthedocs.io/en/latest/StaeMachines/.
- * \copyright Copyright (c) 2019
+ * \author William Campbell, Vincent Crocher
+ * \version 0.2
+ * \date 2021-12-17
+ * \copyright Copyright (c) 2019-2021
  *
  */
 
@@ -22,8 +21,6 @@
  *
  */
 class State {
-    //friend class StateMachine; //TODO remove
-    // A State machine class can access the private and protected members of a state class  */
    public:
      EIGEN_MAKE_ALIGNED_OPERATOR_NEW // Required to use eigen fixed size vectors/objects in states. See first section of http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html.
 
