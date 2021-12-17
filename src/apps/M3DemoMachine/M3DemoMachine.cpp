@@ -41,7 +41,7 @@ bool standby(StateMachine & SM) {
 
 M3DemoMachine::M3DemoMachine() {
     //Create a Robot and set it to generic state machine
-    setRobot(std::make_unique<RobotM3>("EMU_MELB", "M3_params.yaml"));
+    setRobot(std::make_unique<RobotM3>("EMU_FOURIER", "M3_params.yaml"));
 
     //Create state instances and add to the State Machine
     addState("TestState", std::make_shared<M3DemoState>(robot()));
@@ -81,13 +81,12 @@ void M3DemoMachine::init() {
     spdlog::debug("M3DemoMachine::init()");
     if(robot()->initialise()) {
         logHelper.initLogger("M3DemoMachineLog", "logs/M3DemoMachine.csv", LogFormat::CSV, true);
-        logHelper.add(runningTime(), "Time (s)");
+        /*logHelper.add(runningTime(), "Time (s)");
         logHelper.add(robot()->getEndEffPosition(), "X");
         logHelper.add(robot()->getEndEffVelocity(), "dX");
         logHelper.add(robot()->getInteractionForce(), "F");
         logHelper.add(robot()->getEndEffAcceleration(), "ddX");
-        logHelper.add(robot()->getEndEffVelocityFiltered(), "dXFilt");
-        logHelper.startLogger();
+        logHelper.add(robot()->getEndEffVelocityFiltered(), "dXFilt");*/
         UIserver = new FLNLHelper(*robot(), "192.168.6.2");
     }
     else {

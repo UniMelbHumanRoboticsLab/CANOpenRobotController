@@ -11,16 +11,9 @@
 #ifndef M3_SM_H
 #define M3_SM_H
 
-#include <sys/time.h>
 
-#include <array>
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <string>
-
-#include "RobotM3.h"
 #include "StateMachine.h"
+#include "RobotM3.h"
 #include "FLNLHelper.h"
 
 // State Classes

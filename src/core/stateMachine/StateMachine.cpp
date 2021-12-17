@@ -71,9 +71,9 @@ void StateMachine::activate() {
         _running = true;
         _time_init = std::chrono::steady_clock::now();
         _time_running = 0;
-        /*if(logHelper.isInitialised()) {
+        if(logHelper.isInitialised()) {
             logHelper.startLogger();
-        }*/
+        }
         _states[_currentState]->doEntry();
     }
     else {

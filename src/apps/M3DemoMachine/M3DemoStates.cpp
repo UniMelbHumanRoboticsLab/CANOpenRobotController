@@ -32,15 +32,17 @@ void M3DemoState::entryCode(void) {
     //robot->setJointVelocity(VM3::Zero());
     //robot->setEndEffForceWithCompensation(VM3::Zero(), false);
     robot->printJointStatus();
+    robot->initTorqueControl();
+    robot->setJointTorque(VM3(0,0,0));
 }
 void M3DemoState::duringCode(void) {
     if(iterations()%100==1) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
         std::cout << running() << " ";
-        //robot->printJointStatus();
+        robot->printJointStatus();
         robot->printStatus();
     }
-    robot->setEndEffForceWithCompensation(VM3(0,0,0));
+    //robot->setEndEffForceWithCompensation(VM3(0,0,0));
     /*VM3 q = robot->getJointPos();
     q(1)=68*M_PI/180.-0.1*elapsedTime;*/
     //std::cout << q.transpose() <<std::endl;
@@ -67,6 +69,27 @@ void M3DemoState::duringCode(void) {
         Dq={0,0.015*5.,0.015*5.};
     robot->setJointPos(qi-Dq);*/
 
+    //Bound to 10Nm
+    if(f>10.0) {
+        f = 10;
+    }
+    if(f<-10) {
+        f = -10;
+    }
+
+    //Apply corresponding force
+    robot->setJointTorque(VM3(f,0,0));
+
+    //Mass controllable through keyboard inputs
+    if(robot->keyboard->getS()) {
+        f -=0.1;robot->printJointStatus();
+        std::cout << "tau: " << f << std::endl;
+    }
+    if(robot->keyboard->getW()) {
+        f +=0.1;robot->printJointStatus();
+        std::cout << "tau: " << f << std::endl;
+    }
+
     /*VM3 tau(0,-5.0,0);*/
     //robot->setJointTor(robot->calculateGravityTorques());
 
@@ -81,7 +104,8 @@ void M3DemoState::duringCode(void) {
 }
 void M3DemoState::exitCode(void) {
     robot->setJointVelocity(VM3::Zero());
-    robot->setEndEffForceWithCompensation(VM3(0,0,0));
+    //robot->setEndEffForceWithCompensation(VM3(0,0,0));
+    robot->setJointTorque(VM3(0,0,0));
 }
 
 

@@ -45,9 +45,9 @@ class StateMachine {
      */
     virtual ~StateMachine(){};
     /**
-     * \brief Sets the current state. Note: No check made
+     * \brief Sets the initial (starting) state. If not used the first added state is used instead.
      *
-     * \param i Pointer to the desired current state.
+     * \param state_name Registered name of the state.
      */
     void setInitState(std::string state_name);
 
@@ -119,7 +119,6 @@ class StateMachine {
      */
     virtual void hwStateUpdate();
 
-    //TODO: make unique instead? and pass as *_robot and Robot &r ?
     std::unique_ptr<Robot> _robot = nullptr;        //!< Set using setRobot method. Can be left null.
 
     /**

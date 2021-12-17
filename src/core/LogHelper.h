@@ -253,9 +253,12 @@ public:
             return true;
         }
     }
+
     void endLog(){
         if(isInitialized_)
             spdlog::drop(loggerName_);
+        isStarted_ = false;
+        isInitialized_ = false;
     }
 };
 

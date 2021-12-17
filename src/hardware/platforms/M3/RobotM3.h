@@ -76,6 +76,7 @@ class RobotM3 : public Robot {
     /* @{ */
     double dqMax = 360 * M_PI / 180.;                                           //!< Max joint speed (rad.s-1)
     double tauMax = 1.9 * 22;                                                   //!< Max joint torque (Nm)
+    std::vector<float> qSigns = {1, 1, -1};                                     //!< Joint direction (as compared to built-in drives direction)
     std::vector<float> linkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};//!< Link lengths used for kinematic models (in m), excluding tool
     std::vector<float> linkMasses = {0, 0.450, 0.400, 0.100, .0};               //!< Link masses used for gravity compensation (in kg), excluding tool
     std::vector<double> frictionVis = {0.2, 0.2, 0.2};                          //!< Joint viscous friction compensation coefficients

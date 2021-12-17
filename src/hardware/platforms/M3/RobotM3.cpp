@@ -13,9 +13,9 @@ RobotM3::RobotM3(string robot_name, string yaml_config_file) :  Robot(robot_name
     initialiseFromYAML(yaml_config_file);
 
     //Define the robot structure: each joint with limits and drive
-    joints.push_back(new JointM3(0, qLimits[0], qLimits[1], 1, -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(1), "q1"));
-    joints.push_back(new JointM3(1, qLimits[2], qLimits[3], 1, -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(2), "q2"));
-    joints.push_back(new JointM3(2, qLimits[4], qLimits[5], -1, -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(3), "q3"));
+    joints.push_back(new JointM3(0, qLimits[0], qLimits[1], qSigns[0], -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(1), "q1"));
+    joints.push_back(new JointM3(1, qLimits[2], qLimits[3], qSigns[1], -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(2), "q2"));
+    joints.push_back(new JointM3(2, qLimits[4], qLimits[5], qSigns[2], -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(3), "q3"));
 
     //Possible inputs: keyboard and joystick
     inputs.push_back(keyboard = new Keyboard());
@@ -37,42 +37,47 @@ RobotM3::~RobotM3() {
 }
 
 bool RobotM3::loadParametersFromYAML(YAML::Node params) {
-    if(params["dqMax"]){
-        dqMax = fmin(fmax(0., params["dqMax"].as<double>()), 360.) * M_PI / 180.; //Hard constrained for safety
+    if(params[robotName]["dqMax"]){
+        dqMax = fmin(fmax(0., params[robotName]["dqMax"].as<double>()), 360.) * M_PI / 180.; //Hard constrained for safety
     }
 
     if(params["tauMax"]){
-        tauMax = fmin(fmax(0., params["tauMax"].as<double>()), 50.); //Hard constrained for safety
+        tauMax = fmin(fmax(0., params[robotName]["tauMax"].as<double>()), 50.); //Hard constrained for safety
     }
 
-    if(params["linkLengths"]){
+    if(params[robotName]["linkLengths"]){
         for(unsigned int i=0; i<linkLengths.size(); i++)
-            linkLengths[i]=params["linkLengths"][i].as<double>();
+            linkLengths[i]=params[robotName]["linkLengths"][i].as<double>();
     }
 
-    if(params["linkMasses"]){
+    if(params[robotName]["linkMasses"]){
         for(unsigned int i=0; i<linkMasses.size(); i++)
-            linkMasses[i]=params["linkMasses"][i].as<double>();
+            linkMasses[i]=params[robotName]["linkMasses"][i].as<double>();
     }
 
-    if(params["frictionVis"]){
+    if(params[robotName]["frictionVis"]){
         for(unsigned int i=0; i<frictionVis.size(); i++)
-            frictionVis[i]=params["frictionVis"][i].as<double>();
+            frictionVis[i]=params[robotName]["frictionVis"][i].as<double>();
     }
 
-    if(params["frictionCoul"]){
+    if(params[robotName]["frictionCoul"]){
         for(unsigned int i=0; i<frictionCoul.size(); i++)
-            frictionCoul[i]=params["frictionCoul"][i].as<double>();
+            frictionCoul[i]=params[robotName]["frictionCoul"][i].as<double>();
     }
 
-    if(params["qLimits"]){
+    if(params[robotName]["qLimits"]){
         for(unsigned int i=0; i<qLimits.size(); i++)
-            qLimits[i]=params["qLimits"][i].as<double>() * M_PI / 180.;
+            qLimits[i]=params[robotName]["qLimits"][i].as<double>() * M_PI / 180.;
     }
 
-    if(params["qCalibration"]){
+    if(params[robotName]["qSigns"]){
+        for(unsigned int i=0; i<qSigns.size(); i++)
+            qSigns[i]=params[robotName]["qSigns"][i].as<double>();
+    }
+
+    if(params[robotName]["qCalibration"]){
         for(unsigned int i=0; i<qCalibration.size(); i++)
-            qCalibration[i]=params["qCalibration"][i].as<double>() * M_PI / 180.;
+            qCalibration[i]=params[robotName]["qCalibration"][i].as<double>() * M_PI / 180.;
     }
 
     spdlog::info("Using YAML M3 parameters of {}.", robotName);
