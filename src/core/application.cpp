@@ -1,12 +1,11 @@
  /**
- *
  * \file application.c
- * \author William Campbell, Justin Fong
- * \version 0.2
- * \date 2021-02-15
+ * \author William Campbell, Justin Fong, Vincent Crocher
+ * \version 0.3
+ * \date 2021-12-18
  * \copyright Copyright (c) 2020 - 2021
  *
- * \breif  Application interface of CORC. Based on CANopenSocket.
+ * \brief  Application interface of CORC. Based on CANopenSocket.
  *
  */
 #include "application.h"
@@ -16,14 +15,14 @@
 #error "State Machine Type not defined"
 #endif
 
-STATE_MACHINE_TYPE *stateMachine;
+std::unique_ptr<STATE_MACHINE_TYPE> stateMachine;
 
 /******************** RUNS BEFORE CO_init() ********************/
 void app_communicationReset(int argc, char *argv[]) {
 #ifdef USEROS
-    stateMachine = new STATE_MACHINE_TYPE(argc, argv);
+    stateMachine = make_unique<STATE_MACHINE_TYPE>(argc, argv);
 #else
-    stateMachine = new STATE_MACHINE_TYPE();
+    stateMachine = make_unique<STATE_MACHINE_TYPE>();
 #endif
     stateMachine->configureMasterPDOs();
 }
@@ -53,6 +52,5 @@ void app_programControlLoop(void) {
 /******************** Runs at the End of rt_control_thread********************/
 void app_programEnd(void) {
     stateMachine->end();
-    delete stateMachine;
     spdlog::info("CORC End application");
 }
