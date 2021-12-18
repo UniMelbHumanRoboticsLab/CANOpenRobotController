@@ -3,8 +3,7 @@
  * \author William Campbell, Vincent Crocher
  * \version 0.2
  * \date 2021-12-17
- * A generic state machine, managing States and Transitions between them as well as a Robot object. To be derived for each specific app (see examples and main documentation).
- * \copyright Copyright (c) 2019-2021
+ * \copyright Copyright (c) 2019 - 2021
  *
  */
 /**
@@ -20,7 +19,7 @@
 #include "Robot.h"
 #include "LogHelper.h"
 
-class StateMachine;
+class StateMachine; //Forward declaration for following type definitions
 
 typedef std::function<bool(StateMachine &)> TransitionCb_t; //!< Type of Transition function callbacks to register using AddTransition()
 typedef std::pair<TransitionCb_t, std::string> Transition_t;
@@ -28,7 +27,7 @@ typedef std::pair<TransitionCb_t, std::string> Transition_t;
 
 /**
  * @ingroup stateMachine
- * \brief Abstract class representing a state machine. Includes a number of State and Transition objects
+ * \brief A generic (abstract class) state machine, managing States and Transitions between them as well as a Robot object. To be derived for each specific app (see examples and main documentation).
  *
  */
 class StateMachine {
@@ -72,10 +71,10 @@ class StateMachine {
     virtual void init() = 0;
 
     /**
-     * \brief End the state machine execution state
+     * \brief End the state machine execution (call current State exit() and disable logger and Robot).
      *
      */
-    virtual void end() = 0;
+    virtual void end();
 
     /**
      * \brief Default configureMasterPDOs() which call configureMasterPDOs() of set robot if one is set (using setRobot) in the derived stateMachine.
@@ -99,7 +98,8 @@ class StateMachine {
      */
     void addState(std::string state_name, std::shared_ptr<State> s_ptr);
     /**
-     * \brief Add a Transition (as a cb function) between two states registered using AddState()
+     * \brief Add a Transition (as a cb function) between two states registered using AddState().
+     * If multiple transitions from the same state are active (true) simultaneously, the first registered one will be used.
      * \param t_cb A callback function (of type TransitionCb_t) to return true if transition is active and false otherwise
      * \param from Name of the state to allow Transition from
      * \param to Name of the state to allow Transition to
@@ -107,6 +107,7 @@ class StateMachine {
     void addTransition(std::string from, TransitionCb_t t_cb, std::string to);
     /**
      * \brief Add a Transition (as a cb function) from any state already registered to one state.
+     * Typically usefull for a "standby" state or clean "exit" state.
      * \param t_cb A callback function (of type TransitionCb_t) to return true if transition is active and false otherwise
      * \param to Name of the state to allow Transition to
      */
@@ -158,7 +159,7 @@ class StateMachine {
     LogHelper logHelper;
 
    private:
-    std::string _currentState;                                      //!< Current active state index
+    std::string _currentState;                                      //!< Current active State name
     std::map<std::string, std::shared_ptr<State>> _states;          //!< Map of states, indexed and accessed by their names (string)
     std::map<std::string, std::vector<Transition_t>> _transitions;  //!< Map holding for each state a vector of possible std::pair transistions.
 

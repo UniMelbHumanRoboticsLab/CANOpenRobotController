@@ -96,14 +96,9 @@ void M3DemoMachine::init() {
 }
 
 void M3DemoMachine::end() {
-    //TODO: Move most of it to base?
-    if(running()) {
-        if(logHelper.isInitialised())
-            logHelper.endLog();
+    if(running())
         UIserver->closeConnection();
-        state()->doExit();
-        robot()->disable();
-    }
+    StateMachine::end();
 }
 
 

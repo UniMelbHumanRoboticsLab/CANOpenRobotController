@@ -121,3 +121,13 @@ void StateMachine::hwStateUpdate() {
         _robot->updateRobot();
     }
 }
+
+void StateMachine::end() {
+    if(running()) {
+        if(logHelper.isInitialised())
+            logHelper.endLog();
+        state()->doExit();
+        _robot->disable();
+    }
+    _running=false;
+}

@@ -4,7 +4,7 @@
  * \author Vincent Crocher
  * \version 0.3
  * \date 2021-06-30
- * \copyright Copyright (c) 2020
+ * \copyright Copyright (c) 2020 - 2021
  *
  * \brief  The RobotM3 class represents an M3 Robot.
  *
