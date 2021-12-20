@@ -228,7 +228,7 @@ class FLNLHelper
             FLNLServer.ClearReceivedCmd();
         }
 
-        //TODO: bool isCmd(std:string cmd): test if it is last cmd, and if yes consumes it (clear)
+        //TODO: bool isCmd(std:string cmd): test if it is last cmd, and if yes consumes it (clear). Allow default empty v
         //Not tested
         bool isCmd(std::string cmd, std::vector<double> &v) {
             if(isCmd()) {

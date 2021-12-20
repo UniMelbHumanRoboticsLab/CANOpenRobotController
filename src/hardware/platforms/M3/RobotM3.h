@@ -1,5 +1,4 @@
 /**
- *
  * \file RobotM3.h
  * \author Vincent Crocher
  * \version 0.3
@@ -142,7 +141,7 @@ class RobotM3 : public Robot {
     /**
     * \brief Load parameters from YAML file if valid one specified in constructor.
     * If absent or incomplete (some parameters only) default parameters are used instead.
-    * \params params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
+    * \param params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
     * \return true
     */
     bool loadParametersFromYAML(YAML::Node params);
@@ -224,12 +223,12 @@ class RobotM3 : public Robot {
     VM3 calculateGravityTorques();              //!< Conpute gravity compensation torques for current configuration
     VM3 calculateEndEffAcceleration();          //!< Calculate end effector acceleration through differentiation of velocity filtered at 1Hz cutoff
 
-    const VM3& getEndEffPosition();                    //!< Return vector containing end-effector position (in m)
-    const VM3& getEndEffVelocity();                    //!< Return vector containing end-effector velocity (in m.s-1)
-    const VM3& getEndEffVelocityFiltered();            //!< Return vector containing end-effector velocity filtered (in m.s-1). Used to compute acceleration
-    const VM3& getEndEffAcceleration();                //!< Return vector containing end-effector acceleration (in m.s-2), calculated through differentiation of velocity filtered at 1Hz cutoff
-    const VM3& getEndEffForce();                       //!< Return vector containing end-effector (motors) force (in N)
-    const VM3& getInteractionForce();                  //!< Return vector containing end-effector interaction force (using model substracting gravity and friction force to motor torque) (in N)
+    const VM3& getEndEffPosition();             //!< Return vector containing end-effector position (in m)
+    const VM3& getEndEffVelocity();             //!< Return vector containing end-effector velocity (in m.s-1)
+    const VM3& getEndEffVelocityFiltered();     //!< Return vector containing end-effector velocity filtered (in m.s-1). Used to compute acceleration
+    const VM3& getEndEffAcceleration();         //!< Return vector containing end-effector acceleration (in m.s-2), calculated through differentiation of velocity filtered at 1Hz cutoff
+    const VM3& getEndEffForce();                //!< Return vector containing end-effector (motors) force (in N)
+    const VM3& getInteractionForce();           //!< Return vector containing end-effector interaction force (using model substracting gravity and friction force to motor torque) (in N)
 
     setMovementReturnCode_t setJointPosition(VM3 q);
     setMovementReturnCode_t setJointVelocity(VM3 q);

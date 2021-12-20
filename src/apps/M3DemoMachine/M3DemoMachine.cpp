@@ -5,14 +5,14 @@ bool endCalib(StateMachine & sm) {
 }
 
 bool goToNextState(StateMachine & SM) {
-    M3DemoMachine & sm = static_cast<M3DemoMachine &>(SM);
+    M3DemoMachine & sm = static_cast<M3DemoMachine &>(SM); //Cast to specific StateMachine type
 
     //keyboard or joystick press
     if ( (sm.robot()->joystick->isButtonTransition(3)>0 || sm.robot()->keyboard->getNb()==1) )
         return true;
 
     //Check incoming command requesting state change
-    if ( sm.UIserver->isCmd() ) {
+    if ( sm.UIserver->isCmd() ) { //TODO: test and use new isCmd(cmd) method
         string cmd;
         vector<double> v;
         sm.UIserver->getCmd(cmd, v);
@@ -30,7 +30,7 @@ bool goToNextState(StateMachine & SM) {
 }
 
 bool standby(StateMachine & SM) {
-    M3DemoMachine & sm = (M3DemoMachine &)SM; //annoying....
+    M3DemoMachine & sm = (M3DemoMachine &)SM; //Cast to specific StateMachine type
 
     if (sm.robot()->keyboard->getQ()==1) {
         return true;

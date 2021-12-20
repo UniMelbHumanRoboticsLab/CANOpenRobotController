@@ -88,17 +88,17 @@ class Robot {
     /**
     * \brief Attempts to read specified parameters YAML file (in config folder) if a filename is specified.
     * Load configuration associated with RobotName (if specified) and pass it to specialised initialiseFromYAML.
-    * \params a YAML filename (assume located in config folder)
+    * \param yaml_config_file a YAML filename (assume located in config folder)
     * \return true if succesfully open the YAML file and a robot with RobotName exists. false otherwise
     */
     virtual bool initialiseFromYAML(std::string yaml_config_file) final;
     /**
     * \brief Load parameters from YAML file if valid one specified in constructor.
     * Default base version not doing anything. See derived class for implementation.
-    * \params params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
+    * \param params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
     * \return true
     */
-    virtual bool loadParametersFromYAML(YAML::Node params) {  spdlog::info("Robot does not support YAML: using default robot parameters."); return false; };
+    virtual bool loadParametersFromYAML(YAML::Node params) { spdlog::info("Robot does not support YAML: using default robot parameters."); return false; };
 
    public:
 
@@ -236,7 +236,8 @@ class Robot {
     virtual setMovementReturnCode_t setTorque(std::vector<double> torques) { return INCORRECT_MODE; };
     //@}
 
-
+    /** @name Logging Methods */
+    //@{
     /**
     * \brief Initialises Logging to specified file
     *

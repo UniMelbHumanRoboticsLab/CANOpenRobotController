@@ -1,5 +1,5 @@
 /**
- * /file M3DemoState.h
+ * \file M3DemoState.h
  * \author Vincent Crocher
  * \version 0.3
  * \date 2020-07-27
