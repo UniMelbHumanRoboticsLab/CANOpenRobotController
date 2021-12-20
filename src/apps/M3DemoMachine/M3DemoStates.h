@@ -11,12 +11,11 @@
 #ifndef M3DemoSTATE_H_DEF
 #define M3DemoSTATE_H_DEF
 
-#include <iostream>
-
+#include "State.h"
 #include "RobotM3.h"
-#include "StateMachine.h"
 
-using namespace std;
+
+class M3DemoMachine;
 
 /**
  * \brief Generic state type for used with M3DemoMachine, providing running time and iterations number.
@@ -152,6 +151,26 @@ class M3DemoImpedanceState : public M3TimedState {
     double dts[10000];
     double dX[10000];
     int new_value;
+};
+
+
+/**
+ * \brief Teleoperation state
+ *
+ */
+class M3TeleopState : public M3TimedState {
+
+   public:
+    M3TeleopState(RobotM3 * M3, M3DemoMachine &sm, const char *name = "M3 Teleop State"):M3TimedState(M3, name), SM(sm) {};
+
+    void entryCode(void);
+    void duringCode(void);
+    void exitCode(void);
+
+   private:
+    M3DemoMachine &SM;
+    VM3 F;
+    VM3 Xi;
 };
 
 

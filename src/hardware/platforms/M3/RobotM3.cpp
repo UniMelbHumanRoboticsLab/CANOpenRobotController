@@ -124,7 +124,7 @@ bool RobotM3::initialiseNetwork() {
         #endif
         n++;
     }
-    printJointStatus();
+    updateRobot();
     return true;
 }
 bool RobotM3::initialiseInputs() {

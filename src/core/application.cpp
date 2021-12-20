@@ -22,7 +22,7 @@ void app_communicationReset(int argc, char *argv[]) {
 #ifdef USEROS
     stateMachine = make_unique<STATE_MACHINE_TYPE>(argc, argv);
 #else
-    stateMachine = make_unique<STATE_MACHINE_TYPE>();
+    stateMachine = std::make_unique<STATE_MACHINE_TYPE>();
 #endif
     stateMachine->configureMasterPDOs();
 }

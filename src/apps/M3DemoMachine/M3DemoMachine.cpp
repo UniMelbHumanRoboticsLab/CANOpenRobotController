@@ -1,5 +1,7 @@
 #include "M3DemoMachine.h"
 
+using namespace std;
+
 bool endCalib(StateMachine & sm) {
     return (sm.state<M3CalibState>("CalibState"))->isCalibDone();
 }
@@ -12,20 +14,23 @@ bool goToNextState(StateMachine & SM) {
         return true;
 
     //Check incoming command requesting state change
-    if ( sm.UIserver->isCmd() ) { //TODO: test and use new isCmd(cmd) method
-        string cmd;
-        vector<double> v;
-        sm.UIserver->getCmd(cmd, v);
-        if (cmd == "GTNS") { //Go To Next State command received
-            sm.UIserver->clearCmd();
-            //Acknowledge
-            sm.UIserver->sendCmd(string("OK"));
-
-            return true;
-        }
+    if ( sm.UIserver->isCmd("GTNS") ) {
+        sm.UIserver->sendCmd(string("OK"));
+        return true;
     }
 
     //Otherwise false
+    return false;
+}
+
+bool goToTele(StateMachine & SM) {
+    M3DemoMachine & sm = static_cast<M3DemoMachine &>(SM); //Cast to specific StateMachine type
+
+    if ( sm.UIserver->isCmd("GOTL") ) {
+        sm.UIserver->sendCmd(string("OKTL"));
+        return true;
+    }
+
     return false;
 }
 
@@ -52,6 +57,7 @@ M3DemoMachine::M3DemoMachine() {
     addState("TimingState", std::make_shared<M3SamplingEstimationState>(robot()));
     addState("PathState", std::make_shared<M3DemoPathState>(robot()));
     addState("ImpedanceState", std::make_shared<M3DemoImpedanceState>(robot()));
+    addState("TeleopState", std::make_shared<M3TeleopState>(robot(), *this));
 
     //Define transitions between states
     addTransition("CalibState", &endCalib, "StandbyState");
@@ -62,6 +68,8 @@ M3DemoMachine::M3DemoMachine() {
     addTransition("EndEffState", &goToNextState, "TimingState");
     addTransition("TimingState", &goToNextState, "StandbyState");
     addTransitionFromAny(&standby, "StandbyState");
+
+    addTransition("StandbyState", &goToTele, "TeleopState");
 
     //Initialize the state machine with first state of the designed state machine
     setInitState("CalibState");
@@ -85,7 +93,7 @@ void M3DemoMachine::init() {
         logHelper.add(robot()->getEndEffAcceleration(), "ddX");
         logHelper.add(robot()->getEndEffVelocityFiltered(), "dXFilt");
         //UIserver = std::make_unique<FLNLHelper>(*robot(), "192.168.6.2");
-        UIserver = std::make_unique<FLNLHelper>(*robot(), "127.0.0.1");
+        UIserver = std::make_shared<FLNLHelper>(*robot(), "127.0.0.1");
     }
     else {
         spdlog::critical("Failed robot initialisation. Exiting...");

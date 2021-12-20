@@ -13,7 +13,7 @@
 #include <iostream>
 #include <string>
 #include <Eigen/Dense>
-
+#include "logging.h"
 
 /**
  *  @ingroup stateMachine

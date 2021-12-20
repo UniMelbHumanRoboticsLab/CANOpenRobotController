@@ -1,3 +1,6 @@
+#ifndef FLNLHELPER_H
+#define FLNLHELPER_H
+
 #include <Eigen/Dense>
 #include <string>
 #include <typeinfo>
@@ -227,8 +230,11 @@ class FLNLHelper
             FLNLServer.ClearReceivedCmd();
         }
 
-        //TODO: bool isCmd(std:string cmd): test if it is last cmd, and if yes consumes it (clear). Allow default empty v
-        //Not tested
+        /**
+        * \brief Test a specific last cmd received, and if yes consumes it (clearCmd())
+        * \param cmd Command to test
+        * \param v Associated parameters values vector
+        */
         bool isCmd(std::string cmd, std::vector<double> &v) {
             if(isCmd()) {
                 std::string cmd_r;
@@ -238,9 +244,24 @@ class FLNLHelper
                     return true;
                 }
             }
-            else {
-                return false;
+            return false;
+        }
+
+        /**
+        * \brief Test a specific last cmd received, and if yes consumes it (clearCmd())
+        * \param cmd Command to test
+        */
+        bool isCmd(std::string cmd) {
+            if(isCmd()) {
+                std::string cmd_r;
+                std::vector<double> v;
+                FLNLServer.GetReceivedCmd(cmd_r, v);
+                if(cmd_r==cmd) {
+                    clearCmd();
+                    return true;
+                }
             }
+            return false;
         }
 
     private:
@@ -253,5 +274,4 @@ class FLNLHelper
         double runningTime = 0;                         //!< Time since initialisation in s
 };
 
-
-
+#endif //FLNLHELPER_H

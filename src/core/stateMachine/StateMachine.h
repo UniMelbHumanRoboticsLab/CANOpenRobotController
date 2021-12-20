@@ -14,7 +14,6 @@
 #define STATEMACHINE_H
 
 #include <csignal> //For raise()
-#include "logging.h"
 #include "State.h"
 #include "Robot.h"
 #include "LogHelper.h"

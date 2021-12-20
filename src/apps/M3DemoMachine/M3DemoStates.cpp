@@ -1,4 +1,7 @@
 #include "M3DemoStates.h"
+#include "M3DemoMachine.h"
+
+using namespace std;
 
 double timeval_to_sec(struct timespec *ts)
 {
@@ -269,6 +272,35 @@ void M3DemoImpedanceState::duringCode(void) {
     }
 }
 void M3DemoImpedanceState::exitCode(void) {
+    robot->setEndEffForceWithCompensation(VM3::Zero());
+}
+
+
+
+void M3TeleopState::entryCode(void) {
+    robot->initTorqueControl();
+    Xi=robot->getEndEffPosition();
+}
+void M3TeleopState::duringCode(void) {
+
+    //Select start point
+    std::vector<double> f_tmp(3);
+    if(SM.UIserver->isCmd("AFTL", f_tmp)) {
+        for(unsigned int i=0; i<3; i++)
+            F[i] = f_tmp[i];
+        if(F.norm()<20) {
+            robot->setEndEffForceWithCompensation(F);
+            if(iterations()%100==1) {
+                std::cout << "F=" << F.transpose() << "\n";
+            }
+        }
+        else {
+            robot->setEndEffForceWithCompensation(VM3(0,0,0));
+            std::cout << "Force too large: " << F.transpose() << "\n";
+        }
+    }
+}
+void M3TeleopState::exitCode(void) {
     robot->setEndEffForceWithCompensation(VM3::Zero());
 }
 

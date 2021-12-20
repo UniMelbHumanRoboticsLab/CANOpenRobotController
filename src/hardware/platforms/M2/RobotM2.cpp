@@ -76,7 +76,7 @@ bool RobotM2::initialiseNetwork() {
         #endif
         n++;
     }
-    printJointStatus();
+    updateRobot();
     return true;
 }
 bool RobotM2::initialiseInputs() {
