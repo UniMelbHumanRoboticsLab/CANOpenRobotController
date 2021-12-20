@@ -36,7 +36,7 @@ class M3DemoMachine : public StateMachine {
 
     RobotM3 *robot() { return static_cast<RobotM3*>(_robot.get()); } //!< Robot getter with specialised type (lifetime is managed by Base StateMachine)
 
-    FLNLHelper *UIserver = nullptr;     //!< Pointer to communication server //TODO: use unique_ptr or shared_ptr
+    std::unique_ptr<FLNLHelper> UIserver = nullptr;     //!< Pointer to communication server //TODO: use unique_ptr or shared_ptr
 };
 
 #endif /*M3_SM_H*/

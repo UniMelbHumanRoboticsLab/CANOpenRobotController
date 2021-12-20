@@ -21,7 +21,7 @@
 
 
 typedef Eigen::Vector3d VM3; //!< Convenience alias for double  Vector of length 3
-
+typedef Eigen::VectorXd VX; //!< Generic (dynamic) size version required for compatibility w/ other libraries (FLNL)
 
 typedef struct M3Tool
 {
@@ -94,12 +94,12 @@ class RobotM3 : public Robot {
     Filter velFilt;
     double last_update_time; //!< Last time updateRobot has been called (in s)
 
-    VM3 endEffPositions;
-    VM3 endEffVelocities;
-    VM3 endEffAccelerations;
-    VM3 endEffForces;
-    VM3 interactionForces;
-    VM3 endEffVelocitiesFiltered;
+    VX endEffPositions;
+    VX endEffVelocities;
+    VX endEffAccelerations;
+    VX endEffForces;
+    VX interactionForces;
+    VX endEffVelocitiesFiltered;
 
    public:
     /**
@@ -223,12 +223,12 @@ class RobotM3 : public Robot {
     VM3 calculateGravityTorques();              //!< Conpute gravity compensation torques for current configuration
     VM3 calculateEndEffAcceleration();          //!< Calculate end effector acceleration through differentiation of velocity filtered at 1Hz cutoff
 
-    const VM3& getEndEffPosition();             //!< Return vector containing end-effector position (in m)
-    const VM3& getEndEffVelocity();             //!< Return vector containing end-effector velocity (in m.s-1)
-    const VM3& getEndEffVelocityFiltered();     //!< Return vector containing end-effector velocity filtered (in m.s-1). Used to compute acceleration
-    const VM3& getEndEffAcceleration();         //!< Return vector containing end-effector acceleration (in m.s-2), calculated through differentiation of velocity filtered at 1Hz cutoff
-    const VM3& getEndEffForce();                //!< Return vector containing end-effector (motors) force (in N)
-    const VM3& getInteractionForce();           //!< Return vector containing end-effector interaction force (using model substracting gravity and friction force to motor torque) (in N)
+    const VX& getEndEffPosition();             //!< Return vector containing end-effector position (in m)
+    const VX& getEndEffVelocity();             //!< Return vector containing end-effector velocity (in m.s-1)
+    const VX& getEndEffVelocityFiltered();     //!< Return vector containing end-effector velocity filtered (in m.s-1). Used to compute acceleration
+    const VX& getEndEffAcceleration();         //!< Return vector containing end-effector acceleration (in m.s-2), calculated through differentiation of velocity filtered at 1Hz cutoff
+    const VX& getEndEffForce();                //!< Return vector containing end-effector (motors) force (in N)
+    const VX& getInteractionForce();           //!< Return vector containing end-effector interaction force (using model substracting gravity and friction force to motor torque) (in N)
 
     setMovementReturnCode_t setJointPosition(VM3 q);
     setMovementReturnCode_t setJointVelocity(VM3 q);

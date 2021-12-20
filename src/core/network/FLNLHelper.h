@@ -122,8 +122,7 @@ class FLNLHelper
         * \return registered state size after addition
         */
         int registerState(const std::vector<double> &v) {
-            std::cout << typeid(v).name() << std::endl;
-            for(unsigned int i=0; i< v.size(); i++)//resize and initialise value
+            for(unsigned int i=0; i<v.size(); i++)//resize and initialise value
                 stateValues.push_back(v[i]);
             stateReferences.push_back((void*)&v); //store reference
             stateReferencesType.push_back(typeid(v).hash_code()); //store type
@@ -131,11 +130,11 @@ class FLNLHelper
         }
 
         /**
-        * \brief Register an Eigen vector of doubles within state to be send regularly
+        * \brief Register an Eigen vector of doubles within state to be send regularly. WARNING: cannot take a fixed size Vector (e.g. Vector3d)
         * \return registered state size after addition
         */
         int registerState(const Eigen::VectorXd &v) {
-            for(int i=0; i< v.size(); i++)//resize and initialise value
+            for(int i=0; i<v.size(); i++)//resize and initialise value
                 stateValues.push_back(v[i]);
             stateReferences.push_back((void*)&v); //store reference
             stateReferencesType.push_back(typeid(v).hash_code()); //store type

@@ -452,22 +452,22 @@ VM3 RobotM3::calculateEndEffAcceleration() {
     return endEffAccelerations;
 }
 
-const VM3& RobotM3::getEndEffPosition() {
+const VX& RobotM3::getEndEffPosition() {
     return endEffPositions;
 }
-const VM3& RobotM3::getEndEffVelocity() {
+const VX& RobotM3::getEndEffVelocity() {
     return endEffVelocities;
 }
-const VM3& RobotM3::getEndEffVelocityFiltered() {
+const VX& RobotM3::getEndEffVelocityFiltered() {
     return endEffVelocitiesFiltered;
 }
-const VM3& RobotM3::getEndEffAcceleration() {
+const VX& RobotM3::getEndEffAcceleration() {
     return endEffAccelerations;
 }
-const VM3& RobotM3::getEndEffForce() {
+const VX& RobotM3::getEndEffForce() {
     return endEffForces;
 }
-const VM3& RobotM3::getInteractionForce() {
+const VX& RobotM3::getInteractionForce() {
     return interactionForces;
 }
 

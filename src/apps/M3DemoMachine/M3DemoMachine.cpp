@@ -67,9 +67,6 @@ M3DemoMachine::M3DemoMachine() {
     setInitState("CalibState");
 }
 M3DemoMachine::~M3DemoMachine() {
-    if(UIserver) {
-        delete UIserver;
-    }
 }
 
 /**
@@ -81,13 +78,14 @@ void M3DemoMachine::init() {
     spdlog::debug("M3DemoMachine::init()");
     if(robot()->initialise()) {
         logHelper.initLogger("M3DemoMachineLog", "logs/M3DemoMachine.csv", LogFormat::CSV, true);
-        /*logHelper.add(runningTime(), "Time (s)");
+        logHelper.add(runningTime(), "Time (s)");
         logHelper.add(robot()->getEndEffPosition(), "X");
         logHelper.add(robot()->getEndEffVelocity(), "dX");
         logHelper.add(robot()->getInteractionForce(), "F");
         logHelper.add(robot()->getEndEffAcceleration(), "ddX");
-        logHelper.add(robot()->getEndEffVelocityFiltered(), "dXFilt");*/
-        UIserver = new FLNLHelper(*robot(), "192.168.6.2");
+        logHelper.add(robot()->getEndEffVelocityFiltered(), "dXFilt");
+        //UIserver = std::make_unique<FLNLHelper>(*robot(), "192.168.6.2");
+        UIserver = std::make_unique<FLNLHelper>(*robot(), "127.0.0.1");
     }
     else {
         spdlog::critical("Failed robot initialisation. Exiting...");
