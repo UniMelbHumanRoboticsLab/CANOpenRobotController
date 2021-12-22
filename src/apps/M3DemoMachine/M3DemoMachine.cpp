@@ -93,7 +93,7 @@ void M3DemoMachine::init() {
         logHelper.add(robot()->getEndEffAcceleration(), "ddX");
         logHelper.add(robot()->getEndEffVelocityFiltered(), "dXFilt");
         //UIserver = std::make_unique<FLNLHelper>(*robot(), "192.168.6.2");
-        UIserver = std::make_shared<FLNLHelper>(*robot(), "127.0.0.1");
+        UIserver = std::make_shared<FLNLHelper>(*robot(), "192.168.7.2");
     }
     else {
         spdlog::critical("Failed robot initialisation. Exiting...");

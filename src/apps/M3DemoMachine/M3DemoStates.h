@@ -143,7 +143,7 @@ class M3DemoImpedanceState : public M3TimedState {
 
    private:
     VM3 Xi;
-    double k = 700;     //! Impedance proportional gain (spring)
+    double k = 2000;     //! Impedance proportional gain (spring)
     double d = 2;       //! Impedance derivative gain (damper)
     bool init=false;
 
@@ -215,8 +215,8 @@ class M3DemoMinJerkPosition: public M3TimedState {
     static const unsigned int TrajNbPts=4;
     unsigned int TrajPtIdx=0;
     double startTime;
-    VM3 TrajPt[TrajNbPts]={VM3(-0.55, 0, 0), VM3(-0.7, 0, -0.2), VM3(-0.7, 0.1, -0.1), VM3(-0.7, -0.1, -0.1)};
-    double TrajTime[TrajNbPts]={5, 3, 0.5, 0.5};
+    VM3 TrajPt[TrajNbPts]={VM3(-0.6, 0, 0), VM3(-0.6, 0., 0.2), VM3(-0.6, 0., -0.2), VM3(-0.6, 0, 0.2)};
+    double TrajTime[TrajNbPts]={5, 5, 5, 1};
     VM3 Xi, Xf;
     double T;
     float k_i=1.; //Integral gain

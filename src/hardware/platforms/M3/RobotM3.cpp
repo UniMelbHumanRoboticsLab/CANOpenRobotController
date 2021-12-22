@@ -12,6 +12,8 @@ RobotM3::RobotM3(string robot_name, string yaml_config_file) :  Robot(robot_name
     //Check if YAML file exists and contain robot parameters
     initialiseFromYAML(yaml_config_file);
 
+    //TODO: to add joint specific parameters (reduction, torque constant) and associated YAML loading
+
     //Define the robot structure: each joint with limits and drive
     joints.push_back(new JointM3(0, qLimits[0], qLimits[1], qSigns[0], -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(1), "q1"));
     joints.push_back(new JointM3(1, qLimits[2], qLimits[3], qSigns[1], -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(2), "q2"));
@@ -37,50 +39,60 @@ RobotM3::~RobotM3() {
 }
 
 bool RobotM3::loadParametersFromYAML(YAML::Node params) {
-    if(params[robotName]["dqMax"]){
-        dqMax = fmin(fmax(0., params[robotName]["dqMax"].as<double>()), 360.) * M_PI / 180.; //Hard constrained for safety
+    YAML::Node params_r=params[robotName]; //Specific node corresponding to the robot
+
+    if(params_r["dqMax"]){
+        dqMax = fmin(fmax(0., params_r["dqMax"].as<double>()), 360.) * M_PI / 180.; //Hard constrained for safety
     }
 
     if(params["tauMax"]){
-        tauMax = fmin(fmax(0., params[robotName]["tauMax"].as<double>()), 50.); //Hard constrained for safety
+        tauMax = fmin(fmax(0., params_r["tauMax"].as<double>()), 50.); //Hard constrained for safety
     }
 
-    if(params[robotName]["linkLengths"]){
+    if(params_r["linkLengths"]){
         for(unsigned int i=0; i<linkLengths.size(); i++)
-            linkLengths[i]=params[robotName]["linkLengths"][i].as<double>();
+            linkLengths[i]=params_r["linkLengths"][i].as<double>();
     }
 
-    if(params[robotName]["linkMasses"]){
+    if(params_r["linkMasses"]){
         for(unsigned int i=0; i<linkMasses.size(); i++)
-            linkMasses[i]=params[robotName]["linkMasses"][i].as<double>();
+            linkMasses[i]=params_r["linkMasses"][i].as<double>();
     }
 
-    if(params[robotName]["frictionVis"]){
+    if(params_r["frictionVis"]){
         for(unsigned int i=0; i<frictionVis.size(); i++)
-            frictionVis[i]=params[robotName]["frictionVis"][i].as<double>();
+            frictionVis[i]=params_r["frictionVis"][i].as<double>();
     }
 
-    if(params[robotName]["frictionCoul"]){
+    if(params_r["frictionCoul"]){
         for(unsigned int i=0; i<frictionCoul.size(); i++)
-            frictionCoul[i]=params[robotName]["frictionCoul"][i].as<double>();
+            frictionCoul[i]=params_r["frictionCoul"][i].as<double>();
     }
 
-    if(params[robotName]["qLimits"]){
+    if(params_r["qLimits"]){
         for(unsigned int i=0; i<qLimits.size(); i++)
-            qLimits[i]=params[robotName]["qLimits"][i].as<double>() * M_PI / 180.;
+            qLimits[i]=params_r["qLimits"][i].as<double>() * M_PI / 180.;
     }
 
-    if(params[robotName]["qSigns"]){
+    if(params_r["qSigns"]){
         for(unsigned int i=0; i<qSigns.size(); i++)
-            qSigns[i]=params[robotName]["qSigns"][i].as<double>();
+            qSigns[i]=params_r["qSigns"][i].as<double>();
     }
 
-    if(params[robotName]["qCalibration"]){
+    if(params_r["qCalibration"]){
         for(unsigned int i=0; i<qCalibration.size(); i++)
-            qCalibration[i]=params[robotName]["qCalibration"][i].as<double>() * M_PI / 180.;
+            qCalibration[i]=params_r["qCalibration"][i].as<double>() * M_PI / 180.;
     }
 
-    spdlog::info("Using YAML M3 parameters of {}.", robotName);
+    //Create and replace existing tool if one specified
+    if(params_r["tool"]){
+        if(params_r["tool"]["name"] && params_r["tool"]["length"] && params_r["tool"]["mass"]) {
+            M3Tool *t = new M3Tool(params_r["tool"]["length"].as<double>(), params_r["tool"]["mass"].as<double>(), params_r["tool"]["name"].as<string>()); //Will be destroyed at end of app
+            endEffTool = t;
+        }
+    }
+
+    spdlog::info("Using YAML M3 parameters of {} (Tool: {}).", robotName, endEffTool->name);
     return true;
 }
 
@@ -419,8 +431,8 @@ VM3 RobotM3::calculateGravityTorques() {
 
     //Calculate gravitational torques
     tau_g[0] = 0;
-    tau_g[1] = -L[2] / 2.0f * sin(q[1]) * (M[1] + M[2] + M[3] + M[4] + endEffTool->mass) * g;
-    tau_g[2] = -(L[1] / 2.0f * (M[0] + M[3]) + L[1] * M[2] + L[3]/2.0f*M[4] + (L[3]+endEffTool->length/2.)*endEffTool->mass) * cos(q[2]) * g;
+    tau_g[1] = -L[2] / 2.0f * sin(q[1]) * (M[1]+M[2]+M[3]+M[4]+endEffTool->mass) * g;
+    tau_g[2] = -(L[1]/2.0f*(M[0]+M[3]) + L[1]*M[2] + (L[1]+L[3]/2.0f)*M[4] + (L[3]+endEffTool->length/2.)*endEffTool->mass) * cos(q[2]) * g;
 
     return tau_g;
 }

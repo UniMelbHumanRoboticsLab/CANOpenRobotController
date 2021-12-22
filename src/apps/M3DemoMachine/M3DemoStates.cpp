@@ -190,10 +190,12 @@ void M3MassCompensation::duringCode(void) {
     //Mass controllable through keyboard inputs
     if(robot->keyboard->getS()) {
         mass -=0.1;robot->printStatus();
+        robot->printJointStatus();
         std::cout << "Mass: " << mass << std::endl;
     }
     if(robot->keyboard->getW()) {
         mass +=0.1;robot->printStatus();
+        robot->printJointStatus();
         std::cout << "Mass: " << mass << std::endl;
     }
 }
@@ -230,14 +232,22 @@ void M3EndEffDemo::exitCode(void) {
 
 void M3DemoImpedanceState::entryCode(void) {
     robot->initTorqueControl();
-    std::cout << "Press Q to select reference point, S/W to tune K gain and A/D for D gain" << std::endl;
+    init=false;
+    std::cout << "Press X to select reference point, S/W to tune K gain and A/D for D gain" << std::endl;
 }
 void M3DemoImpedanceState::duringCode(void) {
 
     //Select start point
-    if(robot->keyboard->getQ()) {
-        Xi=robot->getEndEffPosition();
-        init=true;
+    if(robot->keyboard->getX()) {
+        if(!init) {
+            Xi=robot->getEndEffPosition();
+            init=true;
+            robot->printJointStatus();
+            robot->printStatus();
+        }
+        else {
+            init=false;
+        }
     }
 
     //K tuning
@@ -264,7 +274,7 @@ void M3DemoImpedanceState::duringCode(void) {
 
     //Apply impedance control
     if(init) {
-        std::cout << "K=" << k << " D=" << d << " => F=" << impedance(K, Eigen::Matrix3d::Zero(), Xi, robot->getEndEffPosition(), robot->getEndEffVelocity()).transpose() << " N" <<std::endl;
+        //std::cout << "K=" << k << " D=" << d << " => F=" << impedance(K, Eigen::Matrix3d::Zero(), Xi, robot->getEndEffPosition(), robot->getEndEffVelocity()).transpose() << " N" <<std::endl;
         robot->setEndEffForceWithCompensation(impedance(K, D, Xi, robot->getEndEffPosition(), robot->getEndEffVelocity()));
     }
     else {

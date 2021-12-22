@@ -34,7 +34,6 @@ typedef struct M3Tool
 //Classic tools attached to M3
 static M3Tool M3NoTool(0, .0, "No Tool"); //!< No Tool
 static M3Tool M3Handle(0.140, 0.800, "Handle"); //!< Default handle with 3 rotational DoFs 0.465 //TODO YAML
-static M3Tool M3MachiningTool(0.060, 0.100, "Machining tool"); //TODO YAML
 
 /**
  * \brief Implementation of the M3 robot class, representing an M3 using 3 JointM3 (and so Kinco drives).
