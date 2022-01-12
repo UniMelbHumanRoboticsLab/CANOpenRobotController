@@ -34,7 +34,7 @@ This example does not include any visualisation of the robot, with feedback to t
 
 ### Suggested for
 1. Initial testing of software for applications not using ROS (e.g. some embedded )
-2. Users seeking the simplest 
+2. Users seeking the simplest possible runnable example 
 
 ### [Basic Simulation - Instructions](GSBasicSimulation.md) 
 
