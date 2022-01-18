@@ -7,16 +7,16 @@ The project was initiated at the University of Melbourne in partnership with Fou
 ## The CANOpen Robot Controller project includes:
 
 - An extensible framework to represent multibody rigid robotic systems.
-- An event driven state machine to develop custom applications (see [here](doc/Software/StateMachine.md)).
+- An event driven state machine to develop custom applications (see [here](doc/3.Software/StateMachine.md)).
 - An implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers/sensors.
-- [Documentation](https://unimelb-human-robotics-lab.github.io//CANOpenRobotController/index.html)
+- Documentation (this page and associated ones and code Doxygen).
 - Functional application examples.
 
 ### Project Overview
 
 The code is structured into 3 levels:
 
-1. **CANopen Communications Level:** Provides the CAN-level communications, providing the mechanisms for the sending and receiving of PDO and SDO messages
+1. **The CANopen Communications Level:** Provides the CAN-level communications, providing the mechanisms for the sending and receiving of PDO and SDO messages
 2. **The Robot Level:** Defines the components of the Robot to be controlled, including the joints, associated drives, and input devices
 3. **The Application Layer:** Defines the high level logic for the device, based on the implementation of a State Machine.
 
@@ -29,6 +29,10 @@ See the detailed document [here](doc/1.GettingStarted/GettingStarted.md)
 ### Building a custom application with a custom state machine
 See [this detailed explanation](doc/3.Software/CustomApplication.md) for instructions to customise an application or derive your own.
 
+### Logging system (spdlog)
+CORC relies on [spdlog](https://github.com/gabime/spdlog) for both general logging (terminal and in file) and for data logging.
+See [here](doc/3.Software/Logging.md) for more info on using the logging system.
+
 ### ROS Support
 See [here](doc/1.GettingStarted/Simulation.md) for instructions on how to build and run a CORC app with ROS support.
 
@@ -37,6 +41,9 @@ See [here](doc/3.Software/NetworkCommunication.md) for instructions on using lib
 
 ### CAN-USB adapters
 See [this page](doc/2.Hardware/USBCANadapters.md) for notes on tested USB-CAN adapters.
+
+### Generating the code documentation
+To generate the Doxygen documentation of the code you can simply run `doxygen Doxyfile` in the root folder. This will generate an HTML documentation in the `doc/html` folder.
 
 ## Developer Information
 
