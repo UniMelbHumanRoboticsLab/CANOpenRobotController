@@ -1,5 +1,5 @@
 # Getting Started with Windows - Installation Instructions
-Windows can only be used as a development environment. As such, you must install the cross-compilation toolchains to compile for a Linux device. Here, we provide instructions only for the arm-linux-gnueabihf toolchain (which have been tested by the development team on various Beaglebone devices), however, cross compilation toolchains for other Linux devices may also be used. 
+A compile CORC application can only run on a Linux machine, and as such, Windows can only be used as a development environment. Therefore, you must install the cross-compilation toolchains to compile for a Linux device. Here, we provide instructions only for the arm-linux-gnueabihf toolchain (which have been tested by the development team on various Beaglebone devices), however, cross compilation toolchains for other Linux devices may also be used. 
 
 ## Git 
 CORC is hosted on Github, and uses Git for its version control. Whilst technically not required (all the files can be downloaded from the Github repository), it is highly recommended that Git is used. 

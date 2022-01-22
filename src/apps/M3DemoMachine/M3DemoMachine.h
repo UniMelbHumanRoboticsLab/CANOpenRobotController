@@ -47,8 +47,7 @@ class M3DemoMachine : public StateMachine {
 
     void hwStateUpdate();
     bool configureMasterPDOs();
-
-        /**
+    /**
      * Pointers to the relevant states - initialised in init
      *
      */

@@ -64,6 +64,7 @@ X2Robot::X2Robot(std::string robot_name, std::string yaml_config_file)
     x2Parameters.c2 = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     x2Parameters.cuffWeights = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
     x2Parameters.forceSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    x2Parameters.imuParameters.useIMU = false;
     interactionForces_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
     backpackAccelerations_ = Eigen::VectorXd::Zero(3);
     backpackQuaternions_ = Eigen::VectorXd::Zero(4);
