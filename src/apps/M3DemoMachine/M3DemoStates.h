@@ -18,7 +18,7 @@
 class M3DemoMachine;
 
 /**
- * \brief Generic state type for used with M3DemoMachine, providing running time and iterations number.
+ * \brief Generic state type for used with M3DemoMachine, providing running time and iterations number: been superseeded by default state.
  *
  */
 class M3TimedState : public State {

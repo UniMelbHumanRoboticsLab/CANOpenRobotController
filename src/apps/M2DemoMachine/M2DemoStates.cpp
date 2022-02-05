@@ -38,9 +38,9 @@ void M2DemoState::entryCode(void) {
     tau = VM2::Zero();
 }
 void M2DemoState::duringCode(void) {
-    if(iterations%100==1) {
+    if(iterations()%100==1) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
-        std::cout << elapsedTime << " ";
+        std::cout << running() << " ";
         robot->printJointStatus();
         robot->printStatus();
     }
@@ -112,7 +112,7 @@ void M2CalibState::duringCode(void) {
             at_stop[i]=true;
         }
         if(abs(vel(i))<0.005) {
-            stop_reached_time(i) += dt;
+            stop_reached_time(i) += dt();
         }
     }
 
@@ -129,7 +129,7 @@ void M2CalibState::duringCode(void) {
         }
         else {
             robot->setJointTorque(tau);
-            if(iterations%100==1) {
+            if(iterations()%100==1) {
                 std::cout << "." << std::flush;
             }
         }
@@ -149,7 +149,7 @@ void M2Transparent::duringCode(void) {
     //Apply corresponding force
     robot->setEndEffForceWithCompensation(VM2::Zero(), true);
 
-    if(iterations%100==1) {
+    if(iterations()%100==1) {
         robot->printStatus();
     }
 }
@@ -173,7 +173,7 @@ void M2EndEffDemo::duringCode(void) {
     //Apply
     robot->setEndEffVelocity(dXd);
 
-    if(iterations%100==1) {
+    if(iterations()%100==1) {
         std::cout << dXd.transpose() << "  ";
         robot->printStatus();
     }
@@ -202,7 +202,7 @@ void M2DemoMinJerkPosition::entryCode(void) {
     robot->setJointVelocity(VM2::Zero());
     //Initialise to first target point
     TrajPtIdx=0;
-    startTime=elapsedTime;
+    startTime=running();
     Xi=robot->getEndEffPosition();
     Xf=TrajPt[TrajPtIdx];
     T=TrajTime[TrajPtIdx];
@@ -212,7 +212,7 @@ void M2DemoMinJerkPosition::duringCode(void) {
 
     VM2 Xd, dXd;
     //Compute current desired interpolated point
-    double status=JerkIt(Xi, Xf, T, elapsedTime-startTime, Xd, dXd);
+    double status=JerkIt(Xi, Xf, T, running()-startTime, Xd, dXd);
     //Apply position control
     robot->setEndEffVelocity(dXd+k_i*(Xd-robot->getEndEffPosition()));
 
@@ -229,7 +229,7 @@ void M2DemoMinJerkPosition::duringCode(void) {
         //To next point
         Xf=TrajPt[TrajPtIdx];
         T=TrajTime[TrajPtIdx];
-        startTime=elapsedTime;
+        startTime=running();
     }
 
 
