@@ -44,10 +44,10 @@ M2DemoMachine::M2DemoMachine() {
 
     //Define transitions between states
     addTransition("CalibState", &endCalib, "StandbyState");
-    addTransition("StandbyState", &goToNextState, "MinJerkState");
-    addTransition("MinJerkState", &goToNextState, "EndEffDemoState");
-    addTransition("EndEffDemoState", &goToNextState, "PathState");
-    addTransition("PathState", &goToNextState, "StandbyState");
+    addTransitionFromLast(&goToNextState, "MinJerkState");
+    addTransitionFromLast(&goToNextState, "EndEffDemoState");
+    addTransitionFromLast(&goToNextState, "PathState");
+    addTransitionFromLast(&goToNextState, "StandbyState");
 
     //Initialize the state machine with first state of the designed state machine
     setInitState("CalibState");

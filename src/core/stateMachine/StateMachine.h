@@ -105,6 +105,13 @@ class StateMachine {
      */
     void addTransition(std::string from, TransitionCb_t t_cb, std::string to);
     /**
+     * \brief Add a Transition (as a cb function) from the last State to which a transition has been added to (i.e. last 'std::string to' parameter) to another State.
+     * If multiple transitions from the same state are active (true) simultaneously, the first registered one will be used.
+     * \param t_cb A callback function (of type TransitionCb_t) to return true if transition is active and false otherwise
+     * \param to Name of the state to allow Transition to
+     */
+    void addTransitionFromLast(TransitionCb_t t_cb, std::string to);
+    /**
      * \brief Add a Transition (as a cb function) from any state already registered to one state.
      * Typically usefull for a "standby" state or clean "exit" state.
      * \param t_cb A callback function (of type TransitionCb_t) to return true if transition is active and false otherwise
@@ -161,6 +168,7 @@ class StateMachine {
     std::string _currentState;                                      //!< Current active State name
     std::map<std::string, std::shared_ptr<State>> _states;          //!< Map of states, indexed and accessed by their names (string)
     std::map<std::string, std::vector<Transition_t>> _transitions;  //!< Map holding for each state a vector of possible std::pair transistions.
+    std::string _lastToState;                                       //!< Hold the last state to which a transition has been registered to. Used for addTransitionFromLast().
 
     bool _running;                                      //!< running flag (set true at activate() stage)
     std::chrono::steady_clock::time_point _time_init;   //!< Initial time that machine started

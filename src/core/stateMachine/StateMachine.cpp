@@ -1,7 +1,7 @@
 #include "StateMachine.h"
 
 
-StateMachine::StateMachine(): _running(false) {
+StateMachine::StateMachine(): _running(false), _lastToState("") {
 }
 
 void StateMachine::setRobot(std::unique_ptr<Robot> r) {
@@ -44,9 +44,27 @@ void StateMachine::addTransition(std::string from, TransitionCb_t t_cb, std::str
     spdlog::debug("StateMachine::addTransition({} -> {})", from, to);
     if(_states.count(from)>0 && _states.count(to)>0) {
         _transitions[from].push_back(Transition_t(t_cb, to));
+        _lastToState = to;
     }
     else {
         spdlog::error("State {} or {} do not exist. Cannot create requested transition.", from, to);
+    }
+}
+
+void StateMachine::addTransitionFromLast(TransitionCb_t t_cb, std::string to) {
+    if(_lastToState.empty()) {
+        spdlog::error("No last state transition registerd. Cannot create requested transition.");
+        return;
+    }
+    else {
+        spdlog::debug("StateMachine::addTransitionFromLast({} -> {})", _lastToState, to);
+        if(_states.count(_lastToState)>0 && _states.count(to)>0) {
+            _transitions[_lastToState].push_back(Transition_t(t_cb, to));
+            _lastToState = to;
+        }
+        else {
+            spdlog::error("State {} or {} do not exist. Cannot create requested transition.", _lastToState, to);
+        }
     }
 }
 
@@ -59,6 +77,7 @@ void StateMachine::addTransitionFromAny(TransitionCb_t t_cb, std::string to) {
                 _transitions[key].push_back(Transition_t(t_cb, to));
             }
         }
+        _lastToState = to;
     }
     else {
         spdlog::error("State {} do not exist. Cannot create requested transitions.", to);
