@@ -92,7 +92,6 @@ void M3DemoMachine::init() {
         logHelper.add(robot()->getInteractionForce(), "F");
         logHelper.add(robot()->getEndEffAcceleration(), "ddX");
         logHelper.add(robot()->getEndEffVelocityFiltered(), "dXFilt");
-        //UIserver = std::make_unique<FLNLHelper>(*robot(), "192.168.6.2");
         UIserver = std::make_shared<FLNLHelper>(*robot(), "192.168.7.2");
     }
     else {

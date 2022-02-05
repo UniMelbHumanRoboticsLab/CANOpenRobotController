@@ -5,7 +5,7 @@
  * \version 0.3
  * \date 2021-12-05
  *
- * \copyright Copyright (c) 2020
+ * \copyright Copyright (c) 2020 - 2021
  *
  */
 #ifndef M3_SM_H
@@ -36,7 +36,7 @@ class M3DemoMachine : public StateMachine {
 
     RobotM3 *robot() { return static_cast<RobotM3*>(_robot.get()); } //!< Robot getter with specialised type (lifetime is managed by Base StateMachine)
 
-    std::shared_ptr<FLNLHelper> UIserver = nullptr;     //!< Pointer to communication server //TODO: use unique_ptr or shared_ptr
+    std::shared_ptr<FLNLHelper> UIserver = nullptr;     //!< Pointer to communication server
 };
 
 #endif /*M3_SM_H*/
