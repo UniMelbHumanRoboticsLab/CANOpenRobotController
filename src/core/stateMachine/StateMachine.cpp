@@ -1,7 +1,7 @@
 #include "StateMachine.h"
 
 
-StateMachine::StateMachine(): _running(false), _lastToState("") {
+StateMachine::StateMachine(): _lastToState(""), _running(false){
 }
 
 void StateMachine::setRobot(std::unique_ptr<Robot> r) {
