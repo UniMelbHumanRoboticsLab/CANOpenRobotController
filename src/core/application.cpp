@@ -52,5 +52,6 @@ void app_programControlLoop(void) {
 /******************** Runs at the End of rt_control_thread********************/
 void app_programEnd(void) {
     stateMachine->end();
+    stateMachine.reset(); //Explicit delete of the state machine to answer deletion on time
     spdlog::info("CORC End application");
 }
