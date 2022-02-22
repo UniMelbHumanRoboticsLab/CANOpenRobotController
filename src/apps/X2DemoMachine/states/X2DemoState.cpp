@@ -1,7 +1,7 @@
 #include "X2DemoState.h"
 
-X2DemoState::X2DemoState(StateMachine *m, X2Robot *exo, X2DemoMachineROS *x2DemoMachineRos, const char *name) :
-        State(m, name), robot_(exo), x2DemoMachineRos_(x2DemoMachineRos) {
+X2DemoState::X2DemoState(StateMachine *m, X2Robot *exo, const char *name) :
+        State(m, name), robot_(exo) {
     desiredJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     desiredJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 
@@ -55,7 +55,7 @@ void X2DemoState::during(void) {
         if(robot_->getPosition()[1]>M_PI/4.0) motionIntend = -1;
         else motionIntend = 1;
 
-        desiredInteractionForce_ = x2DemoMachineRos_->interactionForceCommand_[1]; //todo: uncomment in muliti robot control
+//        desiredInteractionForce_ = x2DemoMachineRos_->interactionForceCommand_[1]; //todo: uncomment in muliti robot control
 
         desiredJointAcceleration_ = (1/(robot_->getRobotParameters().m[1]*virtualMassRatio_))*J*(robot_->getInteractionForce()[1] - desiredInteractionForce_);
 

@@ -20,8 +20,6 @@
 #include <chrono>
 #include <math.h>
 
-#include "X2DemoMachineROS.h"
-
 // dynamic reconfigure
 #include <dynamic_reconfigure/server.h>
 #include <CORC/dynamic_paramsConfig.h>
@@ -33,13 +31,12 @@
  */
 class X2DemoState : public State {
     X2Robot *robot_;
-    X2DemoMachineROS *x2DemoMachineRos_;
 
 public:
     void entry(void);
     void during(void);
     void exit(void);
-    X2DemoState(StateMachine *m, X2Robot *exo, X2DemoMachineROS *x2DemoMachineRos, const char *name = NULL);
+    X2DemoState(StateMachine *m, X2Robot *exo, const char *name = NULL);
 
     Eigen::VectorXd& getDesiredJointTorques();
     int controller_mode_;
@@ -47,6 +44,7 @@ public:
     double desiredInteractionForce_;
     double desiredJointAcceleration_;
 private:
+
     std::chrono::steady_clock::time_point time0;
 
     dynamic_reconfigure::Server<CORC::dynamic_paramsConfig> server_;

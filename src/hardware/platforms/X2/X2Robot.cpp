@@ -38,9 +38,9 @@ ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-40), deg2rad(120), deg2ra
 static volatile sig_atomic_t exitHoming = 0;
 
 #ifdef SIM
-X2Robot::X2Robot(ros::NodeHandle &nodeHandle, std::string robot_name, std::string yaml_config_file)
+X2Robot::X2Robot(ros::NodeHandle &nodeHandle, std::string robot_name, std::string yaml_config_file):Robot(robot_name, yaml_config_file)
 #else
-X2Robot::X2Robot(std::string robot_name, std::string yaml_config_file)
+X2Robot::X2Robot(std::string robot_name, std::string yaml_config_file):Robot(robot_name, yaml_config_file)
 #endif
         {
 

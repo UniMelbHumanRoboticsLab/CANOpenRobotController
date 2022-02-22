@@ -19,11 +19,12 @@
 #include <std_srvs/Trigger.h>
 
 #include "X2Robot.h"
+#include "X2DemoState.h"
 #include "ros/ros.h"  // This state machine requires ROS
 
 class X2DemoMachineROS {
    public:
-    X2DemoMachineROS(X2Robot *robot, ros::NodeHandle& nodeHandle);
+    X2DemoMachineROS(X2Robot *robot, X2DemoState *x2DemoState, ros::NodeHandle& nodeHandle);
     ~X2DemoMachineROS();
 
     void update(void);
@@ -37,6 +38,10 @@ class X2DemoMachineROS {
     Eigen::VectorXd interactionForceCommand_;
 
    private:
+    X2Robot *robot_;
+    X2DemoState *x2DemoState_;
+    ros::NodeHandle* nodeHandle_;
+
     ros::Publisher jointStatePublisher_;
     ros::Publisher leftThighForcePublisher_;
     ros::Publisher leftShankForcePublisher_;
@@ -53,15 +58,12 @@ class X2DemoMachineROS {
     geometry_msgs::WrenchStamped leftShankForceMsg_;
     geometry_msgs::WrenchStamped rightThighForceMsg_;
     geometry_msgs::WrenchStamped rightShankForceMsg_;
-    X2Robot *robot_;
 
     bool startExoServiceCallback(std_srvs::Trigger::Request& req,
                                  std_srvs::Trigger::Response& res);
 
     bool calibrateForceSensorsCallback(std_srvs::Trigger::Request& req,
                                  std_srvs::Trigger::Response& res);
-
-    ros::NodeHandle* nodeHandle_;
 };
 
 #endif  //SRC_X2DEMOMACHINEROS_H

@@ -1,8 +1,9 @@
 #include "X2DemoMachineROS.h"
 
-X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot, ros::NodeHandle& nodeHandle):
-    robot_(robot),
-    nodeHandle_(&nodeHandle)
+X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot, X2DemoState *x2DemoState, ros::NodeHandle& nodeHandle):
+        robot_(robot),
+        x2DemoState_(x2DemoState),
+        nodeHandle_(&nodeHandle)
 {
 
 #ifndef SIM  // if simulation, these will be published by Gazebo

@@ -26,11 +26,11 @@ X2DemoMachine::X2DemoMachine(int argc, char *argv[]) {
      *
      */
 
-    // Create ros object
-    x2DemoMachineRos_ = new X2DemoMachineROS(robot_, nodeHandle);
+    // Create state objet
+    x2DemoState_ = new X2DemoState(this, robot_);
 
-    // Pass MachineRos to the State to use ROS features
-    x2DemoState_ = new X2DemoState(this, robot_, x2DemoMachineRos_);
+    // Create ros object
+    x2DemoMachineRos_ = new X2DemoMachineROS(robot_, x2DemoState_, nodeHandle);
 }
 
 /**
