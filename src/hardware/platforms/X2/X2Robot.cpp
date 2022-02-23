@@ -45,12 +45,12 @@ X2Robot::X2Robot(std::string robot_name, std::string yaml_config_file):Robot(rob
     simJointPositions_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     simJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    simJointTorquesViaStrainGauges_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-    simInteractionForces_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    simJointTorquesViaStrainGauges_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    simInteractionForces_ = Eigen::VectorXd::Zero(X2_NUM_GENERALIZED_COORDINATES);
     simGroundReactionForces_ = Eigen::VectorXd::Zero(X2_NUM_GRF_SENSORS);
     simBackPackAngleOnMedianPlane_ = 0.0;
-    simBackPackAngularVelocityOnMedianPlane_ - 0.0;
-    simContactAnglesOnMedianPlane_ = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
+    simBackPackAngularVelocityOnMedianPlane_ = 0.0;
+    simContactAnglesOnMedianPlane_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 #endif
 
     controlMode = ControlMode::CM_UNCONFIGURED;
@@ -908,16 +908,12 @@ void X2Robot::updateFrictionTorque(Eigen::VectorXd motionIntend) {
 }
 
 void X2Robot::updateFeedforwardTorque() {
-
     Eigen::VectorXd motionIntend(X2_NUM_GENERALIZED_COORDINATES);
     for(int id = 0; id <X2_NUM_GENERALIZED_COORDINATES; id++) {
         motionIntend[id] = this->getInteractionForce()[id] > 0 ? 1 : -1;
     }
-
     updateFrictionTorque(motionIntend);
-
     feedForwardTorque_ = gravitationTorque_ + corriolisTorque_ + frictionTorque_;
-
 }
 
 Eigen::VectorXd &X2Robot::getPosition() {
