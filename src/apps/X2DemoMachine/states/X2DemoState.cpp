@@ -6,6 +6,10 @@ X2DemoState::X2DemoState(StateMachine *m, X2Robot *exo, const char *name) :
     desiredJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     enableJoints = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     kTransperancy_ = Eigen::VectorXd::Zero(X2_NUM_GENERALIZED_COORDINATES);
+    amplitude_ = 0.0;
+    period_ = 5.0;
+    offset_ = 0.0;
+
 }
 
 void X2DemoState::entry(void) {
@@ -24,6 +28,7 @@ void X2DemoState::entry(void) {
 
 void X2DemoState::during(void) {
 
+#ifndef SIM
     // GREEN BUTTON IS THE DEAD MAN SWITCH --> if it is not pressed, all motor torques are set to 0. Except controller 2 which sets 0 velocity
     if(robot_->getButtonValue(ButtonColor::GREEN) == 0 && controller_mode_ !=2){
         if(robot_->getControlMode()!=CM_TORQUE_CONTROL) robot_->initTorqueControl();
@@ -32,6 +37,7 @@ void X2DemoState::during(void) {
 
         return;
     }
+#endif
 
     if(controller_mode_ == 1){ // zero torque mode
 
@@ -60,27 +66,28 @@ void X2DemoState::during(void) {
         for(int id = 0; id <X2_NUM_JOINTS; id++) desiredJointTorques_[id] *= enableJoints[id];
 
         robot_->setTorque(desiredJointTorques_);
-    } else if(controller_mode_ == 4){ // Chirp torque
-        if(robot_->getControlMode()!=CM_TORQUE_CONTROL) robot_->initTorqueControl();
 
-        double T=10; //chirp time in seconds
-        double a= 8; //Amplitude in N.m
-        double fi=0; //initial frequency
-        double fn=3; //final frequency
+    } else if(controller_mode_ == 4){ // sin vel
+        if(robot_->getControlMode()!=CM_VELOCITY_CONTROL) robot_->initVelocityControl();
 
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
-        double f = 0;
-        if(time<T) {
-            double f = fi + (fn-fi)*time/T;
-            desiredJointTorques_[3] = a*sin(2.*M_PI*f*time);
+        for(int joint = 0; joint < X2_NUM_JOINTS; joint++)
+        {
+        desiredJointVelocities_[joint] = enableJoints[joint]*amplitude_*sin(2.0*M_PI/period_*time);
         }
-        else {
-            desiredJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
-            std::cout<<"done"<<std::endl;
-            controller_mode_ = 0;
+
+        robot_->setVelocity(desiredJointVelocities_);
+
+    } else if(controller_mode_ == 5){ // sin torque
+        if(robot_->getControlMode()!=CM_TORQUE_CONTROL) robot_->initTorqueControl();
+
+        double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
+        for(int joint = 0; joint < X2_NUM_JOINTS; joint++)
+        {
+            desiredJointTorques_[joint] = enableJoints[joint]*amplitude_*sin(2.0*M_PI/period_*time);
         }
-        for(int id = 0; id <X2_NUM_JOINTS; id++) desiredJointTorques_[id] *= enableJoints[id];
         robot_->setTorque(desiredJointTorques_);
+
     }
 }
 
@@ -105,15 +112,23 @@ void X2DemoState::dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t
     kTransperancy_[3] = config.k_right_hip;
     kTransperancy_[4] = config.k_right_knee;
 
+    amplitude_ = config.Amplitude;
+    period_ = config.Period;
+    offset_ = config.offset;
+
     robot_->setJointVelDerivativeCutOffFrequency(config.acc_deriv_cutoff);
     robot_->setBackpackVelDerivativeCutOffFrequency(config.backpack_deriv_cutoff);
     robot_->setDynamicParametersCutOffFrequency(config.g_cutoff);
 
-    if(controller_mode_ == 4) time0 = std::chrono::steady_clock::now();
+    if(controller_mode_ == 4 || controller_mode_ == 5) time0 = std::chrono::steady_clock::now();
 
     return;
 }
 
 Eigen::VectorXd &X2DemoState::getDesiredJointTorques() {
     return desiredJointTorques_;
+}
+
+Eigen::VectorXd & X2DemoState::getDesiredJointVelocities() {
+    return desiredJointVelocities_;
 }

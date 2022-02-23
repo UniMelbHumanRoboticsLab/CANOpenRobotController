@@ -62,6 +62,7 @@ void X2DemoMachine::init() {
     logHelper.add(robot_->getVelocity(), "JointVelocities");
     logHelper.add(robot_->getTorque(), "JointTorques");
     logHelper.add(x2DemoState_->getDesiredJointTorques(), "DesiredJointTorques");
+    logHelper.add(x2DemoState_->getDesiredJointVelocities(), "DesiredJointVelocities");
     logHelper.add(robot_->getJointTorquesViaStrainGauges(), "JointTorquesViaGauges");
     logHelper.add(robot_->getGravitationTorque(), "gravitationTorque");
     logHelper.add(robot_->getFrictionTorque(), "FrictionTorque");

@@ -69,6 +69,8 @@ X2Robot::X2Robot(std::string robot_name, std::string yaml_config_file):Robot(rob
     x2Parameters.forceSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
     x2Parameters.grfSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_GRF_SENSORS);
     x2Parameters.grfSensorThreshold = Eigen::VectorXd::Zero(X2_NUM_GRF_SENSORS);
+    x2Parameters.maxVelocity = 3.0;
+    x2Parameters.maxTorque = 70.0;
 
     jointTorquesViaStrainGauges_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 
@@ -810,9 +812,11 @@ void X2Robot::updateRobot(bool duringHoming) {
     updateInteractionForce();
     updateFeedforwardTorque();
 
+#ifndef SIM // no safety during sim
     if(!safetyCheck(duringHoming)){
         std::raise(SIGTERM); //Clean exit
     }
+#endif
 }
 
 bool X2Robot::safetyCheck(bool duringHoming) {
@@ -822,13 +826,15 @@ bool X2Robot::safetyCheck(bool duringHoming) {
         return false;
     }
 
+
+
     for (int jointId = 0; jointId<X2_NUM_JOINTS; jointId++){
-        if(abs(jointVelocities_[jointId]) >= x2Parameters.maxVelocity){
+        if(abs(getVelocity()[jointId]) >= x2Parameters.maxVelocity){
             spdlog::critical("Maximim velocity limit is achieved for joint {}", jointId);
             return false;
         }
         if(duringHoming) continue; // do not check torque limit during homing
-        if(abs(jointTorques_[jointId]) >= x2Parameters.maxTorque){
+        if(abs(getTorque()[jointId]) >= x2Parameters.maxTorque){
             spdlog::critical("Maximim torque limit is achieved for joint {}", jointId);
             return false;
         }
@@ -898,9 +904,9 @@ void X2Robot::updateFrictionTorque(Eigen::VectorXd motionIntend) {
     const float velTreshold = 1.0*M_PI/180.0; // [rad/s]
 
     for(int i = 0; i<X2_NUM_JOINTS; i++){
-        if(abs(jointVelocities_[i]) > velTreshold){ // if in motion
-            frictionTorque_[i + 1] = x2Parameters.c1[i]*jointVelocities_[i]/abs(jointVelocities_[i]) +
-                                     x2Parameters.c0[i]*jointVelocities_[i];
+        if(abs(getVelocity()[i]) > velTreshold){ // if in motion
+            frictionTorque_[i + 1] = x2Parameters.c1[i]*getVelocity()[i]/abs(getVelocity()[i]) +
+                                     x2Parameters.c0[i]*getVelocity()[i];
         }else { // if static
             frictionTorque_[i + 1] = x2Parameters.c1[i]*motionIntend[i+1]/abs(motionIntend[i+1]);
         }

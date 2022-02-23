@@ -43,6 +43,7 @@ public:
     X2DemoState(StateMachine *m, X2Robot *exo, const char *name = NULL);
 
     Eigen::VectorXd& getDesiredJointTorques();
+    Eigen::VectorXd& getDesiredJointVelocities();
 
     int controller_mode_;
 
@@ -60,6 +61,8 @@ private:
     Eigen::VectorXd desiredJointVelocities_;
 
     Eigen::VectorXd kTransperancy_;
+    double amplitude_, period_, offset_;
+
 };
 
 #endif
