@@ -69,6 +69,7 @@ X2Robot::X2Robot(std::string robot_name, std::string yaml_config_file):Robot(rob
     x2Parameters.forceSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_FORCE_SENSORS);
     x2Parameters.grfSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_GRF_SENSORS);
     x2Parameters.grfSensorThreshold = Eigen::VectorXd::Zero(X2_NUM_GRF_SENSORS);
+    x2Parameters.imuParameters.useIMU = false;
     x2Parameters.maxVelocity = 3.0;
     x2Parameters.maxTorque = 70.0;
 
