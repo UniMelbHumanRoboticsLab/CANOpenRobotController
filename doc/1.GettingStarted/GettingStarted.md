@@ -54,9 +54,7 @@ It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, using ROS an
 4. Users with sufficiently powerful computers to generate the 3d visualisations
 
 ### Link to Page
-*Work in progress*
-
-See the code example in `src/apps/X2DemoMachine`.
+### [Advanced Simulation and Hardware Testing using ROS - Instructions](AdvancedSimulationAndHardwareTesting.md) 
 
 
 ## Hardware Testing - ExoMotus X2 Exoskeleton
