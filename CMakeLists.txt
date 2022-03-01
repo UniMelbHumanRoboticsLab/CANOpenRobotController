@@ -28,6 +28,9 @@ set(USE_ROS OFF)
 # INFO is the recommended level in normal operation
 set(CORC_LOGGING_LEVEL INFO)
 
+# ROS2 Flag. Set ON if using ROS2, otherwise OFF. Must set USE_ROS flag ON.
+set(ROS2 ON)
+
 ################################################################################
 if(USE_ROS)
 	add_definitions(-DUSEROS)
@@ -109,47 +112,93 @@ endif()
 if(USE_ROS)
 	#ROS local compile: use catkin
 	if(NOT CMAKE_CROSSCOMPILING)
-		message("--catkin--")
-		# Required ROS packages
-		find_package(catkin REQUIRED COMPONENTS
-				roscpp
-				rospy
-				std_msgs
-				std_srvs
-				sensor_msgs
-				geometry_msgs
-				dynamic_reconfigure
-        )
-		if(SIM)
-			find_package(catkin REQUIRED COMPONENTS
-			controller_manager_msgs
-			cob_gazebo_ros_control
-			x2_description
-			)
-		endif()
+		if (ROS2)
+			message("--ament--")
+			find_package(ament_cmake REQUIRED)
+			find_package(rclcpp REQUIRED)
+			find_package(rclpy REQUIRED)
+			find_package(std_msgs REQUIRED)
+			find_package(std_srvs REQUIRED)
+			find_package(sensor_msgs REQUIRED)
+			find_package(geometry_msgs REQUIRED)
+			find_package(dynamic_reconfigure REQUIRED)
+			if(SIM)
+				find_package(controller_manager_msgs REQUIRED)
+				find_package(cob_gazebo_ros_control REQUIRED)
+				find_package(x2_description REQUIRED)
+			endif()
 
-		generate_dynamic_reconfigure_options(
+			generate_dynamic_reconfigure_options(
 				config/x2_dynamic_params.cfg
-		)
+			)
 
+			# TODO: may not work for sub-packages in CORC structure -
+			#		dependencies might not be exported to child CMake(?)
+			ament_export_dependencies(rclcpp)
+			ament_export_dependencies(rclpy)
+			ament_export_dependencies(std_msgs)
+			ament_export_dependencies(std_srvs)
+			ament_export_dependencies(sensor_msgs)
+			ament_export_dependencies(geometry_msgs)
+			ament_export_dependencies(dynamic_reconfigure)
 
-		catkin_package(
-				#  INCLUDE_DIRS include
-				#  LIBRARIES x2
-			  CATKIN_DEPENDS
-				roscpp
-				rospy
+			# TODO: may not be possible with current CORC file system -
+			#		header files are not in one include directory
+			#include_directories(include)
+			set(ROS_LIBRARIES
+				rclcpp
+				rclcpy
 				std_msgs
 				std_srvs
 				sensor_msgs
 				geometry_msgs
 				dynamic_reconfigure
-				#  DEPENDS system_lib
-		)
+			)
 
-		#include CATKIN
-		include_directories(${catkin_INCLUDE_DIRS})
-		set(ROS_LIBRARIES ${catkin_LIBRARIES})
+			ament_package()
+
+		else() # ROS 1
+			message("--catkin--")
+			# Required ROS packages
+			find_package(catkin REQUIRED COMPONENTS
+					roscpp
+					rospy
+					std_msgs
+					std_srvs
+					sensor_msgs
+					geometry_msgs
+					dynamic_reconfigure
+			)
+			if(SIM)
+				find_package(catkin REQUIRED COMPONENTS
+				controller_manager_msgs
+				cob_gazebo_ros_control
+				x2_description
+				)
+			endif()
+
+			generate_dynamic_reconfigure_options(
+					config/x2_dynamic_params.cfg
+			)
+
+			catkin_package(
+					#  INCLUDE_DIRS include
+					#  LIBRARIES x2
+				CATKIN_DEPENDS
+					roscpp
+					rospy
+					std_msgs
+					std_srvs
+					sensor_msgs
+					geometry_msgs
+					dynamic_reconfigure
+					#  DEPENDS system_lib
+			)
+
+			#include CATKIN
+			include_directories(${catkin_INCLUDE_DIRS})
+			set(ROS_LIBRARIES ${catkin_LIBRARIES})
+		endif()
 	#Cross-compile with ROS (w/o catkin)
 	else()
 		# Required ROS packages
