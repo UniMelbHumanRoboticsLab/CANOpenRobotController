@@ -12,12 +12,13 @@ project(CORC C CXX)
 #(it should be the class name and have corresponding header naming in a corresponding folder)
 # If your application use ROS, don't forget to change the flag bellow too.
 
-set (STATE_MACHINE_NAME "ExoTestMachine")
+#set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "M1DemoMachine")
 #set (STATE_MACHINE_NAME "M2DemoMachine")
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
+set (STATE_MACHINE_NAME "X2DemoMachineROS2") # Must have ROS2 also set to ON
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT ON)
@@ -29,6 +30,7 @@ set(USE_ROS OFF)
 set(CORC_LOGGING_LEVEL INFO)
 
 # ROS2 Flag. Set ON if using ROS2, otherwise OFF. Must set USE_ROS flag ON.
+# Note: Only supported on X2DemoMachineROS2
 set(ROS2 ON)
 
 ################################################################################
@@ -155,7 +157,6 @@ if(USE_ROS)
 				dynamic_reconfigure
 			)
 
-			ament_package()
 
 		else() # ROS 1
 			message("--catkin--")
@@ -258,5 +259,8 @@ if(USE_ROS)
 	add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
 endif()
 
+if (ROS2)
+	ament_package()
+endif()
 
 message("-----------------------------------------------\nBuilding application ${APP_NAME}\n-----------------------------------------------")
