@@ -24,7 +24,7 @@ set (STATE_MACHINE_NAME "X2DemoMachineROS2") # Must have ROS2 also set to ON
 set(NO_ROBOT ON)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
-set(USE_ROS OFF)
+set(USE_ROS ON)
 # Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL OFF)
 # INFO is the recommended level in normal operation
 set(CORC_LOGGING_LEVEL INFO)
