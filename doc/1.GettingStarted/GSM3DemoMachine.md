@@ -20,7 +20,7 @@ It demonstrates the use of:
 
 In the CMakeLists.txt select the M3DemoMachine and set the flags for using a real robot without ROS support:
 
-```
+```cmake
 #set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "M1DemoMachine")
 #set (STATE_MACHINE_NAME "M2DemoMachine")
@@ -52,11 +52,58 @@ Once the calibration state is finished, you can circle through the different dem
 
 ### Robot model and parameters (YAML)
 
+The M3DemoMachine relies on primarily on the RobotM3 class which represents an M3 robot and associated models. Most of the kinematic and some dynamic parameters of the robot are defined within a YAML configuration file and follow the following model:
+
+<!-- language: lang-none -->
+                                  /\
+                                /-  \
+                              /-     \
+                            /-        \
+                  (L4)    /-           \
+                        /-  \           \
+                      /-     \           \
+                     /        \           \ (L2)
+                   /-          \           \
+               M3/-             \        M1 \
+               /-                \           \
+             /-                   \           \
+           /-                   M2 \           \
+         /-                         \           \
+    +------+                         \           \
+    | MTool|                          \           \
+    +------+                           \         q1-  (L0)
+                                        \          -------
+                                         \    (L1)      q0
+                                        q2              |
+                                                        |
+                                                        |
+                                                        |
 
 
-The full list of parameters which can be loaded from the YAML configuration file can be seen in the example YAML file `M3_params.yaml`.
+Extract from the YAML configuration file (`config/M3_params.yaml`) used to specify the robot parameters:
+```yaml
+EMU_FOURIER:
+  dqMax: 360 # Max joint speed (deg.s-1) Set to 1 rot/s
+  tauMax: 42 # Max joint torque (Nm) Set to max motor torque w/ 1:22 reduction (yes, this is the actual value!)
+  qSigns: [-1, 1, -1] # Joints direction
 
-The YAML configuration file to use and the corresponding robot name (model) can be selected from the RobotM3 constructor parameters.
+  linkLengths: [0.056, 0.135, 0.5, 0.615]   # Link lengths used for kinematic models (in m), excluding tool
+  linkMasses: [0, 0.450, 0.400, 0.100, .270] # Link masses used for gravity compensation (in kg), excluding tool
+
+  qLimits: [-43, 43, -15, 70, 0, 95] # Joints limits (in deg) {q1_min, q1_max, q2_min, q2_max, q3_min, q3_max}
+  qCalibration: [+44, 76, 90] # Calibration configuration (in deg): posture in which the robot is when using the calibration procedure
+
+  frictionVis: [0.2, 0.2, 0.2]  # Joint viscous friction compensation coefficients
+  frictionCoul: [0., 0., 0.] # Joint Coulomb (static) friction compensation coefficients
+
+  #End-effector description
+  tool:
+    name: "Fourier Handle"
+    length: 0.0 #Tool length from attachment
+    mass:   0.345  #Tool mass in kg
+```
+
+The YAML configuration file to use and the corresponding robot name (model) can be selected from the RobotM3 constructor parameters: `RobotM3(std::string robot_name="", std::string yaml_config_file="")`.
 
 ### Control methods
 
@@ -80,8 +127,9 @@ Additionaly, joystick buttons are used in the state machine transition: `M3DemoM
 
 ## Network communication with libFLNL
 
-The M3DemoMachine app is using libFLNL to publish the robot states and read incoming commands over a TCP/IP connection.
+The M3DemoMachine app is using libFLNL to publish the robot states and read incoming commands over a TCP/IP connection. Together with the use of an FLNLHelper object (`UIserver = new FLNLHelper(robot, "192.168.6.2");`), the library allows to send the robot state at every control loop (`UIserver->sendState();` within the `M3DemoMachine::hwStateUpdate(void)` method) and send and process incoming commands. CORC app is here acting as a server on the specified IP (and port, optional, default is 2048) to which client application can connect to.
 
 ![FLNL communication](../img/FLNLUnity.png)
 
-TODO
+An exemple class to process incoming states and send/receive commands from a Unity or Matlab script (client side) can be found [here](https://github.com/UniMelbHumanRoboticsLab/CORC-UI-Demo). 
+
