@@ -96,7 +96,6 @@ This example enables simple functionalities of ArmMotus M3/EMU System. It shows 
 1. Users looking to develop for the ArmMotus M3
 2. Users looking to develop systems with a separate user interface
 
-### Link to Page
-*Work in progress*
+### [M3DemoMachine - Instructions](GSM3DemoMachine.md) 
 
-See the code example in `src/apps/M3DemoMachine`.
+See also the code example in `src/apps/M3DemoMachine`.
