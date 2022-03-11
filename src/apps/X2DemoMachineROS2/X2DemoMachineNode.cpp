@@ -14,7 +14,7 @@ X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot, std::shared_ptr<rclcpp::Node>
 #endif
     interactionForceCommandSubscriber_ = node->create_subscription<std_msgs::msg::Float64MultiArray>("interaction_effort_commands", 1, std::bind(&X2DemoMachineROS::interactionForceCommandCallback, this, _1));
     startExoService_ = node->create_service<std_srvs::srv::Trigger>("start_exo", std::bind(&X2DemoMachineROS::startExoServiceCallback, this, _1));
-    calibrateForceSensorsService_ = node->create_service<std_srvs::srv::Trigger>advertiseService("calibrate_force_sensors", std::bind(&X2DemoMachineROS::calibrateForceSensorsCallback, this, _1));
+    calibrateForceSensorsService_ = node->create_service<std_srvs::srv::Trigger>("calibrate_force_sensors", std::bind(&X2DemoMachineROS::calibrateForceSensorsCallback, this, _1));
     startExoTriggered_ = false;
     interactionForceCommand_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 
@@ -41,7 +41,7 @@ void X2DemoMachineROS::publishJointStates() {
     Eigen::VectorXd jointVelocities = robot_->getVelocity();
     Eigen::VectorXd jointTorques = robot_->getTorque();
 
-    jointStateMsg_.header.stamp = ros::Time::now();
+    jointStateMsg_.header.stamp = node->now();
     jointStateMsg_.name.resize(X2_NUM_JOINTS + 1);
     jointStateMsg_.position.resize(X2_NUM_JOINTS + 1);
     jointStateMsg_.velocity.resize(X2_NUM_JOINTS + 1);
@@ -72,7 +72,7 @@ void X2DemoMachineROS::publishJointStates() {
 
 void X2DemoMachineROS::publishInteractionForces() {
     Eigen::VectorXd interactionForces = robot_->getInteractionForce();
-    rclcpp::Time time = rclcpp::Time::now();
+    rclcpp::Time time = node->now();
 
     leftThighForceMsg_.header.stamp = time;
     leftShankForceMsg_.header.stamp = time;

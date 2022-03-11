@@ -25,13 +25,13 @@ set(NO_ROBOT ON)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
 set(USE_ROS ON)
-# Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL OFF)
-# INFO is the recommended level in normal operation
-set(CORC_LOGGING_LEVEL INFO)
-
 # ROS2 Flag. Set ON if using ROS2, otherwise OFF. Must set USE_ROS flag ON.
 # Note: Only supported on X2DemoMachineROS2
 set(ROS2 ON)
+
+# Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL OFF)
+# INFO is the recommended level in normal operation
+set(CORC_LOGGING_LEVEL INFO)
 
 ################################################################################
 if(USE_ROS)
@@ -53,8 +53,9 @@ add_definitions(-DFP_STARTTPDO=0x3E1)
 
 #######################
 
-## Compile as C++11
-set(CMAKE_CXX_STANDARD 11)
+## Compile as C++14
+## ROS2 C++ version standard
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(USE_ROS)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-int-in-bool-context" )
@@ -118,45 +119,46 @@ if(USE_ROS)
 			message("--ament--")
 			find_package(ament_cmake REQUIRED)
 			find_package(rclcpp REQUIRED)
-			find_package(rclpy REQUIRED)
 			find_package(std_msgs REQUIRED)
 			find_package(std_srvs REQUIRED)
 			find_package(sensor_msgs REQUIRED)
 			find_package(geometry_msgs REQUIRED)
-			find_package(dynamic_reconfigure REQUIRED)
+			#find_package(dynamic_reconfigure REQUIRED)
 			if(SIM)
 				find_package(controller_manager_msgs REQUIRED)
-				find_package(cob_gazebo_ros_control REQUIRED)
+				#find_package(cob_gazebo_ros_control REQUIRED)
 				find_package(x2_description REQUIRED)
 			endif()
 
-			generate_dynamic_reconfigure_options(
-				config/x2_dynamic_params.cfg
-			)
+			#generate_dynamic_reconfigure_options(
+			#	config/x2_dynamic_params.cfg
+			#)
 
 			# TODO: may not work for sub-packages in CORC structure -
 			#		dependencies might not be exported to child CMake(?)
+			ament_export_dependencies(ament_cmake)
 			ament_export_dependencies(rclcpp)
-			ament_export_dependencies(rclpy)
 			ament_export_dependencies(std_msgs)
 			ament_export_dependencies(std_srvs)
 			ament_export_dependencies(sensor_msgs)
 			ament_export_dependencies(geometry_msgs)
-			ament_export_dependencies(dynamic_reconfigure)
+			#ament_export_dependencies(dynamic_reconfigure)
 
 			# TODO: may not be possible with current CORC file system -
 			#		header files are not in one include directory
 			#include_directories(include)
+			#include_directories(/opt/ros/foxy/include) # FIXME: this is dumb
 			set(ROS_LIBRARIES
+				ament_cmake
 				rclcpp
-				rclcpy
 				std_msgs
 				std_srvs
 				sensor_msgs
 				geometry_msgs
-				dynamic_reconfigure
+				#dynamic_reconfigure
 			)
 
+			ament_package()
 
 		else() # ROS 1
 			message("--catkin--")
@@ -256,11 +258,11 @@ if(USE_ROS)
 	target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
 
 	# make sure configure headers are built before any node using them
-	add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
+	#add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
 endif()
 
-if (ROS2)
-	ament_package()
-endif()
+#if (ROS2)
+#	ament_package()
+#endif()
 
 message("-----------------------------------------------\nBuilding application ${APP_NAME}\n-----------------------------------------------")

@@ -39,14 +39,14 @@ class X2DemoMachineROS {
     Eigen::VectorXd interactionForceCommand_;
 
    private:
-    auto jointStatePublisher_;
-    auto leftThighForcePublisher_;
-    auto leftShankForcePublisher_;
-    auto rightThighForcePublisher_;
-    auto rightShankForcePublisher_;
-    auto startExoService_;
-    auto calibrateForceSensorsService_;
-    auto interactionForceCommandSubscriber_;
+    rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr jointStatePublisher_;
+    rclcpp::Publisher<geometry_msgs::msg::WrenchStamped>::SharedPtr leftThighForcePublisher_;
+    rclcpp::Publisher<geometry_msgs::msg::WrenchStamped>::SharedPtr leftShankForcePublisher_;
+    rclcpp::Publisher<geometry_msgs::msg::WrenchStamped>::SharedPtr rightThighForcePublisher_;
+    rclcpp::Publisher<geometry_msgs::msg::WrenchStamped>::SharedPtr rightShankForcePublisher_;
+    rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr startExoService_;
+    rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr calibrateForceSensorsService_;
+    rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr interactionForceCommandSubscriber_;
 
     void interactionForceCommandCallback(const std_msgs::msg::Float64MultiArray::SharedPtr msg);
 

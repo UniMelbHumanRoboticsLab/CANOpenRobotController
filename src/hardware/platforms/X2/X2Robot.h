@@ -32,7 +32,7 @@
 #include "LogHelper.h"
 
 #ifdef SIM
-#include "controller_manager_msgs/msg/switch_controller.hpp"
+#include "controller_manager_msgs/srv/switch_controller.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "std_msgs/msg/float64_multi_array.hpp"
@@ -133,11 +133,11 @@ class X2Robot : public Robot {
 #ifdef SIM
     std::shared_ptr<rclcpp::Node> node;
 
-    auto positionCommandPublisher_;
-    auto velocityCommandPublisher_;
-    auto torqueCommandPublisher_;
-    auto jointStateSubscriber_;
-    auto controllerSwitchClient_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr positionCommandPublisher_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr velocityCommandPublisher_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr torqueCommandPublisher_;
+    rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr jointStateSubscriber_;
+    rclcpp::Client<controller_manager_msgs::msg::SwitchController>::SharedPtr controllerSwitchClient_;
 
     std_msgs::msg::Float64MultiArray positionCommandMsg_;
     std_msgs::msg::Float64MultiArray velocityCommandMsg_;

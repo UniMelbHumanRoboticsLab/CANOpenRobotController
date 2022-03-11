@@ -23,8 +23,8 @@
 #include "X2DemoMachineNode.h"
 
 // dynamic reconfigure
-#include <dynamic_reconfigure/server.h>
-#include <CORC/dynamic_paramsConfig.h>
+//#include <dynamic_reconfigure/server.h>
+//#include <CORC/dynamic_paramsConfig.h>
 
 /**
  * \brief Demo State for the X2DemoMachine

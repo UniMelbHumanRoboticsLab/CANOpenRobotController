@@ -23,7 +23,7 @@
 #include "X2DemoMachineROS.h"
 
 // dynamic reconfigure
-#include <dynamic_reconfigure/server.h>
+//#include <dynamic_reconfigure/server.h>
 #include <CORC/dynamic_paramsConfig.h>
 
 /**
