@@ -38,7 +38,7 @@ $ catkin build
 Clone CORC and the required packages into your workspace:
 ```bash
 $ cd ~/catkin_ws/src
-$ git clone https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController.git
+$ git clone --recurse-submodules https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController.git
 $ git clone https://github.com/emekBaris/x2_description.git
 $ git clone https://github.com/emekBaris/cob_gazebo_plugins.git
 ```
@@ -67,13 +67,22 @@ $ source devel/setup.bash
 The following testing steps are advised to follow initially:
 
 ### Testing the simulation
+
+Gazebo and RViz are used simultaneously as simulation and visualization environments, respectively.
+
 Run
 ```bash
 $ roslaunch CORC x2_sim.launch
 ```
 
-rqt gui and rviz with X2 should be opened without any errors.
+to start the simulation. If desired, you can also pass ```gui:=1``` argument to open the GUI of Gazebo.
 
+```bash
+$ roslaunch CORC x2_sim.launch gui:=1
+```
+
+rqt gui and rviz with X2 should be opened without any errors.
+ You might need to press the Refresh button on the bottom left on your first run.
 ![Flow Chart](../img/x2_gui.png) ![Flow Chart](../img/x2_rviz.png)
 
 Switch between zero torque and zero velocity controllers using the gui. You should see the following message on your terminal without any errors.

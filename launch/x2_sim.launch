@@ -10,7 +10,7 @@
   <arg name="controllers" default="position_controller velocity_controller torque_controller"/>
   <arg name="ns" default="x2"/>
   <arg name="robot_description_name" default="x2/robot_description"/>
-  <arg name="robot_name" default="X2_SRA"/>
+  <arg name="robot_name" default="x2"/>
 
   <!-- Launch empty world in gazebo -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">

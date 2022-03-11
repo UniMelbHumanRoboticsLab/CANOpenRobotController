@@ -29,7 +29,7 @@
 #include "FourierHandle.h"
 
 // Logger
-#include "spdlog/helper/LogHelper.h"
+#include "LogHelper.h"
 // yaml-parser
 #include <fstream>
 #include "yaml-cpp/yaml.h"
