@@ -4,14 +4,13 @@ This page introduces the M2DemoMachine, an example CORC app showing the basic us
 
 The M2 is a 2 DoFs impedance based robot developed by Fourier Intelligence:
 
-![ArmMotus EMU with frames](../img/M3WithFrames.png)
+![ArmMotus M2 with frames](../img/M2WithFrames.png)
 ArmMotus M2 and reference coordinates.
 
 The state machine code can be found in the folder `src/apps/M2DemoMachine`.
 
 It demonstrates the use of:
-~~- The different control modes of M2 (position, velocity, or impedance)~~
-- The different control modes of M2 (velocity or torque)
+- The different control modes of M2 (position, velocity, or impedance)
 ~~- The use of the different kinematic models of the robot and associated model parameters (loaded from a YAML file)~~
 - The use of a standard joystick as a control input
 - The use of the libFLNL comunication library to pusblish the robot state in a Unity software and send commands to the state machine
@@ -106,8 +105,8 @@ The CORC M2 robot model has the following specific methods of interaction:
 - Obtaining current **joint state** (as for any CORC robot): `robot->getPosition()`, `robot->getVelocity()`, `robot->getTorque()`.
 - **Joint level interaction**: `setJointPosition(VM2 q)`, `setJointVelocity(VM2 dq)` and `setJointTorque(VM2 tau)` allow to apply a position, velocity or torque control using an Eigen::vector of length 2. An example of the torque control can be found in the `M2CalibState` state. Note the use of `robot->initTorqueControl();` in the `entryCode()` method before applying torque control.
 - Obtaining current **end-effector state**: `robot->getEndEffPosition()`, `robot->getEndEffVelocity()`, `robot->getEndEffForce()`. Methods are also provided to obtain the filtered velocity and acceleration (obtained through differentiation and low-pass filtering). Additionnaly the pure interaction force at the end-effector, ~~calculated using the robot model and motor torques from wich gravity compensation torques are substracted~~ measured by a pair of force sensors can be obtained using the `robot->getInteractionForce()` method.
-- **End-effector space control** is available using: `setEndEffPosition(VM2 X)`, `setEndEffVelocity(VM2 dX)`, `setEndEffForce(VM2 F)`. These methods rely on the `inverseKinematic()` and robot Jacobian `J()` and assumes that the kinematic parameters loaded from the YAML file are correct and that the robot has been calibrated (see `applyCalibration()`). As for their joints counterparts they require the proper use of the corresponding initTorque/Velocity/Position method beforehand. The command vectors are expressed in the robot base frame as shown on the picture above. An example of the use of the end-effector velocity control is available in the `M2EndEffDemo` state.
-- Finally, the method `setEndEffForceWithCompensation(VM2 F, bool friction_comp=true)` can be used to apply an end-effector force in addition to the **~~robot gravity self-compensation and~~ friction compensation ~~(optional)~~**. This method relies on the robot model and parameters (masses and friction coefficients) set in the YAML configuration file. The friction compensation uses a Coulomb + viscous friction model.
+- **End-effector space control** is available using: `setEndEffPosition(VM2 X)`, `setEndEffVelocity(VM2 dX)`, `setEndEffForce(VM2 F)`. These methods rely on the `inverseKinematic()` and robot Jacobian `J()` and assumes that the kinematic parameters ~~loaded from the YAML file~~ are correct and that the robot has been calibrated (see `applyCalibration()`). As for their joints counterparts they require the proper use of the corresponding initTorque/Velocity/Position method beforehand. The command vectors are expressed in the robot base frame as shown on the picture above. An example of the use of the end-effector velocity control is available in the `M2EndEffDemo` state.
+- Finally, the method `setEndEffForceWithCompensation(VM2 F, bool friction_comp=true)` can be used to apply an end-effector force in addition to the **~~robot gravity self-compensation and~~ friction compensation ~~(optional)~~**. This method relies on the robot model and parameters (~~masses and~~ friction coefficients) ~~set in the YAML configuration file~~. The friction compensation uses a Coulomb + viscous friction model.
 
 See the Doxygen page of the `RobotM2` class for a full list of available methods.
 
@@ -117,7 +116,7 @@ The `RobotM2` class include a Joystick input by default. The joystick, if connec
 
 An example of the use of the first stick of a joystick used as an input can be found in the `M2EndEffDemo` state. The method `robot->joystick->getAxis(i)` returns a value proportional to the position of the stick direction `i`, which is used as a velocity command.
 
-Additionaly, joystick buttons are used in the state machine transition: `M2DemoMachine::GoToNextState` to allow transition by a button press: `OWNER->robot->joystick->isButtonPressed(1)`. Note the use of the ButtonTransition method to avoid capturing repeatdly if the button stay pressed.
+Additionaly, joystick buttons are used in the state machine transition: `M2DemoMachine::GoToNextState` to allow transition by a button press: `OWNER->robot->joystick->isButtonPressed(1)`. ~~Note the use of the ButtonTransition method to avoid capturing repeatdly if the button stay pressed.~~
 
 
 ## Network communication with libFLNL
