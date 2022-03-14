@@ -10,7 +10,7 @@ ArmMotus M2 and reference coordinates.
 The state machine code can be found in the folder `src/apps/M2DemoMachine`.
 
 It demonstrates the use of:
-- The different control modes of M2 (position, velocity, or impedance)
+- The different control modes of M2 (position, velocity, or torque ~~impedance~~)
 ~~- The use of the different kinematic models of the robot and associated model parameters (loaded from a YAML file)~~
 - The use of a standard joystick as a control input
 - The use of the libFLNL comunication library to pusblish the robot state in a Unity software and send commands to the state machine
