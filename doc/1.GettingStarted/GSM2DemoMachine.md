@@ -1,5 +1,5 @@
 # Hardware Testing - ArmMotus M2 Planar Manipulandum
-Tseting testing
+
 This page introduces the M2DemoMachine, an example CORC app showing the basic use of the M2 planar manipulandum.
 
 The M2 is a 2 DoFs impedance based robot developed by Fourier Intelligence:
