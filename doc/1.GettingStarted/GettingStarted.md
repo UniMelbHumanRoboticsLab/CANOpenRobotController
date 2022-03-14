@@ -79,8 +79,7 @@ This example enables simple movements with the ArmMotus M2 System. It use of the
 1. Users looking to develop for the ArmMotus M2
 2. Users looking to develop systems with a separate user interface
 
-### Link to Page
-*Work in progress*
+### [M2DemoMachine - Instructions](GSM2DemoMachine.md)
 
 See the code example in `src/apps/M2DemoMachine`.
 
