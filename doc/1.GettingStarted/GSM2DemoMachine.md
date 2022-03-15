@@ -11,7 +11,6 @@ The state machine code can be found in the folder `src/apps/M2DemoMachine`.
 
 It demonstrates the use of:
 - The different control modes of M2 (position, velocity, or torque)
-- The use of a standard joystick as a control input
 - The use of the libFLNL comunication library to pusblish the robot state in a Unity software and send commands to the state machine
 
 
@@ -45,9 +44,7 @@ This should create the application `M2DemoMachine` within the build folder. Afte
 Once the calibration state is finished, you can circle through the different demo states using the keyboard (key 1) or using the joystick first button.
 
 
-## RobotM2 structure and interface
-
-### Control methods
+## RobotM2 Control methods
 
 The CORC M2 robot model has the following specific methods of interaction:
 - Obtaining current **joint state** (as for any CORC robot): `robot->getPosition()`, `robot->getVelocity()`, `robot->getTorque()`.
@@ -58,13 +55,6 @@ The CORC M2 robot model has the following specific methods of interaction:
 
 See the Doxygen page of the `RobotM2` class for a full list of available methods.
 
-## Joystick
-
-The `RobotM2` class include a Joystick input by default. The joystick, if connected, can be used within the different state machine states and transitions.
-
-An example of the use of the first stick of a joystick used as an input can be found in the `M2EndEffDemo` state. The method `robot->joystick->getAxis(i)` returns a value proportional to the position of the stick direction `i`, which is used as a velocity command.
-
-Additionaly, joystick buttons are used in the state machine transition: `M2DemoMachine::GoToNextState` to allow transition by a button press: `OWNER->robot->joystick->isButtonPressed(1)`.
 
 
 ## Network communication with libFLNL
