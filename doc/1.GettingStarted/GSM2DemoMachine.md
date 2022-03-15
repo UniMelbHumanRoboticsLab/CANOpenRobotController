@@ -44,7 +44,7 @@ This should create the application `M2DemoMachine` within the build folder. Afte
 Once the calibration state is finished, you can circle through the different demo states using the keyboard (key 1) or using the joystick first button.
 
 
-## RobotM2 Control methods
+## RobotM2 control methods
 
 The CORC M2 robot model has the following specific methods of interaction:
 - Obtaining current **joint state** (as for any CORC robot): `robot->getPosition()`, `robot->getVelocity()`, `robot->getTorque()`.
@@ -54,7 +54,6 @@ The CORC M2 robot model has the following specific methods of interaction:
 - Finally, the method `setEndEffForceWithCompensation(VM2 F, bool friction_comp=true)` can be used to apply an end-effector force in addition to the **friction compensation**. This method relies on the robot model and parameters (friction coefficients).
 
 See the Doxygen page of the `RobotM2` class for a full list of available methods.
-
 
 
 ## Network communication with libFLNL
