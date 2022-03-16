@@ -26,6 +26,11 @@ The following packages are also required for this program. If you do not have ac
 * [x2_description](https://github.com/emekBaris/x2_description)
 * [cob_gazebo_plugins](https://github.com/emekBaris/cob_gazebo_plugins)
 
+If not already installed, install ros_control:
+```bash
+$ sudo apt-get install ros-<melodic or noetic>-ros-control ros-<melodic or noetic>-ros-controllers
+```
+
 ### Build
 
 Create a catkin workspace if you don't have one yet:
@@ -68,6 +73,13 @@ The following testing steps are advised to follow initially:
 
 ### Testing the simulation
 
+First, initialize the virtual CAN device (No need to repeat this step, unless you restart your PC):
+
+```bash
+$  cd script
+$  ./initVCAN.sh
+```
+
 Gazebo and RViz are used simultaneously as simulation and visualization environments, respectively.
 
 Run
@@ -107,6 +119,13 @@ Due to the high reflected rotor inertia, this results in a very inaccurate simul
 $\tau_{reflected-rotor} = RR^2*I_{rotor}$ where $RR$ is the reduction ratio.
 
 ### Testing on the real robot
+
+First, initialize the CAN device (No need to repeat this step, unless you disconnect the CAN adapter):
+
+```bash
+$  cd script
+$  ./initCAN0.sh
+```
 
 If you do not have an imu at the backpack comment out the last 5 lines of ```config/x2_params.yaml``` that are related to imu.
 
