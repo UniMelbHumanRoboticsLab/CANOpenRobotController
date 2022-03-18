@@ -230,27 +230,43 @@ add_executable(${APP_NAME}
 				${SOURCES}
 				)
 
-## Includes
-target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
+if (ROS2)
 
-## Set required external packages
-find_package(Threads REQUIRED)
-
-## Link non-ROS libraries
-target_link_libraries(${APP_NAME}
+	ament_package()
+	target_include_directories(${APP_NAME} PUBLIC ${INCLUDE_DIRS})
+	find_package(Threads REQUIRED)
+	target_link_libraries(${APP_NAME} PRIVATE
+		Threads::Threads
 		${CMAKE_THREAD_LIBS_INIT}
-		yaml-cpp)
+		yaml-cpp
+		spdlog
+	)
+	#ament_target_dependencies(${APP_NAME}
+	#	${ROS_LIBRARIES}
+	#	${CMAKE_THREAD_LIBS_INIT}
+	#	yaml-cpp
+	#	spdlog
+	#)
+
+else()
+	## Includes
+	target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
+
+	## Set required external packages
+	find_package(Threads REQUIRED)
+
+	## Link non-ROS libraries
+	target_link_libraries(${APP_NAME}
+			${CMAKE_THREAD_LIBS_INIT}
+			yaml-cpp)
+endif()
 
 ## Link ROS libraries
-if(USE_ROS)
-	if(ROS2)
-		ament_target_dependencies(${APP_NAME} ${ROS_LIBRARIES})
-	else()
-		target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
+if(USE_ROS and NOT ROS2)
+	target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
 
-		# make sure configure headers are built before any node using them
-		#add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
-	endif()
+	# make sure configure headers are built before any node using them
+	#add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
 endif()
 
 message("-----------------------------------------------\nBuilding application ${APP_NAME}\n-----------------------------------------------")
