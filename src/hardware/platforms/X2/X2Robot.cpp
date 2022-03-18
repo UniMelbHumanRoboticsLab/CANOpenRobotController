@@ -38,7 +38,7 @@ ExoJointLimits X2JointLimits = {deg2rad(120), deg2rad(-40), deg2rad(120), deg2ra
 static volatile sig_atomic_t exitHoming = 0;
 
 #ifdef SIM
-X2Robot::X2Robot(std::shared_ptr<rclpp:Node> &node, std::string robot_name, std::string yaml_config_file)
+X2Robot::X2Robot(std::shared_ptr<rclcpp::Node> &node, std::string robot_name, std::string yaml_config_file)
 #else
 X2Robot::X2Robot(std::string robot_name, std::string yaml_config_file)
 #endif
@@ -94,14 +94,16 @@ void X2Robot::signalHandler(int signum) {
 
 #ifdef SIM
 void X2Robot::initialiseROS(std::shared_ptr<rclcpp::Node> &node) {
-    controllerSwitchClient_ = node->create_client<controller_manager_msgs::msg::SwitchController>("controller_manager/switch_controller");
+    controllerSwitchClient_ = node->create_client<controller_manager_msgs::srv::SwitchController>("controller_manager/switch_controller");
 
     positionCommandPublisher_ = node->create_publisher<std_msgs::msg::Float64MultiArray>("position_controller/command", 10);
     velocityCommandPublisher_ = node->create_publisher<std_msgs::msg::Float64MultiArray>("velocity_controller/command", 10);
-    torqueCommandPublisher_ = node->create_publisher<std_msgs::Float64MultiArray>("torque_controller/command", 10);
+    torqueCommandPublisher_ = node->create_publisher<std_msgs::msg::Float64MultiArray>("torque_controller/command", 10);
 
     jointStateSubscriber_ = node->create_subscription<sensor_msgs::msg::JointState>("joint_states", 1, std::bind(&X2Robot::jointStateCallback, this, _1));
 }
+
+    //controllerSwitchMsg_ = std::make_shared<controller_manager_msgs::srv::SwitchController::Request>();
 #endif
 
 void X2Robot::resetErrors() {
@@ -132,13 +134,15 @@ bool X2Robot::initPositionControl() {
     }
 
 #ifdef SIM
-    controllerSwitchMsg_.request.start_controllers = {"position_controller"};
-    controllerSwitchMsg_.request.stop_controllers = {"velocity_controller", "torque_controller"};
-    controllerSwitchMsg_.request.strictness = 1;
-    controllerSwitchMsg_.request.start_asap = true;
-    controllerSwitchMsg_.request.timeout = 0.0;
+    controllerSwitchMsg_->start_controllers = {"position_controller"};
+    controllerSwitchMsg_->stop_controllers = {"velocity_controller", "torque_controller"};
+    controllerSwitchMsg_->strictness = 1;
+    controllerSwitchMsg_->start_asap = true;
+    controllerSwitchMsg_->timeout.sec = 0.0;
 
-    if (controllerSwitchClient_.call(controllerSwitchMsg_)) {
+    auto result = controllerSwitchClient_->async_send_request(controllerSwitchMsg_);
+    if (rclcpp::spin_until_future_complete(node, result) ==
+        rclcpp::FutureReturnCode::SUCCESS) {
         spdlog::info("Switched to position controller");
     } else {
         spdlog::error("Failed switching to position controller");
@@ -169,13 +173,15 @@ bool X2Robot::initVelocityControl() {
     }
 
 #ifdef SIM
-    controllerSwitchMsg_.request.start_controllers = {"velocity_controller"};
-    controllerSwitchMsg_.request.stop_controllers = {"position_controller", "torque_controller"};
-    controllerSwitchMsg_.request.strictness = 1;
-    controllerSwitchMsg_.request.start_asap = true;
-    controllerSwitchMsg_.request.timeout = 0.0;
+    controllerSwitchMsg_->start_controllers = {"velocity_controller"};
+    controllerSwitchMsg_->stop_controllers = {"position_controller", "torque_controller"};
+    controllerSwitchMsg_->strictness = 1;
+    controllerSwitchMsg_->start_asap = true;
+    controllerSwitchMsg_->timeout.sec = 0.0;
 
-    if (controllerSwitchClient_.call(controllerSwitchMsg_)) {
+    auto result = controllerSwitchClient_->async_send_request(controllerSwitchMsg_);
+    if (rclcpp::spin_until_future_complete(node, result) ==
+        rclcpp::FutureReturnCode::SUCCESS) {
         spdlog::info("Switched to velocity controller");
     } else {
         spdlog::error("Failed switching to velocity controller");
@@ -206,13 +212,15 @@ bool X2Robot::initTorqueControl() {
     }
 
 #ifdef SIM
-    controllerSwitchMsg_.request.start_controllers = {"torque_controller"};
-    controllerSwitchMsg_.request.stop_controllers = {"position_controller", "velocity_controller"};
-    controllerSwitchMsg_.request.strictness = 1;
-    controllerSwitchMsg_.request.start_asap = true;
-    controllerSwitchMsg_.request.timeout = 0.0;
+    controllerSwitchMsg_->start_controllers = {"torque_controller"};
+    controllerSwitchMsg_->stop_controllers = {"position_controller", "velocity_controller"};
+    controllerSwitchMsg_->strictness = 1;
+    controllerSwitchMsg_->start_asap = true;
+    controllerSwitchMsg_->timeout.sec = 0.0;
 
-    if (controllerSwitchClient_.call(controllerSwitchMsg_)) {
+    auto result = controllerSwitchClient_->async_send_request(controllerSwitchMsg_);
+    if (rclcpp::spin_until_future_complete(node, result) ==
+        rclcpp::FutureReturnCode::SUCCESS) {
         spdlog::info("Switched to torque controller");
     } else {
         spdlog::error("Failed switching to torque controller");
@@ -698,7 +706,7 @@ RobotParameters& X2Robot::getRobotParameters() {
 
 #ifdef SIM
 void X2Robot::setNodeHandle(std::shared_ptr<rclcpp::Node> &node) {
-    this->node = node
+    this->node = node;
 }
 
 void X2Robot::jointStateCallback(const sensor_msgs::msg::JointState::SharedPtr msg) {

@@ -27,7 +27,7 @@
 //#include <CORC/dynamic_paramsConfig.h>
 
 /**
- * \brief Demo State for the X2DemoMachine
+ * \brief Demo State for the X2DemoMachineROS2
  *
  *
  */
@@ -49,8 +49,8 @@ public:
 private:
     std::chrono::steady_clock::time_point time0;
 
-    dynamic_reconfigure::Server<CORC::dynamic_paramsConfig> server_;
-    void dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level);
+    //dynamic_reconfigure::Server<CORC::dynamic_paramsConfig> server_;
+    //void dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level);
 
     Eigen::VectorXd desiredJointVelocities_;
     Eigen::VectorXd desiredJointTorques_;

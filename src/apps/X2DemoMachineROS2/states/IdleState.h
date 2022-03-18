@@ -15,10 +15,10 @@
 #include "X2Robot.h"
 
 /**
- * \brief Idle State for the X2DemoMachine
+ * \brief Idle State for the X2DemoMachineROS2
  *
  * State holds until event triggers its exit, and runs initPositionControl on exit
- * Control of transition is independent of this class and is defined in X2DemoMachine.
+ * Control of transition is independent of this class and is defined in X2DemoMachineROS2.
  *
  */
 class IdleState : public State {

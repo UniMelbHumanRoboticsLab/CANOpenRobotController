@@ -13,9 +13,9 @@ void X2DemoState::entry(void) {
               << "===================" << std::endl;
 
     // set dynamic parameter server
-    dynamic_reconfigure::Server<CORC::dynamic_paramsConfig>::CallbackType f;
-    f = boost::bind(&X2DemoState::dynReconfCallback, this, _1, _2);
-    server_.setCallback(f);
+    //dynamic_reconfigure::Server<CORC::dynamic_paramsConfig>::CallbackType f;
+    //f = boost::bind(&X2DemoState::dynReconfCallback, this, _1, _2);
+    //server_.setCallback(f);
 
 //    robot_->calibrateForceSensors();
 //    robot_->homing();
@@ -143,25 +143,25 @@ Eigen::VectorXd &X2DemoState::getDesiredJointTorques() {
     return desiredJointTorques_;
 }
 
-void X2DemoState::dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level) {
-
-    controller_mode_ = config.controller_mode;
-    virtualMassRatio_ = config.virtual_mass_ratio;
-    desiredInteractionForce_ = config.desired_interaction_force;
-    mAdmittance_ = config.m_admittance;
-    bAdmittance_ = config.b_admittance;
-
-    if(controller_mode_ == 1) robot_->initTorqueControl();
-    if(controller_mode_ == 2) robot_->initVelocityControl();
-    if(controller_mode_ == 3) robot_->initTorqueControl();
-    if(controller_mode_ == 4) robot_->initTorqueControl();
-    if(controller_mode_ == 5) robot_->initVelocityControl();
-    if(controller_mode_ == 6) robot_->initVelocityControl();
-    if(controller_mode_ == 7) {
-        robot_->initTorqueControl();
-        time0 = std::chrono::steady_clock::now();
-    }
-
-    return;
-
-}
+//void X2DemoState::dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level) {
+//
+//    controller_mode_ = config.controller_mode;
+//    virtualMassRatio_ = config.virtual_mass_ratio;
+//    desiredInteractionForce_ = config.desired_interaction_force;
+//    mAdmittance_ = config.m_admittance;
+//    bAdmittance_ = config.b_admittance;
+//
+//    if(controller_mode_ == 1) robot_->initTorqueControl();
+//    if(controller_mode_ == 2) robot_->initVelocityControl();
+//    if(controller_mode_ == 3) robot_->initTorqueControl();
+//    if(controller_mode_ == 4) robot_->initTorqueControl();
+//    if(controller_mode_ == 5) robot_->initVelocityControl();
+//    if(controller_mode_ == 6) robot_->initVelocityControl();
+//    if(controller_mode_ == 7) {
+//        robot_->initTorqueControl();
+//        time0 = std::chrono::steady_clock::now();
+//    }
+//
+//    return;
+//
+//}

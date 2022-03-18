@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef SRC_X2DEMOMACHINEROS_H
-#define SRC_X2DEMOMACHINEROS_H
+#ifndef SRC_X2DemoMachineROS_H
+#define SRC_X2DemoMachineROS_H
 
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "geometry_msgs/msg/wrench_stamped.hpp"
@@ -22,6 +22,7 @@
 #include "rclcpp/rclcpp.hpp"  // This state machine requires ROS
 
 using std::placeholders::_1;
+using std::placeholders::_2;
 
 class X2DemoMachineROS {
    public:
@@ -66,4 +67,4 @@ class X2DemoMachineROS {
     std::shared_ptr<rclcpp::Node> node;
 };
 
-#endif  //SRC_X2DEMOMACHINEROS_H
+#endif  //SRC_X2DemoMachineROS_H

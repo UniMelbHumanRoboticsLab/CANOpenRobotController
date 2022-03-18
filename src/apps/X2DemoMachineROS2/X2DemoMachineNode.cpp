@@ -13,8 +13,8 @@ X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot, std::shared_ptr<rclcpp::Node>
     rightShankForcePublisher_ = node->create_publisher<geometry_msgs::msg::WrenchStamped>("right_shank_wrench", 10);
 #endif
     interactionForceCommandSubscriber_ = node->create_subscription<std_msgs::msg::Float64MultiArray>("interaction_effort_commands", 1, std::bind(&X2DemoMachineROS::interactionForceCommandCallback, this, _1));
-    startExoService_ = node->create_service<std_srvs::srv::Trigger>("start_exo", std::bind(&X2DemoMachineROS::startExoServiceCallback, this, _1));
-    calibrateForceSensorsService_ = node->create_service<std_srvs::srv::Trigger>("calibrate_force_sensors", std::bind(&X2DemoMachineROS::calibrateForceSensorsCallback, this, _1));
+    startExoService_ = node->create_service<std_srvs::srv::Trigger>("start_exo", std::bind(&X2DemoMachineROS::startExoServiceCallback, this, _1, _2));
+    calibrateForceSensorsService_ = node->create_service<std_srvs::srv::Trigger>("calibrate_force_sensors", std::bind(&X2DemoMachineROS::calibrateForceSensorsCallback, this, _1, _2));
     startExoTriggered_ = false;
     interactionForceCommand_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 

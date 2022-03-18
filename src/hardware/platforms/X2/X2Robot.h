@@ -136,13 +136,13 @@ class X2Robot : public Robot {
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr positionCommandPublisher_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr velocityCommandPublisher_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr torqueCommandPublisher_;
-    rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr jointStateSubscriber_;
-    rclcpp::Client<controller_manager_msgs::msg::SwitchController>::SharedPtr controllerSwitchClient_;
+    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr jointStateSubscriber_;
+    rclcpp::Client<controller_manager_msgs::srv::SwitchController>::SharedPtr controllerSwitchClient_;
 
     std_msgs::msg::Float64MultiArray positionCommandMsg_;
     std_msgs::msg::Float64MultiArray velocityCommandMsg_;
     std_msgs::msg::Float64MultiArray torqueCommandMsg_;
-    controller_manager_msgs::msg::SwitchController controllerSwitchMsg_;
+    std::shared_ptr<controller_manager_msgs::srv::SwitchController::Request> controllerSwitchMsg_;
 
     void jointStateCallback(const sensor_msgs::msg::JointState::SharedPtr msg);
 #endif

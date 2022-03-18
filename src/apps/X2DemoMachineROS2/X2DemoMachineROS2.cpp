@@ -1,17 +1,17 @@
 #include "X2DemoMachineROS2.h"
 
-#define OWNER ((X2DemoMachine *)owner)
+#define OWNER ((X2DemoMachineROS2 *)owner)
 
-X2DemoMachine::X2DemoMachine(int argc, char *argv[]) {
+X2DemoMachineROS2::X2DemoMachineROS2(int argc, char *argv[]) {
 
     rclcpp::install_signal_handlers();
     auto rosInit = rclcpp::InitOptions();
     rosInit.shutdown_on_sigint = false;
-    rclcpp::init(argc, argv, "x2", rosInit);
-    std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("~");
+    rclcpp::init(argc, argv, rosInit);
+    node = rclcpp::Node::make_shared("~");
 
     // Get robot name from the node name
-    robotName_ = node->getName();
+    robotName_ = node->get_name();
     robotName_.erase(0,1); // erase the first character which is '/'
 
 #ifdef SIM
@@ -30,10 +30,10 @@ X2DemoMachine::X2DemoMachine(int argc, char *argv[]) {
      */
 
     // Create ros object
-    x2DemoMachineRos_ = new X2DemoMachineROS(robot_, node);
+    X2DemoMachineRos_ = new X2DemoMachineROS(robot_, node);
 
     // Pass MachineRos to the State to use ROS features
-    x2DemoState_ = new X2DemoState(this, robot_, x2DemoMachineRos_);
+    x2DemoState_ = new X2DemoState(this, robot_, X2DemoMachineRos_);
 }
 
 /**
@@ -41,8 +41,8 @@ X2DemoMachine::X2DemoMachine(int argc, char *argv[]) {
  * for example initialising robot objects.
  *
  */
-void X2DemoMachine::init() {
-    spdlog::debug("X2DemoMachine::init()");
+void X2DemoMachineROS2::init() {
+    spdlog::debug("X2DemoMachineROS2::init()");
 
     // Create states with ROS features // This should be created after ros::init()
     StateMachine::initialize(x2DemoState_);
@@ -70,12 +70,12 @@ void X2DemoMachine::init() {
     logHelper.startLogger();
 }
 
-void X2DemoMachine::end() {
+void X2DemoMachineROS2::end() {
     if(initialised) {
         logHelper.endLog();
         currentState->exit();
         robot_->disable();
-        delete x2DemoMachineRos_;
+        delete X2DemoMachineRos_;
         delete robot_;
     }
 }
@@ -83,10 +83,10 @@ void X2DemoMachine::end() {
 ////////////////////////////////////////////////////////////////
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
-bool X2DemoMachine::StartExo::check(void) {
-    if (OWNER->robot_->keyboard->getS() == true || OWNER->x2DemoMachineRos_->startExoTriggered_) {
+bool X2DemoMachineROS2::StartExo::check(void) {
+    if (OWNER->robot_->keyboard->getS() == true || OWNER->X2DemoMachineRos_->startExoTriggered_) {
         spdlog::info("Exo started!");
-        OWNER->x2DemoMachineRos_->startExoTriggered_ = false;
+        OWNER->X2DemoMachineRos_->startExoTriggered_ = false;
         return true;
     }
     return false;
@@ -96,20 +96,20 @@ bool X2DemoMachine::StartExo::check(void) {
  * that need to run every program loop update cycle.
  *
  */
-void X2DemoMachine::hwStateUpdate(void) {
+void X2DemoMachineROS2::hwStateUpdate(void) {
     robot_->updateRobot();
 }
 
-void X2DemoMachine::update() {
+void X2DemoMachineROS2::update() {
     time = (std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now() - time0).count()) / 1e6;
 
     StateMachine::update();
-    x2DemoMachineRos_->update();
-    ros::spinOnce();
+    X2DemoMachineRos_->update();
+    rclcpp::spin_some(node);
 }
 
-bool X2DemoMachine::configureMasterPDOs() {
-    spdlog::debug("X2DemoMachine::configureMasterPDOs()");
+bool X2DemoMachineROS2::configureMasterPDOs() {
+    spdlog::debug("X2DemoMachineROS2::configureMasterPDOs()");
     return robot_->configureMasterPDOs();
 }

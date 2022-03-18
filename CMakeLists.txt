@@ -53,8 +53,8 @@ add_definitions(-DFP_STARTTPDO=0x3E1)
 
 #######################
 
-## Compile as C++14
-## ROS2 C++ version standard
+## Compile as C++11
+## ROS2 C++ version standard is 14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(USE_ROS)
@@ -123,39 +123,27 @@ if(USE_ROS)
 			find_package(std_srvs REQUIRED)
 			find_package(sensor_msgs REQUIRED)
 			find_package(geometry_msgs REQUIRED)
-			#find_package(dynamic_reconfigure REQUIRED)
 			if(SIM)
 				find_package(controller_manager_msgs REQUIRED)
 				#find_package(cob_gazebo_ros_control REQUIRED)
 				find_package(x2_description REQUIRED)
+				ament_export_dependencies(controller_manager_msgs)
+				ament_export_dependencies(x2_description)
 			endif()
 
-			#generate_dynamic_reconfigure_options(
-			#	config/x2_dynamic_params.cfg
-			#)
-
-			# TODO: may not work for sub-packages in CORC structure -
-			#		dependencies might not be exported to child CMake(?)
 			ament_export_dependencies(ament_cmake)
 			ament_export_dependencies(rclcpp)
 			ament_export_dependencies(std_msgs)
 			ament_export_dependencies(std_srvs)
 			ament_export_dependencies(sensor_msgs)
 			ament_export_dependencies(geometry_msgs)
-			#ament_export_dependencies(dynamic_reconfigure)
 
-			# TODO: may not be possible with current CORC file system -
-			#		header files are not in one include directory
-			#include_directories(include)
-			#include_directories(/opt/ros/foxy/include) # FIXME: this is dumb
 			set(ROS_LIBRARIES
-				ament_cmake
 				rclcpp
 				std_msgs
 				std_srvs
 				sensor_msgs
 				geometry_msgs
-				#dynamic_reconfigure
 			)
 
 			ament_package()
@@ -255,14 +243,14 @@ target_link_libraries(${APP_NAME}
 
 ## Link ROS libraries
 if(USE_ROS)
-	target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
+	if(ROS2)
+		ament_target_dependencies(${APP_NAME} ${ROS_LIBRARIES})
+	else()
+		target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
 
-	# make sure configure headers are built before any node using them
-	#add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
+		# make sure configure headers are built before any node using them
+		#add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
+	endif()
 endif()
-
-#if (ROS2)
-#	ament_package()
-#endif()
 
 message("-----------------------------------------------\nBuilding application ${APP_NAME}\n-----------------------------------------------")
