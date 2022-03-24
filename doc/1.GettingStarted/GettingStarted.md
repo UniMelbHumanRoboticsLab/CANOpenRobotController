@@ -40,20 +40,21 @@ This example does not include any visualisation of the robot, with feedback to t
 ### [Basic Simulation - Instructions](GSBasicSimulation.md) 
 
 
-## Advanced Simulation using ROS - Exoskeleton
-This example is a more advanced example requiring no hardware. It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, using ROS and creating a Gazebo simulation for visualisation. 
+## Advanced Simulation and Hardware Testing using ROS - Exoskeleton
+This example is a more advanced example requiring no hardware but also allow testing the same code both on hardware and simulation.
+It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, using ROS and creating a Gazebo for physics simulation and RViz for visualization purposes.
 
 ### Requirements
-1. A development and deployment machine running Linux, ROS and Gazebo
+1. A development and deployment machine running Linux, ROS (Melodic or Noetic) and a compatible Gazebo version with ROS.
 
 ### Suggested for
-1. Users looking to develop advanced UI interfaces for their applications
-2. Users with sufficiently powerful computers to generate the 3d visualisations
+1. Users looking to develop advanced user interfaces for their applications
+2. Users who want to pre test their development on a physics simulation 
+3. Users who wants to benefit from the advatanges of ROS
+4. Users with sufficiently powerful computers to generate the 3d visualisations
 
 ### Link to Page
-*Work in progress*
-
-See the code example in `src/apps/X2DemoMachine`.
+### [Advanced Simulation and Hardware Testing using ROS - Instructions](AdvancedSimulationAndHardwareTesting.md) 
 
 
 ## Hardware Testing - ExoMotus X2 Exoskeleton

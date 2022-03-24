@@ -2,7 +2,7 @@ x2:
   # Publish all joint states -----------------------------------
   joint_state_controller:
     type: joint_state_controller/JointStateController
-    publish_rate: 400
+    publish_rate: 333
 
   # Backpack position Controller ---------------------------------------
   backpack_position_controller:
