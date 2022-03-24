@@ -1,23 +1,25 @@
 #include "X2DemoMachineROS.h"
 
-X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot, ros::NodeHandle& nodeHandle):
-    robot_(robot),
-    nodeHandle_(&nodeHandle)
+X2DemoMachineROS::X2DemoMachineROS(X2Robot *robot, X2DemoState *x2DemoState, ros::NodeHandle& nodeHandle):
+        robot_(robot),
+        x2DemoState_(x2DemoState),
+        nodeHandle_(&nodeHandle)
 {
 
 #ifndef SIM  // if simulation, these will be published by Gazebo
     jointStatePublisher_ = nodeHandle_->advertise<sensor_msgs::JointState>("joint_states", 10);
-    leftThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("left_thigh_wrench", 10);
-    leftShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("left_shank_wrench", 10);
-    rightThighForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("right_thigh_wrench", 10);
-    rightShankForcePublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("right_shank_wrench", 10);
-#endif
-    interactionForceCommandSubscriber_ = nodeHandle_->subscribe("interaction_effort_commands", 1, &X2DemoMachineROS::interactionForceCommandCallback, this);
-    startExoService_ = nodeHandle_->advertiseService("start_exo", &X2DemoMachineROS::startExoServiceCallback, this);
-    calibrateForceSensorsService_ = nodeHandle_->advertiseService("calibrate_force_sensors", &X2DemoMachineROS::calibrateForceSensorsCallback, this);
-    startExoTriggered_ = false;
-    interactionForceCommand_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
+    interactionForcePublisher_ = nodeHandle_->advertise<CORC::X2Array>("interaction_forces", 10);
+    for(int i = 0; i< X2_NUM_GRF_SENSORS; i++){
+        groundReactionForcePublisher_[i] = nodeHandle_->advertise<geometry_msgs::WrenchStamped>
+                ("grf_" + grfFramesArray_[i], 10);
+    }
+#endif //todo check which ones should be published if SIM
 
+    calibrateForceSensorsService_ = nodeHandle_->advertiseService("calibrate_force_sensors", &X2DemoMachineROS::calibrateForceSensorsCallback, this);
+    emergencyStopService_ = nodeHandle_->advertiseService("emergency_stop", &X2DemoMachineROS::emergencyStopCallback, this);
+    startHomingService_ = nodeHandle_->advertiseService("start_homing", &X2DemoMachineROS::startHomingCallback, this);
+    imuCalibrationService_ = nodeHandle_->advertiseService("calibrate_imu", &X2DemoMachineROS::calibrateIMUCallback, this);
+    interactionForceCommand_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 }
 
 X2DemoMachineROS::~X2DemoMachineROS() {
@@ -33,6 +35,7 @@ void X2DemoMachineROS::update() {
 #ifndef SIM  // if simulation, these will be published by Gazebo
     publishJointStates();
     publishInteractionForces();
+    publishGroundReactionForces();
 #endif
 }
 
@@ -52,47 +55,46 @@ void X2DemoMachineROS::publishJointStates() {
     jointStateMsg_.name[3] = "right_knee_joint";
     jointStateMsg_.name[4] = "world_to_backpack";
 
-    jointStateMsg_.position[0] = jointPositions[0];
-    jointStateMsg_.position[1] = jointPositions[1];
-    jointStateMsg_.position[2] = jointPositions[2];
-    jointStateMsg_.position[3] = jointPositions[3];
-    jointStateMsg_.position[4] = robot_->getBackPackAngleOnMedianPlane();
+    for(int id = 0; id < X2_NUM_JOINTS; id++){
+        jointStateMsg_.position[id] = jointPositions[id];
+        jointStateMsg_.velocity[id] = jointVelocities[id];
+        jointStateMsg_.effort[id] = jointTorques[id];
+    }
 
-    jointStateMsg_.velocity[0] = jointVelocities[0];
-    jointStateMsg_.velocity[1] = jointVelocities[1];
-    jointStateMsg_.velocity[2] = jointVelocities[2];
-    jointStateMsg_.velocity[3] = jointVelocities[3];
-    jointStateMsg_.effort[0] = jointTorques[0];
-    jointStateMsg_.effort[1] = jointTorques[1];
-    jointStateMsg_.effort[2] = jointTorques[2];
-    jointStateMsg_.effort[3] = jointTorques[3];
-
+    jointStateMsg_.position[4] = robot_->getBackPackAngleOnMedianPlane() - M_PI_2;
     jointStatePublisher_.publish(jointStateMsg_);
 }
 
 void X2DemoMachineROS::publishInteractionForces() {
     Eigen::VectorXd interactionForces = robot_->getInteractionForce();
-    ros::Time time = ros::Time::now();
 
-    leftThighForceMsg_.header.stamp = time;
-    leftShankForceMsg_.header.stamp = time;
-    rightThighForceMsg_.header.stamp = time;
-    rightShankForceMsg_.header.stamp = time;
+    interactionForceMsg_.header.stamp = ros::Time::now();
 
-    leftThighForceMsg_.header.frame_id = "left_upper_thigh_sensor";
-    leftShankForceMsg_.header.frame_id = "left_upper_shank_sensor";
-    rightThighForceMsg_.header.frame_id = "right_upper_thigh_sensor";
-    rightShankForceMsg_.header.frame_id = "right_upper_shank_sensor";
+    interactionForceMsg_.name.resize(X2_NUM_GENERALIZED_COORDINATES);
+    interactionForceMsg_.data.resize(X2_NUM_GENERALIZED_COORDINATES);
 
-    leftThighForceMsg_.wrench.force.z = interactionForces[0];
-    leftShankForceMsg_.wrench.force.z = interactionForces[1];
-    rightThighForceMsg_.wrench.force.z = interactionForces[2];
-    rightShankForceMsg_.wrench.force.z = interactionForces[3];
+    interactionForceMsg_.name[0] = "backpack_force";
+    interactionForceMsg_.name[1] = "left_thigh_force";
+    interactionForceMsg_.name[2] = "left_shank_force";
+    interactionForceMsg_.name[3] = "right_thigh_force";
+    interactionForceMsg_.name[4] = "right_shank_force";
 
-    leftThighForcePublisher_.publish(leftThighForceMsg_);
-    leftShankForcePublisher_.publish(leftShankForceMsg_);
-    rightThighForcePublisher_.publish(rightThighForceMsg_);
-    rightShankForcePublisher_.publish(rightShankForceMsg_);
+    for(int id = 0; id< X2_NUM_GENERALIZED_COORDINATES; id++){
+        interactionForceMsg_.data[id] = interactionForces[id];
+    }
+
+    interactionForcePublisher_.publish(interactionForceMsg_);
+}
+
+void X2DemoMachineROS::publishGroundReactionForces() {
+    Eigen::VectorXd groundReactionForces = -robot_->getGroundReactionForces();
+
+    for(int i = 0; i< X2_NUM_GRF_SENSORS; i++){
+        groundReactionForceMsgArray_[i].header.stamp = ros::Time::now();
+        groundReactionForceMsgArray_[i].header.frame_id = grfFramesArray_[i];
+        groundReactionForceMsgArray_[i].wrench.force.z = groundReactionForces[i];
+        groundReactionForcePublisher_[i].publish(groundReactionForceMsgArray_[i]);
+    }
 }
 
 void X2DemoMachineROS::setNodeHandle(ros::NodeHandle &nodeHandle) {
@@ -104,20 +106,36 @@ ros::NodeHandle & X2DemoMachineROS::getNodeHandle() {
     return *nodeHandle_;
 }
 
-bool X2DemoMachineROS::startExoServiceCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
-    startExoTriggered_ = true;
-    res.success = true;
-    return true;
-}
-
 bool X2DemoMachineROS::calibrateForceSensorsCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
 
-    res.success = robot_->calibrateForceSensors();
+    bool success = true;
+    for(int id = 0; id < X2_NUM_FORCE_SENSORS + X2_NUM_GRF_SENSORS; id++){
+        success = success & robot_->forceSensors[id]->sendInternalCalibrateSDOMessage();
+    }
+
+    success = success & robot_->calibrateForceSensors();
+    res.success = success;
+
+    return success;
+}
+
+bool X2DemoMachineROS::startHomingCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
+
+    std::vector<int> homingDirection{1, 1, 1, 1};
+    res.success = robot_->homing(homingDirection);
     return true;
 }
 
-void X2DemoMachineROS::interactionForceCommandCallback(const std_msgs::Float64MultiArray &msg) {
-    for(int i=0; i<X2_NUM_JOINTS; i++){
-        interactionForceCommand_[i] = msg.data[i];
-    }
+bool X2DemoMachineROS::emergencyStopCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
+
+    std::raise(SIGTERM); //Clean exit
+    return true;
+}
+
+bool X2DemoMachineROS::calibrateIMUCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res) {
+
+    res.success = robot_->setBackpackIMUMode(IMUOutputMode::QUATERNION_GYRO);
+
+//    robot_->calibrateContactIMUAngles(2.0);
+    return true;
 }

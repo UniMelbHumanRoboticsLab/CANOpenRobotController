@@ -118,4 +118,4 @@ Additionnal third-party libraries required in your code can either directly be p
 
 ### ROS
 
-To use ROS in your application, see this [specific page](../1.GettingStarted/Simulation.md).
+To use ROS in your application, see this [specific page](../1.GettingStarted/AdvancedSimulationAndHardwareTesting.md).
