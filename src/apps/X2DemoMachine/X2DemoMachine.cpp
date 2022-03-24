@@ -26,11 +26,12 @@ X2DemoMachine::X2DemoMachine(int argc, char *argv[]) {
      *
      */
 
-    // Create ros object
-    x2DemoMachineRos_ = new X2DemoMachineROS(robot_, nodeHandle);
+    // Create state objet
+    x2DemoState_ = new X2DemoState(this, robot_);
 
-    // Pass MachineRos to the State to use ROS features
-    x2DemoState_ = new X2DemoState(this, robot_, x2DemoMachineRos_);
+    // Create ros object
+    x2DemoMachineRos_ = new X2DemoMachineROS(robot_, x2DemoState_, nodeHandle);
+
 }
 
 /**
@@ -61,8 +62,25 @@ void X2DemoMachine::init() {
     logHelper.add(robot_->getVelocity(), "JointVelocities");
     logHelper.add(robot_->getTorque(), "JointTorques");
     logHelper.add(x2DemoState_->getDesiredJointTorques(), "DesiredJointTorques");
+    logHelper.add(x2DemoState_->getDesiredJointVelocities(), "DesiredJointVelocities");
+    logHelper.add(robot_->getJointTorquesViaStrainGauges(), "JointTorquesViaGauges");
+    logHelper.add(robot_->getGravitationTorque(), "gravitationTorque");
+    logHelper.add(robot_->getFrictionTorque(), "FrictionTorque");
     logHelper.add(robot_->getInteractionForce(), "InteractionForces");
-    //    logHelper.add(x2DemoState_->virtualMassRatio_, "virtualMassRatio");
+    logHelper.add(robot_->getSmoothedInteractionForce(), "SmoothedInteractionForces");
+    logHelper.add(robot_->getEstimatedGeneralizedAcceleration(), "EstimatedAcceleration");
+    logHelper.add(robot_->getBackPackAngleOnMedianPlane(), "BackPackAngle");
+    logHelper.add(robot_->getBackPackAngularVelocityOnMedianPlane(), "BackPackAngularVelocity");
+    logHelper.add(x2DemoState_->enableJoints, "enableJoints");
+    logHelper.add(robot_->getButtonValue(ButtonColor::GREEN), "greenButton");
+    logHelper.add(robot_->getButtonValue(ButtonColor::RED), "redButton");
+    logHelper.add(robot_->getButtonValue(ButtonColor::YELLOW), "yellowButton");
+    logHelper.add(robot_->getButtonValue(ButtonColor::BLUE), "blueButton");
+    logHelper.add(robot_->getGroundReactionForces(), "GroundReactionForces");
+    logHelper.add(robot_->getGRFSensorThresholds(), "GRFThresholds");
+    logHelper.add(robot_->getJointVelDerivativeCutOffFrequency(), "JointVelDerivativeCutOffFreq");
+    logHelper.add(robot_->getBackpackVelDerivativeCutOffFrequency(), "BackpackVelDerivativeCutOffFreq");
+    logHelper.add(robot_->getDynamicParametersCutOffFrequency(), "DynamicParametersCutOffFreq");
 
     logHelper.startLogger();
 }
@@ -81,9 +99,8 @@ void X2DemoMachine::end() {
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
 bool X2DemoMachine::StartExo::check(void) {
-    if (OWNER->robot_->keyboard->getS() == true || OWNER->x2DemoMachineRos_->startExoTriggered_) {
+    if (OWNER->robot_->keyboard->getS() == true) {
         spdlog::info("Exo started!");
-        OWNER->x2DemoMachineRos_->startExoTriggered_ = false;
         return true;
     }
     return false;

@@ -2,8 +2,8 @@
  * /file X2DemoState.h
  * /author Emek Baris Kucuktabak
  * /brief Concrete implementation of DemoState
- * /version 0.1
- * /date 2020-07-06
+ * /version 1.1
+ * /date 2022-02-22
  *
  * @copyright Copyright (c) 2020
  *
@@ -20,10 +20,12 @@
 #include <chrono>
 #include <math.h>
 
-#include "X2DemoMachineROS.h"
-
 // dynamic reconfigure
 #include <dynamic_reconfigure/server.h>
+#include <dynamic_reconfigure/DoubleParameter.h>
+#include <dynamic_reconfigure/Reconfigure.h>
+#include <dynamic_reconfigure/Config.h>
+
 #include <CORC/dynamic_paramsConfig.h>
 
 /**
@@ -33,35 +35,33 @@
  */
 class X2DemoState : public State {
     X2Robot *robot_;
-    X2DemoMachineROS *x2DemoMachineRos_;
 
 public:
     void entry(void);
     void during(void);
     void exit(void);
-    X2DemoState(StateMachine *m, X2Robot *exo, X2DemoMachineROS *x2DemoMachineRos, const char *name = NULL);
+    X2DemoState(StateMachine *m, X2Robot *exo, const char *name = NULL);
 
     Eigen::VectorXd& getDesiredJointTorques();
-    int controller_mode_;
-    double virtualMassRatio_;
-    double desiredInteractionForce_;
-    double desiredJointAcceleration_;
-private:
-    std::chrono::steady_clock::time_point time0;
+    Eigen::VectorXd& getDesiredJointVelocities();
 
+    int controller_mode_;
+
+    Eigen::VectorXd enableJoints;
+
+
+private:
     dynamic_reconfigure::Server<CORC::dynamic_paramsConfig> server_;
     void dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level);
 
-    Eigen::VectorXd desiredJointVelocities_;
+    double t_step_ = 0.003; // 0.003 todo: get from main
+
+    std::chrono::steady_clock::time_point time0;
     Eigen::VectorXd desiredJointTorques_;
+    Eigen::VectorXd desiredJointVelocities_;
 
-    double admittanceInputHistory_[2] = {0,0};
-    double admittanceOutputHistory_[2] = {0,0};
-    double t_step_ = 0.002; // todo: get from main
-
-    double mAdmittance_ = 5;
-    double bAdmittance_ = 2;
-
+    Eigen::VectorXd kTransperancy_;
+    double amplitude_, period_, offset_;
 
 };
 

@@ -2,7 +2,7 @@
 <launch>
 
   <arg name="robot_description_name" default="x2/robot_description"/>
-  <arg name="robot_name" default="X2_SRA_B"/>
+  <arg name="robot_name" default="x2"/>
 
   <!-- load the urdf into the parameter server -->
   <param name="$(arg robot_description_name)" command="$(find xacro)/xacro '$(find x2_description)/urdf/x2_fixed_base.urdf.xacro'"/>
@@ -21,6 +21,6 @@
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find x2_description)/rviz/view_robot.rviz"/>
 
   <!-- rqt_gui-->
-  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" />
+  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" args = "--perspective-file $(find CORC)/config/x2.perspective"/>
 
 </launch>

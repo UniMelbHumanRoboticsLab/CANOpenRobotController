@@ -69,6 +69,7 @@
   <build_export_depend>cob_gazebo_ros_control</build_export_depend>
   <build_export_depend>x2_description</build_export_depend>
   <build_export_depend>dynamic_reconfigure</build_export_depend>
+  <exec_depend>message_runtime</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>

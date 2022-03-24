@@ -33,6 +33,7 @@
 
 #define SIZE_ACCELERATION 12
 #define SIZE_QUATERNION 16
+#define SIZE_QUATERNION_GYR 28
 
 // basics
 #include <stdio.h>
@@ -72,7 +73,8 @@ struct IMUParameters {
 // value is the datasize of each mode
 enum IMUOutputMode {
     ACCELERATION = 12,
-    QUATERNION = 16
+    QUATERNION = 16,
+    QUATERNION_GYRO = 28
 };
 
 struct IMUOutputModeStruct{
@@ -96,6 +98,7 @@ public:
     void exit();
     Eigen::MatrixXd& getAcceleration();
     Eigen::MatrixXd& getQuaternion();
+    Eigen::MatrixXd& getAngularVelocity();
     int& getNumberOfIMUs_();
     IMUOutputModeStruct& getOutputMode_(int index);
 
@@ -119,6 +122,7 @@ private:
 
     Eigen::MatrixXd acceleration_; // rows are the x y z axes of acceleration measurements, columns are different sensors
     Eigen::MatrixXd quaternion_; // rows are the x y z w axes of quaternion measurements, columns are different sensors
+    Eigen::MatrixXd angularVelocity_; // rows are the x y z w axes of gyroscope measurements, columns are different sensors
 
     bool validateParameters();
     bool canConfiguration();
