@@ -15,7 +15,7 @@ if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "
   SSH_IP_ADDR="192.168.7.2"
 else
   #Any other case (Linux, Unix, OSX...)
-  SSH_IP_ADDR="192.168.6.2"
+  SSH_IP_ADDR="192.168.7.2"
 fi
 
 #Check if BB is connected

@@ -83,7 +83,7 @@ void app_communicationReset(int argc = 0, char *argv[] = {});
 void app_programEnd(void);
 
 /**
- * \briefFunction is called cyclically from main (low priority thread)
+ * \brief Function is called cyclically from main (low priority thread)
  *
  * \param timer1msDiff Time difference since last call
  */

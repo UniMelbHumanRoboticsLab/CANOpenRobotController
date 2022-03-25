@@ -79,5 +79,6 @@ bool FourierForceSensor::sendInternalCalibrateSDOMessage() {
     }
 
     sleep(1.5); // this is required because after calibration command, sensor values do not get update around 1.2 seconds
+    return true;
 }
 
