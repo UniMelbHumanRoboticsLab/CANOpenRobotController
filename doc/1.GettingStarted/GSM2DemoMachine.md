@@ -2,7 +2,7 @@
 
 This page introduces the M2DemoMachine, an example CORC app showing the basic use of the M2 planar manipulandum.
 
-The M2 is a 2 DoFs impedance based robot developed by Fourier Intelligence:
+The M2 is a 2 DoFs admittance based robot with a cartesian kinematic developed by Fourier Intelligence:
 
 ![ArmMotus M2 with frames](../img/M2WithFrames.png)
 ArmMotus M2 and reference coordinates.
@@ -11,6 +11,7 @@ The state machine code can be found in the folder `src/apps/M2DemoMachine`.
 
 It demonstrates the use of:
 - The different control modes of M2 (position, velocity, or torque)
+- The use of the force measurements
 - The use of the libFLNL comunication library to pusblish the robot state in a Unity software and send commands to the state machine
 
 
@@ -48,9 +49,9 @@ Once the calibration state is finished, you can circle through the different dem
 
 The CORC M2 robot model has the following specific methods of interaction:
 - Obtaining current **joint state** (as for any CORC robot): `robot->getPosition()`, `robot->getVelocity()`, `robot->getTorque()`.
-- **Joint level interaction**: `setJointPosition(VM2 q)`, `setJointVelocity(VM2 dq)` and `setJointTorque(VM2 tau)` allow to apply a position, velocity or torque control using an Eigen::vector of length 2. An example of the torque control can be found in the `M2CalibState` state. Note the use of `robot->initTorqueControl();` in the `entryCode()` method before applying torque control.
-- Obtaining current **end-effector state**: `robot->getEndEffPosition()`, `robot->getEndEffVelocity()`, `robot->getEndEffForce()`. Methods are also provided to obtain the filtered velocity and acceleration (obtained through differentiation and low-pass filtering). Additionnaly the pure interaction force at the end-effector, measured by a pair of force sensors can be obtained using the `robot->getInteractionForce()` method.
-- **End-effector space control** is available using: `setEndEffPosition(VM2 X)`, `setEndEffVelocity(VM2 dX)`, `setEndEffForce(VM2 F)`. These methods rely on the `inverseKinematic()` and robot Jacobian `J()` and assumes that the kinematic parameters are correct and that the robot has been calibrated (see `applyCalibration()`). As for their joints counterparts they require the proper use of the corresponding initTorque/Velocity/Position method beforehand. The command vectors are expressed in the robot base frame as shown on the picture above. An example of the use of the end-effector velocity control is available in the `M2EndEffDemo` state.
+- **Joint level interaction**: `setJointPosition(VM2 q)`, `setJointVelocity(VM2 dq)` and `setJointTorque(VM2 tau)` allow to apply a position, velocity or torque control using an Eigen::vector of length 2 in SI units: in this case [m], [m.s-1] and [N] as the joints are modeled as two prismatic ones. An example of open-loop force control can be found in the `M2CalibState` state. Note the use of `robot->initTorqueControl();` in the `entryCode()` method before applying torque control.
+- Obtaining current **end-effector state**: `robot->getEndEffPosition()`, `robot->getEndEffVelocity()`, `robot->getEndEffForce()` methods are provided for convenience but given the simplicity of the M2 kinematic, they are equivalent to their joints counterparts. Additionnaly the pure interaction force at the end-effector, measured by the pair of force sensors can be obtained using the `robot->getInteractionForce()` method.
+- **End-effector space control** is available using: `setEndEffPosition(VM2 X)`, `setEndEffVelocity(VM2 dX)`, `setEndEffForce(VM2 F)`. These methods require that the robot has been calibrated (see `applyCalibration()`). As for their joints counterparts they require the proper use of the corresponding initTorque/Velocity/Position method beforehand. The command vectors are expressed in the robot base frame as shown on the picture above. An example of the use of the end-effector velocity control is available in the `M2EndEffDemo` state. They are also equivalent to their joints counterparts.
 - Finally, the method `setEndEffForceWithCompensation(VM2 F, bool friction_comp=true)` can be used to apply an end-effector force in addition to the **friction compensation**. This method relies on the robot model and parameters (friction coefficients).
 
 See the Doxygen page of the `RobotM2` class for a full list of available methods.
