@@ -138,15 +138,8 @@ if(USE_ROS)
 			ament_export_dependencies(sensor_msgs)
 			ament_export_dependencies(geometry_msgs)
 
-			set(ROS_LIBRARIES
-				rclcpp
-				std_msgs
-				std_srvs
-				sensor_msgs
-				geometry_msgs
-			)
 
-			ament_package()
+		#ament_package()
 
 		else() # ROS 1
 			message("--catkin--")
@@ -230,43 +223,36 @@ add_executable(${APP_NAME}
 				${SOURCES}
 				)
 
-if (ROS2)
+## Includes
+target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
 
-	ament_package()
-	target_include_directories(${APP_NAME} PUBLIC ${INCLUDE_DIRS})
-	find_package(Threads REQUIRED)
-	target_link_libraries(${APP_NAME} PRIVATE
-		Threads::Threads
+## Set required external packages
+find_package(Threads REQUIRED)
+
+## Link non-ROS libraries
+target_link_libraries(${APP_NAME}
 		${CMAKE_THREAD_LIBS_INIT}
 		yaml-cpp
-		spdlog
-	)
-	#ament_target_dependencies(${APP_NAME}
-	#	${ROS_LIBRARIES}
-	#	${CMAKE_THREAD_LIBS_INIT}
-	#	yaml-cpp
-	#	spdlog
-	#)
+		)
 
-else()
-	## Includes
-	target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
+	ament_target_dependencies(${APP_NAME}
+		ament_cmake
+		rclcpp
+		std_msgs
+		std_srvs
+		sensor_msgs
+		geometry_msgs
+		controller_manager_msgs
+		x2_description
+		)
 
-	## Set required external packages
-	find_package(Threads REQUIRED)
-
-	## Link non-ROS libraries
-	target_link_libraries(${APP_NAME}
-			${CMAKE_THREAD_LIBS_INIT}
-			yaml-cpp)
-endif()
-
+ament_package()
 ## Link ROS libraries
-if(USE_ROS and NOT ROS2)
-	target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
-
-	# make sure configure headers are built before any node using them
-	#add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
-endif()
+#if(USE_ROS and NOT ROS2)
+#	target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
+#
+#	# make sure configure headers are built before any node using them
+#	#add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
+#endif()
 
 message("-----------------------------------------------\nBuilding application ${APP_NAME}\n-----------------------------------------------")
