@@ -133,6 +133,7 @@ if(USE_ROS)
 				sensor_msgs
 				geometry_msgs
 				dynamic_reconfigure
+				message_generation
         )
 		if(SIM)
 			find_package(catkin REQUIRED COMPONENTS
@@ -146,6 +147,19 @@ if(USE_ROS)
 				config/x2_dynamic_params.cfg
 		)
 
+		add_message_files(
+				FILES
+				X2Array.msg
+				X2Acceleration.msg
+				X2AccelerationMerge.msg
+		)
+
+		generate_messages(
+				DEPENDENCIES
+				std_msgs
+		)
+
+
 
 		catkin_package(
 				#  INCLUDE_DIRS include
@@ -158,6 +172,7 @@ if(USE_ROS)
 				sensor_msgs
 				geometry_msgs
 				dynamic_reconfigure
+				message_runtime
 				#  DEPENDS system_lib
 		)
 

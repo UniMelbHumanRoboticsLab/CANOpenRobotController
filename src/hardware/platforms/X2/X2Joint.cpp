@@ -37,11 +37,13 @@ double X2Joint::driveUnitToJointVelocity(int driveValue) {
 }
 
 int X2Joint::jointTorqueToDriveUnit(double jointTorque) {
-    return jointTorque / (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000.0);
+    int signSlope = (JDSlope > 0) ? 1 : -1;
+    return signSlope * jointTorque / (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000.0);
 }
 
 double X2Joint::driveUnitToJointTorque(int driveValue) {
-    return driveValue * (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000.0);
+    int signSlope = (JDSlope > 0) ? 1 : -1;
+    return signSlope * driveValue * (MOTOR_RATED_TORQUE * REDUCTION_RATIO / 1000.0);
 }
 
 bool X2Joint::initNetwork() {

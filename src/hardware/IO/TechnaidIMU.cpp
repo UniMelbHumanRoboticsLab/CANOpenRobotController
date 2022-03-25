@@ -1,10 +1,10 @@
 #include "TechnaidIMU.h"
 
 TechnaidIMU::TechnaidIMU(IMUParameters imuParameters)
-    : canChannel_(imuParameters.canChannel),
-      serialNo_(imuParameters.serialNo),
-      networkId_(imuParameters.networkId),
-      location_(imuParameters.location)
+        : canChannel_(imuParameters.canChannel),
+          serialNo_(imuParameters.serialNo),
+          networkId_(imuParameters.networkId),
+          location_(imuParameters.location)
 {
     isInitialized_ = false;
     hasMode_ = false;
@@ -29,13 +29,20 @@ bool TechnaidIMU::initialize() {
         return false;
     }
 
-//    // Set output mode of the IMUs
-//    for(int i = 0; i<numberOfIMUs_; i++){
-//        if(!setOutputMode(networkId_[i], outputMode_[i][0])){
-//            spdlog::error("[TechnaidIMU::initialize]: Error in setting the output mode of imu with net id {}. ", networkId_[i]);
-//            return false;
-//        }
-//    }
+    // Set output mode of the IMUs
+    for(int index = 0; index<numberOfIMUs_; index++){
+        if(location_[index] == 'b'){
+            outputMode_[index].name = "quat_gyro";
+            outputMode_[index].dataSize = SIZE_QUATERNION_GYR;
+            outputMode_[index].code = START_QUATERNION_GYR_PHYSICAL_DATA_CAPTURE;
+            dataSize_[index] = SIZE_QUATERNION_GYR;
+        } else if(location_[index] == 'c') {
+            outputMode_[index].name = "acc";
+            outputMode_[index].dataSize = SIZE_ACCELERATION;
+            outputMode_[index].code = START_ACCELEROMETER_PHYSICAL_DATA_CAPTURE;
+            dataSize_[index] = SIZE_ACCELERATION;
+        }
+    }
 
     sleep(1);
 
@@ -90,6 +97,13 @@ bool TechnaidIMU::setOutputMode(int index, IMUOutputMode imuOutputMode) {
             outputMode_[index].code = START_QUATERNION_DATA_CAPTURE;
             dataSize_[index] = SIZE_QUATERNION;
             break;
+        case QUATERNION_GYRO:
+            outputMode_[index].name = "quat_gyro";
+            outputMode_[index].dataSize = SIZE_QUATERNION_GYR;
+            outputMode_[index].code = START_QUATERNION_GYR_PHYSICAL_DATA_CAPTURE;
+            dataSize_[index] = SIZE_QUATERNION_GYR;
+            break;
+
         default:
             spdlog::error("Unhandled output mode!");
     }
@@ -124,7 +138,7 @@ void* TechnaidIMU::update(void) {
 
     std::chrono::steady_clock::time_point time0;
     while(!exitSignalReceived) {
-        if (!isInitialized_ || !hasMode_) continue; // if not or no IMU has a mode initialized, immediately return
+        if (!isInitialized_) continue; // if not initialized, immediately return
 
         // Pooling
         struct can_frame canFrame;
@@ -182,11 +196,27 @@ void* TechnaidIMU::update(void) {
                     quaternion_(0, i) = data_float[0]; // quat x
                     quaternion_(1, i) = data_float[1]; // quat y
                     quaternion_(2, i) = data_float[2]; // quat z
-                    quaternion_(3, i) = data_float[3]; // quat z
+                    quaternion_(3, i) = data_float[3]; // quat w
+                } else if (outputMode_[i].name == "quat_gyro"){
+                    quaternion_(0, i) = data_float[0]; // quat x
+                    quaternion_(1, i) = data_float[1]; // quat y
+                    quaternion_(2, i) = data_float[2]; // quat z
+                    quaternion_(3, i) = data_float[3]; // quat w
+                    angularVelocity_(0, i) = data_float[4]; //ang vel x
+                    angularVelocity_(1, i) = data_float[5]; //ang vel y
+                    angularVelocity_(2, i) = data_float[6]; //ang vel z
                 }
 
             } else {
                 spdlog::warn("[TechnaidIMU::update()]: Data was not successfully read for IMU no: {}!", serialNo_[i]);
+
+                if (outputMode_[i].name == "acc") {
+                    acceleration_.col(i) = Eigen::MatrixXd::Zero(3,1);
+                } else if (outputMode_[i].name == "quat") {
+                    quaternion_.col(i) = 0.5*Eigen::MatrixXd::Ones(4,1);
+                } else if (outputMode_[i].name == "quat_gyro") {
+                    angularVelocity_.col(i) = Eigen::MatrixXd::Zero(3,1);
+                }
             }
         }
     }
@@ -198,7 +228,7 @@ bool TechnaidIMU::validateParameters() {
 
     numberOfIMUs_ = serialNo_.size();
     if(networkId_.size()!=numberOfIMUs_ || location_.size()!=numberOfIMUs_){
-        spdlog::error("[TechnaidIMU::readParameters()]: Size of the parameters are not same!");
+        spdlog::error("[TechnaidIMU:arameters()]: Size of the parameters are not same!");
         return false;
     }
 
@@ -210,6 +240,7 @@ bool TechnaidIMU::validateParameters() {
 
     acceleration_ = Eigen::MatrixXd::Zero(3, numberOfIMUs_);
     quaternion_ = Eigen::MatrixXd::Zero(4, numberOfIMUs_);
+    angularVelocity_ = Eigen::MatrixXd::Zero(3, numberOfIMUs_);
 
     return true;
 }
@@ -256,10 +287,43 @@ bool TechnaidIMU::checkCommunication() {
         receivedIds.push_back(canFrame.can_id);
     }
 
+    bool alreadyConnected = false;
+    if(receivedIds.size() == 0){
+        // check communication command doesnt return anything if data capture already started.
+        // Check if data capture is started
+
+        struct can_frame canFrame;
+        canFrame.can_id = BROADCAST_ID;
+        canFrame.can_dlc = 0;
+        write(canSocket_, &canFrame, sizeof(struct can_frame));
+
+        sleep(0.1);
+
+        struct timeval timeout = {1, 0};
+        fd_set readSet;
+        FD_ZERO(&readSet);
+        FD_SET(canSocket_, &readSet);
+
+        // check the ids of the IMUs on the CAN network
+        while(select((canSocket_ + 1), &readSet, NULL, NULL, &timeout) && !exitSignalReceived) {
+            // stays in the loop as long as there is something to read
+            std::cout<<" IN READ !!!"<<std::endl;
+            read(canSocket_, &canFrame, sizeof(struct can_frame));
+            std::cout<<" ID: "<<canFrame.can_id<<std::endl;
+            receivedIds.push_back(canFrame.can_id);
+        }
+
+        // deleting the same ids
+        std::sort(receivedIds.begin(), receivedIds.end());
+        auto last = std::unique(receivedIds.begin(), receivedIds.end());
+        receivedIds.erase(last, receivedIds.end());
+        if(receivedIds.size() > 0) alreadyConnected = true;
+    }
+
     // compare the number of IMUs in the network with the size of the parameters
     if(receivedIds.size() != numberOfIMUs_){
         spdlog::error("[TechnaidIMU::checkCommunication()]: {} sets of parameters are given but there are {} IMUs on {}!",
-                        numberOfIMUs_, receivedIds.size(), canChannel_);
+                      numberOfIMUs_, receivedIds.size(), canChannel_);
         return false;
     }
 
@@ -311,6 +375,11 @@ Eigen::MatrixXd& TechnaidIMU::getAcceleration() {
 Eigen::MatrixXd & TechnaidIMU::getQuaternion() {
 
     return quaternion_;
+}
+
+Eigen::MatrixXd & TechnaidIMU::getAngularVelocity() {
+
+    return angularVelocity_;
 }
 
 int& TechnaidIMU::getNumberOfIMUs_() {
