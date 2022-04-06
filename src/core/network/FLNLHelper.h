@@ -1,3 +1,6 @@
+#ifndef FLNLHELPER_H
+#define FLNLHELPER_H
+
 #include <Eigen/Dense>
 #include <string>
 #include <typeinfo>
@@ -37,16 +40,16 @@ class FLNLHelper
         * \param ip: server (local) ip address to use
         * \param port: communication port
         */
-        FLNLHelper(Robot * robot, std::string ip, int port = 2048) {
+        FLNLHelper(Robot &robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
 
             initTime = std::chrono::steady_clock::now();
 
             registerState(runningTime);
-            registerState(robot->getPosition());
-            registerState(robot->getVelocity());
-            registerState(robot->getTorque());
+            registerState(robot.getPosition());
+            registerState(robot.getVelocity());
+            registerState(robot.getTorque());
 
             spdlog::info("Initialised network communication server ({}:{}) for default robot (state size: {})", ip, port, stateValues.size());
         }
@@ -56,16 +59,16 @@ class FLNLHelper
         * \param ip: server (local) ip address to use
         * \param port: communication port
         */
-        FLNLHelper(RobotM3 * robot, std::string ip, int port = 2048) {
+        FLNLHelper(RobotM3 &robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
 
             initTime = std::chrono::steady_clock::now();
 
             registerState(runningTime);
-            registerState(robot->getEndEffPosition());
-            registerState(robot->getEndEffVelocity());
-            registerState(robot->getInteractionForce());
+            registerState(robot.getEndEffPosition());
+            registerState(robot.getEndEffVelocity());
+            registerState(robot.getInteractionForce());
 
             spdlog::info("Initialised network communication server ({}:{}) for M3 robot (state size: {})", ip, port, stateValues.size());
         }
@@ -75,16 +78,16 @@ class FLNLHelper
         * \param ip: server (local) ip address to use
         * \param port: communication port
         */
-        FLNLHelper(RobotM2 * robot, std::string ip, int port = 2048) {
+        FLNLHelper(RobotM2 &robot, std::string ip, int port = 2048) {
             //Start server and wait for incoming connection
             FLNLServer.Connect(ip.c_str(), port);
 
             initTime = std::chrono::steady_clock::now();
 
             registerState(runningTime);
-            registerState(robot->getEndEffPosition());
-            registerState(robot->getEndEffVelocity());
-            registerState(robot->getInteractionForce());
+            registerState(robot.getEndEffPosition());
+            registerState(robot.getEndEffVelocity());
+            registerState(robot.getInteractionForce());
 
             spdlog::info("Initialised network communication server ({}:{}) for M2 robot (state size: {})", ip, port, stateValues.size());
         }
@@ -122,8 +125,7 @@ class FLNLHelper
         * \return registered state size after addition
         */
         int registerState(const std::vector<double> &v) {
-            std::cout << typeid(v).name() << std::endl;
-            for(unsigned int i=0; i< v.size(); i++)//resize and initialise value
+            for(unsigned int i=0; i<v.size(); i++)//resize and initialise value
                 stateValues.push_back(v[i]);
             stateReferences.push_back((void*)&v); //store reference
             stateReferencesType.push_back(typeid(v).hash_code()); //store type
@@ -131,11 +133,11 @@ class FLNLHelper
         }
 
         /**
-        * \brief Register an Eigen vector of doubles within state to be send regularly
+        * \brief Register an Eigen vector of doubles within state to be send regularly. WARNING: cannot take a fixed size Vector (e.g. Vector3d)
         * \return registered state size after addition
         */
         int registerState(const Eigen::VectorXd &v) {
-            for(int i=0; i< v.size(); i++)//resize and initialise value
+            for(int i=0; i<v.size(); i++)//resize and initialise value
                 stateValues.push_back(v[i]);
             stateReferences.push_back((void*)&v); //store reference
             stateReferencesType.push_back(typeid(v).hash_code()); //store type
@@ -228,10 +230,39 @@ class FLNLHelper
             FLNLServer.ClearReceivedCmd();
         }
 
-        /*//! Return latest received command
-        void getCmd(std::string &cmd, Eigen::VectorXd &v) {
-        }*/
+        /**
+        * \brief Test a specific last cmd received, and if yes consumes it (clearCmd())
+        * \param cmd Command to test
+        * \param v Associated parameters values vector
+        */
+        bool isCmd(std::string cmd, std::vector<double> &v) {
+            if(isCmd()) {
+                std::string cmd_r;
+                FLNLServer.GetReceivedCmd(cmd_r, v);
+                if(cmd_r==cmd) {
+                    clearCmd();
+                    return true;
+                }
+            }
+            return false;
+        }
 
+        /**
+        * \brief Test a specific last cmd received, and if yes consumes it (clearCmd())
+        * \param cmd Command to test
+        */
+        bool isCmd(std::string cmd) {
+            if(isCmd()) {
+                std::string cmd_r;
+                std::vector<double> v;
+                FLNLServer.GetReceivedCmd(cmd_r, v);
+                if(cmd_r==cmd) {
+                    clearCmd();
+                    return true;
+                }
+            }
+            return false;
+        }
 
     private:
         server FLNLServer;
@@ -243,5 +274,4 @@ class FLNLHelper
         double runningTime = 0;                         //!< Time since initialisation in s
 };
 
-
-
+#endif //FLNLHELPER_H

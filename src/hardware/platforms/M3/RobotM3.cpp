@@ -12,10 +12,12 @@ RobotM3::RobotM3(string robot_name, string yaml_config_file) :  Robot(robot_name
     //Check if YAML file exists and contain robot parameters
     initialiseFromYAML(yaml_config_file);
 
+    //TODO: to add joint specific parameters (reduction, torque constant) and associated YAML loading
+
     //Define the robot structure: each joint with limits and drive
-    joints.push_back(new JointM3(0, qLimits[0], qLimits[1], 1, -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(1), "q1"));
-    joints.push_back(new JointM3(1, qLimits[2], qLimits[3], 1, -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(2), "q2"));
-    joints.push_back(new JointM3(2, qLimits[4], qLimits[5], -1, -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(3), "q3"));
+    joints.push_back(new JointM3(0, qLimits[0], qLimits[1], qSigns[0], -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(1), "q1"));
+    joints.push_back(new JointM3(1, qLimits[2], qLimits[3], qSigns[1], -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(2), "q2"));
+    joints.push_back(new JointM3(2, qLimits[4], qLimits[5], qSigns[2], -dqMax, dqMax, -tauMax, tauMax, new KincoDrive(3), "q3"));
 
     //Possible inputs: keyboard and joystick
     inputs.push_back(keyboard = new Keyboard());
@@ -37,45 +39,60 @@ RobotM3::~RobotM3() {
 }
 
 bool RobotM3::loadParametersFromYAML(YAML::Node params) {
-    if(params["dqMax"]){
-        dqMax = fmin(fmax(0., params["dqMax"].as<double>()), 360.) * M_PI / 180.; //Hard constrained for safety
+    YAML::Node params_r=params[robotName]; //Specific node corresponding to the robot
+
+    if(params_r["dqMax"]){
+        dqMax = fmin(fmax(0., params_r["dqMax"].as<double>()), 360.) * M_PI / 180.; //Hard constrained for safety
     }
 
     if(params["tauMax"]){
-        tauMax = fmin(fmax(0., params["tauMax"].as<double>()), 50.); //Hard constrained for safety
+        tauMax = fmin(fmax(0., params_r["tauMax"].as<double>()), 50.); //Hard constrained for safety
     }
 
-    if(params["linkLengths"]){
+    if(params_r["linkLengths"]){
         for(unsigned int i=0; i<linkLengths.size(); i++)
-            linkLengths[i]=params["linkLengths"][i].as<double>();
+            linkLengths[i]=params_r["linkLengths"][i].as<double>();
     }
 
-    if(params["linkMasses"]){
+    if(params_r["linkMasses"]){
         for(unsigned int i=0; i<linkMasses.size(); i++)
-            linkMasses[i]=params["linkMasses"][i].as<double>();
+            linkMasses[i]=params_r["linkMasses"][i].as<double>();
     }
 
-    if(params["frictionVis"]){
+    if(params_r["frictionVis"]){
         for(unsigned int i=0; i<frictionVis.size(); i++)
-            frictionVis[i]=params["frictionVis"][i].as<double>();
+            frictionVis[i]=params_r["frictionVis"][i].as<double>();
     }
 
-    if(params["frictionCoul"]){
+    if(params_r["frictionCoul"]){
         for(unsigned int i=0; i<frictionCoul.size(); i++)
-            frictionCoul[i]=params["frictionCoul"][i].as<double>();
+            frictionCoul[i]=params_r["frictionCoul"][i].as<double>();
     }
 
-    if(params["qLimits"]){
+    if(params_r["qLimits"]){
         for(unsigned int i=0; i<qLimits.size(); i++)
-            qLimits[i]=params["qLimits"][i].as<double>() * M_PI / 180.;
+            qLimits[i]=params_r["qLimits"][i].as<double>() * M_PI / 180.;
     }
 
-    if(params["qCalibration"]){
+    if(params_r["qSigns"]){
+        for(unsigned int i=0; i<qSigns.size(); i++)
+            qSigns[i]=params_r["qSigns"][i].as<double>();
+    }
+
+    if(params_r["qCalibration"]){
         for(unsigned int i=0; i<qCalibration.size(); i++)
-            qCalibration[i]=params["qCalibration"][i].as<double>() * M_PI / 180.;
+            qCalibration[i]=params_r["qCalibration"][i].as<double>() * M_PI / 180.;
     }
 
-    spdlog::info("Using YAML M3 parameters of {}.", robotName);
+    //Create and replace existing tool if one specified
+    if(params_r["tool"]){
+        if(params_r["tool"]["name"] && params_r["tool"]["length"] && params_r["tool"]["mass"]) {
+            M3Tool *t = new M3Tool(params_r["tool"]["length"].as<double>(), params_r["tool"]["mass"].as<double>(), params_r["tool"]["name"].as<string>()); //Will be destroyed at end of app
+            endEffTool = t;
+        }
+    }
+
+    spdlog::info("Using YAML M3 parameters of {} (Tool: {}).", robotName, endEffTool->name);
     return true;
 }
 
@@ -119,7 +136,7 @@ bool RobotM3::initialiseNetwork() {
         #endif
         n++;
     }
-    printJointStatus();
+    updateRobot();
     return true;
 }
 bool RobotM3::initialiseInputs() {
@@ -414,8 +431,8 @@ VM3 RobotM3::calculateGravityTorques() {
 
     //Calculate gravitational torques
     tau_g[0] = 0;
-    tau_g[1] = -L[2] / 2.0f * sin(q[1]) * (M[1] + M[2] + M[3] + M[4] + endEffTool->mass) * g;
-    tau_g[2] = -(L[1] / 2.0f * (M[0] + M[3]) + L[1] * M[2] + L[3]/2.0f*M[4] + (L[3]+endEffTool->length/2.)*endEffTool->mass) * cos(q[2]) * g;
+    tau_g[1] = -L[2] / 2.0f * sin(q[1]) * (M[1]+M[2]+M[3]+M[4]+endEffTool->mass) * g;
+    tau_g[2] = -(L[1]/2.0f*(M[0]+M[3]) + L[1]*M[2] + (L[1]+L[3]/2.0f)*M[4] + (L[3]+endEffTool->length/2.)*endEffTool->mass) * cos(q[2]) * g;
 
     return tau_g;
 }
@@ -447,22 +464,22 @@ VM3 RobotM3::calculateEndEffAcceleration() {
     return endEffAccelerations;
 }
 
-const VM3& RobotM3::getEndEffPosition() {
+const VX& RobotM3::getEndEffPosition() {
     return endEffPositions;
 }
-const VM3& RobotM3::getEndEffVelocity() {
+const VX& RobotM3::getEndEffVelocity() {
     return endEffVelocities;
 }
-const VM3& RobotM3::getEndEffVelocityFiltered() {
+const VX& RobotM3::getEndEffVelocityFiltered() {
     return endEffVelocitiesFiltered;
 }
-const VM3& RobotM3::getEndEffAcceleration() {
+const VX& RobotM3::getEndEffAcceleration() {
     return endEffAccelerations;
 }
-const VM3& RobotM3::getEndEffForce() {
+const VX& RobotM3::getEndEffForce() {
     return endEffForces;
 }
-const VM3& RobotM3::getInteractionForce() {
+const VX& RobotM3::getInteractionForce() {
     return interactionForces;
 }
 
