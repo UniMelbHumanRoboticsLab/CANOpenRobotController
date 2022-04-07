@@ -11,7 +11,7 @@ Keyboard::Keyboard() {
     /* turn off full duplex */
     noecho.c_lflag = noecho.c_lflag ^ ECHO;
     /* set the terminal */
-    tcsetattr(STDIN_FILENO, TCSANOW, &noecho);
+//    tcsetattr(STDIN_FILENO, TCSANOW, &noecho);
 
     for(int i=0; i<10; i++) {
         currentKeyStates.Nb.push_back(false);

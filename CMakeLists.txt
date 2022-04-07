@@ -15,8 +15,8 @@ project(CORC C CXX)
 #set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "M1DemoMachine")
 #set (STATE_MACHINE_NAME "M2DemoMachine")
-set (STATE_MACHINE_NAME "M3DemoMachine")
-#set (STATE_MACHINE_NAME "X2DemoMachine")
+#set (STATE_MACHINE_NAME "M3DemoMachine")
+set (STATE_MACHINE_NAME "X2DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 
 #Use this if your state machine code folder is not in CORC 'src/apps/' folder. 
@@ -27,10 +27,10 @@ set (STATE_MACHINE_NAME "M3DemoMachine")
 set(NO_ROBOT ON)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
-set(USE_ROS OFF)
+set(USE_ROS ON)
 # Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL OFF)
 # INFO is the recommended level in normal operation
-set(CORC_LOGGING_LEVEL INFO)
+set(CORC_LOGGING_LEVEL TRACE)
 
 ################################################################################
 #Default path if not set

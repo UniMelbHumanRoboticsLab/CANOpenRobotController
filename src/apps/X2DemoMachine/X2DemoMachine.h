@@ -13,18 +13,17 @@
 #define SRC_X2DEMOMACHINE_H
 
 #include <sys/time.h>
-
 #include <array>
 #include <cmath>
 #include <fstream>
 #include <iostream>
 #include <string>
 
+
 #include "X2Robot.h"
 #include "StateMachine.h"
 
-// State Classes
-#include "states/IdleState.h"
+//// State Classes
 #include "states/X2DemoState.h"
 
 #include "X2DemoMachineROS.h"
@@ -38,14 +37,7 @@ public:
     X2DemoMachine(int argc, char *argv[]);
 
     X2DemoMachineROS *x2DemoMachineRos_; /*<!Pointer to the ROS Class*/
-    X2Robot *robot_; /*<!Pointer to the Robot*/ // NOTE: For some reason; if this is defined later, it doesn't publish
-
-    bool running = false;
-
-    /**
-     *  \todo Pilot Parameters would be set in constructor here
-     *
-     */
+//    X2Robot *robot_; /*<!Pointer to the Robot*/ // NOTE: For some reason; if this is defined later, it doesn't publish
 
     void init();
     void end();
@@ -53,23 +45,13 @@ public:
     void update();
     void hwStateUpdate();
     void initRobot(X2Robot *rb);
-    bool configureMasterPDOs();
 
-    /**
-     * Pointers to the relevant states - initialised in init
-     *
-     */
-    IdleState *idleState_;
-    X2DemoState *x2DemoState_;
+//    X2DemoState *x2DemoState_;
+
+protected:
+    X2Robot *robot() { return static_cast<X2Robot*>(_robot.get()); } //!< Robot getter with specialised type (lifetime is managed by Base StateMachine)
 
 private:
-    /**
-     *
-     * \brief Event Objects defined using Macro defined in StateMachine.h
-     * Defines the Class itself, as well as initialises an object of that class
-     * An events check function are defined in the .cpp file.
-    */
-    EventObject(StartExo) * startExo;
 
     std::string robotName_; // robot name(obtained from node name)
 

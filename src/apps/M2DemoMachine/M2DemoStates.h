@@ -34,7 +34,7 @@ class M2TimedState : public State {
     */
     RobotM2 *robot;                               /*<!Pointer to state machines robot object*/
 
-    M2TimedState(RobotM2 *M2, const char *name = NULL): State(name), robot(M2){};
+
    private:
     void entry(void) final {
         std::cout
@@ -63,6 +63,7 @@ class M2TimedState : public State {
     virtual void entryCode(){};
     virtual void duringCode(){};
     virtual void exitCode(){};
+    M2TimedState(RobotM2 *M2, const char *name = NULL): State(name), robot(M2){};
 };
 
 
