@@ -42,7 +42,7 @@ public:
     void entry(void);
     void during(void);
     void exit(void);
-    X2DemoState(X2Robot *exo, const char *name = NULL);
+    X2DemoState(X2Robot *exo, const char *name = "X2DemoState");
 
     Eigen::VectorXd& getDesiredJointTorques();
     Eigen::VectorXd& getDesiredJointVelocities();
