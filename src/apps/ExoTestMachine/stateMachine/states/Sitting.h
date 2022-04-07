@@ -25,7 +25,7 @@ class Sitting : public ExoTestState {
     void entry(void);
     void during(void);
     void exit(void);
-    Sitting(X2Robot *exo, DummyTrajectoryGenerator *tg, const char *name = NULL) : ExoTestState(exo, tg, name){};
+    Sitting(X2Robot *exo, DummyTrajectoryGenerator *tg, const char *name = "ExoTest Sitting State") : ExoTestState(exo, tg, name){};
 };
 
 #endif

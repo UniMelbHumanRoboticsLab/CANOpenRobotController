@@ -64,13 +64,14 @@ ExoTestMachine::ExoTestMachine() {
     trajectoryGenerator = new DummyTrajectoryGenerator(X2_NUM_JOINTS);
     setRobot(std::make_unique<X2Robot>());
 
+    spdlog::info("Test");
+
     // Create PRE-DESIGNED State Machine events and state objects.
     addState("initState", std::make_shared<InitState>(robot(), trajectoryGenerator));
     addState("standing", std::make_shared<Standing>(robot(), trajectoryGenerator));
     addState("sitting", std::make_shared<Sitting>(robot(), trajectoryGenerator));
     addState("standingUp", std::make_shared<StandingUp>(robot(), trajectoryGenerator));
     addState("sittingDwn", std::make_shared<SittingDwn>(robot(), trajectoryGenerator));
-
 
     addTransition("initState", &startExo, "standing");
     addTransition("initState", &startExoCal, "standing");
@@ -79,7 +80,7 @@ ExoTestMachine::ExoTestMachine() {
     addTransition("standing", &startSit, "sittingDwn");
     addTransition("sittingDwn", &endTraj, "sitting");
 
-    setInitState("StateName"); 
+    setInitState("initState"); 
 }
 /**
  * \brief start function for running any designed statemachine specific functions
@@ -96,6 +97,8 @@ void ExoTestMachine::init() {
     logHelper.add(runningTime(), "time");
     logHelper.add(robot()->getPosition(), "JointPositions");
     logHelper.startLogger();
+
+    spdlog::info("InitFinished");
 }
 
 void ExoTestMachine::end() {
