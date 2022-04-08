@@ -36,7 +36,6 @@ public:
     X2DemoMachine(int argc, char *argv[]);
 
     X2DemoMachineROS *x2DemoMachineRos_; /*<!Pointer to the ROS Class*/
-//    X2Robot *robot_; /*<!Pointer to the Robot*/ // NOTE: For some reason; if this is defined later, it doesn't publish
 
     void init();
     void end();

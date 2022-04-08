@@ -32,9 +32,6 @@ X2DemoMachine::X2DemoMachine(int argc, char *argv[]) {
 void X2DemoMachine::init() {
     spdlog::debug("X2DemoMachine::init()");
 
-    // Create states with ROS features // This should be created after ros::init()
-//    StateMachine::initialize(x2DemoState_);
-
     time0 = std::chrono::steady_clock::now();
 
     auto t = std::time(nullptr);
