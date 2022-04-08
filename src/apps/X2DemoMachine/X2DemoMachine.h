@@ -19,7 +19,6 @@
 #include <iostream>
 #include <string>
 
-
 #include "X2Robot.h"
 #include "StateMachine.h"
 
@@ -44,9 +43,7 @@ public:
 
     void update();
     void hwStateUpdate();
-    void initRobot(X2Robot *rb);
 
-//    X2DemoState *x2DemoState_;
 
 protected:
     X2Robot *robot() { return static_cast<X2Robot*>(_robot.get()); } //!< Robot getter with specialised type (lifetime is managed by Base StateMachine)

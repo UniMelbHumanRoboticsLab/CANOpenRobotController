@@ -35,7 +35,7 @@ M2DemoMachine::M2DemoMachine() {
     setRobot(std::make_unique<RobotM2>("M2_MELB"));
 
     //Create state instances and add to the State Machine
-    addState("TestState", std::make_shared<M2TimedState>(robot()));
+    addState("TestState", std::make_shared<M2DemoState>(robot()));
     addState("CalibState", std::make_shared<M2CalibState>(robot()));
     addState("StandbyState", std::make_shared<M2Transparent>(robot()));
     addState("EndEffDemoState", std::make_shared<M2EndEffDemo>(robot()));

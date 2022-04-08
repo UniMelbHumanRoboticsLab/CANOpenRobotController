@@ -10,31 +10,18 @@ X2DemoMachine::X2DemoMachine(int argc, char *argv[]) {
     robotName_.erase(0,1); // erase the first character which is '/'
 
 #ifdef SIM
-//    robot_ = new X2Robot(nodeHandle, robotName_);
     setRobot(std::make_unique<X2Robot>(nodeHandle, "x2"));
 #else
-//    robot_ = new X2Robot(robotName_);
     setRobot(std::make_unique<X2Robot>("x2"));
 #endif
 
     //Create state instances and add to the State Machine
-    addState("X2DemoState", std::make_shared<X2DemoState>(robot())); // this line creates the following error:
-//    terminate called after throwing an instance of 'std::logic_error'
-//    what():  basic_string::_M_construct null not valid
-
-
+    addState("X2DemoState", std::make_shared<X2DemoState>(robot()));
 
     setInitState("X2DemoState");
 
-//    // Create state objet
-//    x2DemoState_ = new X2DemoState(this, robot_);
-//
     // Create ros object
-//    x2DemoMachineRos_ = new X2DemoMachineROS(robot_, x2DemoState_, nodeHandle);
     x2DemoMachineRos_ = new X2DemoMachineROS(robot(), state<X2DemoState>("X2DemoState"), nodeHandle);
-
-    std::cout<<"4"<<std::endl;
-
 }
 
 /**
@@ -97,6 +84,7 @@ void X2DemoMachine::end() {
  *
  */
 void X2DemoMachine::hwStateUpdate(void) {
+    robot()->updateRobot();
     StateMachine::hwStateUpdate();
 }
 
