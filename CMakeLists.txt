@@ -224,8 +224,9 @@ add_executable(${APP_NAME}
 				)
 
 ## Includes
-target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
-
+#target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
+target_include_directories(${APP_NAME} include ${INCLUDE_DIRS})
+message(${INCLUDE_DIRS})
 ## Set required external packages
 find_package(Threads REQUIRED)
 
@@ -234,18 +235,17 @@ target_link_libraries(${APP_NAME}
 		${CMAKE_THREAD_LIBS_INIT}
 		yaml-cpp
 		)
-
-	ament_target_dependencies(${APP_NAME}
-		ament_cmake
-		rclcpp
-		std_msgs
-		std_srvs
-		sensor_msgs
-		geometry_msgs
-		controller_manager_msgs
-		x2_description
-		)
-
+	#message(${CMAKE_THREAD_LIBS_INIT})
+ament_target_dependencies(${APP_NAME}
+	ament_cmake
+	rclcpp
+	std_msgs
+	std_srvs
+	sensor_msgs
+	geometry_msgs
+	controller_manager_msgs
+	x2_description
+	)
 ament_package()
 ## Link ROS libraries
 #if(USE_ROS and NOT ROS2)
