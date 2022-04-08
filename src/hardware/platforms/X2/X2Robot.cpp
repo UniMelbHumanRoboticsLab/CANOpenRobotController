@@ -803,7 +803,6 @@ void X2Robot::freeMemory() {
 
 void X2Robot::updateRobot(bool duringHoming) {
 #ifndef SIM
-    Robot::updateRobot();
     updateBackpackAndContactAnglesOnMedianPlane();
     updateBackpackAngularVelocity();
     updateForceMeasurements();
