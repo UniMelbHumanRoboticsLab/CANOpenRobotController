@@ -73,6 +73,9 @@ void X2DemoMachine::init() {
 }
 
 void X2DemoMachine::end() {
+    robot()->initTorqueControl();
+    // setting 0 torque for safety.
+    robot()->setTorque(Eigen::VectorXd::Zero(X2_NUM_JOINTS));
 }
 
 /**

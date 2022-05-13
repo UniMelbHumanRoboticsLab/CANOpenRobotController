@@ -90,13 +90,6 @@ void X2DemoState::during(void) {
     }
 }
 
-void X2DemoState::exit(void) {
-    robot_->initTorqueControl();
-    // setting 0 torque for safety.
-    robot_->setTorque(Eigen::VectorXd::Zero(X2_NUM_JOINTS));
-    std::cout << "Example State Exited" << std::endl;
-}
-
 void X2DemoState::dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level) {
 
     controller_mode_ = config.controller_mode;
