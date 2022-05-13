@@ -802,6 +802,7 @@ void X2Robot::freeMemory() {
 }
 
 void X2Robot::updateRobot(bool duringHoming) {
+    Robot::updateRobot();
 #ifndef SIM
     updateBackpackAndContactAnglesOnMedianPlane();
     updateBackpackAngularVelocity();
@@ -817,6 +818,7 @@ void X2Robot::updateRobot(bool duringHoming) {
         std::raise(SIGTERM); //Clean exit
     }
 #endif
+
 }
 
 bool X2Robot::safetyCheck(bool duringHoming) {

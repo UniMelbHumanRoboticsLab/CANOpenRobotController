@@ -82,7 +82,6 @@ void X2DemoMachine::end() {
  */
 void X2DemoMachine::hwStateUpdate(void) {
     robot()->updateRobot();
-    StateMachine::hwStateUpdate();
 }
 
 void X2DemoMachine::update() {
