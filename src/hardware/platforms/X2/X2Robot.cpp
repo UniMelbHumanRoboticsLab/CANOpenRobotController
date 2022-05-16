@@ -818,6 +818,7 @@ void X2Robot::updateRobot(bool duringHoming) {
         std::raise(SIGTERM); //Clean exit
     }
 #endif
+
 }
 
 bool X2Robot::safetyCheck(bool duringHoming) {

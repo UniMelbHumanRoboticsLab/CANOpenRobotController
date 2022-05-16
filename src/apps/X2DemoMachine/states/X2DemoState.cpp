@@ -1,7 +1,6 @@
 #include "X2DemoState.h"
 
-X2DemoState::X2DemoState(StateMachine *m, X2Robot *exo, const char *name) :
-        State(m, name), robot_(exo) {
+X2DemoState::X2DemoState(X2Robot *exo, const char *name) : State(name), robot_(exo) {
     desiredJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     desiredJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     enableJoints = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
@@ -89,13 +88,6 @@ void X2DemoState::during(void) {
         robot_->setTorque(desiredJointTorques_);
 
     }
-}
-
-void X2DemoState::exit(void) {
-    robot_->initTorqueControl();
-    // setting 0 torque for safety.
-    robot_->setTorque(Eigen::VectorXd::Zero(X2_NUM_JOINTS));
-    std::cout << "Example State Exited" << std::endl;
 }
 
 void X2DemoState::dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level) {

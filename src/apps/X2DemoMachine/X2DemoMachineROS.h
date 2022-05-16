@@ -29,7 +29,7 @@
 
 class X2DemoMachineROS {
 public:
-    X2DemoMachineROS(X2Robot *robot, X2DemoState *x2DemoState, ros::NodeHandle& nodeHandle);
+    X2DemoMachineROS(X2Robot *robot, std::shared_ptr<X2DemoState> x2DemoState, ros::NodeHandle& nodeHandle);
     ~X2DemoMachineROS();
 
     void update(void);
@@ -59,7 +59,7 @@ private:
     std::string grfFramesArray_[X2_NUM_GRF_SENSORS] = {"left_lower_shank", "right_lower_shank"};
 
     X2Robot *robot_;
-    X2DemoState *x2DemoState_;
+    std::shared_ptr<X2DemoState> x2DemoState_;
 
     bool calibrateForceSensorsCallback(std_srvs::Trigger::Request& req,
                                        std_srvs::Trigger::Response& res);
