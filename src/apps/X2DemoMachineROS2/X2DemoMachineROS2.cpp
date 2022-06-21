@@ -8,7 +8,8 @@ X2DemoMachineROS2::X2DemoMachineROS2(int argc, char *argv[]) {
     auto rosInit = rclcpp::InitOptions();
     rosInit.shutdown_on_sigint = false;
     rclcpp::init(argc, argv, rosInit);
-    node = rclcpp::Node::make_shared("~");
+    // node = rclcpp::Node::make_shared("~");
+    node = rclcpp::Node::make_shared("x2");
 
     // Get robot name from the node name
     robotName_ = node->get_name();

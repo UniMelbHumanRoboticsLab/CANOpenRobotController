@@ -38,6 +38,7 @@ if(NOT STATE_MACHINE_NAME)
 else()
 	add_definitions(-DSTATE_MACHINE_TYPE=${STATE_MACHINE_NAME})
 	add_definitions(-DSTATE_MACHINE_INCLUDE="${STATE_MACHINE_NAME}.h")
+	add_definitions(-DBASE_DIRECTORY=${CMAKE_SOURCE_DIR})
 endif()
 
 
