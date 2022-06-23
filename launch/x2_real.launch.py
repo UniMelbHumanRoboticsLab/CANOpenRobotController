@@ -10,38 +10,44 @@ def generate_launch_description():
 
 	# Package share path
 	x2_description_path = get_package_share_directory("x2_description")
+	rviz_path = os.path.join(
+		x2_description_path,
+		"rviz",
+		"x2.rviz"
+	)
+	urdf_path = os.path.join(
+		x2_description_path,
+		"urdf",
+		"x2_fixed_base.urdf.xacro"
+	)
 
 	# Package share files
-	rviz_config = os.path.join(x2_description_path, "rviz", "view_robot.rviz")
-	urdf_file = process_file(
-		os.path.join(x2_description_path, "urdf", "x2_fixed_base.urdf.xacro")
-	)
+	rviz_file = rviz_path
+	urdf_file = process_file(urdf_path)
 
 	# Nodes
 	robot_node = Node(
 		package="CORC",
 		executable="X2DemoMachineROS2_APP",
-		arguments=["-can", "can0"],
 		name="x2",
-		output="screen"
+		output="screen",
+		arguments=["-can", "can0"]
 	)
 	robot_state_node = Node(
 		package="robot_state_publisher",
 		executable="robot_state_publisher",
 		name="robot_state_publisher",
+		output="screen",
 		parameters=[
-			{ "robot_description": urdf_file.toprettyxml(indent='	') }
-		],
-		remappings=[
-			("joint_states", "x2/joint_states"),
-			("robot_description", "x2/robot_description")
+			{ "use_sim_time" : False },
+			{ "robot_description" : urdf_file.toprettyxml(indent='	') }
 		]
 	)
 	rviz_node = Node(
 		package="rviz2",
 		executable="rviz2",
-		# arguments=["-d", rviz_config],
-		name="rviz2"
+		name="rviz2",
+		arguments=["-d", rviz_file]
 	)
 
 	ld.add_action(robot_node)
