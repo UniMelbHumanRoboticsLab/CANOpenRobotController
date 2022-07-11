@@ -40,7 +40,8 @@ void MultiControllerState::entry(void) {
     cut_off = 6;
 
     digitalInValue_ = 0;
-    digitalOutValue_ = 0;
+    digitalOutValue_ = 0; //0
+    robot_->setDigitalOut(digitalOutValue_);
 }
 void MultiControllerState::during(void) {
 
@@ -79,8 +80,8 @@ void MultiControllerState::during(void) {
         }
         else if(cali_stage == 2)
         {
-            // set position control: 16 is vertical for #2
-            q(0) = 16;
+            // set position control: 16 is vertical for #2; 45 is neutral position for random trajectory
+            q(0) = 45; //16
             if(robot_->setJointPos(q) != SUCCESS){
                 std::cout << "Error: " << std::endl;
             }
@@ -186,10 +187,18 @@ void MultiControllerState::during(void) {
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
 
         if(robot_->getRobotName() == "m1_y"){
-            //std::cout<<"ROBOT X"<<std::endl;
-            if(time > 1.0){
-                digitalOutValue_ = 1;
-                robot_->setDigitalOut(digitalOutValue_);
+            //std::cout<<"ROBOT Y"<<std::endl;
+            if(time > 2.0){
+                if (digitalInValue_ == 1) {
+                    digitalOutValue_ = 0;
+                    robot_->setDigitalOut(digitalOutValue_);
+                }
+            }
+            else if(time > 1.0){
+                if (digitalInValue_ == 0) {
+                    digitalOutValue_ = 1;
+                    robot_->setDigitalOut(digitalOutValue_);
+                }
             }
         }
     }
@@ -201,15 +210,16 @@ void MultiControllerState::during(void) {
         if(robot_->getRobotName() == "m1_y"){
             //std::cout<<"ROBOT Y"<<std::endl;
             if(time > 1.0){
-                digitalOutValue_ = 0;
-                robot_->setDigitalOut(digitalOutValue_);
+                if (digitalInValue_ == 1) {
+                    digitalOutValue_ = 0;
+                    robot_->setDigitalOut(digitalOutValue_);
+                }
             }
         }
     }
-    else if (controller_mode_ == 13){ // SEND HIH-LOW perodically
+    else if (controller_mode_ == 13){ // SEND HIGH-LOW once
 
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
-
         if(robot_->getRobotName() == "m1_y"){
             //std::cout<<"ROBOT Y"<<std::endl;
             if (time > 1.0) {
@@ -259,7 +269,9 @@ void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config,
         if(controller_mode_ == 5) robot_->initTorqueControl();
 
         if(controller_mode_ == 11) time0 = std::chrono::steady_clock::now();
+        if(controller_mode_ == 11) robot_->setDigitalOut(0);
         if(controller_mode_ == 12) time0 = std::chrono::steady_clock::now();
+        if(controller_mode_ == 12) robot_->setDigitalOut(1);
     }
 
     return;
