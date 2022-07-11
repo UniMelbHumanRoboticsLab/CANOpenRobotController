@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
     spdlog::info("Starting CANopen device with Node ID {}", nodeId);
 
     //Set synch signal period (in us)
-    CO_OD_RAM.communicationCyclePeriod = CANUpdateLoopPeriodInms * 1000;
+    CO_OD_RAM.communicationCyclePeriod = CANUpdateLoopPeriodInms * 2000;
 
     while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/

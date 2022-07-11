@@ -36,7 +36,7 @@ void Calibration::entry(void) {
 }
 
 void Calibration::during(void) {
-    if(stages == 1){ 
+    if(stages == 1){
         // Stage 1: Position Homing (zeroing)
         dq=robot->getJointVel();
         tau = robot->getJointTor_s();

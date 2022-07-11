@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="robot_name_1" default="m1_x"/>
+    <arg name="robot_name_2" default="m1_y"/>
+    <arg name="name_spaces" default="[$(arg robot_name_1), $(arg robot_name_2)]"/>
+    <arg name="unity" default="false"/>
+
+    <!-- CORC M1_X -->
+    <node name="$(arg robot_name_1)" pkg="CORC" type="MultiM1Machine_APP" output="screen" args="-can can0"/>
+
+    <!-- CORC M1_Y -->
+    <node name="$(arg robot_name_2)" pkg="CORC" type="MultiM1Machine_APP" output="screen" args="-can can1"/>
+
+    <!-- multi_robot_interaction -->
+    <node name="multi_robot_interaction" pkg="multi_robot_interaction" type="multi_robot_interaction" output="screen">
+    <rosparam param="name_spaces" subst_value="True">$(arg name_spaces)</rosparam>
+    <param name="dof" value="1" />
+    </node>
+
+    <!-- rqt -->
+    <node name="rqt" pkg="CORC" type="rqt.sh">
+    </node>
+
+    <!-- sound_play -->
+    <node name="sound_play" pkg="sound_play" type="soundplay_node.py" output="screen"/>
+
+    <!-- unity_tcp -->
+    <group if="$(eval arg('unity') == true)">
+        <rosparam file="$(find ros_tcp_endpoint)/config/params.yaml" command="load"/>
+        <node name="server_endpoint" pkg="ros_tcp_endpoint" type="default_server_endpoint.py" args="--wait" output="screen" respawn="true" />
+    </group>
+</launch>
