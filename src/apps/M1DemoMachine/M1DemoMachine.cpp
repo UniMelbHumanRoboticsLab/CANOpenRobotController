@@ -64,7 +64,7 @@ void M1DemoMachine::init() {
         logHelper_.add(robot->getVelocity(), "JointVelocities");
         logHelper_.add(robot->getTorque(), "MotorTorques");
         logHelper_.add(robot->getJointTor_s(), "JointTorques_s");
-        logHelper_.add(robot->getJointTor_cmd(), "JointTorques_cmd");
+//        logHelper_.add(robot->getJointTor_cmd(), "JointTorques_cmd");
         logHelper_.add(robot->mode, "control_mode");
         logHelper_.startLogger();
     }

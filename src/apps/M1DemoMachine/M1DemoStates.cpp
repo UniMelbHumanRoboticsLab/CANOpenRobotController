@@ -347,6 +347,7 @@ void M1PositionTracking::torqueControl(void){
     double spring_tor;
     double error;
     double delta_error;
+    double ff_ratio = 0.7;   // default feedforward ratio
     tau = robot->getJointTor();
     tau_s = (robot->getJointTor_s()+tau_s)/2;
     q = robot->getJointPos();
@@ -439,7 +440,7 @@ void M1PositionTracking::torqueControl(void){
 //        magnitude = 0;
 //    }
 //    tau_cmd(0) = 0;
-    if(robot->setJointTor_comp(tau_cmd, tau_cmd) != SUCCESS){
+    if(robot->setJointTor_comp(tau_cmd, tau_cmd, ff_ratio) != SUCCESS){
         std::cout << "Error: " << std::endl;
     }
 //    if(robot->setJointTor(tau_cmd) != SUCCESS){
