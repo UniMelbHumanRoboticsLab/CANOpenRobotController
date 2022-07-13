@@ -25,7 +25,7 @@
 
 // State Classes
 #include "states/MultiControllerState.h"
-#include "spdlog/helper/LogHelper.h"
+#include "LogHelper.h"
 #include "logging.h"
 
 #include "MultiM1MachineROS.h"
