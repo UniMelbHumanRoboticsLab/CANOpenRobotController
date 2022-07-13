@@ -67,12 +67,19 @@ bool KincoDrive::initVelControl(motorProfile velControlMotorProfile) {
     sendSDOMessages(generateVelControlConfigSDO(velControlMotorProfile));
     return true;
 }
+
 bool KincoDrive::initVelControl() {
     spdlog::debug("NodeID {} Initialising Velocity Control", NodeID);
-
-    sendSDOMessages(generateVelControlConfigSDO());
+    resetError();
+    /**
+     * \todo create velControlMOTORPROFILE and test on exo
+     * \todo Tune velocity loop gain index 0x2381 to optimize V control
+     *
+    */
+    sendSDOMessages(Drive::generateVelControlConfigSDO());
     return true;
 }
+
 bool KincoDrive::initTorqueControl() {
     spdlog::debug("NodeID {} Initialising Torque Control", NodeID);
     sendSDOMessages(generateTorqueControlConfigSDO());
@@ -102,15 +109,14 @@ bool KincoDrive::initPDOs() {
         return false;
     }
 
-
     spdlog::debug("Set up ACTUAL_TOR TPDO on Node {}", NodeID);
     TPDO_Num = 3;
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01)) < 0) {
         spdlog::error("Set up ACTUAL_TOR TPDO FAILED on node {}", NodeID);
         return false;
     }
-    }
-    spdlog::info("Set up DIGITAL_IN RPDO on Node {}", NodeID);
+
+    spdlog::debug("Set up DIGITAL_IN RPDO on Node {}", NodeID);
     TPDO_Num = 4;
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01, 11)) < 0) {
         spdlog::error("Set up DIGITAL_IN TPDO FAILED on node {}", NodeID);

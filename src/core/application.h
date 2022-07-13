@@ -70,7 +70,7 @@ extern "C" {
 /**
  * /brief Function is called on program startup.
  */
-void app_programStart(int argc = 0, char *argv[] = {});
+void app_programStart();
 
 /**
  * /brief Function is called before CO_init()
