@@ -18,6 +18,7 @@ set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
+#set (STATE_MACHINE_NAME "MultiM1Machine")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT ON)
@@ -131,6 +132,7 @@ if(USE_ROS)
 
 		generate_dynamic_reconfigure_options(
 				config/x2_dynamic_params.cfg
+				config/m1_dynamic_params.cfg
 		)
 
 		add_message_files(
