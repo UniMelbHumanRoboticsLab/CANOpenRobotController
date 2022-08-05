@@ -140,7 +140,7 @@ void RobotM1::updateRobot() {
 }
 
 bool RobotM1::setDigitalOut(int digital_out) {
-    ((JointM1 *)joints[0])->setDigitalOut(digital_out);
+    return ((JointM1 *)joints[0])->setDigitalOut(digital_out);
 }
 
 int RobotM1::getDigitalIn() {
