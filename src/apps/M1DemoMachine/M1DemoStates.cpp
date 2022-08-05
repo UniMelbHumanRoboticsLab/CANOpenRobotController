@@ -15,7 +15,7 @@ void IdleState::entry(void) {
             << "========================" << std::endl
             << " PRESS S to start zeroing/calibration" << std::endl
             << " PRESS X to start monitoring state" << std::endl
-            << " PRESS A to start torque control" << std::endl
+            << " PRESS A to start demon machines" << std::endl
             << "========================" << std::endl;
 }
 
@@ -31,6 +31,7 @@ void Calibration::entry(void) {
     spdlog::info("Starting Calibration: Position and Force Zeroing");
     robot->applyCalibration();
     robot->initVelocityControl();
+    robot->calibrateForceSensors();
     cal_velocity = -20;   // degree per second
     stages = 1;
 }
@@ -68,8 +69,7 @@ void Calibration::during(void) {
             spdlog::error(setMovementReturnCodeString[result]);
         }
         JointVec tau = robot->getJointTor_s();
-        if (tau(0)>0.2 || tau(0)<-0.2)
-        {
+        if (tau(0)>0.2 || tau(0)<-0.2) {
             if(robot->m1ForceSensor->calibrate()){
                 spdlog::info("Force Sensor Calibration Complete, Press Q to exit calibration");
             }
@@ -84,16 +84,9 @@ void Calibration::exit(void) {
 
 //******************************* Monitoring **************************
 void Monitoring::entry(void) {
-    std::cout << "Enter monitoring ... " << std::endl;
+    std::cout << "Enter torque monitoring ... " << std::endl;
     robot->applyCalibration();
     robot->initMonitoring();
-//    robot->m1ForceSensor->calibrate();
-//    robot->initPositionControl();
-//    q(0) = 90;
-//    robot->setJointPos(q);
-//    sleep(1);
-//    robot->initTorqueControl();
-//    robot->initMonitoring();
 }
 
 void Monitoring::during(void) {
@@ -112,7 +105,7 @@ void Monitoring::exit(void) {
 }
 
 //******************************* Demo state **************************
-void M1PositionTracking::entryCode(void) {
+void M1DemoState::entryCode(void) {
     std::cout << "Enter demos!" << std::endl;
     cfreq = 800; // set control loop frequency
     mode = 1; // Set mode to 1 for position control test: move from 0 to 90 degree
@@ -124,20 +117,15 @@ void M1PositionTracking::entryCode(void) {
     // sub_mode 2 for ramp tracking
     // sub_mode 3 for torque control only
     robot->applyCalibration();
-//    robot->initPositionControl();
-//    q(0) = 50;
-//    robot->setJointPos(q);
     sleep(1);
     cycle = 0;
     counter = 0;
     sflag = 0;
-//    robot->applyCalibration();
     initMode(mode);
 }
 
-void M1PositionTracking::duringCode(void) {
-    if(iterations%1000==1) {
-        //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
+void M1DemoState::duringCode(void) {
+    if(iterations%500==1) {
         robot->printJointStatus();
     }
     counter = counter + 1;
@@ -147,6 +135,8 @@ void M1PositionTracking::duringCode(void) {
         std::cout << "Robot error !" << std::endl;
     }
     control(mode);
+
+    // switch through four mode
     if(cycle >= 4)
     {
         exitCode();
@@ -155,14 +145,7 @@ void M1PositionTracking::duringCode(void) {
         cycle = 0;
         counter = 0;
         sflag = 0;
-//        step = step + 0.05;             // slope torque
-//        magnitude = magnitude + 0.2;    //sine wave torque
-//        freq = freq + 0.1;              //sine wave torque
         initMode(mode);
-//        if(magnitude > 5)
-//        {
-//            mode = 4;
-//        }
     }
     if(mode > 4)
     {
@@ -170,41 +153,43 @@ void M1PositionTracking::duringCode(void) {
     }
 }
 
-void M1PositionTracking::exitCode(void) {
-    std::cout << "Exit Position tracking!" << std::endl;
+void M1DemoState::exitCode(void) {
     switch(mode) {
         case 1:
             robot->setJointPos(JointVec::Zero());
+            std::cout << "Exit position tracking!" << std::endl;
             break;
         case 2:
             robot->setJointVel(JointVec::Zero());
+            std::cout << "Exit velocity tracking!" << std::endl;
             break;
         case 3:
             robot->setJointTor(JointVec::Zero());
+            std::cout << "Exit torque tracking!" << std::endl;
             break;
         case 4:
             robot->setJointVel(JointVec::Zero());
+            std::cout << "Exit admittance control!" << std::endl;
             break;
         default:
             std::cout << "Wrong mode !" << std::endl;
     }
-//    robot->stop();
+    robot->stop();
 }
 
-void M1PositionTracking::initMode(int mode_t){
+void M1DemoState::initMode(int mode_t){
     mode = mode_t;
     switch(mode_t){
         case 1:
             std::cout << "Demo position tracking!" << std::endl;
             robot->initPositionControl();
-            freq = 0.1;
+            freq = 0.5;
             counter = 1;
-            magnitude = 10;
+            magnitude = 20;
             break;
         case 2:
             std::cout << "Demo velocity tracking!" << std::endl;
             robot->initVelocityControl();
-//            robot->admittanceControl();
             freq = 0.5;
             magnitude = 20;   // degree per second
             break;
@@ -212,8 +197,7 @@ void M1PositionTracking::initMode(int mode_t){
             std::cout << "Demo torque tracking!" << std::endl;
             robot->initTorqueControl();
             freq = 0.5;
-            magnitude = 0.6;   // magnitude for sine wave without compensation
-//            magnitude = 0.6;   // magnitude for sine wave
+            magnitude = 1.0;   // torque magnitude
             step = 0.1;
             break;
         case 4:
@@ -224,14 +208,14 @@ void M1PositionTracking::initMode(int mode_t){
             B = 0.01;
             dt = 0.01;
             Mass = 0.01;
-            gain = 1;
+            gain = 10;
             break;
         default:
             std::cout << "Wrong mode !" << std::endl;
     }
 }
 
-void M1PositionTracking::control(int mode_t){
+void M1DemoState::control(int mode_t){
     switch(mode_t){
         case 1:
             positionControl();
@@ -250,14 +234,14 @@ void M1PositionTracking::control(int mode_t){
     }
 }
 
-void M1PositionTracking::positionControl(void){
+void M1DemoState::positionControl(void){
     // position control;
     q=robot->getJointPos();
 //    std::cout << q(0) << " <-> ";
     switch(sub_mode){
         case 1:     // sine wave position command
             sflag = sin(2*M_PI*freq*iterations/100);
-            q(0) = magnitude*sflag;
+            q(0) = magnitude*sflag+magnitude;
             if(abs(sflag)<10e-8 && dir==true)
             {
                 dir = false;
@@ -305,10 +289,8 @@ void M1PositionTracking::positionControl(void){
     }
 }
 
-void M1PositionTracking::velocityControl(void){
+void M1DemoState::velocityControl(void){
     dq=robot->getJointVel();
-//    dq(0) = magnitude*sin(2*M_PI*freq*iterations/100);
-//     velocity control, differential velocity and command velocity
     q=robot->getJointPos();
 
     switch(sub_mode){
@@ -358,23 +340,14 @@ void M1PositionTracking::velocityControl(void){
             std::cout << "Wrong sub mode !" << std::endl;
     }
 
-
-    // give velocity command for 5 s and check the position changes
-//    if ((iterations > 0) & (iterations <= 500)) {
-//        dq(0) = magnitude;
-//    }
-//    else
-//    {
-//        dq(0) = 0;
-//    }
-
-    // set joint velocity
+    // display and set joint velocity
+//    std::cout << dq(0) << std::endl;
     if(robot->setJointVel(dq) != SUCCESS){
         std::cout << "Error: " << std::endl;
     }
 }
 
-void M1PositionTracking::torqueControl(void){
+void M1DemoState::torqueControl(void){
     double spring_tor;
     double error;
     double delta_error;
@@ -385,8 +358,8 @@ void M1PositionTracking::torqueControl(void){
     dq = robot->getJointVel();
     switch(sub_mode) {
         case 1:
-            sflag = sin(2*M_PI*freq*counter/cfreq);
-            tau_cmd(0) = magnitude*sflag+0.8;
+            sflag = sin(2*M_PI*freq*iterations/100);
+            tau_cmd(0) = magnitude*sflag + 0.2;
             if(abs(sflag)<10e-8 && dir==true)
             {
                 dir = false;
@@ -397,12 +370,6 @@ void M1PositionTracking::torqueControl(void){
                 cycle = cycle + 1;
                 std::cout << std::setprecision(2)  << "torque magnitude: " << magnitude << "; frequency: " << freq << "; Cycle: "<< cycle << std::endl;
             }
-//            if( abs(tau_cmd(0) - 0.8) <= sin(2*M_PI*freq/cfreq))
-////            if((abs(sflag) < 10e-8) && (sin(2*M_PI*freq*(counter+1)/cfreq)>0))
-//            {
-//                std::cout << std::setprecision(2)  << "torque magnitude: " << magnitude << "; frequency: " << freq << "; Cycle: "<< cycle << std::endl;
-//                cycle = cycle + 1;
-//            }
             break;
         case 2:
             if(dir) // positive direction
@@ -456,30 +423,18 @@ void M1PositionTracking::torqueControl(void){
             delta_error = (error-torque_error_last_time_step)*cfreq;  // derivative of interaction torque error;
             tau_cmd(0) = error*1 + delta_error*0.001;  // tau_cmd = P*error + D*delta_error
             torque_error_last_time_step = error;
-//            tau_cmd(0) = 3*error;
             std::cout << "; spring_tor: " << spring_tor <<  ":sensor tau " << tau_s(0) <<  ":command tau " << tau_cmd(0) <<  "; theta error: " << (30-q(0)) << std::endl;
             break;
         default:
             std::cout << "Wrong sub mode !" << std::endl;
     }
 
-//    std::cout << std::setprecision(2) << ";     cmd tau :"<< tau(0) << ";      q: " << q(0) << ";     dq: " << dq(0)<< std::endl;
-//    std::cout << " - command tau " << tau(0) << " - theta " << q(0) << std::endl;
-//    std::cout << std::setprecision(2)  << "command tau " << tau(0) << std::endl;
-//    tau(0) = magnitude;
-//    if (iterations == 6000){
-//        magnitude = 0;
-//    }
-//    tau_cmd(0) = 0;
     if(robot->setJointTor_comp(tau_cmd, tau_cmd, ff_ratio) != SUCCESS){
         std::cout << "Error: " << tau_cmd << std::endl;
     }
-//    if(robot->setJointTor(tau_cmd) != SUCCESS){
-//        std::cout << "Error: " << std::endl;
-//    }
 }
 
-void M1PositionTracking::admittanceControl(void){
+void M1DemoState::admittanceControl(void){
     tau = (2*tau+robot->getJointTor_s())/3;
     if (tau(0) > 100 || tau(0) < -100){
         std::cout << "Torque sensor:: reading out of limits " << std::endl;
@@ -487,7 +442,7 @@ void M1PositionTracking::admittanceControl(void){
     else
     {
         B = 0.01;
-        Mass = 1;
+        Mass = 0.3;
         q = robot->getJointPos();
         dq = robot->getJointVel();
         B = 0;
@@ -495,10 +450,11 @@ void M1PositionTracking::admittanceControl(void){
         acc = net_tau/Mass;
         dq(0) = dq(0) + gain*acc*dt;
 
-        if (iterations%5==0){
-            std::cout << std::dec << iterations << ": " << std::setprecision(2) << tau(0) << " ~ " << q(0) << " ~ " << dq(0)<< std::endl;
+        if (iterations%100==0){
+            std::cout << std::dec << iterations << "tau sensor : " << std::setprecision(2) << tau(0) << "; q: " << q(0) << "; dq: " << dq(0)<< std::endl;
         }
-        if (q(0) > 45 or q(0) <-45){
+
+        if (q(0) > 50 or q(0) <-45){
             dq(0) = dq(0)*0.5;
         }
         if(robot->setJointVel(dq) != SUCCESS){
@@ -509,42 +465,42 @@ void M1PositionTracking::admittanceControl(void){
 
 //******************************* Demo state **************************
 //
-void M1DemoState::entryCode(void) {
-    std::cout << "Enter Demo tracking!" << std::endl;
-
-    robot->applyCalibration();
-    robot->initPositionControl();
-    freq = 0.5;
-    counter = 1;
-//    qi(0) = 45;
-//    robot->setJointPos(qi);
-}
-
-void M1DemoState::duringCode(void) {
-    if(iterations%100==1) {
-        robot->printJointStatus();
-    }
-
-    if(robot->status == R_SUCCESS && iterations%4==0) {
-        // control frequency is 400 hz
-        uint sample = iterations/4;
+//void M1DemoState::entryCode(void) {
+//    std::cout << "Enter Demo tracking!" << std::endl;
+//
+//    robot->applyCalibration();
+//    robot->initPositionControl();
+//    freq = 0.5;
+//    counter = 1;
+////    qi(0) = 45;
+////    robot->setJointPos(qi);
+//}
+//
+//void M1DemoState::duringCode(void) {
+//    if(iterations%100==1) {
+//        robot->printJointStatus();
+//    }
+//
+//    if(robot->status == R_SUCCESS && iterations%4==0) {
+//        // control frequency is 400 hz
+//        uint sample = iterations/4;
+////        std::cout << qi(0) << std::endl;
+//        qi=robot->getJointPos();
+//        std::cout << qi(0) << " <-> ";
+//        qi(0) = 20*sin(2*M_PI*freq*sample/100);
 //        std::cout << qi(0) << std::endl;
-        qi=robot->getJointPos();
-        std::cout << qi(0) << " <-> ";
-        qi(0) = 20*sin(2*M_PI*freq*sample/100);
-        std::cout << qi(0) << std::endl;
-        JointVec dq_t;
-        dq_t(0) = 1;
-        if(robot->setJointPos(qi) != SUCCESS){
-            std::cout << "Error: " << std::endl;
-        }
-//        std::cout << "Velocity _1: " << dq_t(0) << std::endl;
-//        robot->setJointVel(dq_t);
-    }
-}
-
-void M1DemoState::exitCode(void) {
-//    robot->setJointVel(JointVec::Zero());
-//    robot->setJointTor(JointVec::Zero());
-    robot->setJointPos(JointVec::Zero());
-}
+//        JointVec dq_t;
+//        dq_t(0) = 1;
+//        if(robot->setJointPos(qi) != SUCCESS){
+//            std::cout << "Error: " << std::endl;
+//        }
+////        std::cout << "Velocity _1: " << dq_t(0) << std::endl;
+////        robot->setJointVel(dq_t);
+//    }
+//}
+//
+//void M1DemoState::exitCode(void) {
+////    robot->setJointVel(JointVec::Zero());
+////    robot->setJointTor(JointVec::Zero());
+//    robot->setJointPos(JointVec::Zero());
+//}
