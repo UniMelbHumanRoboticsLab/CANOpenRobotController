@@ -16,6 +16,7 @@ void IdleState::entry(void) {
             << " PRESS S to start zeroing/calibration" << std::endl
             << " PRESS X to start monitoring state" << std::endl
             << " PRESS A to start demon machines" << std::endl
+            << " PRESS Q to return idle state" << std::endl
             << "========================" << std::endl;
 }
 
