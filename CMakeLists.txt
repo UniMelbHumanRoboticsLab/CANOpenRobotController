@@ -133,6 +133,7 @@ if(USE_ROS)
 		generate_dynamic_reconfigure_options(
 				config/m1_dynamic_params.cfg
 				config/x2_dynamic_params.cfg
+				config/m1_dynamic_params.cfg
 		)
 
 		add_message_files(
