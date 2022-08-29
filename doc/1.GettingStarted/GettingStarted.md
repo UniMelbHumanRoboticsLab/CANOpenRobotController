@@ -18,10 +18,9 @@ Independent of the deployment environment, a choice may also be made regarding t
 ## Choice of Hardware
 This choice is likely related to the application. CORC is designed for any robotic device which uses CANOpen components, however, due to the resources and researchers of the initial developers, the examples and templates are based on assistive and rehabilitative robotic devices from Fourier Intelligence. As such, if the user has access to such devices, it would be logical to take an example which uses this hardware. 
 
-# Example Programs
-With this in mind, CORC by default contains a number of example programs, which a new user can choose from to get hands-on with the toolbox for their first application. These are outlined (and linked to) here.
+# First Example: Basic Simulation - Exoskeleton
+With this in mind, CORC by default contains a number of example programs, which a new user can choose from to get hands-on with the toolbox for their first application. However, we first recommend you run the Basic Simulation- Exoskeleton example program to gain familiarity with the CORC Environment.  
 
-## Basic Simulation - Exoskeleton
 This example is the most simple of those offered, requiringly access only to a Linux-based computer. Development can occur either on a computer running either Windows or Linux (although the executeable must run on a Linux Machine).
 
 The functionality of this example is limited to transitioning between sitting and standing with an exoskeleton. 
@@ -38,33 +37,28 @@ This example does not include any visualisation of the robot, with feedback to t
 3. Users seeking the simplest possible runnable example 
 
 ### [Basic Simulation - Instructions](GSBasicSimulation.md) 
+See also the code example in `src/apps/ExoTestMachine`.
 
 
-## Advanced Simulation using ROS - Exoskeleton
-This example is a more advanced example requiring no hardware. It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, using ROS and creating a Gazebo simulation for visualisation. 
+# Additional Example Programs
+After you have run the Basic Simulation Program, CORC offers a number of additional "Getting Started" programs. It is suggested that you choose one which aligns with your final intended goals. 
+
+
+## Advanced Simulation and Hardware Testing using ROS - Exoskeleton
+This example is a more advanced example requiring no hardware but also allow testing the same code both on hardware and simulation.
+It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, using ROS and creating a Gazebo for physics simulation and RViz for visualization purposes.
 
 ### Requirements
-1. A development and deployment machine running Linux, ROS and Gazebo
+1. A development and deployment machine running Linux, ROS (Melodic or Noetic) and a compatible Gazebo version with ROS.
 
 ### Suggested for
-1. Users looking to develop advanced UI interfaces for their applications
-2. Users with sufficiently powerful computers to generate the 3d visualisations
+1. Users looking to develop advanced user interfaces for their applications
+2. Users who want to pre test their development on a physics simulation 
+3. Users who wants to benefit from the advatanges of ROS
+4. Users with sufficiently powerful computers to generate the 3d visualisations
 
-### Link to Page
-*Work in progress*
-
-See the code example in `src/apps/X2DemoMachine`.
-
-
-## Hardware Testing - ExoMotus X2 Exoskeleton
-This example is a takes the sit-to-stand state machine from the Basic Simulation, and applies it to a real exoskeleton. The software includes a simple homing routine which drives the joints of the exoskeleton to their limits, followed keyboard-initiated sit-to-stand and stand-to-sit movements.
-
-### Requirements
-1. Development machine running Windows or Linux
-2. ExoMotus X2 Exoskeleton (Fourier Intelligence) - modified to be driven by an appropriate controller 
-
-### Link to Page
-*Work in progress*
+### [Advanced Simulation and Hardware Testing using ROS - Instructions](AdvancedSimulationAndHardwareTesting.md) 
+See also the code example in `src/apps/X2DemoMachine`.
 
 
 ## Hardware Testing - ArmMotus M2 Planar Manipulandum
@@ -79,10 +73,8 @@ This example enables simple movements with the ArmMotus M2 System. It use of the
 1. Users looking to develop for the ArmMotus M2
 2. Users looking to develop systems with a separate user interface
 
-### Link to Page
-*Work in progress*
-
-See the code example in `src/apps/M2DemoMachine`.
+### [M2DemoMachine - Instructions](GSM2DemoMachine.md)
+See also the code example in `src/apps/M2DemoMachine`.
 
 
 ## Hardware Testing - ArmMotus M3 (aka EMU) 3D Manipulandum
@@ -96,7 +88,20 @@ This example enables simple functionalities of ArmMotus M3/EMU System. It shows 
 1. Users looking to develop for the ArmMotus M3
 2. Users looking to develop systems with a separate user interface
 
-### Link to Page
-*Work in progress*
+### [M3DemoMachine - Instructions](GSM3DemoMachine.md) 
+See also the code example in `src/apps/M3DemoMachine`.
 
-See the code example in `src/apps/M3DemoMachine`.
+## Hardware Testing - ArmMotus M1
+This example enables simple movements with the ArmMotus M1 System.
+
+### Requirements
+1. Development machine running Windows or Linux
+2. ArmMotus M1  (Fourier Intelligence) - modified to be driven by an appropriate controller
+
+### Suggested for
+1. Users looking to develop for the ArmMotus M1
+
+### Link to page
+See the code example in `src/apps/M1DemoMachine`.
+
+

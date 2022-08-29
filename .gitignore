@@ -9,3 +9,4 @@ CANopenSocket/canopend/X2_log.txt
 /build/*
 bbbxc
 EXO_APP_2020
+cmake-build-debug/
