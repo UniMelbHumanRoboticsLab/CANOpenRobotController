@@ -3,11 +3,12 @@
  * \author Benjamin von Snarski
  * \brief The robot node is a ROS2 implementation of the robot class which
  * exposes certain parameters through topics over a local network. A basic
- * example of the class subscribes to a joint command topic but is not
- * recommended to be used in practice. Exposing such low-level parameters
- * is dangerous and is instead intended to be replaced by higher level
- * parameters such as controller configurations. The specific joint commands
- * should be kept hidden in the state machine of the CORC app structure.
+ * example of the class subscribes to a joint command topic and copies the
+ * message to a member variable. The state machine that constructs the
+ * <code>Robot</code> class can then access the joint command message and
+ * determine what to do with the ROS2 message. It is intended for this class
+ * to interject the inheritence from X2Robot to Robot if the ROS2 compiler
+ * option is set to ON.
  *
  * @version 0.1
  * @data 2022-08-29
@@ -43,12 +44,23 @@ public:
 	/**
 	 * \brief Default node constructor.
 	 * \param __node Name of the ROS2 node. Copies the name for the robot class.
+	 * \param __config The YAML config file.
 	 */
-	RobotNode(const std::string &__node);
+	RobotNode(const std::string &__node, const std::string &__config);
 	/**
 	 * \brief Default node destructor.
 	 */
 	virtual ~RobotNode();
+	//@}
+	/**
+	 * @name Getters
+	 */
+	//@{
+	/**
+	 * \brief Gets the joint command message.
+	 * \return The joint command as a joint state message type.
+	 */
+	const JointState &get_joint_command();
 	//@}
 
 private:
@@ -76,6 +88,15 @@ private:
 	rclcpp::Publisher<JointState>::SharedPtr _JointStatePublisher;
 	/* Subscription for joint commands */
 	rclcpp::Subscription<JointState>::SharedPtr _JointCommandSubscription;
+	//@}
+
+protected:
+	/**
+	 * @name ROS2 messages
+	 */
+	//@{
+	/* Joint command message */
+	JointState _JointCommand;
 	//@}
 };
 
