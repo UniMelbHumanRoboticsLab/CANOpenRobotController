@@ -1,7 +1,7 @@
 /**
  *
  * \file X2Robot.h
- * \author Emek Baris Kucuktabak, Justin Fong
+ * \author Emek Baris Kucuktabak, Justin Fong, Benjamin von Snarski
  * \version 1.1
  * \date 2022-02-22
  * \copyright Copyright (c) 2022
@@ -39,11 +39,16 @@
 #define STR(x) #x
 
 #ifdef SIM
-#include "controller_manager_msgs/srv/switch_controller.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/msg/joint_state.hpp"
-#include "std_msgs/msg/float64_multi_array.hpp"
+#include "controller_manager_msgs/SwitchController.h"
+#include "ros/ros.h"
+#include "sensor_msgs/JointState.h"
+#include "std_msgs/Float64MultiArray.h"
 #endif
+
+#ifdef ROS2
+#include "robot/Node.h"
+#endif
+
 /**
      * \todo Load in paramaters and dictionary entries from JSON file.
      *
@@ -61,8 +66,6 @@
 // Macros
 #define deg2rad(deg) ((deg)*M_PI / 180.0)
 #define rad2deg(rad) ((rad)*180.0 / M_PI)
-
-using std::placeholders::_1;
 
 /**
  * Structure which is used for joint limits. Defines minimum and maximum limits of the each joint
@@ -131,7 +134,11 @@ enum GaitState {
  * \brief Example implementation of the Robot class, representing an X2 Exoskeleton.
  *
  */
+#ifdef ROS2
+class X2Robot : public RobotNode {
+#else
 class X2Robot : public Robot {
+#endif
 private:
     /**
      * \brief motor drive position control profile paramaters, user defined.
@@ -244,20 +251,20 @@ private:
 
 
 #ifdef SIM
-    std::shared_ptr<rclcpp::Node> node;
+    ros::NodeHandle* nodeHandle_;
 
-    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr positionCommandPublisher_;
-    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr velocityCommandPublisher_;
-    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr torqueCommandPublisher_;
-    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr jointStateSubscriber_;
-    rclcpp::Client<controller_manager_msgs::srv::SwitchController>::SharedPtr controllerSwitchClient_;
+    ros::Publisher positionCommandPublisher_;
+    ros::Publisher velocityCommandPublisher_;
+    ros::Publisher torqueCommandPublisher_;
+    ros::Subscriber jointStateSubscriber_;
+    ros::ServiceClient controllerSwitchClient_;
 
-    std_msgs::msg::Float64MultiArray positionCommandMsg_;
-    std_msgs::msg::Float64MultiArray velocityCommandMsg_;
-    std_msgs::msg::Float64MultiArray torqueCommandMsg_;
-    std::shared_ptr<controller_manager_msgs::srv::SwitchController::Request> controllerSwitchMsg_;
+    std_msgs::Float64MultiArray positionCommandMsg_;
+    std_msgs::Float64MultiArray velocityCommandMsg_;
+    std_msgs::Float64MultiArray torqueCommandMsg_;
+    controller_manager_msgs::SwitchController controllerSwitchMsg_;
 
-    void jointStateCallback(const sensor_msgs::msg::JointState::SharedPtr msg);
+    void jointStateCallback(const sensor_msgs::JointState& msg);
 #endif
 #ifdef NOROBOT
     Eigen::VectorXd simJointPositions_;
@@ -279,7 +286,9 @@ public:
       */
 
 #ifdef SIM
-    X2Robot(std::shared_ptr<rclcpp::Node> &node, std::string robotName = XSTR(X2_NAME_DEFAULT), std::string yaml_config_file="x2_params.yaml");
+    X2Robot(ros::NodeHandle &nodeHandle, std::string robotName = XSTR(X2_NAME_DEFAULT), std::string yaml_config_file="x2_params.yaml");
+#elif ROS2
+    X2Robot(const std::string &robotName=XSTR(X2_NAME_DEFAULT), const std::string &yaml_config_file="x2_params.yaml");
 #else
     X2Robot(std::string robotName = XSTR(X2_NAME_DEFAULT), std::string yaml_config_file="x2_params.yaml");
 #endif
@@ -652,11 +661,11 @@ public:
     /**
        * \brief method to pass the nodeHandle. Only available in SIM mode
        */
-    void setNodeHandle(std::shared_ptr<rclcpp::Node> &node);
+    void setNodeHandle(ros::NodeHandle& nodeHandle);
     /**
        * \brief Initialize ROS services, publisher ans subscribers
       */
-    void initialiseROS(std::shared_ptr<rclcpp::Node> &node);
+    void initialiseROS(ros::NodeHandle &nodeHandle);
 #endif
 };
 #endif /*EXOROBOT_H*/

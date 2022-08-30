@@ -1,13 +1,16 @@
-#include "Node.h"
+#include "robot/Node.h"
 
 RobotNode::RobotNode(const std::string &__node, const std::string &__config)
 	: Robot(__node, __config), rclcpp::Node(__node), _JointCommand{}
 {
 	_JointStatePublisher = create_publisher<JointState>("joint_states", 10);
 	_JointCommandSubscription = create_subscription<JointState>(
-			"joint_command", 10, std::bind(&RobotNode::joint_command_callback, _1)
+			"joint_command", 10,
+			std::bind(&RobotNode::joint_command_callback, this, _1)
 	);
 }
+
+RobotNode::~RobotNode() { }
 
 const JointState &RobotNode::get_joint_command()
 {

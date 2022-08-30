@@ -27,7 +27,9 @@
 #include "states/IdleState.h"
 #include "states/X2DemoState.h"
 
+#ifndef ROS2
 #include "X2DemoMachineROS.h"
+#endif
 
 // Logger
 #include "LogHelper.h"

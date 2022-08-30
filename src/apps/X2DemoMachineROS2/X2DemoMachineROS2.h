@@ -1,6 +1,6 @@
 /**
  * \file X2DemoMachineROS2.h
- * \author Emek Baris KUcukabak
+ * \author Benjamin von Snarski
  * \version 0.1
  * \date 2020-07-06
  * \copyright Copyright (c) 2020
@@ -28,7 +28,6 @@
 #include "states/X2DemoState.h"
 
 #include "rclcpp/init_options.hpp"
-#include "X2DemoMachineNode.h"
 
 // Logger
 #include "LogHelper.h"
@@ -38,7 +37,6 @@ class X2DemoMachineROS2 : public StateMachine {
 public:
     X2DemoMachineROS2(int argc, char *argv[]);
 
-    X2DemoMachineROS *X2DemoMachineRos_; /*<!Pointer to the ROS Class*/
     X2Robot *robot_; /*<!Pointer to the Robot*/ // NOTE: For some reason; if this is defined later, it doesn't publish
 
     bool running = false;
@@ -76,8 +74,6 @@ private:
 
     std::chrono::steady_clock::time_point time0; // initial time that machine started
     double time; // time passed after time0 in [s]
-
-    std::shared_ptr<rclcpp::Node> node;
 };
 
 

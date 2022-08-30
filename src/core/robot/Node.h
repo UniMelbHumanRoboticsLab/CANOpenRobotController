@@ -62,8 +62,6 @@ public:
 	 */
 	const JointState &get_joint_command();
 	//@}
-
-private:
 	/**
 	 * @name ROS2 methods
 	 */
@@ -79,6 +77,15 @@ private:
 	void joint_command_callback(const JointState::SharedPtr __msg);
 	//@}
 
+protected:
+	/**
+	 * @name ROS2 messages
+	 */
+	//@{
+	/* Joint command message */
+	JointState _JointCommand;
+	//@}
+
 private:
 	/**
 	 * @name ROS2 publishers and subscriptions
@@ -88,15 +95,6 @@ private:
 	rclcpp::Publisher<JointState>::SharedPtr _JointStatePublisher;
 	/* Subscription for joint commands */
 	rclcpp::Subscription<JointState>::SharedPtr _JointCommandSubscription;
-	//@}
-
-protected:
-	/**
-	 * @name ROS2 messages
-	 */
-	//@{
-	/* Joint command message */
-	JointState _JointCommand;
 	//@}
 };
 
