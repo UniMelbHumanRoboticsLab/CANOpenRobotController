@@ -1,7 +1,7 @@
 /**
- * /file MultiM1MachineROS.h
+ * /file M1MachineROS.h
  * /author Emek Baris Kucuktabak
- * /brief ROS part of the MultiM1Machine
+ * /brief ROS part of the M1Machine
  * /version 0.1
  * /date 2020-11-03
  *
@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef SRC_MultiM1MachineROS_H
-#define SRC_MultiM1MachineROS_H
+#ifndef SRC_M1MachineROS_H
+#define SRC_M1MachineROS_H
 
 // msg types
 #include <sensor_msgs/JointState.h>
@@ -21,10 +21,10 @@
 #include "RobotM1.h"
 #include "ros/ros.h"  // This state machine requires ROS
 
-class MultiM1MachineROS {
+class M1MachineROS {
 public:
-    MultiM1MachineROS(RobotM1 *robot);
-    ~MultiM1MachineROS();
+    M1MachineROS(RobotM1 *robot);
+    ~M1MachineROS();
 
     void update(void);
     void publishJointStates(void);
@@ -57,4 +57,4 @@ private:
 
 };
 
-#endif  //SRC_MultiM1MachineROS_H
+#endif  //SRC_M1MachineROS_H

@@ -1,18 +1,18 @@
-#include "MultiM1MachineROS.h"
+#include "M1MachineROS.h"
 
-MultiM1MachineROS::MultiM1MachineROS(RobotM1 *robot) {
+M1MachineROS::M1MachineROS(RobotM1 *robot) {
     robot_ = robot;
 }
 
-MultiM1MachineROS::~MultiM1MachineROS() {
+M1MachineROS::~M1MachineROS() {
     ros::shutdown();
 }
 
-void MultiM1MachineROS::initialize() {
-    spdlog::debug("MultiM1MachineROS::init()");
+void M1MachineROS::initialize() {
+    spdlog::debug("M1MachineROS::init()");
 
-    jointCommandSubscriber_ = nodeHandle_->subscribe("joint_commands", 1, &MultiM1MachineROS::jointCommandCallback, this);
-    interactionTorqueCommandSubscriber_ = nodeHandle_->subscribe("interaction_effort_commands", 1, &MultiM1MachineROS::interactionTorqueCommandCallback, this);
+    jointCommandSubscriber_ = nodeHandle_->subscribe("joint_commands", 1, &M1MachineROS::jointCommandCallback, this);
+    interactionTorqueCommandSubscriber_ = nodeHandle_->subscribe("interaction_effort_commands", 1, &M1MachineROS::interactionTorqueCommandCallback, this);
     jointStatePublisher_ = nodeHandle_->advertise<sensor_msgs::JointState>("joint_states", 10);
     interactionWrenchPublisher_ = nodeHandle_->advertise<geometry_msgs::WrenchStamped>("interaction_wrench", 10);
 
@@ -22,12 +22,12 @@ void MultiM1MachineROS::initialize() {
     interactionTorqueCommand_ = Eigen::VectorXd(M1_NUM_INTERACTION);
 }
 
-void MultiM1MachineROS::update() {
+void M1MachineROS::update() {
     publishJointStates();
     publishInteractionForces();
 }
 
-void MultiM1MachineROS::publishJointStates() {
+void M1MachineROS::publishJointStates() {
     Eigen::VectorXd jointPositions = robot_->getPosition();
     Eigen::VectorXd jointVelocities = robot_->getVelocity();
     Eigen::VectorXd jointTorques = robot_->getTorque();
@@ -45,7 +45,7 @@ void MultiM1MachineROS::publishJointStates() {
     jointStatePublisher_.publish(jointStateMsg_);
 }
 
-void MultiM1MachineROS::publishInteractionForces() {
+void M1MachineROS::publishInteractionForces() {
     Eigen::VectorXd interactionTorque = robot_->getJointTor_s();
     ros::Time time = ros::Time::now();
 
@@ -57,11 +57,11 @@ void MultiM1MachineROS::publishInteractionForces() {
     interactionWrenchPublisher_.publish(interactionWrenchMsg_);
 }
 
-void MultiM1MachineROS::setNodeHandle(ros::NodeHandle &nodeHandle) {
+void M1MachineROS::setNodeHandle(ros::NodeHandle &nodeHandle) {
     nodeHandle_ = &nodeHandle;
 }
 
-void MultiM1MachineROS::jointCommandCallback(const sensor_msgs::JointState &msg) {
+void M1MachineROS::jointCommandCallback(const sensor_msgs::JointState &msg) {
 
     for(int i=0; i<M1_NUM_JOINTS; i++){
         jointPositionCommand_[i] = msg.position[i];
@@ -70,7 +70,7 @@ void MultiM1MachineROS::jointCommandCallback(const sensor_msgs::JointState &msg)
     }
 }
 
-void MultiM1MachineROS::interactionTorqueCommandCallback(const std_msgs::Float64MultiArray &msg) {
+void M1MachineROS::interactionTorqueCommandCallback(const std_msgs::Float64MultiArray &msg) {
 
     for(int i=0; i<M1_NUM_JOINTS; i++){
         interactionTorqueCommand_[i] = msg.data[i];

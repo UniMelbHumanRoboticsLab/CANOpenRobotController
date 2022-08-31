@@ -84,7 +84,7 @@ Use keyboard to explore different controllers:
 - Key A: position, velocity, and torque controller demonstrations
 - Key Q: return to idle state
 
-## Build and run M1ROSDemoMachine (To be tested)
+## Build and run M1DemoMachineROS
 
 Configure the CMakeList.txt, select the M1DemoMachine, and set the flags for using a real robot without ROS support:
 
@@ -94,7 +94,7 @@ Configure the CMakeList.txt, select the M1DemoMachine, and set the flags for usi
 #set (STATE_MACHINE_NAME "M2DemoMachine")
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
-set (STATE_MACHINE_NAME "M1ROSDemoMachine")
+set (STATE_MACHINE_NAME "M1DemoMachineROS")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT OFF)

@@ -1,9 +1,9 @@
-#include "MultiM1Machine.h"
+#include "M1DemoMachineROS.h"
 
-#define OWNER ((MultiM1Machine *)owner)
+#define OWNER ((M1DemoMachineROS *)owner)
 
-MultiM1Machine::MultiM1Machine(int argc, char *argv[]){
-    spdlog::debug("MultiM1Machine::constructed!");
+M1DemoMachineROS::M1DemoMachineROS(int argc, char *argv[]){
+    spdlog::debug("M1DemoMachineROS::constructed!");
 
     ros::init(argc, argv, "m1", ros::init_options::NoSigintHandler);
     ros::NodeHandle nodeHandle("~");
@@ -16,23 +16,23 @@ MultiM1Machine::MultiM1Machine(int argc, char *argv[]){
     robot_ = new RobotM1(robotName_);
 
     // Create ros object
-    multiM1MachineRos_ = new MultiM1MachineROS(robot_);
+    M1MachineRos_ = new M1MachineROS(robot_);
 
     // Pass nodeHandle to the classes that use ROS features
-    multiM1MachineRos_->setNodeHandle(nodeHandle);
-    multiM1MachineRos_->initialize();
+    M1MachineRos_->setNodeHandle(nodeHandle);
+    M1MachineRos_->initialize();
 
     // Create states with ROS features // This should be created after ros::init()
-    multiControllerState_ = new MultiControllerState(this, robot_, multiM1MachineRos_);
+    multiControllerState_ = new MultiControllerState(this, robot_, M1MachineRos_);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(multiControllerState_);
 }
 
-MultiM1Machine::~MultiM1Machine() {
+M1DemoMachineROS::~M1DemoMachineROS() {
     currentState->exit();
     robot_->disable();
-    delete multiM1MachineRos_;
+    delete M1MachineRos_;
     delete robot_;
 }
 
@@ -42,12 +42,12 @@ MultiM1Machine::~MultiM1Machine() {
  *
  */
 
-void MultiM1Machine::init() {
+void M1DemoMachineROS::init() {
 //    ros::init(argc, argv, "m1", ros::init_options::NoSigintHandler);
 //    ros::NodeHandle nodeHandle("~");
 
 //    // Pass nodeHandle to the classes that use ROS features
-//    multiM1MachineRos_->setNodeHandle(nodeHandle);
+//    M1MachineRos_->setNodeHandle(nodeHandle);
 
     if(robot_->initialise()) {
         initialised = true;
@@ -88,9 +88,9 @@ void MultiM1Machine::init() {
     logHelper.add(multiControllerState_->tau_cmd, "CommandTorque");      // motor_torque = command_torque + compensation_torque
     logHelper.add(robot_->tau_motor, "MotorTorque");
 
-    logHelper.add(multiM1MachineRos_->jointTorqueCommand_, "MM1_DesiredJointTorques");
-    logHelper.add(multiM1MachineRos_->jointPositionCommand_, "MM1_DesiredJointPositions");
-    logHelper.add(multiM1MachineRos_->interactionTorqueCommand_, "MM1_DesiredInteractionTorques");
+    logHelper.add(M1MachineRos_->jointTorqueCommand_, "MM1_DesiredJointTorques");
+    logHelper.add(M1MachineRos_->jointPositionCommand_, "MM1_DesiredJointPositions");
+    logHelper.add(M1MachineRos_->interactionTorqueCommand_, "MM1_DesiredInteractionTorques");
 
     logHelper.add(multiControllerState_->digitalInValue_, "digitalIn");
     logHelper.add(multiControllerState_->digitalOutValue_, "digitalOut");
@@ -98,17 +98,17 @@ void MultiM1Machine::init() {
     logHelper.startLogger();
 }
 
-void MultiM1Machine::end() {
+void M1DemoMachineROS::end() {
     if(initialised) {
         currentState->exit();
         robot_->stop();
         logHelper.endLog();
-        delete multiM1MachineRos_;
+        delete M1MachineRos_;
         delete robot_;
     }
 }
 
-bool MultiM1Machine::configureMasterPDOs() {
+bool M1DemoMachineROS::configureMasterPDOs() {
     spdlog::debug("M1DemoMachine::configureMasterPDOs()");
     return robot_->configureMasterPDOs();
 }
@@ -118,9 +118,9 @@ bool MultiM1Machine::configureMasterPDOs() {
  * that need to run every program loop update cycle.
  *
  */
-void MultiM1Machine::hwStateUpdate(void) {
+void M1DemoMachineROS::hwStateUpdate(void) {
     robot_->updateRobot();
-    multiM1MachineRos_->update();
+    M1MachineRos_->update();
     time_ = (std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now() - time0_).count()) / 1e6;
     ros::spinOnce();

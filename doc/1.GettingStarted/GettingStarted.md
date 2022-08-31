@@ -104,4 +104,3 @@ This example enables simple movements with the AnkleMotus M1 System.
 ### [M1DemoMachine - Instructions](GSM1DemoMachine.md)
 See the code example in `src/apps/M1DemoMachine`.
 
-

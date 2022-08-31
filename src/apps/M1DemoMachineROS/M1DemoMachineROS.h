@@ -1,11 +1,11 @@
 /**
- * \file MultiM1Machine.h
+ * \file M1DemoMachineROS.h
  * \author Emek Baris Kucuktabak
  * \version 0.1
  * \date 2020-11-22
  * \copyright Copyright (c) 2020
  *
- * /brief The MultiM1Machine class represents an example implementation of a stateMachine in multi-robot control setting
+ * /brief The M1DemoMachineROS class represents an example implementation of a stateMachine in multi-robot control setting
  *
  */
 #ifndef M1_SM_H
@@ -28,22 +28,22 @@
 #include "LogHelper.h"
 #include "logging.h"
 
-#include "MultiM1MachineROS.h"
+#include "M1MachineROS.h"
 
 /**
  * @brief Example implementation of a StateMachine for the M1Robot class. States should implemented M1DemoState
  *
  */
-class MultiM1Machine : public StateMachine {
+class M1DemoMachineROS : public StateMachine {
    public:
     bool running = false;
     /**
      *  \todo Pilot Parameters would be set in constructor here
      *
      */
-//    MultiM1Machine();
-    MultiM1Machine(int argc, char *argv[]);
-    ~MultiM1Machine();
+//    M1DemoMachineROS();
+    M1DemoMachineROS(int argc, char *argv[]);
+    ~M1DemoMachineROS();
 //    void init(int argc, char *argv[]);
     void init();
     void end();
@@ -60,7 +60,7 @@ class MultiM1Machine : public StateMachine {
 
    protected:
     RobotM1 *robot_; /*<!Pointer to the Robot*/
-    MultiM1MachineROS *multiM1MachineRos_; /*<!Pointer to the ROS Class*/
+    M1MachineROS *M1MachineRos_; /*<!Pointer to the ROS Class*/
 
    private:
     std::string robotName_; // robot name(obtained from node name)

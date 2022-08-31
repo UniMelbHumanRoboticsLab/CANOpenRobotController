@@ -99,10 +99,10 @@ void MultiControllerState::during(void) {
         robot_->setJointTor(Eigen::VectorXd::Zero(M1_NUM_JOINTS));
     }
     else if(controller_mode_ == 2){ // follow position commands
-        robot_->setJointPos(multiM1MachineRos_->jointPositionCommand_);
+        robot_->setJointPos(M1MachineRos_->jointPositionCommand_);
     }
     else if(controller_mode_ == 3){ // follow torque commands
-        robot_->setJointTor(multiM1MachineRos_->jointTorqueCommand_);
+        robot_->setJointTor(M1MachineRos_->jointTorqueCommand_);
     }
     else if(controller_mode_ == 4){ // virtual spring - torque mode
         tau = robot_->getJointTor();
@@ -125,7 +125,7 @@ void MultiControllerState::during(void) {
         tau_filtered = tau_s(0);
 
         // get interaction torque from virtual spring
-        spring_tor = -multiM1MachineRos_->interactionTorqueCommand_(0);
+        spring_tor = -M1MachineRos_->interactionTorqueCommand_(0);
 //        spring_tor = spk_*M_PIf64*(45-q(0))/180.0;  //stiffness; q(0) in degree
         robot_->tau_spring[0] = spring_tor;   // for ROS publish only
 

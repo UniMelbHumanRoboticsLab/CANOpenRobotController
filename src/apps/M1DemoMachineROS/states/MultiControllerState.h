@@ -13,7 +13,7 @@
 
 #include "State.h"
 #include "RobotM1.h"
-#include "MultiM1MachineROS.h"
+#include "M1MachineROS.h"
 
 // dynamic reconfigure
 #include <dynamic_reconfigure/server.h>
@@ -26,14 +26,14 @@
  */
 class MultiControllerState : public State {
     RobotM1 *robot_;
-    MultiM1MachineROS *multiM1MachineRos_;
+    M1MachineROS *M1MachineRos_;
 
 public:
     void entry(void);
     void during(void);
     void exit(void);
-    MultiControllerState(StateMachine *m, RobotM1 *exo, MultiM1MachineROS *multiM1MachineRos, const char *name = NULL) :
-                        State(m, name), robot_(exo), multiM1MachineRos_(multiM1MachineRos){};
+    MultiControllerState(StateMachine *m, RobotM1 *exo, M1MachineROS *M1MachineRos, const char *name = NULL) :
+                        State(m, name), robot_(exo), M1MachineRos_(M1MachineRos){};
 
     int cali_stage;
     int cali_velocity;
