@@ -19,9 +19,9 @@ set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 
-#Use this if your state machine code folder is not in CORC 'src/apps/' folder. 
+#Use this if your state machine code folder is not in CORC 'src/apps/' folder.
 #Can be a relative or absolute path.
-#set (STATE_MACHINE_PATH "../") 
+#set (STATE_MACHINE_PATH "../")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT ON)
