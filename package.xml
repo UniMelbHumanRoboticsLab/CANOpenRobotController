@@ -7,7 +7,7 @@
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="benjaminvonsnarski@gmail.com">Benjamin von Snarski</maintainer>
+  <maintainer email="emekb@todo.todo">emekb</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -48,24 +48,44 @@
   <!--   <test_depend>gtest</test_depend> -->
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>controller_manager_msgs</build_depend>
+  <build_depend>cob_gazebo_ros_control</build_depend>
+  <build_depend>x2_description</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+  <build_export_depend>std_srvs</build_export_depend>
+  <build_export_depend>sensor_msgs</build_export_depend>
+  <build_export_depend>geometry_msgs</build_export_depend>
+  <build_export_depend>controller_manager_msgs</build_export_depend>
+  <build_export_depend>cob_gazebo_ros_control</build_export_depend>
+  <build_export_depend>x2_description</build_export_depend>
+  <build_export_depend>dynamic_reconfigure</build_export_depend>
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>controller_manager_msgs</exec_depend>
+  <exec_depend>cob_gazebo_ros_control</exec_depend>
+  <exec_depend>x2_description</exec_depend>
+  <exec_depend>dynamic_reconfigure</exec_depend>
 
-  <depend>rclcpp</depend>
-  <depend>std_msgs</depend>
-  <depend>std_srvs</depend>
-  <depend>sensor_msgs</depend>
-  <depend>geometry_msgs</depend>
-  <depend>controller_manager_msgs</depend>
-  <!--<depend>cob_gazebo_ros_control</depend>-->
-  <depend>x2_description</depend>
-  <!--<depend>dynamic_reconfigure</depend>-->
-
-  <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_lint_common</test_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
-    <build_type>ament_cmake</build_type>
+
   </export>
 </package>
+
