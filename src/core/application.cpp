@@ -1,34 +1,28 @@
  /**
- *
  * \file application.c
- * \author William Campbell, Justin Fong
- * \version 0.2
- * \date 2021-02-15
+ * \author William Campbell, Justin Fong, Vincent Crocher
+ * \version 0.3
+ * \date 2021-12-18
  * \copyright Copyright (c) 2020 - 2021
  *
- * \breif  Application interface of CORC. Based on CANopenSocket.
+ * \brief  Application interface of CORC. Based on CANopenSocket.
  *
  */
 #include "application.h"
-
-#ifdef TIMING_LOG
-#include "LoopTiming.h"
-LoopTiming loopTimer;
-#endif
 
 //Select state machine to use for this application (can be set in cmake)
 #ifndef STATE_MACHINE_TYPE
 #error "State Machine Type not defined"
 #endif
 
-STATE_MACHINE_TYPE *stateMachine;
+std::unique_ptr<STATE_MACHINE_TYPE> stateMachine;
 
 /******************** RUNS BEFORE CO_init() ********************/
 void app_communicationReset(int argc, char *argv[]) {
 #ifdef USEROS
-    stateMachine = new STATE_MACHINE_TYPE(argc, argv);
+    stateMachine = make_unique<STATE_MACHINE_TYPE>(argc, argv);
 #else
-    stateMachine = new STATE_MACHINE_TYPE();
+    stateMachine = std::make_unique<STATE_MACHINE_TYPE>();
 #endif
     stateMachine->configureMasterPDOs();
 }
@@ -50,21 +44,14 @@ void app_programAsync(uint16_t timer1msDiffy) {
 
 /******************** Runs in rt_control_thread ********************/
 void app_programControlLoop(void) {
-    if (stateMachine->running) {
-        stateMachine->hwStateUpdate();
+    if (stateMachine->running()) {
         stateMachine->update();
     }
-#ifdef TIMING_LOG
-    loopTimer.tick();
-#endif
 }
 
 /******************** Runs at the End of rt_control_thread********************/
 void app_programEnd(void) {
     stateMachine->end();
-    delete stateMachine;
+    stateMachine.reset(); //Explicit delete of the state machine to answer deletion on time
     spdlog::info("CORC End application");
-#ifdef TIMING_LOG
-    loopTimer.end();
-#endif
 }
