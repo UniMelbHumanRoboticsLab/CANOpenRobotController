@@ -11,9 +11,6 @@
 #ifndef M2DemoSTATE_H_DEF
 #define M2DemoSTATE_H_DEF
 
-#include <time.h>
-#include <iostream>
-
 #include "RobotM2.h"
 #include "State.h"
 
@@ -26,7 +23,7 @@ using namespace std;
 double timeval_to_sec(struct timespec *ts);
 
 /**
- * \brief Generic state type for used with M2DemoMachine, providing running time and iterations number.
+ * \brief Generic state type for used with M2DemoMachine, providing running time and iterations number: been superseeded by default state.
  *
  */
 class M2TimedState : public State {
@@ -37,7 +34,7 @@ class M2TimedState : public State {
     */
     RobotM2 *robot;                               /*<!Pointer to state machines robot object*/
 
-    M2TimedState(StateMachine *m, RobotM2 *M2, const char *name = NULL): State(m, name), robot(M2){};
+    M2TimedState(RobotM2 *M2, const char *name = NULL): State(name), robot(M2){};
    private:
     void entry(void) final {
         std::cout
@@ -46,28 +43,10 @@ class M2TimedState : public State {
         << "----------------------------------" << std::endl
         << std::endl;
 
-        //Timing
-        clock_gettime(CLOCK_MONOTONIC, &initTime);
-        lastTime = timeval_to_sec(&initTime);
-
-        elapsedTime=0;
-        iterations=0;
-
         //Actual state entry
         entryCode();
     };
     void during(void) final {
-        //Compute some basic time values
-        struct timespec ts;
-        clock_gettime(CLOCK_MONOTONIC, &ts);
-
-        double now = timeval_to_sec(&ts);
-        elapsedTime = (now-timeval_to_sec(&initTime));
-        dt = now - lastTime;
-        lastTime = now;
-
-        iterations++;
-
         //Actual state during
         duringCode();
     };
@@ -84,21 +63,13 @@ class M2TimedState : public State {
     virtual void entryCode(){};
     virtual void duringCode(){};
     virtual void exitCode(){};
-
-
-   protected:
-    struct timespec initTime;   /*<! Time of state init */
-    double lastTime;            /*<! Time of last during() call (in seconds since state init())*/
-    double elapsedTime;         /*<! Time since state init() in seconds*/
-    double dt;                  /*<! Time between last two during() calls (in seconds)*/
-    unsigned long int iterations;
 };
 
 
 class M2DemoState : public M2TimedState {
 
    public:
-    M2DemoState(StateMachine *m, RobotM2 *M2, const char *name = "M2 Test State"):M2TimedState(m, M2, name){};
+    M2DemoState(RobotM2 *M2, const char *name = "M2 Test State"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -116,7 +87,7 @@ class M2DemoState : public M2TimedState {
 class M2CalibState : public M2TimedState {
 
    public:
-    M2CalibState(StateMachine *m, RobotM2 *M2, const char *name = "M2 Calib State"):M2TimedState(m, M2, name){};
+    M2CalibState(RobotM2 *M2, const char *name = "M2 Calib State"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -138,7 +109,7 @@ class M2CalibState : public M2TimedState {
 class M2Transparent : public M2TimedState {
 
    public:
-    M2Transparent(StateMachine *m, RobotM2 *M2, const char *name = "M2 Transparent"):M2TimedState(m, M2, name){};
+    M2Transparent(RobotM2 *M2, const char *name = "M2 Transparent"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -153,7 +124,7 @@ class M2Transparent : public M2TimedState {
 class M2EndEffDemo : public M2TimedState {
 
    public:
-    M2EndEffDemo(StateMachine *m, RobotM2 *M2, const char *name = "M2 Velocity Control Demo"):M2TimedState(m, M2, name){};
+    M2EndEffDemo(RobotM2 *M2, const char *name = "M2 Velocity Control Demo"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -167,7 +138,7 @@ class M2EndEffDemo : public M2TimedState {
 class M2ArcCircle : public M2TimedState {
 
    public:
-    M2ArcCircle(StateMachine *m, RobotM2 *M2, const char *name = "M2 Arc Circle"):M2TimedState(m, M2, name){};
+    M2ArcCircle(RobotM2 *M2, const char *name = "M2 Arc Circle"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -194,7 +165,7 @@ class M2ArcCircle : public M2TimedState {
 class M2DemoPathState : public M2TimedState {
 
    public:
-    M2DemoPathState(StateMachine *m, RobotM2 *M2, const char *name = "M2 Demo Path State"):M2TimedState(m, M2, name){};
+    M2DemoPathState(RobotM2 *M2, const char *name = "M2 Demo Path State"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -218,7 +189,7 @@ class M2DemoPathState : public M2TimedState {
 class M2DemoMinJerkPosition: public M2TimedState {
 
    public:
-    M2DemoMinJerkPosition(StateMachine *m, RobotM2 *M2, const char *name = "M2 Demo Minimum Jerk Position"):M2TimedState(m, M2, name){};
+    M2DemoMinJerkPosition(RobotM2 *M2, const char *name = "M2 Demo Minimum Jerk Position"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);

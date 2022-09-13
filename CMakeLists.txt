@@ -19,6 +19,10 @@ set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 
+#Use this if your state machine code folder is not in CORC 'src/apps/' folder. 
+#Can be a relative or absolute path.
+#set (STATE_MACHINE_PATH "../") 
+
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT ON)
 
@@ -29,6 +33,12 @@ set(USE_ROS OFF)
 set(CORC_LOGGING_LEVEL INFO)
 
 ################################################################################
+#Default path if not set
+if(NOT STATE_MACHINE_PATH)
+	set (STATE_MACHINE_PATH "src/apps")
+endif()
+
+#ROS internal flags
 if(USE_ROS)
 	add_definitions(-DUSEROS)
 endif()
@@ -48,13 +58,17 @@ add_definitions(-DFP_STARTTPDO=0x3E1)
 
 #######################
 
-## Compile as C++11
-set(CMAKE_CXX_STANDARD 11)
+## Compile as C++14
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(USE_ROS)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-int-in-bool-context" )
 else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-int-in-bool-context -static-libstdc++ -static-libgcc" )
+	if(CMAKE_CROSSCOMPILING)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-int-in-bool-context -static" )
+	else()
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-int-in-bool-context" )
+	endif()
 endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
@@ -64,7 +78,7 @@ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 ## Current state machine (APP) to be build
@@ -79,8 +93,8 @@ if(NO_ROBOT)
 endif()
 
 ## Get all source and header files (only the target app folder is included)
-file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "src/apps/${STATE_MACHINE_NAME}/*.c" "src/apps/${STATE_MACHINE_NAME}/*.cpp" "lib/FLNL/src/*.cpp")
-file(GLOB_RECURSE HEADERS "src/core/*.h" "src/hardware/*.h" "src/apps/${STATE_MACHINE_NAME}/*.h" )
+file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "${STATE_MACHINE_PATH}/${STATE_MACHINE_NAME}/*.c" "${STATE_MACHINE_PATH}/${STATE_MACHINE_NAME}/*.cpp" "lib/FLNL/src/*.cpp")
+file(GLOB_RECURSE HEADERS "src/core/*.h" "src/hardware/*.h" "${STATE_MACHINE_PATH}/${STATE_MACHINE_NAME}/*.h" )
 
 ## Set every folder containing .h file as include directory
 set (INCLUDE_DIRS "")
