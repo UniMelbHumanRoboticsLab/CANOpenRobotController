@@ -1,23 +1,23 @@
 /**
  * @file DummyTrajectoryGenerator.cpp
  * @author Justin Fong
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2020-05-04
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 
 #include "DummyTrajectoryGenerator.h"
 
 
-double sitting[6] = {deg2rad(95), deg2rad(95), deg2rad(90), deg2rad(90), 0, 0};
+double sitting[6] = {deg2rad(95), -deg2rad(90), deg2rad(95), -deg2rad(90), 0, 0};
 double standing[6] = {0, 0, 0, 0, 0, 0};
-Eigen::VectorXd startPos(6); 
+Eigen::VectorXd startPos(6);
 
 DummyTrajectoryGenerator::DummyTrajectoryGenerator(int NumOfJoints) {
-    double sitPos[6] = {deg2rad(95), deg2rad(95), deg2rad(90), deg2rad(90), 0, 0};
+	double sitPos[6] = {deg2rad(95), -deg2rad(90), deg2rad(95), -deg2rad(90), 0, 0};
     double standPos[6] = {0, 0, 0, 0, 0, 0};
 
     numJoints = NumOfJoints;
@@ -36,8 +36,8 @@ bool DummyTrajectoryGenerator::initialiseTrajectory() {
 }
 
 /**
-     * @brief 
-     * 
+     * @brief
+     *
      */
 bool DummyTrajectoryGenerator::initialiseTrajectory(Trajectory traj, double time, Eigen::VectorXd &startPos_) {
     currTraj = traj;
@@ -50,9 +50,9 @@ bool DummyTrajectoryGenerator::initialiseTrajectory(Trajectory traj, double time
 
 /**
      * @brief Implementation of the getSetPoint method in TrajectoryGenerator
-     * @param time The time corresponding to the point. 
-     * 
-     * @return vector<double> 
+     * @param time The time corresponding to the point.
+     *
+     * @return vector<double>
      */
 
 Eigen::VectorXd DummyTrajectoryGenerator::getSetPoint(double time) {

@@ -53,12 +53,7 @@
  */
 class ExoTestMachine : public StateMachine {
    public:
-    bool running = false;
-
-    // Timing variables for logging
-    std::chrono::steady_clock::time_point time0;  // initial time that machine started
-    double time;                                  // time passed after time0 in [s]
-
+    //bool running = false;
     /**
      *  \todo Pilot Parameters would be set in constructor here
      *
@@ -67,43 +62,14 @@ class ExoTestMachine : public StateMachine {
     void init();
     void end();
 
-    void update();
     void hwStateUpdate();
-    void configureMasterPDOs();
 
     State *gettCurState();
-    void initRobot(X2Robot *rb);
+
     bool trajComplete;
     DummyTrajectoryGenerator *trajectoryGenerator;
 
-    /**
-     * Pointers to the relevant states - initialised in init
-     *
-     */
-    InitState *initState;
-    SittingDwn *sittingDwn;
-    StandingUp *standingUp;
-    Sitting *sitting;
-    Standing *standing;
-
-   protected:
-    X2Robot *robot;        /*<!Pointer to the Robot*/
-    LogHelper dataLogger;  // Logger
-
-   private:
-    /**
-     *
-     * \brief Event Objects defined using Macro defined in StateMachine.h
-     * Defines the Class itself, as well as initialises an object of that class
-     * An events check function are defined in the .cpp file.
-    */
-    EventObject(EndTraj) * endTraj;
-    EventObject(IsAPressed) * isAPressed;
-    EventObject(StartButtonsPressed) * startButtonsPressed;
-    EventObject(StartExo) * startExo;
-    EventObject(StartExoCal) * startExoCal;
-    EventObject(StartSit) * startSit;
-    EventObject(StartStand) * startStand;
+    X2Robot *robot() { return static_cast<X2Robot*>(_robot.get()); } //!< Robot getter with specialised type (lifetime is managed by Base StateMachine)
 };
 
 #endif /*EXO_SM_H*/
