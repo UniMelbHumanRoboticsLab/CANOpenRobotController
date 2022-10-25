@@ -121,17 +121,17 @@ class Drive {
 
     /**
      * \brief Lists of PDOs
-     * 
+     *
      */
     std::vector<RPDO *> rpdos;
     std::vector<TPDO *> tpdos;
-    
+
     /**
         * \brief Generates the list of commands required to configure TPDOs on the drives
         *
         * \param items A list of OD_Entry_t items which are to be configured with this TPDO
         * \param PDO_Num The number/index of this PDO
-        * \param COB_ID the COB-ID of the PDO 
+        * \param COB_ID the COB-ID of the PDO
         * \param SyncRate The rate at which this PDO transmits (e.g. number of Sync Messages. 0xFF represents internal trigger event)
         * \param sub_idx The register sub index
         * \return std::string
@@ -142,7 +142,7 @@ class Drive {
         * \brief Creates a RPDO in the Local Object Dictionary for the equivalent TPDO on the drive
         *
         * \param items A list of OD_Entry_t items which are to be configured with this RPDO
-        * \param COB_ID the COB-ID of the PDO 
+        * \param COB_ID the COB-ID of the PDO
         * \param RPDOSyncRate The rate at which the RPDO processes NOTE: This is not the same as for the equivalent TPDO
         */
     void generateEquivalentMasterRPDO(std::vector<OD_Entry_t> items,  int COB_ID, int RPDOSyncRate);
@@ -153,7 +153,7 @@ class Drive {
         *
         * \param items A list of OD_Entry_t items which are to be configured with this RPDO
         * \param PDO_Num The number/index of this PDO
-        * \param COB_ID the COB-ID of the PDO 
+        * \param COB_ID the COB-ID of the PDO
         * \param UpdateTiming 0-240 represents hold until next sync message, 0xFF represents immediate update
         * \param sub_idx The register sub index
         * \return std::string
@@ -164,7 +164,7 @@ class Drive {
         * \brief Creates a TPDO in the Local Object Dictionary for the equivalent RPDO on the drive
         *
         * \param items A list of OD_Entry_t items which are to be configured with this TPDO
-        * \param COB_ID the COB-ID of the PDO 
+        * \param COB_ID the COB-ID of the PDO
         * \param RPDOSyncRate The rate at which the TPDO sends messages NOTE: This is not the same as for the equivalent RPDO
         */
     void generateEquivalentMasterTPDO(std::vector<OD_Entry_t> items, int COB_ID, int TPDOSyncRate);
@@ -237,7 +237,7 @@ class Drive {
 
 
     /**
-     * \brief Map between the TPDO Number and their Mapped Objects 
+     * \brief Map between the TPDO Number and their Mapped Objects
      *
      */
     std::map<UNSIGNED8, std::vector<OD_Entry_t>> TPDO_MappedObjects = {
@@ -246,7 +246,7 @@ class Drive {
         {3, {ACTUAL_TOR}}};
 
         /**
-     * \brief Map between the RPDO Number and their Mapped Objects 
+     * \brief Map between the RPDO Number and their Mapped Objects
      *
      */
     std::map<UNSIGNED8, std::vector<OD_Entry_t>> RPDO_MappedObjects = {
@@ -256,7 +256,7 @@ class Drive {
         {4, {TARGET_TOR}}};
 
     /**
-     * \brief Map between the RPDO Number and their base COB-ID (actualy is base COB-ID + Node_ID) 
+     * \brief Map between the RPDO Number and their base COB-ID (actualy is base COB-ID + Node_ID)
      *
      * NOTE: This is an arbitrary default mapping unique to CORC. This can be changed in derived classes
      */
@@ -266,7 +266,7 @@ class Drive {
         {3, 0x380}};
 
     /**
-     * \brief Map between the RPDO Number and their base COB-ID (actualy is base COB-ID + Node_ID) 
+     * \brief Map between the RPDO Number and their base COB-ID (actualy is base COB-ID + Node_ID)
      *
      * NOTE: This is an arbitrary default mapping unique to CORC. This can be changed in derived classes
      */
@@ -568,7 +568,7 @@ class Drive {
         * \brief Sets the continous/not continous profile bit
         *
         * \param continuous if this is true, continous movement is enabled, otherwise it is disabled
-        * \return true If change is successful 
+        * \return true If change is successful
         * \return false If drive was not in position control mode
         */
     virtual bool posControlSetContinuousProfile(bool continuous);

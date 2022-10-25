@@ -103,7 +103,7 @@ class State {
         _iterations = 0;
         _time_dt = 0;
         _active = true;
-        spdlog::debug("Entering {} state...", _name);
+        spdlog::info("Entering {} state...", _name);
         entry();
     };
     /**
@@ -127,7 +127,7 @@ class State {
         _time_running = tmp;
         exit();
         _active = false;
-        spdlog::debug("Exited {} state...", _name);
+        spdlog::info("Exited {} state...", _name);
     };
 };
 

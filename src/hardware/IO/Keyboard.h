@@ -123,7 +123,7 @@ class Keyboard : public InputDevice {
     int getKeyCode();
     /**
  * \brief Getter method for any letter key pressed
- * \return Return the key character currently pressed (converted to lower-case), -1 if nothing is pressed or not a character
+ * \return Return the key character currently pressed (converted to upper-case), -1 if nothing is pressed or not a character
  */
     int getKeyUC();
     /**

@@ -21,6 +21,7 @@
 #ifndef ROBOT_H_INCLUDED
 #define ROBOT_H_INCLUDED
 #include <vector>
+#define EIGEN_RUNTIME_NO_MALLOC //! Flag preventing Eigen to do dynaic allocation (can be bad in RT). See https://github.com/stulp/tutorials/blob/master/test.md for details.
 #include <Eigen/Dense>
 // yaml-parser
 #include <fstream>

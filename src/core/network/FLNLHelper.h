@@ -101,6 +101,14 @@ class FLNLHelper
         }
 
         /**
+        * \brief Allow for reconnection (wait for client)
+        */
+        void reconnect() {
+            if(!FLNLServer.IsConnected())
+                FLNLServer.Reconnect();
+        }
+
+        /**
         * \brief Default destructor also closing connection
         */
         ~FLNLHelper() {
