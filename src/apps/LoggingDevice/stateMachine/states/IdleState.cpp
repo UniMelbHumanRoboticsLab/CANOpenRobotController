@@ -11,7 +11,7 @@
 
 #include "IdleState.h"
 
-IdleState::IdleState(StateMachine *m, LoggingRobot *robot, const char *name) : State(m, name), robot(robot) {
+IdleState::IdleState(LoggingRobot *robot, const char *name) : State(name), robot(robot) {
     spdlog::info("IdleState Created");
 };
 void IdleState::entry(void) {

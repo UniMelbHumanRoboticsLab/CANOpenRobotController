@@ -27,7 +27,7 @@ class CalibrateState : public State {
     public :
         LoggingRobot * robot;
 
-        CalibrateState(StateMachine *m, LoggingRobot *robot, const char *name = NULL);
+        CalibrateState(LoggingRobot *robot, const char *name = "");
 
         void entry(void);
         void during(void);
