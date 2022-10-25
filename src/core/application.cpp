@@ -20,7 +20,7 @@ std::unique_ptr<STATE_MACHINE_TYPE> stateMachine;
 /******************** RUNS BEFORE CO_init() ********************/
 void app_communicationReset(int argc, char *argv[]) {
 #ifdef USEROS
-    stateMachine = std::make_unique<STATE_MACHINE_TYPE>(argc, argv);
+    stateMachine = make_unique<STATE_MACHINE_TYPE>(argc, argv);
 #else
     stateMachine = std::make_unique<STATE_MACHINE_TYPE>();
 #endif
@@ -34,6 +34,7 @@ void app_programStart(void) {
 #ifdef NOROBOT
     spdlog::info("Running in NOROBOT (virtual) mode.");
 #endif  // NOROBOT
+    spdlog::info("Application thread running at {}Hz.", (int)(1000./(float)controlLoopPeriodInms));
     stateMachine->init();
     stateMachine->activate();
 }
@@ -44,9 +45,19 @@ void app_programAsync(uint16_t timer1msDiffy) {
 
 /******************** Runs in rt_control_thread ********************/
 void app_programControlLoop(void) {
+    std::chrono::steady_clock::time_point _t0 = std::chrono::steady_clock::now();
+
+    //StateMachine execution
     if (stateMachine->running()) {
         stateMachine->update();
     }
+
+    //Warn if time overflow (this is the effective used time, normally lower than the allocated time period)
+    double dt = (std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now() - _t0).count()) / 1e6;
+    if(dt>controlLoopPeriodInms/1000.)
+        spdlog::warn("Applicaton thread time overflow: {}ms (>{}ms) !", dt*1000., controlLoopPeriodInms);
+
 }
 
 /******************** Runs at the End of rt_control_thread********************/
