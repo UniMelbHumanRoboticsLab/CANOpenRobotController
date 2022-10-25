@@ -37,9 +37,11 @@ void M3DemoState::entryCode(void) {
     robot->printJointStatus();
     robot->initTorqueControl();
     robot->setJointTorque(VM3(0,0,0));
+    tau = VM3(0,0,0);
+    lock = false;
 }
 void M3DemoState::duringCode(void) {
-    if(iterations()%100==1) {
+    if(iterations()%1000==1) {
         //std::cout << "Doing nothing for "<< elapsedTime << "s..." << std::endl;
         std::cout << running() << " ";
         robot->printJointStatus();
@@ -72,29 +74,43 @@ void M3DemoState::duringCode(void) {
         Dq={0,0.015*5.,0.015*5.};
     robot->setJointPos(qi-Dq);*/
 
-    //Bound to 10Nm
-    if(f>10.0) {
-        f = 10;
+    //Bound to 20Nm
+    if(tau[0]>20.0) {
+        tau[0] = 20;
     }
-    if(f<-10) {
-        f = -10;
+    if(tau[0]<-20) {
+        tau[0] = -20;
     }
+
 
     //Apply corresponding force
-    robot->setJointTorque(VM3(f,0,0));
+    robot->setJointTorque(tau);
 
-    //Mass controllable through keyboard inputs
+    //Keyboard inputs
     if(robot->keyboard->getS()) {
-        f -=0.1;robot->printJointStatus();
-        std::cout << "tau: " << f << std::endl;
+        tau[0] -=0.1;robot->printJointStatus();
+        std::cout << "tau: " << tau[0] << std::endl;
     }
     if(robot->keyboard->getW()) {
-        f +=0.1;robot->printJointStatus();
-        std::cout << "tau: " << f << std::endl;
+        tau[0] +=0.1;robot->printJointStatus();
+        std::cout << "tau: " << tau[0] << std::endl;
     }
 
-    /*VM3 tau(0,-5.0,0);*/
-    //robot->setJointTor(robot->calculateGravityTorques());
+
+    /*if(robot->keyboard->getA()) {
+        lock=true;
+        std::cout << "LOCK "<< std::endl;
+    }*/
+
+    /*if(lock) {
+        VM3 dq = robot->getVelocity();
+        tau[1] = -20*dq[1];
+        tau[2] = -20*dq[2];
+    }
+    else {
+        tau[1]=0;
+        tau[2]=0;
+    }*/
 
 
 
@@ -130,9 +146,9 @@ void M3CalibState::duringCode(void) {
 
     //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
     VM3 vel=robot->getVelocity();
-    double b = 3.;
+    double b = 7.;
     for(unsigned int i=0; i<3; i++) {
-        tau(i) = std::min(std::max(2 - b * vel(i), .0), 2.);
+        tau(i) = std::min(std::max(8 - b * vel(i), .0), 8.);
         if(stop_reached_time(i)>0.5) {
             at_stop[i]=true;
         }
@@ -177,24 +193,24 @@ void M3MassCompensation::duringCode(void) {
     double t=running()>settling_time?1.0:running()/settling_time;
 
     //Bound mass to +-5kg
-    if(mass>5.0) {
-        mass = 5;
+    if(mass>15.0) {
+        mass = 15.;
     }
-    if(mass<-5) {
-        mass = -5;
+    if(mass<-15) {
+        mass = -15.;
     }
 
     //Apply corresponding force
-    robot->setEndEffForceWithCompensation(VM3(0,0,t*mass*9.8));
+    robot->setEndEffForceWithCompensation(VM3(0,0,t*mass*9.8), true);
 
     //Mass controllable through keyboard inputs
     if(robot->keyboard->getS()) {
-        mass -=0.1;robot->printStatus();
+        mass -=0.5;robot->printStatus();
         robot->printJointStatus();
         std::cout << "Mass: " << mass << std::endl;
     }
     if(robot->keyboard->getW()) {
-        mass +=0.1;robot->printStatus();
+        mass +=0.5;robot->printStatus();
         robot->printJointStatus();
         std::cout << "Mass: " << mass << std::endl;
     }

@@ -61,12 +61,12 @@ M3DemoMachine::M3DemoMachine() {
 
     //Define transitions between states
     addTransition("CalibState", &endCalib, "StandbyState");
-    addTransition("StandbyState", &goToNextState, "MinJerkState");
-    addTransition("MinJerkState", &goToNextState, "ImpedanceState");
-    addTransition("ImpedanceState", &goToNextState, "PathState");
-    addTransition("PathState", &goToNextState, "EndEffState");
-    addTransition("EndEffState", &goToNextState, "TimingState");
-    addTransition("TimingState", &goToNextState, "StandbyState");
+    addTransitionFromLast(&goToNextState, "MinJerkState");
+    addTransitionFromLast(&goToNextState, "ImpedanceState");
+    addTransitionFromLast(&goToNextState, "PathState");
+    addTransitionFromLast(&goToNextState, "EndEffState");
+    addTransitionFromLast(&goToNextState, "TimingState");
+    addTransitionFromLast(&goToNextState, "StandbyState");
     addTransitionFromAny(&standby, "StandbyState");
 
     addTransition("StandbyState", &goToTele, "TeleopState");
@@ -87,11 +87,11 @@ void M3DemoMachine::init() {
     if(robot()->initialise()) {
         logHelper.initLogger("M3DemoMachineLog", "logs/M3DemoMachine.csv", LogFormat::CSV, true);
         logHelper.add(runningTime(), "Time (s)");
+        logHelper.add(robot()->getPosition(), "q");
+        logHelper.add(robot()->getVelocity(), "dq");
+        logHelper.add(robot()->getTorque(), "tau");
         logHelper.add(robot()->getEndEffPosition(), "X");
         logHelper.add(robot()->getEndEffVelocity(), "dX");
-        logHelper.add(robot()->getInteractionForce(), "F");
-        logHelper.add(robot()->getEndEffAcceleration(), "ddX");
-        logHelper.add(robot()->getEndEffVelocityFiltered(), "dXFilt");
         UIserver = std::make_shared<FLNLHelper>(*robot(), "192.168.7.2");
     }
     else {

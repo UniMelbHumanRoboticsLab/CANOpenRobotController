@@ -48,10 +48,10 @@ static M3Tool M3Handle(0.140, 0.800, "Handle"); //!< Default handle with 3 rotat
  *                  /-     \           \
  *                 /        \           \ (L2)
  *               /-          \           \
- *           M3/-             \        M1 \
+ *             /-             \           \
  *           /-                \           \
  *         /-                   \           \
- *       /-                   M2 \           \
+ *       /-                      \           \
  *     /-                         \           \
  *+------+                         \           \
  *| MTool|                          \           \
@@ -72,13 +72,17 @@ class RobotM3 : public Robot {
     *  if one is provided to the constructor and the parameter is defined in the configuration file.
     */
     /* @{ */
-    double dqMax = 360 * M_PI / 180.;                                           //!< Max joint speed (rad.s-1)
-    double tauMax = 1.9 * 22;                                                   //!< Max joint torque (Nm)
-    std::vector<float> qSigns = {1, 1, -1};                                     //!< Joint direction (as compared to built-in drives direction)
-    std::vector<float> linkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};//!< Link lengths used for kinematic models (in m), excluding tool
-    std::vector<float> linkMasses = {0, 0.450, 0.400, 0.100, .0};               //!< Link masses used for gravity compensation (in kg), excluding tool
-    std::vector<double> frictionVis = {0.2, 0.2, 0.2};                          //!< Joint viscous friction compensation coefficients
-    std::vector<double> frictionCoul = {0.5, 0.5, 0.5};                         //!< Joint Coulomb (static) friction compensation coefficients
+    double dqMax = 360 * M_PI / 180.;                                               //!< Max joint speed (rad.s-1)
+    double tauMax = 1.9 * 22;                                                       //!< Max joint torque (Nm)
+    std::vector<double> iPeakDrives = {42.0, 42.0, 42.0};                           //!< Drive max current
+    std::vector<double> motorCstt = {0.132, 0.132, 0.132};                          //!< Motor constants
+    std::vector<double> qSigns = {1, 1, -1};                                        //!< Joint direction (as compared to built-in drives direction)
+    std::vector<double> linkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};   //!< Link lengths used for kinematic models (in m), excluding tool
+    std::vector<double> massCoeff = {-1.30, -1.06};                                 //!< Mass coefficients (identified) used for gravity compensation (in kg), excluding tool
+    std::vector<double> springK = {0, 0, 0};                                        //!< Joint spring compensation: tau=Ko+K*q
+    std::vector<double> springKo = {0, 0, 0};
+    std::vector<double> frictionVis = {0.2, 0.2, 0.2};                              //!< Joint viscous friction compensation coefficients
+    std::vector<double> frictionCoul = {0.5, 0.5, 0.5};                             //!< Joint Coulomb (static) friction compensation coefficients
 
     std::vector<double> qLimits = {/*q1_min*/ -45 * M_PI / 180.,/*q1_max*/ 45 * M_PI / 180., /*q2_min*/ -15 * M_PI / 180., /*q2_max*/70 * M_PI / 180., /*q3_min*/ 0 * M_PI / 180., /*q3_max*/ 95 * M_PI / 180.}; //!< Joints limits (in rad)
     VM3 qCalibration = {-38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};             //!< Calibration configuration: posture in which the robot is when using the calibration procedure
@@ -137,6 +141,13 @@ class RobotM3 : public Robot {
     bool initTorqueControl();
 
    private:
+
+    /**
+    * \brief Utility method filling vec with the values loaded from the YAML node. Expect same vector lengths.
+    *
+    */
+    void fillParamVectorFromYaml(YAML::Node node, std::vector<double> &vec);
+
     /**
     * \brief Load parameters from YAML file if valid one specified in constructor.
     * If absent or incomplete (some parameters only) default parameters are used instead.
