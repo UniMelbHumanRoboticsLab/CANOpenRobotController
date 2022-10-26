@@ -55,6 +55,8 @@ void SittingDwn::exit(void) {
 }
 ```
 
+> Note that you should ensure that the code within each of this method is deterministic and can be executed during one application loop period.
+
 States objects to be used should then be defined in your state machine constructor and an initialisation State should be selected:
 ```C++
 MyCustomStateMachine::MyCustomStateMachine() {
