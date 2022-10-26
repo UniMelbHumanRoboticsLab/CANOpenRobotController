@@ -47,8 +47,6 @@ To generate the Doxygen documentation of the code you can simply run `doxygen Do
 
 ## Developer Information
 
-- Detailed documentation: https://exoembedded.readthedocs.io/en/latest/
-- Source code documentation: https://capstonealex.github.io/exo/index.html
 - Project Repository: https://github.com/capstonealex/exo
 - CANopen Socket: https://github.com/CANopenNode/CANopenSocket
 - CANopen CiA 402 (motor drive standard) ressources: https://www.can-cia.org/can-knowledge/canopen/cia402/ and https://doc.synapticon.com/software/40/object_dict/all_objects/index.html#all-objects

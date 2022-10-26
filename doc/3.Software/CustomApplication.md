@@ -132,6 +132,10 @@ MyCustomStateMachine::MyCustomStateMachine() {
 
 ## Extending
 
+### CAN stack and execution timing
+
+See also the dedicated documentation page regarding [the execution and its timing](./Flowchart.md).
+
 ### Third-party libraries
 
 Additionnal third-party libraries required in your code can either directly be placed in the lib folder for headers-only libraries or added as packages in the CMakeList.
