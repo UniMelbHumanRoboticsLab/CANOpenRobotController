@@ -7,10 +7,10 @@ The project was initiated at the University of Melbourne in partnership with Fou
 ## The CANOpen Robot Controller project includes:
 
 - An extensible framework to represent multibody rigid robotic systems.
-- An event driven state machine to develop custom applications (see [here](doc/3.Software/StateMachine.md)).
+- An event driven state machine to develop custom applications (see [here](doc/3.Software/CustomApplication.md)).
 - An implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers/sensors.
 - Documentation (this page and associated ones and code Doxygen).
-- Functional application examples.
+- Functional application [examples](doc/1.GettingStarted/GettingStarted.md).
 
 ### Project Overview
 
@@ -34,7 +34,7 @@ CORC relies on [spdlog](https://github.com/gabime/spdlog) for both general loggi
 See [here](doc/3.Software/Logging.md) for more info on using the logging system.
 
 ### ROS Support
-See [here](doc/1.GettingStarted/Simulation.md) for instructions on how to build and run a CORC app with ROS support.
+See [here](doc/1.GettingStarted/AdvancedSimulationAndHardwareTesting.md) for instructions on how to build and run a CORC app with ROS support.
 
 ### Network communication
 See [here](doc/3.Software/NetworkCommunication.md) for instructions on using libFLNL for communication.
@@ -51,6 +51,7 @@ To generate the Doxygen documentation of the code you can simply run `doxygen Do
 - Source code documentation: https://capstonealex.github.io/exo/index.html
 - Project Repository: https://github.com/capstonealex/exo
 - CANopen Socket: https://github.com/CANopenNode/CANopenSocket
+- CANopen CiA 402 (motor drive standard) ressources: https://www.can-cia.org/can-knowledge/canopen/cia402/ and https://doc.synapticon.com/software/40/object_dict/all_objects/index.html#all-objects
 
 
 ## Contributors

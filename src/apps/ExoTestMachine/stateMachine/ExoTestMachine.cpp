@@ -64,8 +64,6 @@ ExoTestMachine::ExoTestMachine() {
     trajectoryGenerator = new DummyTrajectoryGenerator(X2_NUM_JOINTS);
     setRobot(std::make_unique<X2Robot>());
 
-    spdlog::info("Test");
-
     // Create PRE-DESIGNED State Machine events and state objects.
     addState("initState", std::make_shared<InitState>(robot(), trajectoryGenerator));
     addState("standing", std::make_shared<Standing>(robot(), trajectoryGenerator));

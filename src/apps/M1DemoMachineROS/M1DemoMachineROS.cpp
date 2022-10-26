@@ -40,7 +40,7 @@ M1DemoMachineROS::~M1DemoMachineROS() {
 
 void M1DemoMachineROS::init() {
 
-    if(!robot()->initialise())
+    if(!robot()->initialise()) {
         std::cout /*cerr is banned*/ << "Failed robot initialisation. Exiting..." << std::endl;
         std::raise(SIGTERM); //Clean exit
     }

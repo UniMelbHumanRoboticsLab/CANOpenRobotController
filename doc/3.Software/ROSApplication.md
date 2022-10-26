@@ -22,29 +22,6 @@ On the target:
 
 >If the hostnames are not defined, edit the /etc/hosts files (see ROS [documentation](http://wiki.ros.org/ROS/Tutorials/MultipleRemoteMachines) or this [example](https://github.com/mktk1117/six_wheel_robot/wiki/Communication-between-Raspberry-Pi-and-PC-\(ROS\)) for more details).
 
-
-## Cross-compilation
-In order to cross-compile CORC with ROS support from the host machine, you first need to create a sysroot: a copy of the basic filesystem of the target. To do so, create a folder named `corc-target-sysroot`. Using scp or sftp, copy the following folders from the target to this folder:
-```bash
-	/usr/
-	/lib/
-```
->It is recommended to do this on a minimal system to reduce the size of these folders. Typically graphical packages (xserver etc...) which may be installed by default on the BB distribution can be uninstall before.
-
-Once the files are copied, in a terminal, set the directory of this folder:
-```bash
-	$ export CORC_CMAKE_SYSROOT=/path/to/my/folder/corc-target-sysroot
-```
-
-Edit the `CMakeFileLists.txt` to select the app to build and ensure that the line `set(USE_ROS ON)` is NOT commented and set to ON.
-
-Cross-compile by passing the sysroot path argument to cmake (and the toolchain argument). In the root CANOpenRobotController:
-```bash
-	$ rm -r build && mkdir build && cd build/ && cmake -DCMAKE_SYSROOT=/path/to/my/folder/corc-target-sysroot -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
-	$ make -j8
-```
-Voila !
-
 ## Run the app
 On the host machine, start ROS:
 ```bash

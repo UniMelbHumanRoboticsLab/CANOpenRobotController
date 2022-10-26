@@ -34,8 +34,6 @@ class M1DemoMachineROS : public StateMachine {
     void init();
     void end();
 
-    bool configureMasterPDOs();
-
     void hwStateUpdate();
 
     /**

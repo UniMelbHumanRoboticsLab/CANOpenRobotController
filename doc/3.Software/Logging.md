@@ -37,17 +37,12 @@ This log allows you to record the states of the robot, sensors or any other appl
     logHelper.add(robot_->getPosition(), "JointPositions");
     logHelper.add(robot_->getVelocity(), "JointVelocities");
     logHelper.add(robot_->getTorque(), "JointTorques");
-    logHelper.startLogger();
   ```
 
 This example will log the robot joint positions, velocities and torques in `logs/logexample.csv` at every loop execution. 
   
-The logger support any basic types and Eigen vectors. References to values to log should all be registered (using `logHelper.add()`) before starting the logger (`logHelper.startLogger()`) and these references should be valid during the entire statemachine execution.
+The logger support any basic types and Eigen vectors. References to values to log should all be registered (using `logHelper.add()`) before starting the logger (at the start of the StateMachine) and these references should be valid during the entire StateMachine execution.
   
-Additionnaly, the logger should be properly closed at the end of the state machine execution, within `MyCustomStateMachine::end()`:
-  ```C++
-    if(logHelper.isStarted())
-       logHelper.endLog();
-  ```
+Additionnaly, custom logger can be created on the model of logHelper at any point of execution. In this case, the custom logger should be started using its `startLogger()` method and properly closed using `endLog()` method. Registered data to the custom logger would then be recorded at each call of the `recordLogData()` method between the start and end.
 
-> Note: implementation examples of this logger are available in the X2DemoMachine and M3DemoMachine.
+> Note: implementation examples of the logHelper are available in all the demo StateMachine in `apps` folder.
