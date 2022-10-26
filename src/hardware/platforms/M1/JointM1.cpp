@@ -172,3 +172,10 @@ void JointM1::errorMessage(setMovementReturnCode_t errorCode){
     }
 }
 
+bool JointM1::setDigitalOut(int digital_out) {
+    return drive->setDigitalOut(digital_out);
+}
+
+int JointM1::getDigitalIn() {
+    return drive->getDigitalIn();
+}

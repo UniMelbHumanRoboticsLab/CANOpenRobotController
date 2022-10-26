@@ -236,25 +236,6 @@ class Robot {
     */
     virtual setMovementReturnCode_t setTorque(std::vector<double> torques) { return INCORRECT_MODE; };
     //@}
-
-    /** @name Logging Methods */
-    //@{
-    /**
-    * \brief Initialises Logging to specified file
-    *
-    */
-    void initialiseLog();
-    /**
-    * \brief Log input data point to currently open log file
-    *
-    */
-    void logDataPoint(std::string data);
-    /**
-    * \brief Save and close any currently open logging files
-    *
-    */
-    bool closeLog();
-    //@}
 };
 
 #endif  //ROBOT_H

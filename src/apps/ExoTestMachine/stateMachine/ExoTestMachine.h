@@ -28,14 +28,6 @@
 #ifndef EXO_SM_H
 #define EXO_SM_H
 
-#include <sys/time.h>
-
-#include <array>
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <string>
-
 #include "ExoTestState.h"
 #include "StateMachine.h"
 #include "X2Robot.h"

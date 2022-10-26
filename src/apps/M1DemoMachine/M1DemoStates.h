@@ -1,9 +1,9 @@
 /**
  * /file M1DemoState.h
  * \author Yue Wen adapted from Vincent Crocher
- * \version 0.1
- * \date 2020-08-25
- * \copyright Copyright (c) 2020
+ * \version 0.2
+ * \date 2022-10-26
+ * \copyright Copyright (c) 2020 - 2022
  *
  *
  */
@@ -11,21 +11,10 @@
 #ifndef M1DemoSTATE_H_DEF
 #define M1DemoSTATE_H_DEF
 
-#include <time.h>
-
-#include <iostream>
-
 #include "RobotM1.h"
 #include "State.h"
 
-#include "FLNLHelper.h"
-#include <csignal> //For raise()
-#include "LogHelper.h"
-#include "logging.h"
-
 #define IP_ADDRESS "192.168.137.196" //Local IP address to use
-
-using namespace std;
 
 /**
  * \brief Conversion from a timespec structure to seconds (double)
@@ -45,7 +34,7 @@ class M1TimedState : public State {
     */
     RobotM1 *robot;                               /*<!Pointer to state machines robot object*/
 
-    M1TimedState(StateMachine *m, RobotM1 *M1, const char *name = NULL): State(m, name), robot(M1){};
+    M1TimedState(RobotM1 *M1, const char *name = NULL): State(name), robot(M1){};
    private:
     void entry(void) final {
         std::cout
@@ -54,29 +43,10 @@ class M1TimedState : public State {
         << "==================================" << std::endl
         << std::endl;
 
-        //Timing
-        clock_gettime(CLOCK_MONOTONIC, &initTime);
-        lastTime = timeval_to_sec(&initTime);
-
-        iterations=0;
-
         //Actual state entry
         entryCode();
     };
     void during(void) final {
-        //Compute some basic time values
-        struct timespec ts;
-        clock_gettime(CLOCK_MONOTONIC, &ts);
-
-        double now = timeval_to_sec(&ts);
-        elapsedTime = (now-timeval_to_sec(&initTime));
-        dt = now - lastTime;
-        lastTime = now;
-
-        iterations++;
-//        if(dt > 0.005){
-//            std::cout << std::setprecision(4) << dt << std::endl;
-//        }
         //Actual state during
         duringCode();
     };
@@ -93,14 +63,6 @@ class M1TimedState : public State {
     virtual void entryCode(){};
     virtual void duringCode(){};
     virtual void exitCode(){};
-
-
-   protected:
-    struct timespec initTime;   /*<! Time of state init */
-    double lastTime;            /*<! Time of last during() call (in seconds since state init())*/
-    double elapsedTime;         /*<! Time since state init() in seconds*/
-    double dt;                  /*<! Time between last two during() calls (in seconds)*/
-    long int iterations;
 };
 
 
@@ -113,13 +75,12 @@ class M1TimedState : public State {
  */
 class IdleState : public State {
     RobotM1 *robot;
-    server *chaiServer;
 
 public:
     void entry(void);
     void during(void);
     void exit(void);
-    IdleState(StateMachine *m, RobotM1 *exo, const char *name = "Idle state") : State(m, name), robot(exo){};
+    IdleState(RobotM1 *exo, const char *name = "Idle state") : State(name), robot(exo){};
 };
 
 /**
@@ -136,7 +97,7 @@ public:
     void entry(void);
     void during(void);
     void exit(void);
-    Monitoring(StateMachine *m, RobotM1 *exo, const char *name = NULL) : State(m, name), robot(exo){};
+    Monitoring(RobotM1 *exo, const char *name = "M1 Monitoring State") : State(name), robot(exo){};
     long int iterations;
     JointVec q;     //positive dorsi flexion
 };
@@ -155,7 +116,7 @@ public:
     void entry(void);
     void during(void);
     void exit(void);
-    Calibration(StateMachine *m, RobotM1 *exo, const char *name = NULL) : State(m, name), robot(exo){};
+    Calibration(RobotM1 *exo, const char *name = "M1 Calibration State") : State(name), robot(exo){};
     long int iterations;
     JointVec q;     //positive dorsi flexion
     JointVec dq;
@@ -164,31 +125,14 @@ public:
     double stages;
 };
 
-class M1DemoState : public M1TimedState {
-
-   public:
-    M1DemoState(StateMachine *m, RobotM1 *M1, const char *name = "M1 Test State"):M1TimedState(m, M1, name){};
-
-    void entryCode(void);
-    void duringCode(void);
-    void exitCode(void);
-
-    JointVec qi;
-    EndEffVec Xi;
-    bool flag = true;
-    double freq;
-    double counter;
-//    Eigen::Matrix<float, 1, 1> qi, Xi;
-};
-
 /**
- * \brief Position tracking of M1
+ * \brief Demo State of M1, including position tracking, velocity tracking, torque tracking
  *
  */
-class M1PositionTracking: public M1TimedState {
+class M1DemoState: public M1TimedState {
 
 public:
-    M1PositionTracking(StateMachine *m, RobotM1 *M1, const char *name = "M1 Test State"):M1TimedState(m, M1, name){};
+    M1DemoState(RobotM1 *M1, const char *name = "M1 Test State"):M1TimedState(M1, name){};
 
     void entryCode(void);
     void duringCode(void);

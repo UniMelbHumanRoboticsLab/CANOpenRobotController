@@ -80,7 +80,7 @@ ExoTestMachine::ExoTestMachine() {
     addTransition("standing", &startSit, "sittingDwn");
     addTransition("sittingDwn", &endTraj, "sitting");
 
-    setInitState("initState"); 
+    setInitState("initState");
 }
 /**
  * \brief start function for running any designed statemachine specific functions
@@ -96,14 +96,12 @@ void ExoTestMachine::init() {
     logHelper.initLogger("test_logger", "logs/testLog.csv", LogFormat::CSV, true);
     logHelper.add(runningTime(), "time");
     logHelper.add(robot()->getPosition(), "JointPositions");
-    logHelper.startLogger();
 
     spdlog::info("InitFinished");
 }
 
 void ExoTestMachine::end() {
     spdlog::debug("Ending ExoTestMachine");
-    logHelper.endLog();
 }
 
 

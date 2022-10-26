@@ -9,16 +9,17 @@ project(CORC C CXX)
 #(it should be the class name and have corresponding header naming in a corresponding folder)
 # If your application use ROS, don't forget to change the flag bellow too.
 
-set (STATE_MACHINE_NAME "ExoTestMachine")
+#set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "M1DemoMachine")
+set (STATE_MACHINE_NAME "M1DemoMachineROS")
 #set (STATE_MACHINE_NAME "M2DemoMachine")
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 
-#Use this if your state machine code folder is not in CORC 'src/apps/' folder. 
+#Use this if your state machine code folder is not in CORC 'src/apps/' folder.
 #Can be a relative or absolute path.
-#set (STATE_MACHINE_PATH "../") 
+#set (STATE_MACHINE_PATH "../")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT ON)
@@ -140,7 +141,8 @@ if(USE_ROS)
     endif()
 
     generate_dynamic_reconfigure_options(
-        config/x2_dynamic_params.cfg
+            config/m1_dynamic_params.cfg
+            config/x2_dynamic_params.cfg
     )
 
     add_message_files(
