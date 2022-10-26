@@ -96,9 +96,6 @@ class LoggingDevice : public StateMachine {
     */
     EventObject(IsAPressed) * isAPressed;
     EventObject(IsSPressed) * isSPressed;
-    EventObject(IsWPressed) * isWPressed;
-    EventObject(IsDPressed) * isDPressed;
-    EventObject(IsXPressed) * isXPressed;
 
     EventObject(IsCalibrationFinished) * isCalibrationFinished;
 };

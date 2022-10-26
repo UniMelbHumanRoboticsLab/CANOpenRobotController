@@ -9,9 +9,6 @@ LoggingDevice::LoggingDevice() {
     // Events
     isAPressed = new IsAPressed(this);
     isSPressed = new IsSPressed(this);
-    isWPressed = new IsWPressed(this);
-    isXPressed = new IsXPressed(this);
-    isDPressed = new IsDPressed(this);
 
     isCalibrationFinished = new IsCalibrationFinished(this);
 
@@ -24,9 +21,6 @@ LoggingDevice::LoggingDevice() {
     // Transitions
     NewTransition(initState, isAPressed, idleState);
     NewTransition(idleState, isAPressed, calibrateState);
-    NewTransition(idleState, isWPressed, idleState);
-    NewTransition(idleState, isXPressed, idleState);
-    NewTransition(idleState, isDPressed, idleState);
 
     NewTransition(calibrateState, isCalibrationFinished, idleState);
     NewTransition(idleState, isSPressed, recordState);
@@ -46,8 +40,6 @@ void LoggingDevice::init() {
     dataLogger.initLogger("test_logger", "logs/testLog.csv", LogFormat::CSV, true);
     dataLogger.add(time, "time");
     dataLogger.add(robot->getCrutchReadings(), "CrutchReadings");
-    dataLogger.add(robot->getForcePlateReadings(), "ForcePlateReadings");
-    dataLogger.add(robot->getFootSensorReadings(), "FootSensorReadings");
     //dataLogger.add(robot->getMotorPositions(), "MotorPositions");
     //dataLogger.add(robot->getMotorVelocities(), "MotorVelocities");
     //dataLogger.add(robot->getMotorTorques(), "MotorTorques");
@@ -94,28 +86,6 @@ bool LoggingDevice::IsCalibrationFinished::check(void) {
     return true;
 }
 
-bool LoggingDevice::IsWPressed::check(void) {
-    if (OWNER->robot->keyboard->getW() == true) {
-        OWNER->robot->zeroForcePlate();
-        return true;
-    }
-    return false;
-}
-
-bool LoggingDevice::IsXPressed::check(void) {
-    if (OWNER->robot->keyboard->getX() == true) {
-        OWNER->robot->zeroLeftFoot();
-        return true;
-    }
-    return false;
-}
-bool LoggingDevice::IsDPressed::check(void) {
-    if (OWNER->robot->keyboard->getD() == true) {
-        OWNER->robot->zeroRightFoot();
-        return true;
-    }
-    return false;
-}
 
 /**
  * \brief Statemachine to hardware interface method. Run any hardware update methods
