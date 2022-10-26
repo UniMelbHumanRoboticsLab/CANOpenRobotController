@@ -83,6 +83,11 @@ bool Drive::setTorque(int torque) {
     return true;
 }
 
+bool Drive::setDigitalOut(int digital_out) {
+    spdlog::trace("Drive {} Writing {} to 0x{0:x}", NodeID, (short int)digitalOut, OD_Addresses[DIGITAL_OUT]);
+    digitalOut = digital_out;
+    return true;
+}
 
 int Drive::getPos() {
     return actualPos;
@@ -102,6 +107,10 @@ int Drive::getTorque() {
     } else {
         return 0;
     }
+}
+
+int Drive::getDigitalIn() {
+    return digitalIn;
 }
 
 DriveState Drive::resetErrors() {
@@ -161,7 +170,7 @@ bool Drive::posControlSetContinuousProfile(bool continuous) {
 
 bool Drive::configureMasterPDOs(){
     // Set up the PDOs in the OD here
-    for (int TPDO_Num = 1; TPDO_Num <= 3; TPDO_Num++){
+    for (int TPDO_Num = 1; TPDO_Num <= 4; TPDO_Num++){
         generateEquivalentMasterRPDO(TPDO_MappedObjects[TPDO_Num], TPDO_COBID[TPDO_Num] + NodeID, 0xff);
         }
     for (int RPDO_Num = 1; RPDO_Num <= 4; RPDO_Num++){

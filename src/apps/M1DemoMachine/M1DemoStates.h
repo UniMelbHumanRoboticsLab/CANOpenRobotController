@@ -164,31 +164,14 @@ public:
     double stages;
 };
 
-class M1DemoState : public M1TimedState {
-
-   public:
-    M1DemoState(StateMachine *m, RobotM1 *M1, const char *name = "M1 Test State"):M1TimedState(m, M1, name){};
-
-    void entryCode(void);
-    void duringCode(void);
-    void exitCode(void);
-
-    JointVec qi;
-    EndEffVec Xi;
-    bool flag = true;
-    double freq;
-    double counter;
-//    Eigen::Matrix<float, 1, 1> qi, Xi;
-};
-
 /**
- * \brief Position tracking of M1
+ * \brief Demo State of M1, including position tracking, velocity tracking, torque tracking
  *
  */
-class M1PositionTracking: public M1TimedState {
+class M1DemoState: public M1TimedState {
 
 public:
-    M1PositionTracking(StateMachine *m, RobotM1 *M1, const char *name = "M1 Test State"):M1TimedState(m, M1, name){};
+    M1DemoState(StateMachine *m, RobotM1 *M1, const char *name = "M1 Test State"):M1TimedState(m, M1, name){};
 
     void entryCode(void);
     void duringCode(void);

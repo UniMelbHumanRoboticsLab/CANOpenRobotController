@@ -21,7 +21,10 @@
 #include "Keyboard.h"
 #include "Joystick.h"
 #include "Robot.h"
-#include "M1ForceSensor.h"
+#include "FourierForceSensor.h"
+
+#define M1_NUM_JOINTS 1
+#define M1_NUM_INTERACTION 1
 
 //typedef unsigned int uint;
 
@@ -71,13 +74,18 @@ class RobotM1 : public Robot {
     double d2r, r2d;
 
     // Storage variables for real-time updated values from CANopn
-    JointVec q, dq, tau, tau_s, tau_cmd;
+    JointVec q, dq, tau, tau_s, tau_sc, tau_cmd;
+    JointVec q_pre, tau_s_pre;
 
     JointVec qCalibration;  // Calibration configuration: posture in which the robot is when using the calibration procedure
 
     bool calibrated;
     double maxEndEffVel; /*!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.*/
     double maxEndEffForce; /*!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated. */
+
+    std::string robotName_;
+
+    short int sign(double val);
 
 public:
     /**
@@ -87,11 +95,13 @@ public:
       */
     RobotM1(std::string robot_name="", std::string yaml_config_file="");
     ~RobotM1();
-
+    JointVec tau_motor;
     Keyboard *keyboard;
-    M1ForceSensor *m1ForceSensor;
+    FourierForceSensor *m1ForceSensor;
     RobotState status;
     int mode;
+
+    JointVec tau_spring;
 
     bool initMonitoring();
     /**
@@ -187,12 +197,34 @@ public:
     void updateRobot();
 
     /**
+       * Writes the desired digital out value to the drive
+       *
+       * \return true if successful
+       * \return false if not
+       */
+    bool setDigitalOut(int digital_out);
+
+    /**
+           * Returns the value of digital IN
+           * \return Digital in state from the motor drive
+           */
+    virtual int getDigitalIn();
+
+    /**
      * \brief Check if current end effector force and velocities are within limits (if calibrated, otherwise
      *  check that joints velocity and torque are within limits).
      *
      * \return OUTSIDE_LIMITS if outside the limits (!), SUCCESS otherwise
      */
     setMovementReturnCode_t safetyCheck();
+
+
+    /**
+     * \brief get the name of the robot that is obtained from node name
+     *
+     * \return std::string name of the robot
+     */
+    std::string & getRobotName();
 
     void printStatus();
     void printJointStatus();
@@ -209,11 +241,16 @@ public:
     JointVec& getJointTor_s();
     JointVec& getJointTor_cmd();
 
+    void filter_q(double alpha_q);
+    void filter_tau(double alpha_tau);
+//    EndEffVec getEndEffPos();
+//    EndEffVec getEndEffVel();
+//    EndEffVec getEndEffFor();
 
     setMovementReturnCode_t setJointPos(JointVec pos);
     setMovementReturnCode_t setJointVel(JointVec vel);
     setMovementReturnCode_t setJointTor(JointVec tor);
-    setMovementReturnCode_t setJointTor_comp(JointVec tor, JointVec tor_s);
-    JointVec compensateJointTor(JointVec tor, JointVec tor_s);
+    setMovementReturnCode_t setJointTor_comp(JointVec tor, JointVec tor_s, double ffRatio);
+    JointVec compensateJointTor(JointVec tor);
 };
 #endif /*RobotM1_H*/

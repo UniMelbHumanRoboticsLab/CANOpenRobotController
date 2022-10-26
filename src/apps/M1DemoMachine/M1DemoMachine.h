@@ -57,7 +57,6 @@ class M1DemoMachine : public StateMachine {
 
     Monitoring *monitorState;
     Calibration *calibrationState;
-    M1PositionTracking *positionTracking;
 
     // for logger
     std::chrono::steady_clock::time_point time0; // initial time that machine started
@@ -70,7 +69,6 @@ class M1DemoMachine : public StateMachine {
     EventObject(Event2Demo) * event2Demo;
     EventObject(Event2Monitor) * event2Monitor;
     EventObject(Event2Idle) * event2Idle;
-    EventObject(Event2Pos) * event2Pos;
     EventObject(Event2Cali) * event2Cali;
 
     LogHelper logHelper_;

@@ -91,17 +91,16 @@ This example enables simple functionalities of ArmMotus M3/EMU System. It shows 
 ### [M3DemoMachine - Instructions](GSM3DemoMachine.md) 
 See also the code example in `src/apps/M3DemoMachine`.
 
-## Hardware Testing - ArmMotus M1
-This example enables simple movements with the ArmMotus M1 System.
+## Hardware Testing - AnkleMotus M1
+This example enables simple movements with the AnkleMotus M1 System.
 
 ### Requirements
 1. Development machine running Windows or Linux
-2. ArmMotus M1  (Fourier Intelligence) - modified to be driven by an appropriate controller
+2. AnkleMotus M1  (Fourier Intelligence) - modified to be driven by an appropriate controller
 
 ### Suggested for
-1. Users looking to develop for the ArmMotus M1
+1. Users looking to develop for the AnkleMotus M1
 
-### Link to page
+### [M1DemoMachine - Instructions](GSM1DemoMachine.md)
 See the code example in `src/apps/M1DemoMachine`.
-
 

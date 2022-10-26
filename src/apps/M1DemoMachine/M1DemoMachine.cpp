@@ -10,7 +10,6 @@ M1DemoMachine::M1DemoMachine() {
     idleState = new IdleState(this, robot);
     calibrationState = new Calibration( this, robot);
     monitorState = new Monitoring(this, robot);
-    positionTracking = new M1PositionTracking(this, robot);
     demoState = new M1DemoState(this, robot);
 
     // Create PRE-DESIGNED State Machine events objects.
@@ -18,7 +17,6 @@ M1DemoMachine::M1DemoMachine() {
     event2Monitor = new Event2Monitor(this);
     event2Cali = new Event2Cali(this);
     event2Idle = new Event2Idle(this);
-    event2Pos = new Event2Pos(this);
 
     /**
      * \brief add a tranisition object to the arch list of the first state in the NewTransition MACRO.
@@ -32,8 +30,8 @@ M1DemoMachine::M1DemoMachine() {
     NewTransition(idleState, event2Cali, calibrationState);
     NewTransition(calibrationState, event2Idle, idleState);
 
-    NewTransition(idleState, event2Pos, positionTracking);
-    NewTransition(positionTracking, event2Idle, idleState);
+    NewTransition(idleState, event2Demo, demoState);
+    NewTransition(demoState, event2Idle, idleState);
 
     //Initialize the state machine with first state of the designed state machine, using baseclass function.
     StateMachine::initialize(idleState);
@@ -43,7 +41,6 @@ M1DemoMachine::~M1DemoMachine() {
     delete demoState;
     delete idleState;
     delete monitorState;
-    delete positionTracking;
     delete calibrationState;
     delete robot;
 }
@@ -64,7 +61,7 @@ void M1DemoMachine::init() {
         logHelper_.add(robot->getVelocity(), "JointVelocities");
         logHelper_.add(robot->getTorque(), "MotorTorques");
         logHelper_.add(robot->getJointTor_s(), "JointTorques_s");
-        logHelper_.add(robot->getJointTor_cmd(), "JointTorques_cmd");
+//        logHelper_.add(robot->getJointTor_cmd(), "JointTorques_cmd");
         logHelper_.add(robot->mode, "control_mode");
         logHelper_.startLogger();
     }
@@ -115,8 +112,8 @@ void M1DemoMachine::hwStateUpdate(void) {
 // Events ------------------------------------------------------
 ///////////////////////////////////////////////////////////////
 bool M1DemoMachine::Event2Demo::check(void) {
-    if (OWNER->robot->keyboard->getS() == true) {
-        std::cout << "Pressed S!" << std::endl;
+    if (OWNER->robot->keyboard->getA() == true) {
+        std::cout << "Pressed A!" << std::endl;
         return true;
     }
     return false;
@@ -139,17 +136,6 @@ bool M1DemoMachine::Event2Monitor::check(void) {
 bool M1DemoMachine::Event2Idle::check(void) {
     if (OWNER->robot->keyboard->getQ() == true) {
         std::cout << "Pressed Q!" << std::endl;
-        return true;
-    }
-    return false;
-}
-
-////////////////////////////////////////////////////////////////
-// Events ------------------------------------------------------
-///////////////////////////////////////////////////////////////
-bool M1DemoMachine::Event2Pos::check(void) {
-    if (OWNER->robot->keyboard->getA() == true) {
-//        std::cout << "Pressed A!" << std::endl;
         return true;
     }
     return false;
