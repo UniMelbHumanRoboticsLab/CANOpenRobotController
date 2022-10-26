@@ -14,6 +14,7 @@ project(CORC C CXX)
 
 set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "M1DemoMachine")
+#set (STATE_MACHINE_NAME "M1DemoMachineROS")
 #set (STATE_MACHINE_NAME "M2DemoMachine")
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
@@ -130,6 +131,7 @@ if(USE_ROS)
         endif()
 
         generate_dynamic_reconfigure_options(
+                config/m1_dynamic_params.cfg
                 config/x2_dynamic_params.cfg
         )
 

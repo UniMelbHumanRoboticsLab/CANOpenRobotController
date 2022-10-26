@@ -72,6 +72,20 @@ class JointM1 : public Joint {
      * \return false if drive is currently not in the correct state to enable
      */
     void errorMessage(setMovementReturnCode_t errorCode);
+
+    /**
+           * Writes the desired digital out value to the drive
+           *
+           * \return true if successful
+           * \return false if not
+           */
+    bool setDigitalOut(int digital_out);
+
+    /**
+           * Returns the value of digital IN
+           * \return Digital in state from the motor drive
+           */
+    virtual int getDigitalIn();
 };
 
 #endif
