@@ -4,8 +4,11 @@
 
 KincoDrive::KincoDrive(int NodeID) : Drive::Drive(NodeID) {
     //Remap torque reading and writting registers
-    OD_Addresses[ACTUAL_TOR] = 0x6078;
-    OD_Addresses[TARGET_TOR] = 0x60F6;
+    OD_Addresses[ACTUAL_TOR] = {0x6078, 0x00};
+    OD_Addresses[TARGET_TOR] = {0x60F6, 0x08};
+    //Weird Kinco DIOs addresses
+    OD_Addresses[DIGITAL_IN] = {0x2010, 0x0B};
+    OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
 }
 KincoDrive::~KincoDrive() {
     spdlog::debug("KincoDrive Deleted");
@@ -119,26 +122,17 @@ bool KincoDrive::initPDOs() {
 
     spdlog::debug("Set up DIGITAL_IN RPDO on Node {}", NodeID);
     TPDO_Num = 4;
-    if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01, 11)) < 0) {
+    if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01)) < 0) {
         spdlog::error("Set up DIGITAL_IN TPDO FAILED on node {}", NodeID);
         return false;
     }
 
-    spdlog::debug("Set up DIGITAL_OUT RPDO on Node {}", NodeID);
+    spdlog::debug("Set up CONTROL_WORD and DIGITAL_OUT RPDO on Node {}", NodeID);
     int RPDO_Num = 1;
-    if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff, 14)) < 0) {
-        spdlog::error("Set up DIGITAL_OUT RPDO FAILED on node {}", NodeID);
+    if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
+        spdlog::error("Set up CONTROL_WORD and DIGITAL_OUT RPDO FAILED on node {}", NodeID);
         return false;
     }
-
-    // Calculate COB_ID. If RPDO:
-    //int COB_ID = 0x100 * (PDO_Num+1) + NodeID;
-    //spdlog::debug("Set up CONTROL_WORD RPDO on Node {}", NodeID);
-    //int RPDO_Num = 1;
-    //if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
-    //    spdlog::error("Set up CONTROL_WORD RPDO FAILED on node {}", NodeID);
-    //    return false;
-    //}
 
     spdlog::debug("Set up TARGET_POS RPDO on Node {}", NodeID);
     RPDO_Num = 2;
@@ -156,7 +150,7 @@ bool KincoDrive::initPDOs() {
 
     spdlog::debug("Set up TARGET_TOR RPDO on Node {}", NodeID);
     RPDO_Num = 4;
-    if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff, 0x08)) < 0) {
+    if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up TARGET_TOR RPDO FAILED on node {}", NodeID);
         return false;
     }

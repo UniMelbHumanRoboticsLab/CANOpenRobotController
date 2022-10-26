@@ -123,28 +123,28 @@ class Drive {
 
     /**
      * \brief Lists of PDOs
-     * 
+     *
      */
     std::vector<RPDO *> rpdos;
     std::vector<TPDO *> tpdos;
-    
+
     /**
         * \brief Generates the list of commands required to configure TPDOs on the drives
         *
         * \param items A list of OD_Entry_t items which are to be configured with this TPDO
         * \param PDO_Num The number/index of this PDO
-        * \param COB_ID the COB-ID of the PDO 
+        * \param COB_ID the COB-ID of the PDO
         * \param SyncRate The rate at which this PDO transmits (e.g. number of Sync Messages. 0xFF represents internal trigger event)
         * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int COB_ID, int SyncRate, int sub_idx = 0);
+    std::vector<std::string> generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int COB_ID, int SyncRate);
 
     /**
         * \brief Creates a RPDO in the Local Object Dictionary for the equivalent TPDO on the drive
         *
         * \param items A list of OD_Entry_t items which are to be configured with this RPDO
-        * \param COB_ID the COB-ID of the PDO 
+        * \param COB_ID the COB-ID of the PDO
         * \param RPDOSyncRate The rate at which the RPDO processes NOTE: This is not the same as for the equivalent TPDO
         */
     void generateEquivalentMasterRPDO(std::vector<OD_Entry_t> items,  int COB_ID, int RPDOSyncRate);
@@ -155,18 +155,18 @@ class Drive {
         *
         * \param items A list of OD_Entry_t items which are to be configured with this RPDO
         * \param PDO_Num The number/index of this PDO
-        * \param COB_ID the COB-ID of the PDO 
+        * \param COB_ID the COB-ID of the PDO
         * \param UpdateTiming 0-240 represents hold until next sync message, 0xFF represents immediate update
         * \param sub_idx The register sub index
         * \return std::string
         */
-    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int COB_ID,int UpdateTiming, int sub_idx = 0);
+    std::vector<std::string> generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int COB_ID,int UpdateTiming);
 
     /**
         * \brief Creates a TPDO in the Local Object Dictionary for the equivalent RPDO on the drive
         *
         * \param items A list of OD_Entry_t items which are to be configured with this TPDO
-        * \param COB_ID the COB-ID of the PDO 
+        * \param COB_ID the COB-ID of the PDO
         * \param RPDOSyncRate The rate at which the TPDO sends messages NOTE: This is not the same as for the equivalent RPDO
         */
     void generateEquivalentMasterTPDO(std::vector<OD_Entry_t> items, int COB_ID, int TPDOSyncRate);
@@ -239,7 +239,7 @@ class Drive {
 
 
     /**
-     * \brief Map between the TPDO Number and their Mapped Objects 
+     * \brief Map between the TPDO Number and their Mapped Objects
      *
      */
     std::map<UNSIGNED8, std::vector<OD_Entry_t>> TPDO_MappedObjects = {
@@ -248,18 +248,18 @@ class Drive {
         {3, {ACTUAL_TOR}},
         {4, {DIGITAL_IN}}};
 
-        /**
-     * \brief Map between the RPDO Number and their Mapped Objects 
+    /**
+     * \brief Map between the RPDO Number and their Mapped Objects
      *
      */
     std::map<UNSIGNED8, std::vector<OD_Entry_t>> RPDO_MappedObjects = {
-        {1, {DIGITAL_OUT}},
+        {1, {CONTROL_WORD, DIGITAL_OUT}},
         {2, {TARGET_POS}},
         {3, {TARGET_VEL}},
         {4, {TARGET_TOR}}};
 
     /**
-     * \brief Map between the RPDO Number and their base COB-ID (actualy is base COB-ID + Node_ID) 
+     * \brief Map between the RPDO Number and their base COB-ID (actualy is base COB-ID + Node_ID)
      *
      * NOTE: This is an arbitrary default mapping unique to CORC. This can be changed in derived classes
      */
@@ -270,7 +270,7 @@ class Drive {
         {4, 0x480}};
 
     /**
-     * \brief Map between the RPDO Number and their base COB-ID (actualy is base COB-ID + Node_ID) 
+     * \brief Map between the RPDO Number and their base COB-ID (actualy is base COB-ID + Node_ID)
      *
      * NOTE: This is an arbitrary default mapping unique to CORC. This can be changed in derived classes
      */
@@ -299,22 +299,22 @@ class Drive {
         {DIGITAL_OUT, 2}};
 
     /**
-     * \brief Map between the Commonly-used OD entries and their addresses - used to generate PDO Configurations
+     * \brief Map between the Commonly-used OD entries and their addresses and sub-index - used to generate PDO Configurations
      *        NOTE: These are written in hexadecimal. They can be altered in derived classes if required.
      *
      */
-    std::map<OD_Entry_t, int> OD_Addresses = {
-        {STATUS_WORD, 0x6041},
-        {ERROR_WORD, 0x2601},
-        {ACTUAL_POS, 0x6064},
-        {ACTUAL_VEL, 0x606C},
-        {ACTUAL_TOR, 0x6077},
-        {CONTROL_WORD, 0x6040},
-        {TARGET_POS, 0x607A},
-        {TARGET_VEL, 0x60FF},
-        {TARGET_TOR, 0x6071},
-        {DIGITAL_IN, 0x2010},
-        {DIGITAL_OUT, 0x2010}};
+    std::map<OD_Entry_t, std::array<int, 2>> OD_Addresses = {
+        {STATUS_WORD, {0x6041, 0x00}},
+        {ERROR_WORD, {0x2601, 0x00}},
+        {ACTUAL_POS, {0x6064, 0x00}},
+        {ACTUAL_VEL, {0x606C, 0x00}},
+        {ACTUAL_TOR, {0x6077, 0x00}},
+        {CONTROL_WORD, {0x6040, 0x00}},
+        {TARGET_POS, {0x607A, 0x00}},
+        {TARGET_VEL, {0x60FF, 0x00}},
+        {TARGET_TOR, {0x6071, 0x00}},
+        {DIGITAL_IN, {0x2501, 0x00}},
+        {DIGITAL_OUT, {0x2601, 0x00}}};
 
     std::map<OD_Entry_t, void *> OD_MappedObjectAddresses = {
         {STATUS_WORD, (void *)&statusWord},
@@ -594,7 +594,7 @@ class Drive {
         * \brief Sets the continous/not continous profile bit
         *
         * \param continuous if this is true, continous movement is enabled, otherwise it is disabled
-        * \return true If change is successful 
+        * \return true If change is successful
         * \return false If drive was not in position control mode
         */
     virtual bool posControlSetContinuousProfile(bool continuous);
