@@ -6,7 +6,8 @@ KincoDrive::KincoDrive(int NodeID) : Drive::Drive(NodeID) {
     //Remap torque reading and writting registers
     OD_Addresses[ACTUAL_TOR] = {0x6078, 0x00};
     OD_Addresses[TARGET_TOR] = {0x60F6, 0x08};
-    //Weird Kinco DIOs addresses
+    //Weird Kinco error and DIOs addresses
+    OD_Addresses[ERROR_WORD] = {0x2601, 0x00};
     OD_Addresses[DIGITAL_IN] = {0x2010, 0x0B};
     OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
 }

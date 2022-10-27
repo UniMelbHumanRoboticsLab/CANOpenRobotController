@@ -208,10 +208,10 @@ bool Drive::initPDOs() {
 
     // Calculate COB_ID. If RPDO:
     //int COB_ID = 0x100 * (PDO_Num+1) + NodeID;
-    spdlog::debug("Set up CONTROL_WORD RPDO on Node {}", NodeID);
+    spdlog::debug("Set up CONTROL_WORD and DIGITAL_OUT RPDO on Node {}", NodeID);
     int RPDO_Num = 1;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
-        spdlog::error("Set up CONTROL_WORD RPDO FAILED on node {}", NodeID);
+        spdlog::error("Set up CONTROL_WORD and DIGITAL_OUT RPDO FAILED on node {}", NodeID);
         return false;
     }
     spdlog::debug("Set up TARGET_POS RPDO on Node {}", NodeID);

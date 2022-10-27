@@ -231,10 +231,10 @@ class Drive {
     std::vector<std::string> generateTorqueControlConfigSDO();
 
     /**
-        * \brief Send a list (vector) of properly formatted SDO Messages
-        *
-        * \return int -number_of_unsuccesfull messages (0 means OK for all). vcan will always return 0 (no reply check).
-              */
+     * \brief Send a list (vector) of properly formatted SDO Messages
+     *
+     * \return int -number_of_unsuccesfull messages (0 means OK for all). vcan will always return 0 (no reply check).
+     */
     int sendSDOMessages(std::vector<std::string> messages);
 
 
@@ -295,8 +295,8 @@ class Drive {
         {TARGET_POS, 4},
         {TARGET_VEL, 4},
         {TARGET_TOR, 2},
-        {DIGITAL_IN, 2},
-        {DIGITAL_OUT, 2}};
+        {DIGITAL_IN, 4},
+        {DIGITAL_OUT, 4}};
 
     /**
      * \brief Map between the Commonly-used OD entries and their addresses and sub-index - used to generate PDO Configurations
@@ -305,7 +305,7 @@ class Drive {
      */
     std::map<OD_Entry_t, std::array<int, 2>> OD_Addresses = {
         {STATUS_WORD, {0x6041, 0x00}},
-        {ERROR_WORD, {0x2601, 0x00}},
+        {ERROR_WORD, {0x603F, 0x00}},
         {ACTUAL_POS, {0x6064, 0x00}},
         {ACTUAL_VEL, {0x606C, 0x00}},
         {ACTUAL_TOR, {0x6077, 0x00}},
@@ -313,8 +313,8 @@ class Drive {
         {TARGET_POS, {0x607A, 0x00}},
         {TARGET_VEL, {0x60FF, 0x00}},
         {TARGET_TOR, {0x6071, 0x00}},
-        {DIGITAL_IN, {0x2501, 0x00}},
-        {DIGITAL_OUT, {0x2601, 0x00}}};
+        {DIGITAL_IN, {0x60FD, 0x00}},
+        {DIGITAL_OUT, {0x60FE, 0x01}}};
 
     std::map<OD_Entry_t, void *> OD_MappedObjectAddresses = {
         {STATUS_WORD, (void *)&statusWord},
@@ -343,8 +343,8 @@ class Drive {
     INTEGER32 targetPos=0;
     INTEGER32 targetVel=0;
     INTEGER16 targetTor=0;
-    UNSIGNED16 digitalIn=0;
-    UNSIGNED16 digitalOut=0;
+    UNSIGNED32 digitalIn=0;
+    UNSIGNED32 digitalOut=0;
     /**
      * \brief Current error state of the drive
      *
