@@ -82,7 +82,7 @@ Events are used to trigger transitions from one state to another. They could be 
 Programmatically, CORC represents events as a callback function, taking the StateMachine as argument and returning a boolean. The function should return true when the transition(s) should happen.
 
 To create a new event:
-- Define it's trigger boolean method. For example:
+- Define its trigger boolean method. For example:
 ```C++
 bool startExo(StateMachine & SM) {
     ExoTestMachine & sm = static_cast<ExoTestMachine &>(SM); //Cast to specific StateMachine type
@@ -138,7 +138,7 @@ See also the dedicated documentation page regarding [the execution and its timin
 
 ### Third-party libraries
 
-Additionnal third-party libraries required in your code can either directly be placed in the lib folder for headers-only libraries or added as packages in the CMakeList.
+Additional third-party libraries required in your code can either directly be placed in the lib folder for headers-only libraries or added as packages in the CMakeList.
 
 
 ### ROS
