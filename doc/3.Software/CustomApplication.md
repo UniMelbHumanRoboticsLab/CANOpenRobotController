@@ -36,7 +36,7 @@ Yellow parts highlights the methods which needs to be overriden with custom appl
 
 Each state is a custom class, derived from the generic `State`. It contains three main methods which should be overidden to include your custom code:
 - `virtual void entry()` which is called once when entering the state
-- `virtual void during())` which is called repeatidly by the main control loop and which manage the normal control execution. The code within this state should be executable within less time than the sampling period.
+- `virtual void during())` which is called repeatedly by the main control loop and which manage the normal control execution. The code within this state should be executable within less time than the sampling period.
 - `virtual void exit()` which is called once when exiting the state (either by transition or when program ends).
 
 For example the SittingDown class in the ExoTestmachine:
