@@ -7,7 +7,8 @@
 #include <iostream>
 
 CopleyDrive::CopleyDrive(int NodeID) : Drive::Drive(NodeID) {
-    this->NodeID = NodeID;
+    OD_Addresses[DIGITAL_IN] = {0x219A, 0x00}; //Use INPUT PIN STATE instead of standard DI. Not tested.
+    OD_Addresses[DIGITAL_OUT] = {0X2194, 0x00}; //Not tested. Need dedicated configuration before use. See Copley doc.
 }
 CopleyDrive::~CopleyDrive() {
     spdlog::debug("CopleyDrive Deleted");
@@ -96,7 +97,6 @@ bool CopleyDrive::setPositionOffset(int offset) {
 
 
 }
-
 
 bool CopleyDrive::setTrackingWindow(INTEGER32 window) {
     spdlog::debug("NodeID {} Tracking Window", NodeID);

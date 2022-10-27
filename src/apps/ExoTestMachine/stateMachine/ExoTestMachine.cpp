@@ -101,13 +101,3 @@ void ExoTestMachine::init() {
 void ExoTestMachine::end() {
     spdlog::debug("Ending ExoTestMachine");
 }
-
-
-/**
- * \brief Statemachine to hardware interface method. Run any hardware update methods
- * that need to run every program loop update cycle.
- *
- */
-void ExoTestMachine::hwStateUpdate(void) {
-    robot()->updateRobot();
-}

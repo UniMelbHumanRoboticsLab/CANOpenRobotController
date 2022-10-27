@@ -54,8 +54,6 @@ class ExoTestMachine : public StateMachine {
     void init();
     void end();
 
-    void hwStateUpdate();
-
     State *gettCurState();
 
     bool trajComplete;
