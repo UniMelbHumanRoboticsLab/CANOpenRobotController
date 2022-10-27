@@ -10,7 +10,7 @@ The project was initiated at the University of Melbourne in partnership with Fou
 - An event driven state machine to develop custom applications (see [here](doc/3.Software/CustomApplication.md)).
 - An implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers/sensors.
 - Documentation (this page and associated ones and code Doxygen).
-- Functional application [examples](doc/1.GettingStarted/GettingStarted.md).
+- Functional application examples. 
 
 ### Project Overview
 
