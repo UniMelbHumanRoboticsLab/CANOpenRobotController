@@ -17,7 +17,7 @@ That's it, simply use the same build procedure.
 
 > Note: It is recommended to use one of the existing application (X2DemoMachine or M3DemoMachine) as a template for your new state machine: simply copy the app folder closest to your application and follow the steps above.
 
-> Note: Additionnal code can be placed in the state machine folder. Every file placed in this folder (and subfolders) named in {.c, .cpp, .h}  will be compiled.
+> Note: Additional code can be placed in the state machine folder. Every file placed in this folder (and subfolders) named in {.c, .cpp, .h}  will be compiled.
 
 > Note: It is recommended to place custom statemachine outside of the CORC folder to ease update and code versioning.
 
