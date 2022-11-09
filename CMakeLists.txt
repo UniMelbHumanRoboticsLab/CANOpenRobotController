@@ -15,6 +15,7 @@ set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "M2DemoMachine")
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
+#set (STATE_MACHINE_NAME "X2ROS2DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 
 #Use this if your state machine code folder is not in CORC 'src/apps/' folder.
@@ -25,7 +26,10 @@ set (STATE_MACHINE_NAME "ExoTestMachine")
 set(NO_ROBOT ON)
 
 # ROS Flag. set ON if you want to use ROS. Else, set OFF.
+# Also set ROS2 ON if you want to use ROS2. Else, ROS1 by default.
 set(USE_ROS OFF)
+set(ROS2 OFF)
+
 # Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL OFF)
 # INFO is the recommended level in normal operation
 set(CORC_LOGGING_LEVEL INFO)
@@ -90,8 +94,8 @@ if(NO_ROBOT)
     add_definitions(-DNOROBOT=1)
 endif()
 
-## Get all source and header files (only the target app folder is included)
-file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "${STATE_MACHINE_PATH}/${STATE_MACHINE_NAME}/*.c" "${STATE_MACHINE_PATH}/${STATE_MACHINE_NAME}/*.cpp" "lib/FLNL/src/*.cpp")
+# Get all source and header files (only the target app folder is included)
+file(GLOB_RECURSE SOURCES "src/core/*.cpp" "src/core/*.c" "src/hardware/*.cpp" "src/hardware/*.c" "${STATE_MACHINE_PATH}/${STATE_MACHINE_NAME}/*.c" "${STATE_MACHINE_PATH}/${STATE_MACHINE_NAME}/*.cpp" "lib/spdlog/src/*.cpp" "lib/FLNL/src/*.cpp")
 file(GLOB_RECURSE HEADERS "src/core/*.h" "src/hardware/*.h" "${STATE_MACHINE_PATH}/${STATE_MACHINE_NAME}/*.h" )
 
 ## Set every folder containing .h file as include directory
@@ -109,7 +113,6 @@ list (APPEND INCLUDE_DIRS lib/spdlog/include/)
 
 add_subdirectory(lib/yaml-cpp/)
 
-
 ## Hack for Yaml files path (absolute path required for ROS use, see X2Robot::initializeRobotParams)
 if(CMAKE_CROSSCOMPILING)
     add_definitions(-DBASE_DIRECTORY=.)
@@ -117,65 +120,81 @@ else()
     add_definitions(-DBASE_DIRECTORY=${CMAKE_SOURCE_DIR})
 endif()
 
-## Add ROS 1 dependencies
 if(USE_ROS)
-    #ROS 1 local compile: use catkin
-    message("--catkin--")
-    # Required ROS packages
-    find_package(catkin REQUIRED COMPONENTS
-        roscpp
-        rospy
-        std_msgs
-        std_srvs
-        sensor_msgs
-        geometry_msgs
-        dynamic_reconfigure
-        message_generation
-    )
-    if(SIM)
+    ## Add ROS 1 dependencies
+    if(NOT ROS2)
+
+        #ROS 1 local compile: use catkin
+        message("--catkin--")
+        # Required ROS packages
         find_package(catkin REQUIRED COMPONENTS
-        controller_manager_msgs
-        cob_gazebo_ros_control
-        x2_description
+            roscpp
+            rospy
+            std_msgs
+            std_srvs
+            sensor_msgs
+            geometry_msgs
+            dynamic_reconfigure
+            message_generation
         )
-    endif()
+        if(SIM)
+            find_package(catkin REQUIRED COMPONENTS
+            controller_manager_msgs
+            cob_gazebo_ros_control
+            x2_description
+            )
+        endif()
 
-    generate_dynamic_reconfigure_options(
-            config/m1_dynamic_params.cfg
-            config/x2_dynamic_params.cfg
-    )
+        generate_dynamic_reconfigure_options(
+                config/m1_dynamic_params.cfg
+                config/x2_dynamic_params.cfg
+        )
 
-    add_message_files(
-        FILES
-        X2Array.msg
-        X2Acceleration.msg
-        X2AccelerationMerge.msg
-    )
+        add_message_files(
+            FILES
+            X2Array.msg
+            X2Acceleration.msg
+            X2AccelerationMerge.msg
+        )
 
-    generate_messages(
-       DEPENDENCIES
-       std_msgs
-    )
-
-    catkin_package(
-        #  INCLUDE_DIRS include
-        #  LIBRARIES x2
-        CATKIN_DEPENDS
-        roscpp
-        rospy
+        generate_messages(
+        DEPENDENCIES
         std_msgs
-        std_srvs
-        sensor_msgs
-        geometry_msgs
-        dynamic_reconfigure
-        message_runtime
-        #  DEPENDS system_lib
-    )
+        )
 
-    #include CATKIN
-    include_directories(${catkin_INCLUDE_DIRS})
-    set(ROS_LIBRARIES ${catkin_LIBRARIES})
+        catkin_package(
+            #  INCLUDE_DIRS include
+            #  LIBRARIES x2
+            CATKIN_DEPENDS
+            roscpp
+            rospy
+            std_msgs
+            std_srvs
+            sensor_msgs
+            geometry_msgs
+            dynamic_reconfigure
+            message_runtime
+            #  DEPENDS system_lib
+        )
+
+        #include CATKIN
+        include_directories(${catkin_INCLUDE_DIRS})
+        set(ROS_LIBRARIES ${catkin_LIBRARIES})
+
+    ## Add ROS2 dependencies
+    else()
+
+        #ROS 2 local compile: use colcon
+        message("--colcon--")
+
+        find_package(ament_cmake REQUIRED)
+        find_package(rclcpp REQUIRED)
+        find_package(std_msgs REQUIRED)
+        find_package(sensor_msgs REQUIRED)
+
+    endif()
 endif()
+
 
 
 ## Executable name: {STATEMACHINENAME}_APP
@@ -188,7 +207,7 @@ add_executable(${APP_NAME}
                 )
 
 ## Includes
-target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
+target_include_directories(${APP_NAME} PUBLIC ${INCLUDE_DIRS})
 
 ## Set required external packages
 find_package(Threads REQUIRED)
@@ -200,10 +219,26 @@ target_link_libraries(${APP_NAME}
 
 ## Link ROS libraries
 if(USE_ROS)
-    target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
+    if(NOT ROS2)
+        target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
 
-    # make sure configure headers are built before any node using them
-    add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
+        # make sure configure headers are built before any node using them
+        add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
+
+    else()
+        include_directories(${INCLUDE_DIRS})
+
+        ament_target_dependencies(${APP_NAME} rclcpp std_msgs sensor_msgs)
+        ament_export_dependencies(rclcpp std_msgs sensor_msgs)
+
+        install(TARGETS ${APP_NAME} DESTINATION lib/${PROJECT_NAME})
+        install(PROGRAMS script/initCAN0.sh DESTINATION lib/${PROJECT_NAME})
+        install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
+        install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
+
+        ament_package()
+
+    endif()
 endif()
 
 
