@@ -32,15 +32,8 @@ class M1DemoMachineROS : public StateMachine {
     M1DemoMachineROS(int argc, char *argv[]);
     ~M1DemoMachineROS();
     void init();
-    void end();
 
     void hwStateUpdate();
-
-    /**
-     * Pointers to the relevant states - initialised in init
-     *
-     */
-    MultiControllerState *multiControllerState_;
 
     RobotM1 *robot() { return static_cast<RobotM1*>(_robot.get()); } //!< Robot getter with specialised type (lifetime is managed by Base StateMachine)
    protected:

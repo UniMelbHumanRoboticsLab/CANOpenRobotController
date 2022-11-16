@@ -1,7 +1,7 @@
 #include "M1DemoMachineROS.h"
 
 
-M1DemoMachineROS::M1DemoMachineROS(int argc, char *argv[]){
+M1DemoMachineROS::M1DemoMachineROS(int argc, char *argv[]) {
     spdlog::debug("M1DemoMachineROS::constructed!");
 
     ros::init(argc, argv, "m1", ros::init_options::NoSigintHandler);
@@ -55,7 +55,7 @@ void M1DemoMachineROS::init() {
 
     logHelper.initLogger("test_logger", logFileName.str(), LogFormat::CSV, true);
     logHelper.add(runningTime(), "time");
-    logHelper.add(multiControllerState_->controller_mode_, "mode");
+    logHelper.add(state<MultiControllerState>("multiControllerState")->controller_mode_, "mode");
 
     logHelper.add(robot()->getPosition(), "JointPositions");
     logHelper.add(robot()->getVelocity(), "JointVelocities");
@@ -79,14 +79,6 @@ void M1DemoMachineROS::init() {
     logHelper.add(state<MultiControllerState>("multiControllerState")->digitalInValue_, "digitalIn");
     logHelper.add(state<MultiControllerState>("multiControllerState")->digitalOutValue_, "digitalOut");
 
-}
-
-void M1DemoMachineROS::end() {
-    if(initialised) {
-        currentState->exit();
-        robot()->stop();
-        delete M1MachineRos_;
-    }
 }
 
 /**

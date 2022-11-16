@@ -72,7 +72,7 @@ void X2DemoState::during(void) {
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
         for(int joint = 0; joint < X2_NUM_JOINTS; joint++)
         {
-        desiredJointVelocities_[joint] = enableJoints[joint]*amplitude_*sin(2.0*M_PI/period_*time);
+            desiredJointVelocities_[joint] = enableJoints[joint]*amplitude_*sin(2.0*M_PI/period_*time);
         }
 
         robot_->setVelocity(desiredJointVelocities_);
@@ -88,6 +88,13 @@ void X2DemoState::during(void) {
         robot_->setTorque(desiredJointTorques_);
 
     }
+}
+
+void X2DemoState::exit(void) {
+    robot_->initTorqueControl();
+    // setting 0 torque for safety.
+    robot_->setTorque(Eigen::VectorXd::Zero(X2_NUM_JOINTS));
+    std::cout << "Example State Exited" << std::endl;
 }
 
 void X2DemoState::dynReconfCallback(CORC::dynamic_paramsConfig &config, uint32_t level) {
