@@ -295,8 +295,8 @@ class Drive {
         {TARGET_POS, 4},
         {TARGET_VEL, 4},
         {TARGET_TOR, 2},
-        {DIGITAL_IN, 4},
-        {DIGITAL_OUT, 4}};
+        {DIGITAL_IN, 2},
+        {DIGITAL_OUT, 2}};
 
     /**
      * \brief Map between the Commonly-used OD entries and their addresses and sub-index - used to generate PDO Configurations
@@ -343,8 +343,8 @@ class Drive {
     INTEGER32 targetPos=0;
     INTEGER32 targetVel=0;
     INTEGER16 targetTor=0;
-    UNSIGNED32 digitalIn=0;
-    UNSIGNED32 digitalOut=0;
+    UNSIGNED16 digitalIn=0;
+    UNSIGNED16 digitalOut=0;
     /**
      * \brief Current error state of the drive
      *
