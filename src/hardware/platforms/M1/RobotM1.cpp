@@ -35,6 +35,7 @@ RobotM1::RobotM1(string robot_name, string yaml_config_file):   Robot(robot_name
     posControlMotorProfile.profileDeceleration = 500.*65535*10000/4000000;
 
     //Check if YAML file exists and contain robot parameters
+    robotName_ = robot_name;
     initialiseFromYAML(yaml_config_file);
 
     initialiseJoints();
@@ -144,6 +145,7 @@ bool RobotM1::setDigitalOut(int digital_out) {
 }
 
 int RobotM1::getDigitalIn() {
+
     return ((JointM1 *)joints[0])->getDigitalIn();
 }
 
