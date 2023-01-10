@@ -1,7 +1,6 @@
 #include "X2DemoState.h"
 
-X2DemoState::X2DemoState(StateMachine *m, X2Robot *exo, const char *name) :
-        State(m, name), robot_(exo) {
+X2DemoState::X2DemoState(X2Robot *exo, const char *name) : State(name), robot_(exo) {
     desiredJointVelocities_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     desiredJointTorques_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
     enableJoints = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
@@ -73,7 +72,7 @@ void X2DemoState::during(void) {
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
         for(int joint = 0; joint < X2_NUM_JOINTS; joint++)
         {
-        desiredJointVelocities_[joint] = enableJoints[joint]*amplitude_*sin(2.0*M_PI/period_*time);
+            desiredJointVelocities_[joint] = enableJoints[joint]*amplitude_*sin(2.0*M_PI/period_*time);
         }
 
         robot_->setVelocity(desiredJointVelocities_);

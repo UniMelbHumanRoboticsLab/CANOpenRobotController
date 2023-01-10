@@ -2,8 +2,8 @@
  * /file M1MachineROS.h
  * /author Emek Baris Kucuktabak
  * /brief ROS part of the M1Machine
- * /version 0.1
- * /date 2020-11-03
+ * /version 0.2
+ * /date 2022-10-25
  *
  * @copyright Copyright (c) 2020
  *
@@ -54,7 +54,6 @@ private:
     ros::Publisher interactionWrenchPublisher_;
     geometry_msgs::WrenchStamped interactionWrenchMsg_;
     RobotM1 *robot_;
-
 };
 
 #endif  //SRC_M1MachineROS_H

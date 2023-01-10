@@ -1,7 +1,7 @@
 /**
  * \file InputDevice.h
  * \author William Campbell
- * \brief The <code>Input</code> class is a abstract class which represents an input device.
+ * \brief The Input class is a abstract class which represents an input device.
  * The Update function is called in a main program to query the devices input and
  * update any memory representation of the device implemented.
  * For example the keyboard implementation checks for key presses and fills key memory
@@ -21,7 +21,8 @@
 #include "TPDO.h"
 
 /**
- * @brief Abstract class representing any input device to be used in a Robot object
+ * @ingroup Robot
+ * @brief Abstract class representing any Input device (sensor, joystick..) to be used in a Robot object
  *
  */
 class InputDevice {

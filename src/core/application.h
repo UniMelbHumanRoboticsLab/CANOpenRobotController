@@ -67,6 +67,10 @@ extern "C" {
 #define TMR_TASK_OVERFLOW_US (5000)    /* Overflow detect limit for taskTmr in microseconds */
 #define INCREMENT_1MS(var) (var++)     /* Increment 1ms variable in taskTmr */
 #define NODEID (80)
+
+const float controlLoopPeriodInms = 2.;   //!< Define the control loop period (in ms): the period of rt_control_thread loop (and so the app update rate). In ms.
+const float CANUpdateLoopPeriodInms = 1.; //!< Define the CAN PDO processing period. SYNCH messages (and so actual PDO update) is set to twice this period (twice slower). In ms.
+
 /**
  * /brief Function is called on program startup.
  */
@@ -83,7 +87,7 @@ void app_communicationReset(int argc = 0, char *argv[] = {});
 void app_programEnd(void);
 
 /**
- * \briefFunction is called cyclically from main (low priority thread)
+ * \brief Function is called cyclically from main (low priority thread)
  *
  * \param timer1msDiff Time difference since last call
  */

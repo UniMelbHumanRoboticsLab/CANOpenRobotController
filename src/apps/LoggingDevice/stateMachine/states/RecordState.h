@@ -22,7 +22,7 @@ class RecordState : public State {
 
    public:
     LoggingRobot *robot;
-    RecordState(StateMachine *m, LoggingRobot *robot, const char *name = NULL);
+    RecordState(LoggingRobot *robot, const char *name = "");
 
     void entry(void);
     void during(void);

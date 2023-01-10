@@ -32,8 +32,8 @@ public:
     void entry(void);
     void during(void);
     void exit(void);
-    MultiControllerState(StateMachine *m, RobotM1 *exo, M1MachineROS *M1MachineRos, const char *name = NULL) :
-                        State(m, name), robot_(exo), M1MachineRos_(M1MachineRos){};
+    MultiControllerState(RobotM1 *exo, M1MachineROS *M1MachineRos, const char *name = "") :
+                        State(name), robot_(exo), M1MachineRos_(M1MachineRos){};
 
     int cali_stage;
     int cali_velocity;

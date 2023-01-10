@@ -220,7 +220,7 @@ void* TechnaidIMU::update(void) {
             }
         }
     }
-    double time_ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
+//    double time_ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
 //    std::cout<<time_ms<<std::endl;
 }
 

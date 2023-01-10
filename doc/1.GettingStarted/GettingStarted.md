@@ -10,6 +10,8 @@ CORC is flexible in that it can run on any computer with a Controller Area Netwo
 
 Examples of use of a dedicated embedded computer are when the robotic device is mobile (such as an assistive exoskeleton) or when separation between the robot controller and the user interface is desired (such as on deployment-ready rehabilitation devices). Alternatively, you may choose to use a desktop computer if you wish to run more powerful control algorithms on your device, or if your development is more experimental in nature. With appropriate choice of software packages, it is also possible to transition deployment from a desktop computer to an embedded computer. 
 
+> Note that cross-compiling a ROS app is theoretically possible but not described in this documentation (contibutions are welcome!).
+
 ## Choice of Development Environment
 Independent of the deployment environment, a choice may also be made regarding the development environment. If the deployment environment is Linux-based, this can be the same device as your deployment computer (although, development will typically require more computational power than deployment). Alternatively, you may develop on a different computer to the deployment computer. In this case, you have the choice of using either Windows or Linux based environments*, and you will need to cross compile for your deployment environment (i.e. compile on a system which is not used to run the executable). This requires an appropriate toolchain to be installed. 
 

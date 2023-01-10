@@ -1,5 +1,6 @@
 #include "M1DemoStates.h"
 
+using namespace std;
 
 double timeval_to_sec(struct timespec *ts)
 {
@@ -126,7 +127,7 @@ void M1DemoState::entryCode(void) {
 }
 
 void M1DemoState::duringCode(void) {
-    if(iterations%500==1) {
+    if(iterations()%500==1) {
         robot->printJointStatus();
     }
     counter = counter + 1;
@@ -241,7 +242,7 @@ void M1DemoState::positionControl(void){
 //    std::cout << q(0) << " <-> ";
     switch(sub_mode){
         case 1:     // sine wave position command
-            sflag = sin(2*M_PI*freq*iterations/100);
+            sflag = sin(2*M_PI*freq*iterations()/100);
             q(0) = magnitude*sflag+magnitude;
             if(abs(sflag)<10e-8 && dir==true)
             {
@@ -296,7 +297,7 @@ void M1DemoState::velocityControl(void){
 
     switch(sub_mode){
         case 1:     // sine wave velocity command
-            sflag = sin(2*M_PI*freq*iterations/100);
+            sflag = sin(2*M_PI*freq*iterations()/100);
             dq(0) = magnitude*sflag;
             if(abs(sflag)<10e-8 && dir==true)
             {
@@ -359,7 +360,7 @@ void M1DemoState::torqueControl(void){
     dq = robot->getJointVel();
     switch(sub_mode) {
         case 1:
-            sflag = sin(2*M_PI*freq*iterations/100);
+            sflag = sin(2*M_PI*freq*iterations()/100);
             tau_cmd(0) = magnitude*sflag + 0.2;
             if(abs(sflag)<10e-8 && dir==true)
             {
@@ -451,8 +452,8 @@ void M1DemoState::admittanceControl(void){
         acc = net_tau/Mass;
         dq(0) = dq(0) + gain*acc*dt;
 
-        if (iterations%100==0){
-            std::cout << std::dec << iterations << "tau sensor : " << std::setprecision(2) << tau(0) << "; q: " << q(0) << "; dq: " << dq(0)<< std::endl;
+        if (iterations()%100==0){
+            std::cout << std::dec << iterations() << "tau sensor : " << std::setprecision(2) << tau(0) << "; q: " << q(0) << "; dq: " << dq(0)<< std::endl;
         }
 
         if (q(0) > 50 or q(0) <-45){
@@ -463,45 +464,3 @@ void M1DemoState::admittanceControl(void){
         }
     }
 }
-
-//******************************* Demo state **************************
-//
-//void M1DemoState::entryCode(void) {
-//    std::cout << "Enter Demo tracking!" << std::endl;
-//
-//    robot->applyCalibration();
-//    robot->initPositionControl();
-//    freq = 0.5;
-//    counter = 1;
-////    qi(0) = 45;
-////    robot->setJointPos(qi);
-//}
-//
-//void M1DemoState::duringCode(void) {
-//    if(iterations%100==1) {
-//        robot->printJointStatus();
-//    }
-//
-//    if(robot->status == R_SUCCESS && iterations%4==0) {
-//        // control frequency is 400 hz
-//        uint sample = iterations/4;
-////        std::cout << qi(0) << std::endl;
-//        qi=robot->getJointPos();
-//        std::cout << qi(0) << " <-> ";
-//        qi(0) = 20*sin(2*M_PI*freq*sample/100);
-//        std::cout << qi(0) << std::endl;
-//        JointVec dq_t;
-//        dq_t(0) = 1;
-//        if(robot->setJointPos(qi) != SUCCESS){
-//            std::cout << "Error: " << std::endl;
-//        }
-////        std::cout << "Velocity _1: " << dq_t(0) << std::endl;
-////        robot->setJointVel(dq_t);
-//    }
-//}
-//
-//void M1DemoState::exitCode(void) {
-////    robot->setJointVel(JointVec::Zero());
-////    robot->setJointTor(JointVec::Zero());
-//    robot->setJointPos(JointVec::Zero());
-//}

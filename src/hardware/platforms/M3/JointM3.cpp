@@ -1,11 +1,13 @@
 #include "JointM3.h"
 
 
-JointM3::JointM3(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, KincoDrive *drive, const std::string& name) :   Joint(jointID, q_min, q_max, drive, name),
+JointM3::JointM3(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, double i_peak, double motorTorqueConstant_, KincoDrive *drive, const std::string& name) :   Joint(jointID, q_min, q_max, drive, name),
                                                                                                                                                                 sign(sign_),
                                                                                                                                                                 qMin(q_min), qMax(q_max),
                                                                                                                                                                 dqMin(dq_min), dqMax(dq_max),
-                                                                                                                                                                tauMin(tau_min), tauMax(tau_max)
+                                                                                                                                                                tauMin(tau_min), tauMax(tau_max),
+                                                                                                                                                                Ipeak(i_peak),
+                                                                                                                                                                motorTorqueConstant(motorTorqueConstant_)
                                                                                                                                                                 {
                                                                                                                                                                     spdlog::debug("MY JOINT ID: {} ({})", this->id, name);
                                                                                                                                                                 }

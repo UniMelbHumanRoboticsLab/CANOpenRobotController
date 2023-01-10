@@ -141,7 +141,6 @@ void LoggingRobot::setCrutchOffsets(Eigen::VectorXd offsets) {
     }
 }
 
-
 bool LoggingRobot::startSensors() {
     if (sensorsOn){
         //do nothing

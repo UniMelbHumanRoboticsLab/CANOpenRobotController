@@ -1,10 +1,9 @@
 /**
- *
  * \file RobotM3.h
  * \author Vincent Crocher
  * \version 0.3
  * \date 2021-06-30
- * \copyright Copyright (c) 2020
+ * \copyright Copyright (c) 2020 - 2021
  *
  * \brief  The RobotM3 class represents an M3 Robot.
  *
@@ -22,7 +21,7 @@
 
 
 typedef Eigen::Vector3d VM3; //!< Convenience alias for double  Vector of length 3
-
+typedef Eigen::VectorXd VX; //!< Generic (dynamic) size version required for compatibility w/ other libraries (FLNL)
 
 typedef struct M3Tool
 {
@@ -35,7 +34,6 @@ typedef struct M3Tool
 //Classic tools attached to M3
 static M3Tool M3NoTool(0, .0, "No Tool"); //!< No Tool
 static M3Tool M3Handle(0.140, 0.800, "Handle"); //!< Default handle with 3 rotational DoFs 0.465 //TODO YAML
-static M3Tool M3MachiningTool(0.060, 0.100, "Machining tool"); //TODO YAML
 
 /**
  * \brief Implementation of the M3 robot class, representing an M3 using 3 JointM3 (and so Kinco drives).
@@ -50,10 +48,10 @@ static M3Tool M3MachiningTool(0.060, 0.100, "Machining tool"); //TODO YAML
  *                  /-     \           \
  *                 /        \           \ (L2)
  *               /-          \           \
- *           M3/-             \        M1 \
+ *             /-             \           \
  *           /-                \           \
  *         /-                   \           \
- *       /-                   M2 \           \
+ *       /-                      \           \
  *     /-                         \           \
  *+------+                         \           \
  *| MTool|                          \           \
@@ -74,12 +72,17 @@ class RobotM3 : public Robot {
     *  if one is provided to the constructor and the parameter is defined in the configuration file.
     */
     /* @{ */
-    double dqMax = 360 * M_PI / 180.;                                           //!< Max joint speed (rad.s-1)
-    double tauMax = 1.9 * 22;                                                   //!< Max joint torque (Nm)
-    std::vector<float> linkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};//!< Link lengths used for kinematic models (in m), excluding tool
-    std::vector<float> linkMasses = {0, 0.450, 0.400, 0.100, .0};               //!< Link masses used for gravity compensation (in kg), excluding tool
-    std::vector<double> frictionVis = {0.2, 0.2, 0.2};                          //!< Joint viscous friction compensation coefficients
-    std::vector<double> frictionCoul = {0.5, 0.5, 0.5};                         //!< Joint Coulomb (static) friction compensation coefficients
+    double dqMax = 360 * M_PI / 180.;                                               //!< Max joint speed (rad.s-1)
+    double tauMax = 1.9 * 22;                                                       //!< Max joint torque (Nm)
+    std::vector<double> iPeakDrives = {42.0, 42.0, 42.0};                           //!< Drive max current
+    std::vector<double> motorCstt = {0.132, 0.132, 0.132};                          //!< Motor constants
+    std::vector<double> qSigns = {1, 1, -1};                                        //!< Joint direction (as compared to built-in drives direction)
+    std::vector<double> linkLengths = {0.056, 0.15-0.015, 0.5, 0.325+0.15-0.015};   //!< Link lengths used for kinematic models (in m), excluding tool
+    std::vector<double> massCoeff = {-1.30, -1.06};                                 //!< Mass coefficients (identified) used for gravity compensation (in kg), excluding tool
+    std::vector<double> springK = {0, 0, 0};                                        //!< Joint spring compensation: tau=Ko+K*q
+    std::vector<double> springKo = {0, 0, 0};
+    std::vector<double> frictionVis = {0.2, 0.2, 0.2};                              //!< Joint viscous friction compensation coefficients
+    std::vector<double> frictionCoul = {0.5, 0.5, 0.5};                             //!< Joint Coulomb (static) friction compensation coefficients
 
     std::vector<double> qLimits = {/*q1_min*/ -45 * M_PI / 180.,/*q1_max*/ 45 * M_PI / 180., /*q2_min*/ -15 * M_PI / 180., /*q2_max*/70 * M_PI / 180., /*q3_min*/ 0 * M_PI / 180., /*q3_max*/ 95 * M_PI / 180.}; //!< Joints limits (in rad)
     VM3 qCalibration = {-38*M_PI/180., 70*M_PI/180., 95*M_PI/180.};             //!< Calibration configuration: posture in which the robot is when using the calibration procedure
@@ -94,12 +97,12 @@ class RobotM3 : public Robot {
     Filter velFilt;
     double last_update_time; //!< Last time updateRobot has been called (in s)
 
-    VM3 endEffPositions;
-    VM3 endEffVelocities;
-    VM3 endEffAccelerations;
-    VM3 endEffForces;
-    VM3 interactionForces;
-    VM3 endEffVelocitiesFiltered;
+    VX endEffPositions;
+    VX endEffVelocities;
+    VX endEffAccelerations;
+    VX endEffForces;
+    VX interactionForces;
+    VX endEffVelocitiesFiltered;
 
    public:
     /**
@@ -138,10 +141,17 @@ class RobotM3 : public Robot {
     bool initTorqueControl();
 
    private:
+
+    /**
+    * \brief Utility method filling vec with the values loaded from the YAML node. Expect same vector lengths.
+    *
+    */
+    void fillParamVectorFromYaml(YAML::Node node, std::vector<double> &vec);
+
     /**
     * \brief Load parameters from YAML file if valid one specified in constructor.
     * If absent or incomplete (some parameters only) default parameters are used instead.
-    * \params params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
+    * \param params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
     * \return true
     */
     bool loadParametersFromYAML(YAML::Node params);
@@ -223,12 +233,12 @@ class RobotM3 : public Robot {
     VM3 calculateGravityTorques();              //!< Conpute gravity compensation torques for current configuration
     VM3 calculateEndEffAcceleration();          //!< Calculate end effector acceleration through differentiation of velocity filtered at 1Hz cutoff
 
-    const VM3& getEndEffPosition();                    //!< Return vector containing end-effector position (in m)
-    const VM3& getEndEffVelocity();                    //!< Return vector containing end-effector velocity (in m.s-1)
-    const VM3& getEndEffVelocityFiltered();            //!< Return vector containing end-effector velocity filtered (in m.s-1). Used to compute acceleration
-    const VM3& getEndEffAcceleration();                //!< Return vector containing end-effector acceleration (in m.s-2), calculated through differentiation of velocity filtered at 1Hz cutoff
-    const VM3& getEndEffForce();                       //!< Return vector containing end-effector (motors) force (in N)
-    const VM3& getInteractionForce();                  //!< Return vector containing end-effector interaction force (using model substracting gravity and friction force to motor torque) (in N)
+    const VX& getEndEffPosition();             //!< Return vector containing end-effector position (in m)
+    const VX& getEndEffVelocity();             //!< Return vector containing end-effector velocity (in m.s-1)
+    const VX& getEndEffVelocityFiltered();     //!< Return vector containing end-effector velocity filtered (in m.s-1). Used to compute acceleration
+    const VX& getEndEffAcceleration();         //!< Return vector containing end-effector acceleration (in m.s-2), calculated through differentiation of velocity filtered at 1Hz cutoff
+    const VX& getEndEffForce();                //!< Return vector containing end-effector (motors) force (in N)
+    const VX& getInteractionForce();           //!< Return vector containing end-effector interaction force (using model substracting gravity and friction force to motor torque) (in N)
 
     setMovementReturnCode_t setJointPosition(VM3 q);
     setMovementReturnCode_t setJointVelocity(VM3 q);

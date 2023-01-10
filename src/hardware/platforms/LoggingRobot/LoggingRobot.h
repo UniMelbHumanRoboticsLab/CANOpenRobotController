@@ -6,8 +6,8 @@
  * \date 2020-12-01
  * \copyright Copyright (c) 2020
  *
- * \brief  The LogginRobot class represents a logging robot. This Robot doesn't actually do anything, except give options to act as a logger.
- *
+ * \brief  The LoggingRobot class represents a logging robot. This Robot doesn't actually do anything, except give options to act as a logger.
+ * 
  * It has two functions: 1) To trigger data acquision devices not associate with the operation of the robot, and 2) to log data from existing devices
  *
  */
@@ -71,6 +71,8 @@ class LoggingRobot : public Robot {
      * @return Eigen::VectorXd& a 6xN (N is number of crutches) of crutch sensor readings
      */
     Eigen::VectorXd &getCrutchReadings();
+    Eigen::VectorXi &getForcePlateReadings();
+    Eigen::VectorXi &getFootSensorReadings();
 
     Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1> &getMotorPositions();
     Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1> &getMotorVelocities();

@@ -26,10 +26,13 @@
 EMU_MELB:
   dqMax: 360 # Max joint speed (deg.s-1) Set to 1 rot/s
   tauMax: 42 # Max joint torque (Nm) Set to max motor torque w/ 1:22 reduction (yes, this is the actual value!)
+  iPeakDrives: [45.0, 45.0, 45.0] #Drive peak current (I peak)
+  motorCstt: [1., 1., 1.] #Motors constants
+  qSigns: [1, 1, 1] # Joints direction
 
   linkLengths: [0.056, 0.135, 0.5, 0.475]   # Link lengths used for kinematic models (in m), excluding tool
   linkMasses: [0., 0.450, 0.400, 0.100, .0] # Link masses used for gravity compensation (in kg), excluding tool
-
+  
   qLimits: [-45, 45, -15, 70, 0, 95] # Joints limits (in deg) {q1_min, q1_max, q2_min, q2_max, q3_min, q3_max}
   qCalibration: [-38, 70, 95] # Calibration configuration (in deg): posture in which the robot is when using the calibration procedure
 
@@ -44,20 +47,24 @@ EMU_MELB:
 
 EMU_FOURIER:
   dqMax: 360 # Max joint speed (deg.s-1) Set to 1 rot/s
-  tauMax: 42 # Max joint torque (Nm) Set to max motor torque w/ 1:22 reduction (yes, this is the actual value!)
+  tauMax: 80 # Max joint torque (Nm) Set to max motor torque w/ 1:22 reduction (yes, this is the actual value!)
+  iPeakDrives: [45.0, 23.0, 23.0] #Drive peak current (I peak): Values look wrong but work on real system in combination w/ below motor constants.
+  motorCstt: [0.132, 0.132, 0.132] #Motors constants
   qSigns: [-1, 1, -1] # Joints direction
 
-  linkLengths: [0.056, 0.135, 0.5, 0.615]   # Link lengths used for kinematic models (in m), excluding tool
-  linkMasses: [0, 0.450, 0.400, 0.100, .270] # Link masses used for gravity compensation (in kg), excluding tool
+  linkLengths: [0.0, 0.135, 0.5, 0.615]   # Link lengths used for kinematic models (in m), excluding tool
+  massCoeff: [-1.30, -1.06] # Mass coefficient (identified) used for gravity compensation (in kg), excluding tool. Model is tau[1]=M[0] * sin(q[1])*g and tau[2]=M[1] * cos(q[2])*g ;
+  qSpringK: [0, 2.42, 4.19] #Joint spring compensation: tau=Ko+K*q
+  qSpringKo: [0, 0.47, 0]
 
-  qLimits: [-43, 43, -15, 70, 0, 95] # Joints limits (in deg) {q1_min, q1_max, q2_min, q2_max, q3_min, q3_max}
+  qLimits: [-42, 42, -15, 70, 0, 95] # Joints limits (in deg) {q1_min, q1_max, q2_min, q2_max, q3_min, q3_max}
   qCalibration: [+44, 76, 90] # Calibration configuration (in deg): posture in which the robot is when using the calibration procedure
 
-  frictionVis: [0.2, 0.2, 0.2]  # Joint viscous friction compensation coefficients
-  frictionCoul: [0., 0., 0.] # Joint Coulomb (static) friction compensation coefficients
+  frictionVis: [0.33, 0.76, 0.69]  # Joint viscous friction compensation coefficients
+  frictionCoul: [0.35, 0.19, 0.24] # Joint Coulomb (static) friction compensation coefficients
 
   #End-effector description
   tool:
     name: "Fourier Handle"
     length: 0.0 #Tool length from attachment
-    mass:   0.345  #Tool mass in kg
+    mass:   0.1  #Tool mass in kg

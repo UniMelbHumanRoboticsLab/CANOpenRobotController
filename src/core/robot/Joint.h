@@ -1,7 +1,7 @@
 /**
  * \file Joint.h
- * \brief The <code>Joint</code> class is a abstract class which represents a joint in a
- * <code>Robot</code> objec. This class can be used to represent all types of joints,
+ * \brief The Joint class is a abstract class which represents a joint in a
+ * Robot objec. This class can be used to represent all types of joints,
  * including actuated, non-actuated, revolute, prismatic, etc.
  * \version 0.1
  * \date 2020-04-10
@@ -15,13 +15,9 @@
 #include <cstring>
 
 #include "Drive.h"
-/** @defgroup Joint Joint Module
- *  @ingroup Robot
- *  A group of abstract joint classes, acting as the software representation of a Joint.
- */
 
 /**
- * The <code>setMovementReturnCode_t<code> is used to determine whether the movement was a
+ * The setMovementReturnCode_t is used to determine whether the movement was a
  * success, or whether an error occurred in its application.
  */
 enum setMovementReturnCode_t {
@@ -45,8 +41,8 @@ static std::map<setMovementReturnCode_t, std::string> setMovementReturnCodeStrin
 };
 
 /**
- * @ingroup Joint
- * \brief Abstract class representing any joints within a Robot.
+ * @ingroup Robot
+ * \brief Abstract class representing any Joint within a Robot.
  *
  */
 class Joint {
@@ -444,7 +440,7 @@ class Joint {
 
     /**
      * \brief Sets the drive of this joint to be in continous position profile mode (or not)
-     * 
+     *
      * \param continuous True if continuous mode is required, false if not
      *
      * \return true if succesful

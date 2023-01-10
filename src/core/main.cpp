@@ -51,8 +51,6 @@ static int rt_thread_epoll_fd; /*!< epoll file descriptor for rt thread */
 static int rtControlPriority = 80; /*!< priority of application thread */
 static void *rt_control_thread(void *arg);
 static pthread_t rt_control_thread_id;
-const float controlLoopPeriodInms = 10;   /*!< Define the control loop period (in ms): the period of rt_control_thread loop. */
-const float CANUpdateLoopPeriodInms = 10; /*!< Define the CAN PDO sync message period (and so PDO update rate). In ms. Less than 3 can lead to unstable communication  */
 CO_NMT_reset_cmd_t reset_local = CO_RESET_NOT;
 
 /** @brief Task Timer used for the Control Loop*/
@@ -191,7 +189,7 @@ int main(int argc, char *argv[]) {
     spdlog::info("Starting CANopen device with Node ID {}", nodeId);
 
     //Set synch signal period (in us)
-    CO_OD_RAM.communicationCyclePeriod = CANUpdateLoopPeriodInms * 1000;
+    CO_OD_RAM.communicationCyclePeriod = CANUpdateLoopPeriodInms * 2000; //Set CAN processing twice faster than SYNCH to avoid processing hanging
 
     while (reset != CO_RESET_APP && reset != CO_RESET_QUIT && endProgram == 0) {
         /* CANopen communication reset || first run of app- initialize CANopen objects *******************/
@@ -348,7 +346,8 @@ static void *rt_thread(void *arg) {
 #endif
             /* Detect timer large overflow */
             if (OD_performance[ODA_performance_timerCycleMaxTime] > TMR_TASK_OVERFLOW_US && rtPriority > 0 && CO->CANmodule[0]->CANnormal) {
-                CO_errorReport(CO->em, CO_EM_ISR_TIMER_OVERFLOW, CO_EMC_SOFTWARE_INTERNAL, 0x22400000L | OD_performance[ODA_performance_timerCycleMaxTime]);
+                spdlog::error("rt_thread timer overflow ({}s).", OD_performance[ODA_performance_timerCycleMaxTime]/1000000.0);
+                //CO_errorReport(CO->em, CO_EM_ISR_TIMER_OVERFLOW, CO_EMC_SOFTWARE_INTERNAL, 0x22400000L | OD_performance[ODA_performance_timerCycleMaxTime]); //Removing this statement suppress the error and is safer as give a chance to recover
             }
         }
 
