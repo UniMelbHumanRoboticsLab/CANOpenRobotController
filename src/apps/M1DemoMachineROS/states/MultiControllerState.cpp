@@ -179,54 +179,40 @@ void MultiControllerState::during(void) {
         }
     }
     else if (controller_mode_ == 11){ // SEND HIGH
-//        std::cout<<"SET HIGH"<<std::endl;
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
 
-        if(robot_->getRobotName() == "m1_y"){
-            //std::cout<<"ROBOT Y"<<std::endl;
-            if(time > 2.0){
-                if (digitalInValue_ == 1) {
-                    digitalOutValue_ = 0;
-                    robot_->setDigitalOut(digitalOutValue_);
-                }
-            }
-            else if(time > 1.0){
-                if (digitalInValue_ == 0) {
-                    digitalOutValue_ = 1;
-                    robot_->setDigitalOut(digitalOutValue_);
-                }
+        if(time > 1.0){
+            if (digitalOutValue_ == 0) {
+                digitalOutValue_ = 1;
+                robot_->setDigitalOut(digitalOutValue_);
             }
         }
     }
     else if (controller_mode_ == 12){ // SEND LOW
-//        std::cout<<"SET LOW"<<std::endl;
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
 
-        if(robot_->getRobotName() == "m1_y"){
-            //std::cout<<"ROBOT Y"<<std::endl;
-            if(time > 1.0){
-                if (digitalInValue_ == 1) {
-                    digitalOutValue_ = 0;
-                    robot_->setDigitalOut(digitalOutValue_);
-                }
+        if(time > 1.0){
+            if (digitalOutValue_ == 1) {
+                digitalOutValue_ = 0;
+                robot_->setDigitalOut(digitalOutValue_);
             }
         }
     }
     else if (controller_mode_ == 13){ // SEND HIGH-LOW once
-
         double time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time0).count()/1000.0;
-        if(robot_->getRobotName() == "m1_y"){
-            //std::cout<<"ROBOT Y"<<std::endl;
-            if (time > 1.0) {
-                //std::cout<<"Trigger Sent"<<std::endl;
-                digitalOutValue_ = (digitalOutValue_ == 1) ? 0 : 1;
+
+        if(time > 2.0){
+            if (digitalOutValue_ == 1) {
+                digitalOutValue_ = 0;
                 robot_->setDigitalOut(digitalOutValue_);
-                time0 = std::chrono::steady_clock::now();
             }
         }
-    }
-    if(robot_->getRobotName() == "m1_y"){
-        digitalInValue_ = robot_->getDigitalIn();
+        else if(time > 1.0){
+            if (digitalOutValue_ == 0) {
+                digitalOutValue_ = 1;
+                robot_->setDigitalOut(digitalOutValue_);
+            }
+        }
     }
 }
 
@@ -267,6 +253,9 @@ void MultiControllerState::dynReconfCallback(CORC::dynamic_paramsConfig &config,
         if(controller_mode_ == 11) robot_->setDigitalOut(0);
         if(controller_mode_ == 12) time0 = std::chrono::steady_clock::now();
         if(controller_mode_ == 12) robot_->setDigitalOut(1);
+        if(controller_mode_ == 13) time0 = std::chrono::steady_clock::now();
+        if(controller_mode_ == 13) robot_->setDigitalOut(0);
+
     }
 
     return;
