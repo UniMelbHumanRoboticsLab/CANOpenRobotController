@@ -7,7 +7,7 @@ X2ROS2DemoMachine::X2ROS2DemoMachine(int argc, char **argv) : StateMachine()
 
     // Configure ROS2 initialisation options and disable SIGINT capture (handled by CORC)
     rclcpp::InitOptions ros_init = rclcpp::InitOptions();
-    ros_init.shutdown_on_sigint = false;
+    ros_init.shutdown_on_signal = false;
     rclcpp::init(argc, argv, ros_init);
 
     // Create the ROS2 node and pass a reference to the X2 Robot object
