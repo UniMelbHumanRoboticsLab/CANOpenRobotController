@@ -60,6 +60,8 @@ If you would like to do a simulation:
 Set your state machine (X2DemoMachine):
 ```set (STATE_MACHINE_NAME "X2DemoMachine")```
 
+Rename `Package.ros1.xml` to `Package.xml` in the CORC root folder.
+
 Build CORC:
 ```bash
 $ cd ~/catkin_ws

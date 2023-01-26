@@ -15,33 +15,40 @@ set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "M2DemoMachine")
 #set (STATE_MACHINE_NAME "M3DemoMachine")
 #set (STATE_MACHINE_NAME "X2DemoMachine")
+#set (STATE_MACHINE_NAME "X2ROS2DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 
-#Use this if your state machine code folder is not in CORC 'src/apps/' folder.
-#Can be a relative or absolute path.
+# Use this if your state machine code folder is not in CORC 'src/apps/' folder.
+# Can be a relative or absolute path.
 #set (STATE_MACHINE_PATH "../")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT ON)
 
-# ROS Flag. set ON if you want to use ROS. Else, set OFF.
-set(USE_ROS OFF)
-# Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL OFF)
+# ROS Flag: set to 0 for a no ROS stateMachine, 1 for ROS 1 (use catkin build) and 2 for ROS2 (use colcon build)
+# Remember to rename select appropriate package.xml too
+set(ROS 0)
+
+# Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)
 # INFO is the recommended level in normal operation
 set(CORC_LOGGING_LEVEL INFO)
 
 ################################################################################
+
+
+
 #Default path if not set
 if(NOT STATE_MACHINE_PATH)
     set (STATE_MACHINE_PATH "src/apps")
 endif()
 
 #ROS internal flags
-if(USE_ROS)
-    add_definitions(-DUSEROS)
+if(ROS GREATER 0)
+    add_definitions(-DROS=${ROS})
 endif()
 
-if(NO_ROBOT AND USE_ROS)
+#SIM flag is used for ROS1 simulation
+if(NO_ROBOT AND (ROS EQUAL 1))
     set(SIM ON)
     add_definitions(-DSIM)
 endif()
@@ -59,7 +66,7 @@ add_definitions(-DFP_STARTTPDO=0x3E1)
 ## Compile as C++14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-if(USE_ROS)
+if(ROS GREATER 0)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-int-in-bool-context" )
 else()
     if(CMAKE_CROSSCOMPILING)
@@ -109,7 +116,6 @@ list (APPEND INCLUDE_DIRS lib/spdlog/include/)
 
 add_subdirectory(lib/yaml-cpp/)
 
-
 ## Hack for Yaml files path (absolute path required for ROS use, see X2Robot::initializeRobotParams)
 if(CMAKE_CROSSCOMPILING)
     add_definitions(-DBASE_DIRECTORY=.)
@@ -117,8 +123,8 @@ else()
     add_definitions(-DBASE_DIRECTORY=${CMAKE_SOURCE_DIR})
 endif()
 
+if(ROS EQUAL 1)
 ## Add ROS 1 dependencies
-if(USE_ROS)
     #ROS 1 local compile: use catkin
     message("--catkin--")
     # Required ROS packages
@@ -153,8 +159,8 @@ if(USE_ROS)
     )
 
     generate_messages(
-       DEPENDENCIES
-       std_msgs
+    DEPENDENCIES
+    std_msgs
     )
 
     catkin_package(
@@ -175,7 +181,18 @@ if(USE_ROS)
     #include CATKIN
     include_directories(${catkin_INCLUDE_DIRS})
     set(ROS_LIBRARIES ${catkin_LIBRARIES})
+    
+## Add ROS2 dependencies
+elseif(ROS EQUAL 2)
+    #ROS 2 local compile: use colcon
+    message("--colcon--")
+
+    find_package(ament_cmake REQUIRED)
+    find_package(rclcpp REQUIRED)
+    find_package(std_msgs REQUIRED)
+    find_package(sensor_msgs REQUIRED)
 endif()
+
 
 
 ## Executable name: {STATEMACHINENAME}_APP
@@ -188,7 +205,7 @@ add_executable(${APP_NAME}
                 )
 
 ## Includes
-target_include_directories(${APP_NAME} PRIVATE ${INCLUDE_DIRS})
+target_include_directories(${APP_NAME} PUBLIC ${INCLUDE_DIRS})
 
 ## Set required external packages
 find_package(Threads REQUIRED)
@@ -199,11 +216,24 @@ target_link_libraries(${APP_NAME}
         yaml-cpp)
 
 ## Link ROS libraries
-if(USE_ROS)
+if(ROS EQUAL 1)
     target_link_libraries(${APP_NAME} ${ROS_LIBRARIES})
 
     # make sure configure headers are built before any node using them
     add_dependencies(${APP_NAME} ${PROJECT_NAME}_gencfg)
+
+elseif(ROS EQUAL 2)
+    include_directories(${INCLUDE_DIRS})
+
+    ament_target_dependencies(${APP_NAME} rclcpp std_msgs sensor_msgs)
+    ament_export_dependencies(rclcpp std_msgs sensor_msgs)
+
+    install(TARGETS ${APP_NAME} DESTINATION lib/${PROJECT_NAME})
+    install(PROGRAMS script/initCAN0.sh DESTINATION lib/${PROJECT_NAME})
+    install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
+    install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
+
+    ament_package()
 endif()
 
 

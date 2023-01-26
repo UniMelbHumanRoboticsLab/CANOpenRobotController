@@ -19,7 +19,7 @@ std::unique_ptr<STATE_MACHINE_TYPE> stateMachine;
 
 /******************** RUNS BEFORE CO_init() ********************/
 void app_communicationReset(int argc, char *argv[]) {
-#ifdef USEROS
+#if ROS > 0
     stateMachine = std::make_unique<STATE_MACHINE_TYPE>(argc, argv);
 #else
     stateMachine = std::make_unique<STATE_MACHINE_TYPE>();

@@ -90,8 +90,9 @@ This example enables simple functionalities of ArmMotus M3/EMU System. It shows 
 1. Users looking to develop for the ArmMotus M3
 2. Users looking to develop systems with a separate user interface
 
-### [M3DemoMachine - Instructions](GSM3DemoMachine.md) 
+### [M3DemoMachine - Instructions](GSM3DemoMachine.md)
 See also the code example in `src/apps/M3DemoMachine`.
+
 
 ## Hardware Testing - AnkleMotus M1
 This example enables simple movements with the AnkleMotus M1 System.
@@ -104,5 +105,20 @@ This example enables simple movements with the AnkleMotus M1 System.
 1. Users looking to develop for the AnkleMotus M1
 
 ### [M1DemoMachine - Instructions](GSM1DemoMachine.md)
-See the code example in `src/apps/M1DemoMachine`.
+See also the code example in `src/apps/M1DemoMachine`.
+
+
+## ROS2 CORC application - Exoskeleton
+This example is a an example of the use of a ROS2 CORC state machine.
+It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, and creates a ROS2 CORC package.
+
+### Requirements
+1. A development and deployment machine running Linux Ubuntu and ROS2 (Humble).
+
+### Suggested for
+1. Users looking to develop a ROS2 CORC application
+
+### [ROS2 Application - Instructions](ROS2Application.md)
+See also the code example in `src/apps/X2ROS2DemoMachine`.
+
 
