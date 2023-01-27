@@ -78,11 +78,16 @@ bool Drive::setTorque(int torque) {
     * \todo add setTorque to object dictionary for all drives
     *
     */
-    spdlog::trace("Drive {} Writing {} to 0x{0:x}", NodeID, (short int)torque, OD_Addresses[TARGET_TOR]);
+    spdlog::trace("Drive {} Writing {} to 0x{0:x}", NodeID, (short int)torque, OD_Addresses[TARGET_TOR][0]);
     targetTor = torque;
     return true;
 }
 
+bool Drive::setDigitalOut(int digital_out) {
+    spdlog::trace("Drive {} Writing {} to 0x{0:x}", NodeID, (short int)digitalOut, OD_Addresses[DIGITAL_OUT][0]);
+    digitalOut = digital_out;
+    return true;
+}
 
 int Drive::getPos() {
     return actualPos;
@@ -102,6 +107,10 @@ int Drive::getTorque() {
     } else {
         return 0;
     }
+}
+
+int Drive::getDigitalIn() {
+    return digitalIn;
 }
 
 DriveState Drive::resetErrors() {
@@ -161,10 +170,10 @@ bool Drive::posControlSetContinuousProfile(bool continuous) {
 
 bool Drive::configureMasterPDOs(){
     // Set up the PDOs in the OD here
-    for (int TPDO_Num = 1; TPDO_Num <= 3; TPDO_Num++){
+    for (unsigned int TPDO_Num = 1; TPDO_Num <= TPDO_MappedObjects.size(); TPDO_Num++) {
         generateEquivalentMasterRPDO(TPDO_MappedObjects[TPDO_Num], TPDO_COBID[TPDO_Num] + NodeID, 0xff);
-        }
-    for (int RPDO_Num = 1; RPDO_Num <= 4; RPDO_Num++){
+    }
+    for (unsigned int RPDO_Num = 1; RPDO_Num <= RPDO_MappedObjects.size(); RPDO_Num++) {
         generateEquivalentMasterTPDO(RPDO_MappedObjects[RPDO_Num], RPDO_COBID[RPDO_Num] + NodeID, 0xff);
     }
 
@@ -181,49 +190,48 @@ bool Drive::initPDOs() {
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0xFF)) < 0) {
         spdlog::error("Set up STATUS_WORD TPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
 
     spdlog::debug("Set up ACTUAL_POS and ACTUAL_VEL TPDO on Node {}", NodeID);
     TPDO_Num = 2;
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01)) < 0) {
         spdlog::error("Set up ACTUAL_POS and ACTUAL_VEL TPDO FAILED on node {}", NodeID);
         return false;
-    } 
-
+    }
 
     spdlog::debug("Set up ACTUAL_TOR TPDO on Node {}", NodeID);
     TPDO_Num = 3;
     if (sendSDOMessages(generateTPDOConfigSDO(TPDO_MappedObjects[TPDO_Num], TPDO_Num, TPDO_COBID[TPDO_Num] + NodeID, 0x01)) < 0) {
         spdlog::error("Set up ACTUAL_TOR TPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
 
     // Calculate COB_ID. If RPDO:
     //int COB_ID = 0x100 * (PDO_Num+1) + NodeID;
-    spdlog::debug("Set up CONTROL_WORD RPDO on Node {}", NodeID);
+    spdlog::debug("Set up CONTROL_WORD and DIGITAL_OUT RPDO on Node {}", NodeID);
     int RPDO_Num = 1;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
-        spdlog::error("Set up CONTROL_WORD RPDO FAILED on node {}", NodeID);
+        spdlog::error("Set up CONTROL_WORD and DIGITAL_OUT RPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
     spdlog::debug("Set up TARGET_POS RPDO on Node {}", NodeID);
     RPDO_Num = 2;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up TARGET_POS RPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
     spdlog::debug("Set up TARGET_VEL RPDO on Node {}", NodeID);
     RPDO_Num = 3;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
-        spdlog::error("Set up ARGET_VEL RPDO FAILED on node {}", NodeID);
+        spdlog::error("Set up TARGET_VEL RPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
     spdlog::debug("Set up TARGET_TOR RPDO on Node {}", NodeID);
     RPDO_Num = 4;
     if (sendSDOMessages(generateRPDOConfigSDO(RPDO_MappedObjects[RPDO_Num], RPDO_Num, RPDO_COBID[RPDO_Num] + NodeID, 0xff)) < 0) {
         spdlog::error("Set up TARGET_TOR RPDO FAILED on node {}", NodeID);
         return false;
-    } 
+    }
     return true;
     }
 
@@ -258,7 +266,7 @@ bool Drive::setMotorProfile(motorProfile profile) {
     return true;
 }
 
-std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int COB_ID, int SyncRate, int sub_idx) {
+std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int COB_ID, int SyncRate) {
     // TODO: Do a check to make sure that the OD_Entry_t items can be transmitted.
 
     // Calculate COB_ID. If TPDO:
@@ -287,7 +295,7 @@ std::vector<std::string> Drive::generateTPDOConfigSDO(std::vector<OD_Entry_t> it
 
     for (unsigned int i = 1; i <= items.size(); i++) {
         // Set transmit parameters
-        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1A00 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + sub_idx * 0x100 + OD_DataSize[items[i - 1]]*8;
+        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1A00 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]][0] * 0x10000 + OD_Addresses[items[i - 1]][1] * 0x100 + OD_DataSize[items[i - 1]]*8;
         CANCommands.push_back(sstream.str());
         sstream.str(std::string());
     }
@@ -318,7 +326,7 @@ void Drive::generateEquivalentMasterRPDO(std::vector<OD_Entry_t> items, int COB_
     //spdlog::debug("Master RPDO (COB-ID 0x{0:x}) Setup for Node {}", COB_ID, NodeID);
 }
 
-std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int COB_ID, int UpdateTiming, int sub_idx) {
+std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> items, int PDO_Num, int COB_ID, int UpdateTiming) {
     /**
      *  \todo Do a check to make sure that the OD_Entry_t items can be Received
      *
@@ -348,7 +356,7 @@ std::vector<std::string> Drive::generateRPDOConfigSDO(std::vector<OD_Entry_t> it
 
     for (unsigned int i = 1; i <= items.size(); i++) {
         // Set transmit parameters
-        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1600 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]] * 0x10000 + sub_idx * 0x100 + OD_DataSize[items[i - 1]]*8;
+        sstream << "[1] " << NodeID << " write 0x" << std::hex << 0x1600 + PDO_Num - 1 << " " << i << " u32 0x" << std::hex << OD_Addresses[items[i - 1]][0] * 0x10000 + OD_Addresses[items[i - 1]][1] * 0x100 + OD_DataSize[items[i - 1]]*8;
         CANCommands.push_back(sstream.str());
         sstream.str(std::string());
     }

@@ -18,7 +18,7 @@
 class IdleState : public State {
    public:
     LoggingRobot *robot;
-    IdleState(StateMachine *m, LoggingRobot *robot, const char *name = NULL);
+    IdleState(LoggingRobot *robot, const char *name = "");
 
     void entry(void);
     void during(void);

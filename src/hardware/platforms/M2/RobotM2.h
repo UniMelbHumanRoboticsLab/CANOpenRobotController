@@ -22,6 +22,7 @@
 
 
 typedef Eigen::Vector2d VM2; //! Convenience alias for double  Vector of length 3
+typedef Eigen::VectorXd VX; //!< Generic (dynamic) size version required for compatibility w/ other libraries (FLNL)
 
 /**
  * \brief Implementation of the M2 robot class, representing an M2 using 2 JointM2
@@ -34,10 +35,10 @@ class RobotM2: public Robot {
     double maxEndEffVel; //!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.
     double maxEndEffForce; //!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated.
 
-    VM2 endEffPositions;
-    VM2 endEffVelocities;
-    VM2 endEffForces;
-    VM2 interactionForces;
+    VX endEffPositions;
+    VX endEffVelocities;
+    VX endEffForces;
+    VX interactionForces;
 
    public:
     /**
@@ -152,10 +153,10 @@ class RobotM2: public Robot {
     VM2 directKinematic(VM2 q);
     VM2 inverseKinematic(VM2 X);
 
-    const VM2& getEndEffPosition();       //!< Return vector containing end-effector position (in m)
-    const VM2& getEndEffVelocity();       //!< Return vector containing end-effector velocity (in m.s-1)
-    const VM2& getEndEffForce();          //!< Return vector containing end-effector (motors) force (in N)
-    const VM2& getInteractionForce();  //!< Return vector reference containing end-effector interaction force (as per force sensors measurement) (in N)
+    const VX& getEndEffPosition();       //!< Return vector containing end-effector position (in m)
+    const VX& getEndEffVelocity();       //!< Return vector containing end-effector velocity (in m.s-1)
+    const VX& getEndEffForce();          //!< Return vector containing end-effector (motors) force (in N)
+    const VX& getInteractionForce();  //!< Return vector reference containing end-effector interaction force (as per force sensors measurement) (in N)
 
     setMovementReturnCode_t setJointPosition(VM2 q);
     setMovementReturnCode_t setJointVelocity(VM2 dq);

@@ -15,14 +15,14 @@ if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "
   SSH_IP_ADDR="192.168.7.2"
 else
   #Any other case (Linux, Unix, OSX...)
-  SSH_IP_ADDR="192.168.6.2"
+  SSH_IP_ADDR="192.168.7.2"
 fi
 
 #Check if BB is connected
 ping -W 1 -c 1 $SSH_IP_ADDR >/dev/null 2>&1
 if [ $? -ne 0 ] ; then 
-	echo "Nothing connected on ${SSH_IP_ADDR}. Exiting."
-	exit
+    echo "Nothing connected on ${SSH_IP_ADDR}. Exiting."
+    exit
 fi
 
 #set in root folder

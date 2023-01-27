@@ -7,29 +7,29 @@
 
 ## Usage
 To use it in a CORC state machine:
-- Declare an FLNLHelper in your state machine class: `FLNLHelper *UIserver;   /*!< Pointer to communication server*/`
-- Instantiate and initialise it in your init method: 
+- Declare an FLNLHelper in your state machine class: `std::shared_ptr<FLNLHelper> UIserver = nullptr;`
+- Instantiate and initialise it in the derived State Machine init method:
 ```
-	UIserver = new FLNLHelper("192.168.7.2");       //Instantiate object and open communication (waiting for client to connect). IP adress is server address to listen on.
+	UIserver = std::make_shared<FLNLHelper>("192.168.7.2");       //Instantiate object and open communication (waiting for client to connect). IP adress is server address to listen on.
 
-	registerState(myTime);                          //Reference to a time value (double)
-	registerState(robot->getEndEffPositionRef());   //Reference to an Eigen vector
-	registerState(myStdVector);                     //Reference to an std::vector<double>
+	UIserver->registerState(myTime);                          //Reference to a time value (double)
+	UIserver->registerState(robot->getEndEffPositionRef());   //Reference to an Eigen vector
+	UIserver->registerState(myStdVector);                     //Reference to an std::vector<double>
 ```
-- Alternatively you can also initialise it with an helper constructor: `UIserver = new FLNLHelper(robot, "192.168.7.2");` which will automatically register the time and robot state (position, velocity and torque) to be sent at each update.
+- Alternatively you can also initialise it with an helper constructor: `UIserver = std::make_shared<FLNLHelper>(*robot(), "192.168.7.2");` which will automatically register the time and robot state (position, velocity and torque) to be sent at each update.
 - Call the update method to send the states over the network regularlry, typically in your hwStateUpdate method: `UIserver->sendState();`
-- Received command can be checked and process at any point. Example in M3DemoMachine::GoToNextState::check():
+- Received command can be checked and process at any point. Example in M3DemoMachine:
 ```
-if ( OWNER->UIserver->isCmd() ) {
-        string cmd;
-        vector<double> v;
-        OWNER->UIserver->getCmd(cmd, v);
-        if (cmd == "GTNS") { //Go To Next State command received
-            //Acknowledge
-            OWNER->UIserver->sendCmd(string("OK"));
-            return true;
-        }
+bool goToTele(StateMachine & SM) {
+    M3DemoMachine & sm = static_cast<M3DemoMachine &>(SM); //Cast to specific StateMachine type
+
+    if ( sm.UIserver->isCmd("GOTL") ) {
+        sm.UIserver->sendCmd(string("OKTL"));
+        return true;
     }
+
+    return false;
+}
 ```
 - Similarly, commands can be sent to the client at any point: `UIserver->sendCmd(string cmd, std:vector<double> param)`.
 

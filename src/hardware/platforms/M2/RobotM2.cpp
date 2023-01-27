@@ -76,7 +76,7 @@ bool RobotM2::initialiseNetwork() {
         #endif
         n++;
     }
-    printJointStatus();
+    updateRobot();
     return true;
 }
 bool RobotM2::initialiseInputs() {
@@ -295,22 +295,22 @@ Matrix2d RobotM2::J() {
 }
 
 
-const VM2& RobotM2::getEndEffPosition() {
+const VX& RobotM2::getEndEffPosition() {
     //Update values
     endEffPositions = directKinematic(getPosition());
     return endEffPositions;
 }
-const VM2& RobotM2::getEndEffVelocity() {
+const VX& RobotM2::getEndEffVelocity() {
     //Update values
     endEffVelocities = J() * getVelocity();
     return endEffVelocities;
 }
-const VM2& RobotM2::getEndEffForce() {
+const VX& RobotM2::getEndEffForce() {
     //Update values
     endEffForces = (J().transpose()).inverse() * getTorque();
     return endEffForces;
 }
-const VM2& RobotM2::getInteractionForce() {
+const VX& RobotM2::getInteractionForce() {
     if((unsigned int)interactionForces.size()!=forceSensors.size()) {
         interactionForces = Eigen::VectorXd::Zero(forceSensors.size());
     }

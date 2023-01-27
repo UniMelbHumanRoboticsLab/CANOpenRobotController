@@ -235,7 +235,7 @@ void CO_EM_process(
             (em->bufReadPtr != em->bufWritePtr || em->bufFull))
     {
         uint32_t preDEF;    /* preDefinedErrorField */
-        
+
         /* add error register */
         em->bufReadPtr[2] = *emPr->errorRegister;
 

@@ -2,15 +2,15 @@
 
 CORC is a free and open source robotic development software stack, written in C++.
 
-The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform. The repository currently also includes code which has been run on the ArmMotus M1 and M3 rehabilitation devices, and using desktop or laptop Ubuntu installations.
+The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform. The repository currently also includes code which has been run on the ArmMotus M1, M2 and M3 (EMU) rehabilitation devices, and using desktop or laptop Ubuntu installations.
 
 ## The CANOpen Robot Controller project includes:
 
 - An extensible framework to represent multibody rigid robotic systems.
-- An event driven state machine to develop custom applications (see [here](doc/3.Software/StateMachine.md)).
+- An event driven state machine to develop custom applications (see [here](doc/3.Software/CustomApplication.md)).
 - An implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers/sensors.
 - Documentation (this page and associated ones and code Doxygen).
-- Functional application examples.
+- Functional application examples. 
 
 ### Project Overview
 
@@ -34,7 +34,7 @@ CORC relies on [spdlog](https://github.com/gabime/spdlog) for both general loggi
 See [here](doc/3.Software/Logging.md) for more info on using the logging system.
 
 ### ROS Support
-See [here](doc/1.GettingStarted/Simulation.md) for instructions on how to build and run a CORC app with ROS support.
+See [here](doc/1.GettingStarted/AdvancedSimulationAndHardwareTesting.md) for instructions on how to build and run a CORC app with ROS support.
 
 ### Network communication
 See [here](doc/3.Software/NetworkCommunication.md) for instructions on using libFLNL for communication.
@@ -47,10 +47,8 @@ To generate the Doxygen documentation of the code you can simply run `doxygen Do
 
 ## Developer Information
 
-- Detailed documentation: https://exoembedded.readthedocs.io/en/latest/
-- Source code documentation: https://capstonealex.github.io/exo/index.html
-- Project Repository: https://github.com/capstonealex/exo
 - CANopen Socket: https://github.com/CANopenNode/CANopenSocket
+- CANopen CiA 402 (motor drive standard) ressources: https://www.can-cia.org/can-knowledge/canopen/cia402/ and https://doc.synapticon.com/software/40/object_dict/all_objects/index.html#all-objects
 
 
 ## Contributors
@@ -63,6 +61,7 @@ The following individuals have made contributions to CORC:
 - Yue Wen
 - Tim Haswell
 - Xinliang Guo
+- Benjamin von Snarski
 
 Please contact fong.j[at]unimelb.edu.au with questions or suggestions for continuing development, or if you wish to be more involved in the planning/organisation of CORC.
 

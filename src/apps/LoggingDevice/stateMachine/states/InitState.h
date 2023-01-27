@@ -20,7 +20,7 @@ extern CO_NMT_reset_cmd_t reset_local;
 class InitState : public State {
    public:
     LoggingRobot *robot;
-    InitState(StateMachine *m, LoggingRobot *robot, const char *name = NULL);
+    InitState(LoggingRobot *robot, const char *name = "");
 
     void entry(void);
     void during(void);

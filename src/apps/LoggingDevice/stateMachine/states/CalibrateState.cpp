@@ -11,7 +11,7 @@
 
 #include "CalibrateState.h"
 
-CalibrateState::CalibrateState(StateMachine *m, LoggingRobot *robot, const char *name) : State(m, name), robot(robot) {
+CalibrateState::CalibrateState(LoggingRobot *robot, const char *name) : State(name), robot(robot) {
     spdlog::info("CalibrateState Created");
 };
 void CalibrateState::entry(void) {

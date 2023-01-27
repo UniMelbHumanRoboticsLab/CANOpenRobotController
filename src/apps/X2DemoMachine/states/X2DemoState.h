@@ -34,13 +34,15 @@
  *
  */
 class X2DemoState : public State {
+
+protected:
     X2Robot *robot_;
 
 public:
     void entry(void);
     void during(void);
     void exit(void);
-    X2DemoState(StateMachine *m, X2Robot *exo, const char *name = NULL);
+    X2DemoState(X2Robot *exo, const char *name = "X2DemoState");
 
     Eigen::VectorXd& getDesiredJointTorques();
     Eigen::VectorXd& getDesiredJointVelocities();

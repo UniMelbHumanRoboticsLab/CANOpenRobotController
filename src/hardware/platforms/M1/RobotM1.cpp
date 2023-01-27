@@ -25,6 +25,9 @@ RobotM1::RobotM1(string robot_name, string yaml_config_file):   Robot(robot_name
 
     // Calibration configuration: posture in which the robot is when using the calibration procedure
     qCalibration(0) = 0 * d2r;
+    tau_motor(0) = 0;
+    q_pre(0) = 0;
+    tau_s_pre(0) = 0;
 
     // Set up the motor profile
     posControlMotorProfile.profileVelocity = 600.*512*10000/1875;
@@ -32,6 +35,7 @@ RobotM1::RobotM1(string robot_name, string yaml_config_file):   Robot(robot_name
     posControlMotorProfile.profileDeceleration = 500.*65535*10000/4000000;
 
     //Check if YAML file exists and contain robot parameters
+    robotName_ = robot_name;
     initialiseFromYAML(yaml_config_file);
 
     initialiseJoints();
@@ -80,7 +84,7 @@ bool RobotM1::initialiseNetwork() {
 
 bool RobotM1::initialiseInputs() {
     inputs.push_back(keyboard = new Keyboard());
-    inputs.push_back(m1ForceSensor = new M1ForceSensor(2));
+    inputs.push_back(m1ForceSensor = new FourierForceSensor(17, 0.1, 1));
     return true;
 }
 
@@ -124,11 +128,25 @@ void RobotM1::updateRobot() {
         dq(i) = ((JointM1 *)joints[i])->getVelocity();
         tau(i) = ((JointM1 *)joints[i])->getTorque();
         tau_s(i) = m1ForceSensor[i].getForce();
+        // compensate inertia, move it later
+        double inertia_s = 1.0592; // m*s*g =
+        double inertia_c = 0.3258;
+        double theta_bias = 0.1604;
+        tau_s(i) =  tau_s(i) - inertia_s*sin(q(i)+theta_bias) - inertia_c*cos(q(i)+theta_bias);
     }
     if (safetyCheck() != SUCCESS) {
         status = R_OUTSIDE_LIMITS;
         stop();
     }
+}
+
+bool RobotM1::setDigitalOut(int digital_out) {
+    return ((JointM1 *)joints[0])->setDigitalOut(digital_out);
+}
+
+int RobotM1::getDigitalIn() {
+
+    return ((JointM1 *)joints[0])->getDigitalIn();
 }
 
 setMovementReturnCode_t RobotM1::safetyCheck() {
@@ -354,12 +372,22 @@ JointVec RobotM1::getJointTor() {
     return tau;
 }
 
-JointVec& RobotM1::getJointTor_s() {
-    return tau_s;
+void RobotM1::filter_q(double alpha_q){
+    q(0) = alpha_q*q(0)+(1-alpha_q)*q_pre(0);
+    q_pre(0) = q(0);
 }
 
-JointVec& RobotM1::getJointTor_cmd() {
-    return tau_cmd;
+void RobotM1::filter_tau(double alpha_tau){
+    tau_s(0) = alpha_tau*tau_s(0)+(1-alpha_tau)*tau_s_pre(0);
+    tau_s_pre(0) = tau_s(0);
+}
+
+JointVec& RobotM1::getJointTor_s() {
+    double inertia_s = 1.0592; // m*s*g =
+    double inertia_c = 0.3258;
+    double theta_bias = 0.1604;
+    tau_sc(0) =  tau_s(0); //+ inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
+    return tau_sc;
 }
 
 setMovementReturnCode_t RobotM1::setJointPos(JointVec pos_d) {
@@ -371,39 +399,30 @@ setMovementReturnCode_t RobotM1::setJointVel(JointVec vel_d) {
 }
 
 setMovementReturnCode_t RobotM1::setJointTor(JointVec tor_d) {
-    tau_cmd = tor_d;
-    return applyTorque(tor_d);
+//    tor_d = compensateJointTor(tor_d);
+    tau_motor(0) = (tor_d(0)+tau_motor(0)*2.0)/3.0;
+    return applyTorque(tau_motor);
 }
 
-setMovementReturnCode_t RobotM1::setJointTor_comp(JointVec tor_d, JointVec tor_s) {
-    tau_cmd = compensateJointTor(tor_d, tor_s);
-    return applyTorque(tau_cmd);
+JointVec RobotM1::compensateJointTor(JointVec tor){
+    double f_s = 1.4;
+    double f_d = 0.5;
+    double inertia_c = 0.12;
+    if(abs(dq(0))<0.05)
+    {
+        tor(0) = tor(0) + f_s*sign(tor(0)) + f_d*dq(0)+inertia_c*sin(q(0));
+//        tor(0) = tor(0) + f_s*sign(tor(0))+ f_d*dq(0)+inertia_c*sin(q(0));
+
+    }
+    else
+    {
+        tor(0) = tor(0) + f_s*sign(dq(0))+ f_d*dq(0)+inertia_c*sin(q(0));
+    }
+    return tor;
 }
 
-JointVec RobotM1::compensateJointTor(JointVec tor, JointVec tor_s){
-/*** f_s is the static friction,
- f_d is dynamic friction
- inertia_c is the inertia compensation
+setMovementReturnCode_t RobotM1::setJointTor_comp(JointVec tor, JointVec tor_s, double ffRatio) {
 
- ***/
-
-//    double f_s = 1.57;
-//    double f_d = 2.02;
-//    double inertia_c = 0.24;
-
-// manually adjusted values
-//    double f_s = 1.57;
-//    double f_d = 1.0;   //1.2
-//    double inertia_c = 0.24;
-
-// calibration with foot plate
-//    double f_s = 0.6503;
-//    double f_d = 0.3015;   //1.2
-//    double inertia_s = 1.0323; // m*s*g =
-//    double inertia_c = 0.2560;
-//    double theta_bias = 0.0601;
-//    double c2 =  1.5; //2.6209; //
-// calibration with foot plate without c2
     double f_s = 1.2302;
     double f_d = 1.2723;   //1.2
     double inertia_s = 1.0592; // m*s*g =
@@ -411,8 +430,12 @@ JointVec RobotM1::compensateJointTor(JointVec tor, JointVec tor_s){
     double theta_bias = 0.1604;
     double c2 = 1.2532;
     double tor_ff = 0;
-    if(abs(dq(0))<0.32)
+    double vel = 0;
+    vel = dq(0);
+
+    if(abs(vel)<0.1)
     {
+//         tor_ff = f_s*sign(tor_s(0)) + f_d*dq(0)+inertia_c*sin(q(0));
         if(abs(tor_s(0))>0.2)
         {
             tor_ff = f_s*sign(tor_s(0)) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias);
@@ -424,8 +447,16 @@ JointVec RobotM1::compensateJointTor(JointVec tor, JointVec tor_s){
     }
     else
     {
-        tor_ff = f_s*sign(dq(0)) + f_d*dq(0) + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias) + c2*sqrt(abs(dq(0)))*sign(dq(0));
+        vel = vel-sign(vel)*0.1;
+//        tor_ff = f_s*sign(dq(0))+ f_d*dq(0)+inertia_c*sin(q(0));
+        tor_ff = f_s*sign(vel) + f_d*vel + inertia_s*sin(q(0)+theta_bias) + inertia_c*cos(q(0)+theta_bias) + c2*sqrt(abs(vel))*sign(vel);
     }
-    tor(0) = tor(0) + tor_ff*0.8;
-    return tor;
+    tor(0) = tor(0) + tor_ff*ffRatio;
+    return setJointTor(tor);
 }
+
+std::string & RobotM1::getRobotName() {
+    return robotName_;
+}
+
+short RobotM1::sign(double val) { return (val > 0) ? 1 : ((val < 0) ? -1 : 0); }

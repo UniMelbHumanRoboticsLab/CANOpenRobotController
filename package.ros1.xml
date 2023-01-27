@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>CORC</name>
-  <version>1.0.0</version>
+  <version>2.0.0</version>
   <description>The CORC package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
@@ -13,7 +13,7 @@
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>TODO</license>
+  <license>Apache v2</license>
 
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
@@ -58,6 +58,7 @@
   <build_depend>controller_manager_msgs</build_depend>
   <build_depend>cob_gazebo_ros_control</build_depend>
   <build_depend>x2_description</build_depend>
+  <build_depend>multi_robot_interaction</build_depend>
   <build_depend>dynamic_reconfigure</build_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
@@ -68,6 +69,7 @@
   <build_export_depend>controller_manager_msgs</build_export_depend>
   <build_export_depend>cob_gazebo_ros_control</build_export_depend>
   <build_export_depend>x2_description</build_export_depend>
+  <build_export_depend>multi_robot_interaction</build_export_depend>
   <build_export_depend>dynamic_reconfigure</build_export_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>roscpp</exec_depend>
@@ -79,6 +81,8 @@
   <exec_depend>controller_manager_msgs</exec_depend>
   <exec_depend>cob_gazebo_ros_control</exec_depend>
   <exec_depend>x2_description</exec_depend>
+  <exec_depend>dynamic_reconfigure</exec_depend>
+  <exec_depend>multi_robot_interaction</exec_depend>
   <exec_depend>dynamic_reconfigure</exec_depend>
 
 

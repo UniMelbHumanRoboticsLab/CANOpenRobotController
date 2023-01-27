@@ -33,9 +33,9 @@ JointDrivePairs kneeJDP{
 static volatile sig_atomic_t exitLoop = 0;
 
 #ifdef SIM
-X2Robot::X2Robot(ros::NodeHandle &nodeHandle, std::string robot_name, std::string yaml_config_file):Robot(robot_name, yaml_config_file)
+X2Robot::X2Robot(ros::NodeHandle &nodeHandle, std::string robot_name, std::string yaml_config_file):Robot(robot_name, yaml_config_file), x2Parameters()
 #else
-X2Robot::X2Robot(std::string robot_name, std::string yaml_config_file):Robot(robot_name, yaml_config_file)
+X2Robot::X2Robot(std::string robot_name, std::string yaml_config_file):Robot(robot_name, yaml_config_file), x2Parameters()
 #endif
     {
 
@@ -70,8 +70,14 @@ X2Robot::X2Robot(std::string robot_name, std::string yaml_config_file):Robot(rob
     x2Parameters.grfSensorScaleFactor = Eigen::VectorXd::Zero(X2_NUM_GRF_SENSORS);
     x2Parameters.grfSensorThreshold = Eigen::VectorXd::Zero(X2_NUM_GRF_SENSORS);
     x2Parameters.imuParameters.useIMU = false;
+
+	// IMPORTANT DEFAULT PARAMETERS
     x2Parameters.maxVelocity = 3.0;
     x2Parameters.maxTorque = 70.0;
+	x2Parameters.jointPositionLimits.hipMax = 120;
+	x2Parameters.jointPositionLimits.hipMin = -40;
+	x2Parameters.jointPositionLimits.kneeMax = 0;
+	x2Parameters.jointPositionLimits.kneeMin = -120;
 
     jointTorquesViaStrainGauges_ = Eigen::VectorXd::Zero(X2_NUM_JOINTS);
 
@@ -818,6 +824,7 @@ void X2Robot::updateRobot(bool duringHoming) {
         std::raise(SIGTERM); //Clean exit
     }
 #endif
+
 }
 
 bool X2Robot::safetyCheck(bool duringHoming) {

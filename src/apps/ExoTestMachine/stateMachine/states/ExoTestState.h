@@ -39,7 +39,7 @@ class ExoTestState : public State {
     virtual void entry() = 0;
     virtual void during() = 0;
     virtual void exit() = 0;
-    ExoTestState(StateMachine *m, X2Robot *exo, DummyTrajectoryGenerator *tg, const char *name = NULL);
+    ExoTestState(X2Robot *exo, DummyTrajectoryGenerator *tg, const char *name = NULL);
 };
 
 #endif

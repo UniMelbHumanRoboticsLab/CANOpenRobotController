@@ -1,147 +1,69 @@
-
 #include "LoggingDevice.h"
 
-#define OWNER ((LoggingDevice *)owner)
 
-LoggingDevice::LoggingDevice() {
-    robot = new LoggingRobot();
-
-    // Events
-    isAPressed = new IsAPressed(this);
-    isSPressed = new IsSPressed(this);
-    isWPressed = new IsWPressed(this);
-    isXPressed = new IsXPressed(this);
-    isDPressed = new IsDPressed(this);
-
-    isCalibrationFinished = new IsCalibrationFinished(this);
-
-    // States
-    initState = new InitState(this, robot);
-    idleState = new IdleState(this, robot);
-    calibrateState = new CalibrateState(this, robot);
-    recordState = new RecordState(this, robot);
-
-    // Transitions
-    NewTransition(initState, isAPressed, idleState);
-    NewTransition(idleState, isAPressed, calibrateState);
-    NewTransition(idleState, isWPressed, idleState);
-    NewTransition(idleState, isXPressed, idleState);
-    NewTransition(idleState, isDPressed, idleState);
-
-    NewTransition(calibrateState, isCalibrationFinished, idleState);
-    NewTransition(idleState, isSPressed, recordState);
-    NewTransition(recordState, isSPressed, idleState);
-
-    //Initialize the state machine with first state of the designed state machine, using baseclass function.
-    StateMachine::initialize(initState);
-}
-
-void LoggingDevice::init() {
-    spdlog::info("LoggingDevice::init()");
-    initialised = robot->initialise();
-    running = true;
-
-    // Initialising the data logger
-    time0 = std::chrono::steady_clock::now();
-    dataLogger.initLogger("test_logger", "logs/testLog.csv", LogFormat::CSV, true);
-    dataLogger.add(time, "time");
-    dataLogger.add(robot->getCrutchReadings(), "CrutchReadings");
-    dataLogger.add(robot->getForcePlateReadings(), "ForcePlateReadings");
-    dataLogger.add(robot->getFootSensorReadings(), "FootSensorReadings");
-    //dataLogger.add(robot->getMotorPositions(), "MotorPositions");
-    //dataLogger.add(robot->getMotorVelocities(), "MotorVelocities");
-    //dataLogger.add(robot->getMotorTorques(), "MotorTorques");
-    //dataLogger.add(robot->getGoButton(), "GoButton");
-    //dataLogger.add(robot->getCurrentState(), "CurrentState");
-    //dataLogger.add(robot->getCurrentMovement(), "CurrentMovement");
-
-    dataLogger.startLogger();
-}
-
-void LoggingDevice::end() {
-    spdlog::debug("Ending Logging Device");
-    dataLogger.endLog();
-    delete robot;
-}
 
 ////////////////////////////////////////////////////////////////
-// Events ------------------------------------------------------
+// Transitions--------------------------------------------------
 ///////////////////////////////////////////////////////////////
-/**
-     * \brief Keyboard States
-     *
-     */
-
-bool LoggingDevice::IsAPressed::check(void) {
+bool isAPressed(StateMachine & sm) {
+    LoggingDevice & SM = static_cast<LoggingDevice &>(sm);
     spdlog::trace("IsAPressed");
-    if (OWNER->robot->keyboard->getA() == true) {
+    if (SM.robot()->keyboard->getA() == true) {
 
         return true;
     }
     return false;
 }
-bool LoggingDevice::IsSPressed::check(void) {
-    if (OWNER->robot->keyboard->getS() == true) {
+bool isSPressed(StateMachine & sm) {
+    LoggingDevice & SM = static_cast<LoggingDevice &>(sm);
+    if (SM.robot()->keyboard->getS() == true) {
         return true;
     }
     return false;
 }
 
-bool LoggingDevice::IsCalibrationFinished::check(void) {
-    if (OWNER->calibrateState->getCurrReading() < NUM_CALIBRATE_READINGS) {
+bool isCalibrationFinished(StateMachine & sm) {
+    LoggingDevice & SM = static_cast<LoggingDevice &>(sm);
+    if (SM.state<CalibrateState>("calibrateState")->getCurrReading() < NUM_CALIBRATE_READINGS) {
         return false;
     }
     return true;
 }
 
-bool LoggingDevice::IsWPressed::check(void) {
-    if (OWNER->robot->keyboard->getW() == true) {
-        OWNER->robot->zeroForcePlate();
-        return true;
-    }
-    return false;
+
+LoggingDevice::LoggingDevice() {
+    setRobot(std::make_unique<LoggingRobot>());
+
+    // States
+    addState("initState", std::make_shared<InitState>(robot()));
+    addState("idleState", std::make_shared<IdleState>(robot()));
+    addState("calibrateState", std::make_shared<CalibrateState>(robot()));
+    addState("recordState", std::make_shared<RecordState>(robot()));
+
+    // Transitions
+    addTransition("initState", isAPressed, "idleState");
+    addTransition("idleState", isAPressed, "calibrateState");
+
+    addTransition("calibrateState", isCalibrationFinished, "idleState");
+    addTransition("idleState", isSPressed, "recordState");
+    addTransition("recordState", isSPressed, "idleState");
+
+    //Initialize the state machine with first state of the designed state machine, using baseclass function.
+    setInitState("initState");
 }
 
-bool LoggingDevice::IsXPressed::check(void) {
-    if (OWNER->robot->keyboard->getX() == true) {
-        OWNER->robot->zeroLeftFoot();
-        return true;
-    }
-    return false;
-}
-bool LoggingDevice::IsDPressed::check(void) {
-    if (OWNER->robot->keyboard->getD() == true) {
-        OWNER->robot->zeroRightFoot();
-        return true;
-    }
-    return false;
-}
+void LoggingDevice::init() {
+    spdlog::info("LoggingDevice::init()");
+    robot()->initialise();
 
-/**
- * \brief Statemachine to hardware interface method. Run any hardware update methods
- * that need to run every program loop update cycle.
- *
- */
-void LoggingDevice::hwStateUpdate(void) {
-    robot->updateRobot();
+    // Initialising the data logger
+    logHelper.initLogger("test_logger", "logs/testLog.csv", LogFormat::CSV, true);
+    logHelper.add(runningTime(), "time");
+    logHelper.add(robot()->getCrutchReadings(), "CrutchReadings");
+    //logHelper.add(robot()->getMotorPositions(), "MotorPositions");
+    //logHelper.add(robot()->getMotorVelocities(), "MotorVelocities");
+    //logHelper.add(robot()->getMotorTorques(), "MotorTorques");
+    //logHelper.add(robot()->getGoButton(), "GoButton");
+    //logHelper.add(robot()->getCurrentState(), "CurrentState");
+    //logHelper.add(robot()->getCurrentMovement(), "CurrentMovement");
 }
-
-/**
- * \brief Statemachine update: overloaded to include logging
- *
- */
-void LoggingDevice::update() {
-    // Update time (used for log)
-    time = (std::chrono::duration_cast<std::chrono::microseconds>(
-                std::chrono::steady_clock::now() - time0)
-                .count()) /
-           1e6;
-    StateMachine::update();
-    dataLogger.recordLogData();
-}
-
-void LoggingDevice::configureMasterPDOs() {
-    spdlog::debug("LoggingDevice::configureMasterPDOs()");
-    robot->configureMasterPDOs();
-}
-

@@ -21,6 +21,7 @@
 #ifndef ROBOT_H_INCLUDED
 #define ROBOT_H_INCLUDED
 #include <vector>
+#define EIGEN_RUNTIME_NO_MALLOC //! Flag preventing Eigen to do dynaic allocation (can be bad in RT). See https://github.com/stulp/tutorials/blob/master/test.md for details.
 #include <Eigen/Dense>
 // yaml-parser
 #include <fstream>
@@ -88,17 +89,17 @@ class Robot {
     /**
     * \brief Attempts to read specified parameters YAML file (in config folder) if a filename is specified.
     * Load configuration associated with RobotName (if specified) and pass it to specialised initialiseFromYAML.
-    * \params a YAML filename (assume located in config folder)
+    * \param yaml_config_file a YAML filename (assume located in config folder)
     * \return true if succesfully open the YAML file and a robot with RobotName exists. false otherwise
     */
     virtual bool initialiseFromYAML(std::string yaml_config_file) final;
     /**
     * \brief Load parameters from YAML file if valid one specified in constructor.
     * Default base version not doing anything. See derived class for implementation.
-    * \params params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
+    * \param params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
     * \return true
     */
-    virtual bool loadParametersFromYAML(YAML::Node params) {  spdlog::info("Robot does not support YAML: using default robot parameters."); return false; };
+    virtual bool loadParametersFromYAML(YAML::Node params) { spdlog::info("Robot does not support YAML: using default robot parameters."); return false; };
 
    public:
 
@@ -116,7 +117,7 @@ class Robot {
      *
      */
     virtual bool configureMasterPDOs();
-        /**
+    /**
      * \brief Pure Virtual function, implemeted by robot designer with specified number of each concrete joint classes
      * for the robot hardware desired.
      *
@@ -234,24 +235,6 @@ class Robot {
     * @return MovementCode representing success or failure of the application
     */
     virtual setMovementReturnCode_t setTorque(std::vector<double> torques) { return INCORRECT_MODE; };
-    //@}
-
-
-    /**
-    * \brief Initialises Logging to specified file
-    *
-    */
-    void initialiseLog();
-    /**
-    * \brief Log input data point to currently open log file
-    *
-    */
-    void logDataPoint(std::string data);
-    /**
-    * \brief Save and close any currently open logging files
-    *
-    */
-    bool closeLog();
     //@}
 };
 

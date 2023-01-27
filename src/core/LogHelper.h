@@ -133,6 +133,7 @@ private:
     std::string loggerName_;
     bool isInitialized_ = false;
     bool isStarted_ = false;
+    bool isRunning_ = false;
     LogFormat logFormat_;
 
 public:
@@ -220,6 +221,7 @@ public:
                 spdlog::info("Starting logger {} ({})", loggerName_, headerMsg);
                 spdlog::get(loggerName_)->info(headerMsg);
                 isStarted_ = true;
+                isRunning_ = true;
                 return true;
             }
             else {
@@ -228,6 +230,10 @@ public:
             }
         }
     }
+
+    void pause(){ isRunning_=false; };
+
+    void resume(){ isRunning_=true; };
 
     /**
      * \brief Records the values of the added variables at the instant the function is called.
@@ -239,22 +245,29 @@ public:
             return false;
         }
         else{
-            std::string valueMsg = "";
-            for(unsigned int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their values
+            if( isRunning_ ){
+                std::string valueMsg = "";
+                for(unsigned int i=0; i < vectorOfLogElements.size(); i++){ // iterating through each variable to get their values
 
-                valueMsg += vectorOfLogElements[i]->getValue();
+                    valueMsg += vectorOfLogElements[i]->getValue();
 
-                // either a coma or new line comes
-                if(i != vectorOfLogElements.size()-1){
-                    valueMsg += ", ";
+                    // either a coma or new line comes
+                    if(i != vectorOfLogElements.size()-1){
+                        valueMsg += ", ";
+                    }
                 }
+                spdlog::get(loggerName_)->info(valueMsg);
+                return true;
             }
-            spdlog::get(loggerName_)->info(valueMsg);
             return true;
         }
     }
+
     void endLog(){
-        spdlog::drop(loggerName_);
+        if(isInitialized_)
+            spdlog::drop(loggerName_);
+        isStarted_ = false;
+        isInitialized_ = false;
     }
 };
 

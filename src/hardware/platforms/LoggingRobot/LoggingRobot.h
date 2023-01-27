@@ -6,7 +6,7 @@
  * \date 2020-12-01
  * \copyright Copyright (c) 2020
  *
- * \brief  The<code> LogginRobot</ code> class represents a logging robot. This Robot doesn't actually do anything, except give options to act as a logger.
+ * \brief  The LoggingRobot class represents a logging robot. This Robot doesn't actually do anything, except give options to act as a logger.
  * 
  * It has two functions: 1) To trigger data acquision devices not associate with the operation of the robot, and 2) to log data from existing devices
  *
@@ -19,7 +19,6 @@
 #include "Robot.h"
 #include "RobotousRFT.h"
 #include "HX711.h"
-#include "ForcePlateSensor.h"
 
 class LoggingRobot : public Robot {
    private:
@@ -27,12 +26,6 @@ class LoggingRobot : public Robot {
     // -- Variables assocaited with standalone sensors -- //
     std::vector<RobotousRFT *> crutchSensors;
     Eigen::VectorXd crutchReadings;  //6xN Vector containing all crutch readings
-
-    std::vector<ForcePlateSensor*> forcePlates;
-    Eigen::VectorXi forcePlateForces;  // Should be a vector of size 4xN
-
-    std::vector<ForcePlateSensor *> footSensors;
-    Eigen::VectorXi footSensorForces;  // Should be a vector of size 4xN
 
     // -- Variables assoacited with parameters already transmitted from the robot -- //
     std::vector<RPDO *> rpdos;
@@ -97,9 +90,6 @@ class LoggingRobot : public Robot {
     void updateCrutchReadings();
 
     void setCrutchOffsets(Eigen::VectorXd offsets);
-    void zeroForcePlate();
-    void zeroLeftFoot();
-    void zeroRightFoot();
 
     bool startSensors();
     bool stopSensors();

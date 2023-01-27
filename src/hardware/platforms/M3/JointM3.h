@@ -28,8 +28,8 @@ class JointM3 : public Joint {
     int encoderCounts = 10000;  //Encoder counts per turn
     double reductionRatio = 22.;
 
-    double Ipeak = 45.0;                 //Kinco FD123 peak current
-    double motorTorqueConstant = 0.132;  //SMC60S-0020 motor torque constant
+    double Ipeak;               //!< Drive max current (used in troque conversion)
+    double motorTorqueConstant; //!< Motor torque constant
 
     double driveUnitToJointPosition(int driveValue) { return sign * driveValue * (2. * M_PI) / (double)encoderCounts / reductionRatio; };
     int jointPositionToDriveUnit(double jointValue) { return sign * jointValue / (2. * M_PI) * (double)encoderCounts * reductionRatio; };
@@ -45,7 +45,7 @@ class JointM3 : public Joint {
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
 
    public:
-    JointM3(int jointID, double q_min, double q_max, short int sign_ = 1, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0, KincoDrive *drive = NULL, const std::string& name="");
+    JointM3(int jointID, double q_min, double q_max, short int sign_ = 1, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0, double i_peak = 45.0 /*Kinco FD123 peak current*/ , double motorTorqueConstant_ = 0.132 /*SMC series constant*/, KincoDrive *drive = NULL, const std::string& name="");
     ~JointM3();
     /**
      * \brief Cehck if current velocity and torque are within limits.

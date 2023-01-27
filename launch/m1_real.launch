@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="robot_name_1" default="m1_y"/>
+    <arg name="name_spaces" default="[$(arg robot_name_1)]"/>
+
+    <!-- CORC M1_X -->
+    <node name="$(arg robot_name_1)" pkg="CORC" type="M1DemoMachineROS_APP" output="screen" args="-can can0"/>
+
+
+    <!-- rqt -->
+    <node name="rqt" pkg="CORC" type="rqt.sh">
+    </node>
+
+</launch>
