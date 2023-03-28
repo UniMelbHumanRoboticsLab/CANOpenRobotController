@@ -74,10 +74,6 @@ bool Drive::setVel(int velocity) {
 }
 
 bool Drive::setTorque(int torque) {
-    /**
-    * \todo add setTorque to object dictionary for all drives
-    *
-    */
     spdlog::trace("Drive {} Writing {} to 0x{0:x}", NodeID, (short int)torque, OD_Addresses[TARGET_TOR][0]);
     targetTor = torque;
     return true;
@@ -98,15 +94,7 @@ int Drive::getVel() {
 }
 
 int Drive::getTorque() {
-    /**
-    *  \todo Remove assumption that only drives 1-4 have access to the motor torques
-    *
-    */
-    if (this->NodeID < 5) {
-        return actualTor;
-    } else {
-        return 0;
-    }
+    return actualTor;
 }
 
 int Drive::getDigitalIn() {
