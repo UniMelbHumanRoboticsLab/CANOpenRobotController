@@ -1,7 +1,7 @@
-#include "M2DemoStates.h"
-#include "M2DemoMachine.h"
+#include "M2ProDemoStates.h"
+#include "M2ProDemoMachine.h"
 
-#define OWNER ((M2DemoMachine *)owner)
+#define OWNER ((M2ProDemoMachine *)owner)
 
 double timeval_to_sec(struct timespec *ts)
 {

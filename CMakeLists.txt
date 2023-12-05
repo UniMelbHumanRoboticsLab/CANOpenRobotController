@@ -9,7 +9,7 @@ project(CORC C CXX)
 #(it should be the class name and have corresponding header naming in a corresponding folder)
 # If your application use ROS, don't forget to change the flag bellow too.
 
-set (STATE_MACHINE_NAME "ExoTestMachine")
+#set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "M1DemoMachine")
 #set (STATE_MACHINE_NAME "M1DemoMachineROS")
 #set (STATE_MACHINE_NAME "M2DemoMachine")
@@ -18,16 +18,18 @@ set (STATE_MACHINE_NAME "ExoTestMachine")
 #set (STATE_MACHINE_NAME "X2ROS2DemoMachine")
 #set (STATE_MACHINE_NAME "LoggingDevice")
 
+set (STATE_MACHINE_NAME "M2ProDemoMachine")
+
 # Use this if your state machine code folder is not in CORC 'src/apps/' folder.
 # Can be a relative or absolute path.
 #set (STATE_MACHINE_PATH "../")
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT ON)
+set(NO_ROBOT OFF)
 
 # ROS Flag: set to 0 for a no ROS stateMachine, 1 for ROS 1 (use catkin build) and 2 for ROS2 (use colcon build)
 # Remember to rename select appropriate package.xml too
-set(ROS 0)
+set(ROS OFF)
 
 # Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)
 # INFO is the recommended level in normal operation

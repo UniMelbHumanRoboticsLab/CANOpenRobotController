@@ -1,4 +1,11 @@
-# myofourier
+# set the driver address for the M2 pro
+add/replace the following codes into KincoDrive.cpp
+```bash
+OD_Addresses[DIGITAL_IN] = {0x2010, 0x0A};
+OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
+OD_DataSize[DIGITAL_IN] = 2;
+OD_DataSize[DIGITAL_OUT] = 2;
+```
 
 # set up the network
 ```bash

@@ -1,7 +1,7 @@
 /**
- * \file M2DemoMachine.h
+ * \file M2ProDemoMachine.h
  * \author Vincent Crocher
- * /brief The M2DemoMachine class represents an example implementation of an M2 state machine.
+ * /brief The M2ProDemoMachine class represents an example implementation of an M2 state machine.
  * \version 0.2
  * \date 2021-02-05
  *
@@ -16,17 +16,17 @@
 #include "FLNLHelper.h"
 
 // State Classes
-#include "M2DemoStates.h"
+#include "M2ProDemoStates.h"
 
 /**
  * @brief Example implementation of a StateMachine for the M2Robot class. States should implemented M2DemoState
  *
  */
-class M2DemoMachine : public StateMachine {
+class M2ProDemoMachine : public StateMachine {
 
    public:
-    M2DemoMachine();
-    ~M2DemoMachine();
+    M2ProDemoMachine();
+    ~M2ProDemoMachine();
     void init();
     void end();
 

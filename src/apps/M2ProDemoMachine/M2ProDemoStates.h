@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef M2DemoSTATE_H_DEF
-#define M2DemoSTATE_H_DEF
+#ifndef M2ProDemoSTATE_H_DEF
+#define M2ProDemoSTATE_H_DEF
 
 #include "RobotM2.h"
 #include "State.h"
@@ -23,7 +23,7 @@ using namespace std;
 double timeval_to_sec(struct timespec *ts);
 
 /**
- * \brief Generic state type for used with M2DemoMachine, providing running time and iterations number: been superseeded by default state.
+ * \brief Generic state type for used with M2ProDemoMachine, providing running time and iterations number: been superseeded by default state.
  *
  */
 class M2TimedState : public State {

@@ -1,4 +1,4 @@
-#include "M2DemoMachine.h"
+#include "M2ProDemoMachine.h"
 
 bool endCalib(StateMachine & sm) {
     return (sm.state<M2CalibState>("CalibState"))->isCalibDone();
@@ -6,7 +6,7 @@ bool endCalib(StateMachine & sm) {
 
 
 bool goToNextState(StateMachine & SM) {
-    M2DemoMachine & sm = static_cast<M2DemoMachine &>(SM); //Cast to specific StateMachine type
+    M2ProDemoMachine & sm = static_cast<M2ProDemoMachine &>(SM); //Cast to specific StateMachine type
 
     //keyboard or joystick press
     if ( (sm.robot()->joystick->isButtonPressed(1) || sm.robot()->keyboard->getNb()==1) )
@@ -30,7 +30,7 @@ bool goToNextState(StateMachine & SM) {
 }
 
 
-M2DemoMachine::M2DemoMachine() {
+M2ProDemoMachine::M2ProDemoMachine() {
     //Create an M2 Robot and set it to generic state machine
     setRobot(std::make_unique<RobotM2>("M2_MELB"));
 
@@ -52,17 +52,17 @@ M2DemoMachine::M2DemoMachine() {
     //Initialize the state machine with first state of the designed state machine
     setInitState("CalibState");
 }
-M2DemoMachine::~M2DemoMachine() {
+M2ProDemoMachine::~M2ProDemoMachine() {
 }
 
 /**
  * \brief start function for running any designed statemachine specific functions
  *
  */
-void M2DemoMachine::init() {
-    spdlog::debug("M2DemoMachine::init()");
+void M2ProDemoMachine::init() {
+    spdlog::debug("M2ProDemoMachine::init()");
     if(robot()->initialise()) {
-        logHelper.initLogger("M2DemoMachineLog", "logs/M2DemoMachine.csv", LogFormat::CSV, true);
+        logHelper.initLogger("M2ProDemoMachineLog", "logs/M2ProDemoMachine.csv", LogFormat::CSV, true);
         logHelper.add(runningTime(), "Time (s)");
         logHelper.add(robot()->getEndEffPosition(), "Position");
         logHelper.add(robot()->getEndEffVelocity(), "Velocity");
@@ -76,7 +76,7 @@ void M2DemoMachine::init() {
     }
 }
 
-void M2DemoMachine::end() {
+void M2ProDemoMachine::end() {
     if(running())
         UIserver->closeConnection();
     StateMachine::end();
@@ -91,7 +91,7 @@ void M2DemoMachine::end() {
  * \brief Statemachine to hardware interface method.
  *
  */
-void M2DemoMachine::hwStateUpdate(void) {
+void M2ProDemoMachine::hwStateUpdate(void) {
     StateMachine::hwStateUpdate();
     //Also send robot state over network
     UIserver->sendState();
