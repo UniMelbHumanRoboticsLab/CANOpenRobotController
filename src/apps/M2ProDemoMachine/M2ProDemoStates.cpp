@@ -128,6 +128,7 @@ void M2CalibState::duringCode(void) {
             std::cout << "OK." << std::endl;
         }
         else {
+            tau(1)=tau(1)*1.5;
             robot->setJointTorque(tau);
             if(iterations()%100==1) {
                 std::cout << "." << std::flush;

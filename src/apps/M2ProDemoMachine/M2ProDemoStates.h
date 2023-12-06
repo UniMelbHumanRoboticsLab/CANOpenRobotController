@@ -11,7 +11,7 @@
 #ifndef M2ProDemoSTATE_H_DEF
 #define M2ProDemoSTATE_H_DEF
 
-#include "RobotM2.h"
+#include "RobotM2P.h"
 #include "State.h"
 
 using namespace std;
@@ -32,9 +32,9 @@ class M2TimedState : public State {
     *  \todo Might be good to make these Const
     *
     */
-    RobotM2 *robot;                               /*<!Pointer to state machines robot object*/
+    RobotM2P *robot;                               /*<!Pointer to state machines robot object*/
 
-    M2TimedState(RobotM2 *M2, const char *name = NULL): State(name), robot(M2){};
+    M2TimedState(RobotM2P *M2, const char *name = NULL): State(name), robot(M2){};
    private:
     void entry(void) final {
         std::cout
@@ -69,7 +69,7 @@ class M2TimedState : public State {
 class M2DemoState : public M2TimedState {
 
    public:
-    M2DemoState(RobotM2 *M2, const char *name = "M2 Test State"):M2TimedState(M2, name){};
+    M2DemoState(RobotM2P *M2, const char *name = "M2 Test State"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -87,7 +87,7 @@ class M2DemoState : public M2TimedState {
 class M2CalibState : public M2TimedState {
 
    public:
-    M2CalibState(RobotM2 *M2, const char *name = "M2 Calib State"):M2TimedState(M2, name){};
+    M2CalibState(RobotM2P *M2, const char *name = "M2 Calib State"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -109,7 +109,7 @@ class M2CalibState : public M2TimedState {
 class M2Transparent : public M2TimedState {
 
    public:
-    M2Transparent(RobotM2 *M2, const char *name = "M2 Transparent"):M2TimedState(M2, name){};
+    M2Transparent(RobotM2P *M2, const char *name = "M2 Transparent"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -124,7 +124,7 @@ class M2Transparent : public M2TimedState {
 class M2EndEffDemo : public M2TimedState {
 
    public:
-    M2EndEffDemo(RobotM2 *M2, const char *name = "M2 Velocity Control Demo"):M2TimedState(M2, name){};
+    M2EndEffDemo(RobotM2P *M2, const char *name = "M2 Velocity Control Demo"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -138,7 +138,7 @@ class M2EndEffDemo : public M2TimedState {
 class M2ArcCircle : public M2TimedState {
 
    public:
-    M2ArcCircle(RobotM2 *M2, const char *name = "M2 Arc Circle"):M2TimedState(M2, name){};
+    M2ArcCircle(RobotM2P *M2, const char *name = "M2 Arc Circle"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -165,7 +165,7 @@ class M2ArcCircle : public M2TimedState {
 class M2DemoPathState : public M2TimedState {
 
    public:
-    M2DemoPathState(RobotM2 *M2, const char *name = "M2 Demo Path State"):M2TimedState(M2, name){};
+    M2DemoPathState(RobotM2P *M2, const char *name = "M2 Demo Path State"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
@@ -189,7 +189,7 @@ class M2DemoPathState : public M2TimedState {
 class M2DemoMinJerkPosition: public M2TimedState {
 
    public:
-    M2DemoMinJerkPosition(RobotM2 *M2, const char *name = "M2 Demo Minimum Jerk Position"):M2TimedState(M2, name){};
+    M2DemoMinJerkPosition(RobotM2P *M2, const char *name = "M2 Demo Minimum Jerk Position"):M2TimedState(M2, name){};
 
     void entryCode(void);
     void duringCode(void);
