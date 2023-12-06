@@ -105,9 +105,9 @@ void M2CalibState::duringCode(void) {
 
     //Apply constant torque (with damping) unless stop has been detected for more than 0.5s
     VM2 vel=robot->getVelocity();
-    double b = 3;
+    double b = 16;
     for(unsigned int i=0; i<vel.size(); i++) {
-        tau(i) = -std::min(std::max(20 - b * vel(i), .0), 20.);
+        tau(i) = -std::min(std::max(8- b * vel(i), .0), 8.);
         if(stop_reached_time(i)>1) {
             at_stop[i]=true;
         }
@@ -128,7 +128,7 @@ void M2CalibState::duringCode(void) {
             std::cout << "OK." << std::endl;
         }
         else {
-            tau(1)=tau(1)*1.5;
+            tau(0)=tau(0)/2;
             robot->setJointTorque(tau);
             if(iterations()%100==1) {
                 std::cout << "." << std::flush;

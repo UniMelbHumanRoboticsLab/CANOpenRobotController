@@ -1,11 +1,12 @@
 #include "JointM2P.h"
 
 
-JointM2P::JointM2P(int jointID, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, KincoDrive *drive, const std::string& name) :   Joint(jointID, q_min, q_max, drive, name),
+JointM2P::JointM2P(int jointID, int ratio, double q_min, double q_max, short int sign_, double dq_min, double dq_max, double tau_min, double tau_max, KincoDrive *drive, const std::string& name) :   Joint(jointID, q_min, q_max, drive, name),
                                                                                                                                                                 sign(sign_),
                                                                                                                                                                 qMin(q_min), qMax(q_max),
                                                                                                                                                                 dqMin(dq_min), dqMax(dq_max),
-                                                                                                                                                                tauMin(tau_min), tauMax(tau_max)
+                                                                                                                                                                tauMin(tau_min), tauMax(tau_max),
+                                                                                                                                                                ratio(ratio)
                                                                                                                                                                 {
                                                                                                                                                                     spdlog::debug("MY JOINT ID: {} ({})", this->id, name);
                                                                                                                                                                 }
