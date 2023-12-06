@@ -48,13 +48,22 @@ bool RobotM2P::loadParametersFromYAML(YAML::Node params) {
     YAML::Node params_r=params[robotName]; //Specific node corresponding to the robot
 
     //Load calibration parameters
-    spdlog::info("Value of iPeakDrives: {}", iPeakDrives)
+    std::cout << "Value of iPeakDrives: ";
+    for (const auto& value : iPeakDrives) {
+        std::cout << value << " ";
+    }
+    std::cout << std::endl;
+
 
     fillParamVectorFromYaml(params_r["iPeakDrives"], iPeakDrives);
 
-    spdlog::info("Value of iPeakDrives: {}", iPeakDrives)
+    std::cout << "Value of iPeakDrives: ";
+    for (const auto& value : iPeakDrives) {
+        std::cout << value << " ";
+    }
+    std::cout << std::endl;
 
-    spdlog::info("Using YAML M3 parameters of {} (Tool: {}).", robotName, endEffTool->name);
+    spdlog::info("Parameters loaded from YAML file");
     return true;
 }
 
