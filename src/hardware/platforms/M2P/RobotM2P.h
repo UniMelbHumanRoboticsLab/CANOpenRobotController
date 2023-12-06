@@ -30,7 +30,8 @@ typedef Eigen::VectorXd VX; //!< Generic (dynamic) size version required for com
 class RobotM2P: public Robot {
    private:
     VM2 qCalibration = {0, 0.};  //!< Calibration configuration: posture in which the robot is when using the calibration procedure
-
+    std::vector<double> iPeakDrives = {42.0, 42.0, 42.0};     
+    
     bool calibrated;
     double maxEndEffVel; //!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.
     double maxEndEffForce; //!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated.
@@ -39,6 +40,20 @@ class RobotM2P: public Robot {
     VX endEffVelocities;
     VX endEffForces;
     VX interactionForces;
+
+    /**
+    * \brief Utility method filling vec with the values loaded from the YAML node. Expect same vector lengths.
+    *
+    */
+    void fillParamVectorFromYaml(YAML::Node node, std::vector<double> &vec);
+
+    /**
+    * \brief Load parameters from YAML file if valid one specified in constructor.
+    * If absent or incomplete (some parameters only) default parameters are used instead.
+    * \param params a valid YAML robot parameters node loaded by initialiseFromYAML() method.
+    * \return true
+    */
+    bool loadParametersFromYAML(YAML::Node params);
 
    public:
     /**

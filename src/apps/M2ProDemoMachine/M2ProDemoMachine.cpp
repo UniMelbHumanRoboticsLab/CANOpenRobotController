@@ -32,7 +32,7 @@ bool goToNextState(StateMachine & SM) {
 
 M2ProDemoMachine::M2ProDemoMachine() {
     //Create an M2 Robot and set it to generic state machine
-    setRobot(std::make_unique<RobotM2P>("M2_MELB"));
+    setRobot(std::make_unique<RobotM2P>("M2_MELB", , "m2p_params.yaml"));
 
     //Create state instances and add to the State Machine
     addState("TestState", std::make_shared<M2DemoState>(robot()));
