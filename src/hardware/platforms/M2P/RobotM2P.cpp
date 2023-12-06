@@ -36,6 +36,28 @@ RobotM2P::~RobotM2P() {
     spdlog::debug("RobotM2P deleted");
 }
 
+
+void RobotM2P::fillParamVectorFromYaml(YAML::Node node, std::vector<double> &vec) {
+    if(node){
+        for(unsigned int i=0; i<vec.size(); i++)
+            vec[i]=node[i].as<double>();
+    }
+}
+
+bool RobotM2P::loadParametersFromYAML(YAML::Node params) {
+    YAML::Node params_r=params[robotName]; //Specific node corresponding to the robot
+
+    //Load calibration parameters
+    spdlog::info("Value of iPeakDrives: {}", iPeakDrives)
+
+    fillParamVectorFromYaml(params_r["iPeakDrives"], iPeakDrives);
+
+    spdlog::info("Value of iPeakDrives: {}", iPeakDrives)
+
+    spdlog::info("Using YAML M3 parameters of {} (Tool: {}).", robotName, endEffTool->name);
+    return true;
+}
+
 bool RobotM2P::initialiseJoints() {
     return true;
 }
