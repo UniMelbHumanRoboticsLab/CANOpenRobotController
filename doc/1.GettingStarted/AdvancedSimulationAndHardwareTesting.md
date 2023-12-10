@@ -44,7 +44,7 @@ Clone CORC and the required packages into your workspace:
 ```bash
 $ cd ~/catkin_ws/src
 $ git clone --recurse-submodules https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController.git
-$ git clone https://github.com/emekBaris/x2_description.git
+$ git clone https://github.com/X2MotusResearch/x2_description.git
 $ git clone https://github.com/emekBaris/cob_gazebo_plugins.git
 ```
 
