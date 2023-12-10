@@ -23,7 +23,7 @@ It is assumed that an Ubuntu PC is used and ROS is installed. If this is not the
 
 The following packages are also required for this program. If you do not have access to them, email `baris.kucuktabak@u.northwestern.edu`
 
-* [x2_description](https://github.com/emekBaris/x2_description)
+* [x2_description](https://github.com/X2MotusResearch/x2_description)
 * [cob_gazebo_plugins](https://github.com/emekBaris/cob_gazebo_plugins)
 
 If not already installed, install ros_control:
@@ -44,7 +44,7 @@ Clone CORC and the required packages into your workspace:
 ```bash
 $ cd ~/catkin_ws/src
 $ git clone --recurse-submodules https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController.git
-$ git clone https://github.com/emekBaris/x2_description.git
+$ git clone https://github.com/X2MotusResearch/x2_description.git
 $ git clone https://github.com/emekBaris/cob_gazebo_plugins.git
 ```
 
