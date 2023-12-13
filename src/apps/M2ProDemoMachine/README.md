@@ -17,13 +17,13 @@ UIserver = std::make_shared<FLNLHelper>(*robot(), "192.168.1.11")
 if no build folder
 ```bash
 mkdir build && cd build && cmake ..
-make -j2
+make -j8
 ```
 
 if existing a build folder
 ```bash
 rm -r build && mkdir build && cd build && cmake ../CMakeLists.txt
-make -j2
+make -j8
 ```
 
 ## run the demo app

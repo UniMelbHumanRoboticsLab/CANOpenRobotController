@@ -67,8 +67,10 @@ void M2ProDemoMachine::init() {
         logHelper.add(robot()->getEndEffPosition(), "Position");
         logHelper.add(robot()->getEndEffVelocity(), "Velocity");
         logHelper.add(robot()->getEndEffForce(), "Force");
+        logHelper.add(robot()->getInteractionForce(), "Torque");
         logHelper.startLogger();
-        UIserver = std::make_shared<FLNLHelper>(*robot(), "192.168.7.2");
+        // UIserver = std::make_shared<FLNLHelper>(*robot(), "192.168.7.2");
+        UIserver = std::make_shared<FLNLHelper>(*robot(), "127.0.0.1");
     }
     else {
         spdlog::critical("Failed robot initialisation. Exiting...");
