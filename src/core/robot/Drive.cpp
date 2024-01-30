@@ -101,10 +101,6 @@ int Drive::getDigitalIn() {
     return digitalIn;
 }
 
-int Drive::getDigitalIn() {
-    return digitalIn;
-}
-
 DriveState Drive::resetErrors() {
     controlWord = 0x80;
     driveState = DISABLED;
