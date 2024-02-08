@@ -13,7 +13,7 @@ To use it in a CORC state machine:
 	UIserver = std::make_shared<FLNLHelper>("192.168.7.2");       //Instantiate object and open communication (waiting for client to connect). IP adress is server address to listen on.
 
 	UIserver->registerState(myTime);                          //Reference to a time value (double)
-	UIserver->registerState(robot->getEndEffPositionRef());   //Reference to an Eigen vector
+	UIserver->registerState(robot()->getEndEffPositionRef());   //Reference to an Eigen vector
 	UIserver->registerState(myStdVector);                     //Reference to an std::vector<double>
 ```
 - Alternatively you can also initialise it with an helper constructor: `UIserver = std::make_shared<FLNLHelper>(*robot(), "192.168.7.2");` which will automatically register the time and robot state (position, velocity and torque) to be sent at each update.
