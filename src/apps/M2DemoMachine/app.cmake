@@ -4,6 +4,9 @@
 ## this is the correspondig folder name in src/hardware/platform to use
 set(PLATFORM M2)
 
+## State machine uses FLNL for network communication
+set(USE_FLNL TRUE)
+
 ################################################################################
 
 ################## AUTOMATED PATH AND NAME DEFINITION ##########################

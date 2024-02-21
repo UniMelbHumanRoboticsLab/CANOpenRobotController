@@ -8,12 +8,6 @@
 ## for individual app configurations (ROS, platform etc...)
 ################################################################################
 
-#Default path if not set
-### TODO: to remove
-if(NOT STATE_MACHINE_PATH)
-    set (STATE_MACHINE_PATH "src/apps")
-endif()
-
 #ROS internal flags
 if(ROS GREATER 0)
     add_definitions(-DROS=${ROS})
@@ -89,13 +83,17 @@ list(REMOVE_DUPLICATES INCLUDE_DIRS)
 ###list (APPEND INCLUDE_DIRS lib/)
 list (APPEND INCLUDE_DIRS lib/Eigen/)
 list (APPEND INCLUDE_DIRS lib/spdlog/include/)
-list (APPEND INCLUDE_DIRS lib/FLNL/include/)
+if(USE_FLNL)
+    list (APPEND INCLUDE_DIRS lib/FLNL/include/)
+endif()
 #if(WITH_FOURIER_AIOS)
 #    list (APPEND INCLUDE_DIRS lib/fourier-cpp-sdk/src/)
 #    list (APPEND INCLUDE_DIRS lib/fourier-cpp-sdk/fourier/include/)
 #endif()
 
-add_subdirectory(lib/FLNL/)
+if(USE_FLNL)
+    add_subdirectory(lib/FLNL/)
+endif()
 add_subdirectory(lib/yaml-cpp/)
 #if(WITH_FOURIER_AIOS)
 #    ## TODO: enforce static library (when available) and ensure underlying cpp also enforce static one (use full name with .a)
@@ -198,11 +196,14 @@ target_include_directories(${APP_NAME} PUBLIC ${INCLUDE_DIRS})
 find_package(Threads REQUIRED)
 
 ## Link non-ROS libraries
-target_link_libraries(${APP_NAME}
-        ${CMAKE_THREAD_LIBS_INIT}
-        yaml-cpp
-        libFLNL
+target_link_libraries(  ${APP_NAME}
+                        ${CMAKE_THREAD_LIBS_INIT}
+                        yaml-cpp
 )
+
+if(USE_FLNL)
+    target_link_libraries(${APP_NAME} libFLNL)
+endif()
 
 #if(WITH_FOURIER_AIOS)
 #    target_link_libraries(${APP_NAME} ${FOURIER_LIB})
