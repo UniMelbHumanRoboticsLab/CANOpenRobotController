@@ -37,7 +37,7 @@ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
 ## Flags (Release is the default)
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
+    set(CMAKE_BUILD_TYPE Release)
 endif()
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
