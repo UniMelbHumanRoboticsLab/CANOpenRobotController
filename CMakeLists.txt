@@ -24,7 +24,7 @@ set(NO_ROBOT ON)
 
 ## Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)
 ## INFO is the recommended level in normal operation
-set(CORC_LOGGING_LEVEL INFO)
+set(CORC_LOGGING_LEVEL DEBUG)
 
 ################################################################################
 
