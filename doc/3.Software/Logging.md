@@ -32,12 +32,12 @@ These functions are accessible at any point in CORC.
   
 This log allows you to record the states of the robot, sensors or any other application specific information at every iteration in a dedicated file. The logger is accessible in the state machine and should be initialised as follows within the `MyCustomStateMachine::init()`
   
-  ```C++
+```C++
     logHelper.initLogger("test_logger", "logs/logexample.csv", LogFormat::CSV, true);
     logHelper.add(robot_->getPosition(), "JointPositions");
     logHelper.add(robot_->getVelocity(), "JointVelocities");
     logHelper.add(robot_->getTorque(), "JointTorques");
-  ```
+```
 
 This example will log the robot joint positions, velocities and torques in `logs/logexample.csv` at every loop execution. 
   
@@ -45,4 +45,4 @@ The logger support any basic types and Eigen vectors. References to values to lo
   
 Additionnaly, custom logger can be created on the model of logHelper at any point of execution. In this case, the custom logger should be started using its `startLogger()` method and properly closed using `endLog()` method. Registered data to the custom logger would then be recorded at each call of the `recordLogData()` method between the start and end.
 
-> Note: implementation examples of the logHelper are available in all the demo StateMachine in `apps` folder.
+> Note: implementation examples of the logHelper are available in all the demo StateMachines in `apps` folder.

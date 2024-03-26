@@ -17,19 +17,19 @@ It demonstrates the use of:
 
 ## Running the state machine
 
-In the CMakeLists.txt select the M2DemoMachine and set the flags for using a real robot without ROS support:
+In the CMakeLists.txt select the M2DemoMachine and set the flag for using a real robot:
 
 ```cmake
-#set (STATE_MACHINE_NAME "ExoTestMachine")
-#set (STATE_MACHINE_NAME "M1DemoMachine")
-set (STATE_MACHINE_NAME "M2DemoMachine")
-#set (STATE_MACHINE_NAME "M3DemoMachine")
-#set (STATE_MACHINE_NAME "X2DemoMachine")
-#set (STATE_MACHINE_NAME "LoggingDevice")
+#include(src/apps/ExoTestMachine/app.cmake)
+#include(src/apps/M1DemoMachine/app.cmake)
+#include(src/apps/M1DemoMachineROS/app.cmake)
+include(src/apps/M2DemoMachine/app.cmake)
+#include(src/apps/M3DemoMachine/app.cmake)
+
+...
+
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT OFF)
-# ROS Flag. set ON if you want to use ROS. Else, set OFF.
-set(USE_ROS OFF)
 ```
 
 If you intend to cross-compile for a BeagleBone (Black or AI), run: `$ rm -r build && mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..`

@@ -60,9 +60,9 @@ class State {
         std::cout << _name << std::endl;
     }
 
-    const unsigned long int & iterations() { return _iterations; }  //!< Number of State iterations (of during() calls) since last entry())
-    const double & dt() { return _time_dt; }                        //!< Last iteration running time if State is active, in [s]
-    const double & running() { return _time_running; }              //!< Running time of the State (0 if not active yet) in [s]
+    unsigned long int & iterations() { return _iterations; }  //!< Number of State iterations (of during() calls) since last entry())
+    double & dt() { return _time_dt; }                        //!< Last iteration running time if State is active, in [s]
+    double & running() { return _time_running; }              //!< Running time of the State (0 if not active yet) in [s]
     bool active() { return _active; }                               //!< True if state currently active, false otherwise.
 
    protected:

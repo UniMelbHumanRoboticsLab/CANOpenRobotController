@@ -446,8 +446,15 @@ VM3 RobotM3::calculateEndEffAcceleration() {
         endEffVelocitiesFiltered = VM3::Zero();
     }
     else {
-        //Filter velocity
-        endEffVelocitiesFiltered_new = velFilt.filt(endEffVelocities);
+        if(isCalibrated()) {
+            //Filter velocity
+            if(endEffVelocities.allFinite()) {
+                endEffVelocitiesFiltered_new = velFilt.filt(endEffVelocities);
+            }
+            else {
+                spdlog::warn("RobotM3::calculateEndEffAcceleration(): Non finite velocity value, skipping filtering step.");
+            }
+        }
     }
 
     //Diff
