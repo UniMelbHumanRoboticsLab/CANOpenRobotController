@@ -68,7 +68,7 @@ void Filter::initButter2low(double fn) {
     a.push_back(-2.0 * (ita*ita - 1.0) * b[0]); //a[1]
     a.push_back((1.0 - q*ita + ita*ita) * b[0]); //a[2]
 
-    //std::cout << a[0]*1000<< "," << a[1]*1000<< ","<< a[2]*1000 << " " << b[0]*1000<< ","  << b[1]*1000<< ","<< b[2]*1000<< "\n";
+    spdlog::debug("Butterworth filter order 2 init. Param: a=[{}, {}, {}] b=[{}, {}, {}]", a[0]*1000, a[1]*1000, a[2]*1000, b[0]*1000, b[1]*1000, b[2]*1000);
 
     //Ready
     initialised = true;

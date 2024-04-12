@@ -57,7 +57,7 @@ EMU_FOURIER:
   qSpringK: [0, 2.42, 4.19] #Joint spring compensation: tau=Ko+K*q
   qSpringKo: [0, 0.47, 0]
 
-  qLimits: [-42, 42, -15, 70, 0, 95] # Joints limits (in deg) {q1_min, q1_max, q2_min, q2_max, q3_min, q3_max}
+  qLimits: [-42, 42, -15, 70, -5, 95] # Joints limits (in deg) {q1_min, q1_max, q2_min, q2_max, q3_min, q3_max}
   qCalibration: [+44, 76, 90] # Calibration configuration (in deg): posture in which the robot is when using the calibration procedure
 
   frictionVis: [0.33, 0.76, 0.69]  # Joint viscous friction compensation coefficients

@@ -16,6 +16,8 @@
 #include <iostream>
 #include <Eigen/Dense>
 
+#include "logging.h"
+
 
 class Filter
 {

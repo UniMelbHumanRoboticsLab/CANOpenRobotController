@@ -43,19 +43,19 @@ $ git clone --recurse-submodules https://github.com/UniMelbHumanRoboticsLab/CANO
 
 ## Build and run M1DemoMachine
 
-Configure the CMakeList.txt, select the M1DemoMachine, and set the flags for using a real robot without ROS support:
+Configure the CMakeList.txt, select the M1DemoMachine, and set the flags for using a real robot:
 
 ```cmake
-#set (STATE_MACHINE_NAME "ExoTestMachine")
-set (STATE_MACHINE_NAME "M1DemoMachine")
-#set (STATE_MACHINE_NAME "M2DemoMachine")
-#set (STATE_MACHINE_NAME "M3DemoMachine")
-#set (STATE_MACHINE_NAME "X2DemoMachine")
-#set (STATE_MACHINE_NAME "LoggingDevice")
+#include(src/apps/ExoTestMachine/app.cmake)
+include(src/apps/M1DemoMachine/app.cmake)
+#include(src/apps/M1DemoMachineROS/app.cmake)
+#include(src/apps/M2DemoMachine/app.cmake)
+#include(src/apps/M3DemoMachine/app.cmake)
+
+...
+
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT OFF)
-# ROS Flag. set ON if you want to use ROS. Else, set OFF.
-set(USE_ROS OFF)
 ```
 
 Build CORC:
@@ -86,20 +86,19 @@ Use keyboard to explore different controllers:
 
 ## Build and run M1DemoMachineROS
 
-Configure the CMakeList.txt, select the M1DemoMachine, and set the flags for using a real robot without ROS support:
+Configure the CMakeList.txt, select the M1DemoMachineROS, and set the flag for using a real robot:
 
 ```cmake
-#set (STATE_MACHINE_NAME "ExoTestMachine")
-#set (STATE_MACHINE_NAME "M1DemoMachine")
-#set (STATE_MACHINE_NAME "M2DemoMachine")
-#set (STATE_MACHINE_NAME "M3DemoMachine")
-#set (STATE_MACHINE_NAME "X2DemoMachine")
-set (STATE_MACHINE_NAME "M1DemoMachineROS")
-#set (STATE_MACHINE_NAME "LoggingDevice")
+#include(src/apps/ExoTestMachine/app.cmake)
+#include(src/apps/M1DemoMachine/app.cmake)
+include(src/apps/M1DemoMachineROS/app.cmake)
+#include(src/apps/M2DemoMachine/app.cmake)
+#include(src/apps/M3DemoMachine/app.cmake)
+
+...
+
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT OFF)
-# ROS Flag. set ON if you want to use ROS. Else, set OFF.
-set(USE_ROS ON)
 ```
 
 Build CORC:

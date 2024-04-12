@@ -9,11 +9,11 @@ Each CORC application is a dedicated state machine with its own states which hav
 
 To create a custom application with custom state machine, two things must be done. 
 
-First, the source code itself must be developed, by deriving the StateMachine class can be to a custom one, named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. These must be placed in a dedicated subfolder with a consistent name (e.g. `MyCustomStateMachine` must be used for both the folder and the file names)
+First, the source code itself must be developed, by deriving the StateMachine class can be to a custom one, named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. These must be placed in a dedicated subfolder with a consistent name (e.g. `MyCustomStateMachine` must be used for both the folder and the file names). The folder should contain an `app.cmake` file containing the minimal compilation information, including the used platform (i.e. robot). See `src/apps/ExoTestMachine/app.cmake` for a simple example.
 
-Secondly, CMakeLists.txt must be edited and the entry `set (STATE_MACHINE_NAME "ExoTestMachine")` changed to `set (STATE_MACHINE_NAME "MyCustomStateMachine")`. If the custom statemachine folder is placed outside of CORC `src/apps` folder, the path should be set in CMakeLists.txt using the command `set (STATE_MACHINE_PATH "../pathto/MyCustomStateMachine")`.
+Secondly, CMakeLists.txt must be edited and the entry `include(src/apps/ExoTestMachine/app.cmake)` changed to `include(../MyCustomStateMachine/app.cmake)`, with the actual path to the custom statemachine folder.
 
-That's it, simply use the same build procedure.
+Simply use the same build procedure as for the example statemachines.
 
 > Note: It is recommended to use one of the existing application (X2DemoMachine or M3DemoMachine) as a template for your new state machine: simply copy the app folder closest to your application and follow the steps above.
 
@@ -21,6 +21,22 @@ That's it, simply use the same build procedure.
 
 > Note: It is recommended to place custom statemachine outside of the CORC folder to ease update and code versioning.
 
+
+## Platform access
+
+It is often (always?) desirable to have access to your platform/robot from your state machine. To do so, both include the corresponding header (e.g. `#include "X2Robot.h"` to your `MyCustomStateMachine` header file and provide the class with an easy getter method:
+
+```C++
+class MyCustomStateMachine : public StateMachine {
+
+	...
+
+	X2Robot *robot() { return static_cast<X2Robot*>(_robot.get()); } //!< Robot getter with specialised type (lifetime is managed by Base StateMachine)
+
+	...
+}
+
+```
 
 ## State machine structure and custom states and transitions
 
@@ -36,7 +52,7 @@ Yellow parts highlights the methods which needs to be overriden with custom appl
 
 Each state is a custom class, derived from the generic `State`. It contains three main methods which should be overidden to include your custom code:
 - `virtual void entry()` which is called once when entering the state
-- `virtual void during())` which is called repeatedly by the main control loop and which manage the normal control execution. The code within this state should be executable within less time than the sampling period.
+- `virtual void during()` which is called repeatedly by the main control loop and which manage the normal control execution. The code within this state should be executable within less time than the sampling period.
 - `virtual void exit()` which is called once when exiting the state (either by transition or when program ends).
 
 For example the SittingDown class in the ExoTestmachine:
@@ -81,8 +97,7 @@ MyCustomStateMachine::MyCustomStateMachine() {
 Events are used to trigger transitions from one state to another. They could be based on a sensor trigger, timer, internale state...
 Programmatically, CORC represents events as a callback function, taking the StateMachine as argument and returning a boolean. The function should return true when the transition(s) should happen.
 
-To create a new event:
-- Define its trigger boolean method. For example:
+To create a new event, define its trigger boolean method. For example:
 ```C++
 bool startExo(StateMachine & SM) {
     ExoTestMachine & sm = static_cast<ExoTestMachine &>(SM); //Cast to specific StateMachine type

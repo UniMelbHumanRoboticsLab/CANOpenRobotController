@@ -8,7 +8,8 @@ KincoDrive::KincoDrive(int NodeID) : Drive::Drive(NodeID) {
     OD_Addresses[TARGET_TOR] = {0x60F6, 0x08};
     //Weird Kinco error and DIOs addresses
     OD_Addresses[ERROR_WORD] = {0x2601, 0x00};
-    OD_Addresses[DIGITAL_IN] = {0x2010, 0x0B};
+    //OD_Addresses[DIGITAL_IN] = {0x2010, 0x0B};
+    OD_Addresses[DIGITAL_IN] = {0x60FD, 0x00}; //Use default. 0x2010, 0x0B not working (SDO setup error)
     OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
 }
 KincoDrive::~KincoDrive() {

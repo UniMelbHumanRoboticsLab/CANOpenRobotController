@@ -48,9 +48,6 @@ $ git clone https://github.com/X2MotusResearch/x2_description.git
 $ git clone https://github.com/emekBaris/cob_gazebo_plugins.git
 ```
 
-Make sure `USE_ROS` flag is set to `ON` in CMakeLists.txt:
-```set(USE_ROS ON)```
-
 If you will test on the real robot:
 ```set(NO_ROBOT OFF)```
 
