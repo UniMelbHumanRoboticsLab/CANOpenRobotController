@@ -8,15 +8,14 @@ KincoDrive::KincoDrive(int NodeID) : Drive::Drive(NodeID) {
     OD_Addresses[TARGET_TOR] = {0x60F6, 0x08};
     //Weird Kinco error and DIOs addresses
     OD_Addresses[ERROR_WORD] = {0x2601, 0x00};
-    //OD_Addresses[DIGITAL_IN] = {0x2010, 0x0B};
-    //OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
-
-    // added by Hao for M2 Pro
-    OD_Addresses[DIGITAL_IN] = {0x2010, 0x0A};
+    OD_Addresses[DIGITAL_IN] = {0x2010, 0x0B};
     OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
-    OD_DataSize[DIGITAL_IN] = 2;
-    OD_DataSize[DIGITAL_OUT] = 2;
-    //OD_Addresses[TARGET_TOR] = {0x6071, 0x00}; // set according to the manual, but failed
+
+    // uncomments the following lines to adapt to the M2Pro robot
+    // OD_Addresses[DIGITAL_IN] = {0x2010, 0x0A};
+    // OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
+    // OD_DataSize[DIGITAL_IN] = 2;
+    // OD_DataSize[DIGITAL_OUT] = 2;
 }
 
 KincoDrive::~KincoDrive() {

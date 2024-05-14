@@ -1,12 +1,13 @@
 /**
  *
  * \file RobotM2P.h
- * \author Vincent Crocher
- * \version 0.2
- * \date 2020-12-09
- * \copyright Copyright (c) 2020
+ * \author Vincent Crocher, Hao Yu
+ * \version 0.1
+ * \date 2024-05-14
  *
- * \brief  The<code> RobotM2P</ code> class represents an M2 Robot.
+ * \copyright Copyright (c) 2024 - 2025
+ *
+ * \brief  The<code> RobotM2P</ code> class represents an M2Pro Robot.
  *
  */
 
