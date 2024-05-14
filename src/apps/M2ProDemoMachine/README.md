@@ -1,5 +1,5 @@
 # set the driver address for the M2 pro
-add/replace the following codes into KincoDrive.cpp
+add/replace the following codes into CANOpenRobotController/src/hardware/drives/KincoDrive.cpp
 ```bash
 OD_Addresses[DIGITAL_IN] = {0x2010, 0x0A};
 OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};

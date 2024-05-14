@@ -1,7 +1,7 @@
 /**
  *
  * \file RobotM2P.h
- * \author Vincent Crocher, Hao Yu
+ * \author Vincent Crocher, Hao Yu, Zebin Huang
  * \version 0.1
  * \date 2024-05-14
  *

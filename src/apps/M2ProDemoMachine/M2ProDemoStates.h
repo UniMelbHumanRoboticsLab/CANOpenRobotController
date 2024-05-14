@@ -1,10 +1,10 @@
 /**
- * /file M2DemoState.h
- * \author Vincent Crocher
+ * /file M2ProDemoState.h
+ * \author Vincent Crocher, Hao Yu, Zebin Huang
  * \version 0.1
- * \date 2020-12-09
+ * \date 2024-05-14
  *
- * \copyright Copyright (c) 2020
+ * \copyright Copyright (c) 2024 - 2025
  *
  */
 

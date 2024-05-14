@@ -1,11 +1,11 @@
 /**
  * \file M2ProDemoMachine.h
- * \author Vincent Crocher
- * /brief The M2ProDemoMachine class represents an example implementation of an M2 state machine.
- * \version 0.2
- * \date 2021-02-05
+ * \author Vincent Crocher, Hao Yu, Zebin Huang
+ * /brief The M2ProDemoMachine class represents an example implementation of an M2Pro state machine.
+ * \version 0.1
+ * \date 2024-05-14
  *
- * \copyright Copyright (c) 2020 - 2021
+ * \copyright Copyright (c) 2024 - 2025
  *
  */
 #ifndef M2_SM_H
