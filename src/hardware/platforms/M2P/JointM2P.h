@@ -1,11 +1,11 @@
 /**
  * \file JointM2P.h
- * \author Vincent Crocher
- * \brief An M2 actuated joint
- * \version 0.2
- * \date 2020-12-09
+ * \author Vincent Crocher, Hao Yu, Zebin Huang
+ * \brief An M2 M2Pro actuated joint
+ * \version 0.1
+ * \date 2024-05-14
  *
- * \copyright Copyright (c) 2020
+ * \copyright Copyright (c) 2024 - 2025
  *
  */
 #ifndef JointM2P_H_INCLUDED

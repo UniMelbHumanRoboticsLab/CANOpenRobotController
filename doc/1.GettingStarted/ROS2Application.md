@@ -21,32 +21,37 @@ $ mv package.ros2.xml package.xml
 ```
 
 
-Edit the CMAKEFileList.txt to set ROS2 option and to select a ROS2 state machine:
+Edit the CMAKEFileList.txt to select a ROS2 state machine:
 
 ```
 ...
 ...
-#set (STATE_MACHINE_NAME "ExoTestMachine")
-#set (STATE_MACHINE_NAME "M1DemoMachine")
-#set (STATE_MACHINE_NAME "M1DemoMachineROS")
-#set (STATE_MACHINE_NAME "M2DemoMachine")
-#set (STATE_MACHINE_NAME "M3DemoMachine")
-#set (STATE_MACHINE_NAME "X2DemoMachine")
-set (STATE_MACHINE_NAME "X2ROS2DemoMachine")
-#set (STATE_MACHINE_NAME "LoggingDevice")
-
-# Use this if your state machine code folder is not in CORC 'src/apps/' folder.
-# Can be a relative or absolute path.
-#set (STATE_MACHINE_PATH "../")
+#include(src/apps/X2DemoMachine/app.cmake)
+include(src/apps/X2ROS2DemoMachine/app.cmake)
+#include(src/apps/LoggingDevice/app.cmake)
+#include(../myStateMachineApp/app.cmake) ## example only, need to be defined
 
 # Comment to use actual hardware, uncomment for a nor robot (virtual) app
 set(NO_ROBOT OFF)
 
-# ROS Flag: set to 0 for a no ROS stateMachine, 1 for ROS 1 (use catkin build) and 2 for ROS2 (use colcon build)
-# Remember to rename select appropriate package.xml too
+...
+...
+```
+
+In the state machine folder, open the `app.cmake` and ensure it is configured to use ROS2:
+```
+################################## USER FLAGS ##################################
+
+## Which platform (robot) is the state machine using?
+## this is the correspondig folder name in src/hardware/platform to use
+set(PLATFORM X2)
+
+## Compile for ROS 2
 set(ROS 2)
+
+################################################################################
 ...
-...
+
 ```
 
 

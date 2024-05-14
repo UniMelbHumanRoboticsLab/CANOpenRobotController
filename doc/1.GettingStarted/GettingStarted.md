@@ -20,6 +20,9 @@ Independent of the deployment environment, a choice may also be made regarding t
 ## Choice of Hardware
 This choice is likely related to the application. CORC is designed for any robotic device which uses CANOpen components, however, due to the resources and researchers of the initial developers, the examples and templates are based on assistive and rehabilitative robotic devices from Fourier Intelligence. As such, if the user has access to such devices, it would be logical to take an example which uses this hardware. 
 
+## Code Documentation
+As you walk through the examples below, you may want to generate the code documentation. CORC code is documented using [Doxygen](https://www.doxygen.nl/). You can generate the documentation by running `doxygen Doxyfile` in the root folder. This will generate an HTML documentation in the `doc/html` folder: simply open doc/html/index.html in your browser.
+
 # First Example: Basic Simulation - Exoskeleton
 With this in mind, CORC by default contains a number of example programs, which a new user can choose from to get hands-on with the toolbox for their first application. However, we first recommend you run the Basic Simulation- Exoskeleton example program to gain familiarity with the CORC Environment.  
 
@@ -80,7 +83,7 @@ See also the code example in `src/apps/M2DemoMachine`.
 
 
 ## Hardware Testing - ArmMotus M3 (aka EMU) 3D Manipulandum
-This example enables simple functionalities of ArmMotus M3/EMU System. It shows basic interfaces of the robot, use of the kinematic modela, simple examples of position, velocity and impedance controls.
+This example enables simple functionalities of ArmMotus M3/EMU System. It shows basic interfaces of the robot, use of the kinematic models, simple examples of position, velocity and impedance controls.
 
 ### Requirements
 1. Development machine running Windows or Linux

@@ -62,8 +62,14 @@ The following individuals have made contributions to CORC:
 - Tim Haswell
 - Xinliang Guo
 - Benjamin von Snarski
+- Hao Yu
+- Zebin Huang
 
 Please contact fong.j[at]unimelb.edu.au with questions or suggestions for continuing development, or if you wish to be more involved in the planning/organisation of CORC.
+
+If you find CORC useful and wish to reference it in your publications, please cite:
+
+Fong, J. et al. (2022). CANopen Robot Controller (CORC): An Open Software Stack for Human Robot Interaction Development. In: Moreno, J.C., Masood, J., Schneider, U., Maufroy, C., Pons, J.L. (eds) Wearable Robotics: Challenges and Trends. WeRob 2020. Biosystems & Biorobotics, vol 27. Springer, Cham. https://doi.org/10.1007/978-3-030-69547-7_47
 
 ## License
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .

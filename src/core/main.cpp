@@ -347,6 +347,8 @@ static void *rt_thread(void *arg) {
             /* Detect timer large overflow */
             if (OD_performance[ODA_performance_timerCycleMaxTime] > TMR_TASK_OVERFLOW_US && rtPriority > 0 && CO->CANmodule[0]->CANnormal) {
                 spdlog::error("rt_thread timer overflow ({}s).", OD_performance[ODA_performance_timerCycleMaxTime]/1000000.0);
+
+                OD_performance[ODA_performance_timerCycleMaxTime]  = 0;
                 //CO_errorReport(CO->em, CO_EM_ISR_TIMER_OVERFLOW, CO_EMC_SOFTWARE_INTERNAL, 0x22400000L | OD_performance[ODA_performance_timerCycleMaxTime]); //Removing this statement suppress the error and is safer as give a chance to recover
             }
         }
