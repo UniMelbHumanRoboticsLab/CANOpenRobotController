@@ -2,7 +2,7 @@
 
 CORC is a free and open source robotic development software stack, written in C++.
 
-The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform. The repository currently also includes code which has been run on the ArmMotus M1, M2 and M3 (EMU) rehabilitation devices, and using desktop or laptop Ubuntu installations.
+The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled Robotic platform. The repository currently also includes code which has been run on the ArmMotus M1, M2, M2 Pro and M3 (EMU) rehabilitation devices, and using desktop or laptop Ubuntu installations.
 
 ## The CANOpen Robot Controller project includes:
 
