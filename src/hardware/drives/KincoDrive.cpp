@@ -2,16 +2,23 @@
 
 #include <iostream>
 
-KincoDrive::KincoDrive(int NodeID) : Drive::Drive(NodeID) {
+KincoDrive::KincoDrive(int NodeID, bool alternative_DIO_config) : Drive::Drive(NodeID) {
     //Remap torque reading and writting registers
     OD_Addresses[ACTUAL_TOR] = {0x6078, 0x00};
     OD_Addresses[TARGET_TOR] = {0x60F6, 0x08};
     //Weird Kinco error and DIOs addresses
     OD_Addresses[ERROR_WORD] = {0x2601, 0x00};
-    //OD_Addresses[DIGITAL_IN] = {0x2010, 0x0B};
-    OD_Addresses[DIGITAL_IN] = {0x60FD, 0x00}; //Use default. 0x2010, 0x0B not working (SDO setup error)
-    OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
 
+    //DIOs depend on Kinco Drive version
+    if(alternative_DIO_config) {
+        OD_Addresses[DIGITAL_IN] = {0x2010, 0x0A};
+        OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
+    }
+
+    else {
+        OD_Addresses[DIGITAL_IN] = {0x60FD, 0x00}; //Use default. 0x2010, 0x0B not working (SDO setup error)
+        OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
+    }
     // uncomments the following lines to adapt to the M2Pro robot
     // OD_Addresses[DIGITAL_IN] = {0x2010, 0x0A};
     // OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};

@@ -26,7 +26,7 @@ class KincoDrive : public Drive {
          *
          * \param NodeID CANopen Node ID
          */
-    KincoDrive(int NodeID);
+    KincoDrive(int NodeID, bool alternative_DIO_config=false);
 
     /**
          * \brief Destroy the Kinco Drive object

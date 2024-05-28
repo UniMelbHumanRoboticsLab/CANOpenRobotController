@@ -13,8 +13,8 @@ RobotM2P::RobotM2P(string robot_name, string yaml_config_file) :  Robot(robot_na
     //Define the robot structure: each joint with limits and drive
     double tau_max_x = 0.96 * 30;
     double tau_max_y = 0.96 * 50;
-    joints.push_back(new JointM2P(0, 30, 0, 0.625, 1, -maxEndEffVel, maxEndEffVel, -tau_max_x, tau_max_x, new KincoDrive(1), "x"));
-    joints.push_back(new JointM2P(1, 50, 0, 0.440, 1, -maxEndEffVel, maxEndEffVel, -tau_max_y, tau_max_y, new KincoDrive(2), "y"));
+    joints.push_back(new JointM2P(0, 30, 0, 0.625, 1, -maxEndEffVel, maxEndEffVel, -tau_max_x, tau_max_x, new KincoDrive(1, true), "x"));
+    joints.push_back(new JointM2P(1, 50, 0, 0.440, 1, -maxEndEffVel, maxEndEffVel, -tau_max_y, tau_max_y, new KincoDrive(2, true), "y"));
 
     forceSensors.push_back(new FourierForceSensor(3, 4.0)); //TODO: to calibrate!
     forceSensors.push_back(new FourierForceSensor(4, 4.0));
