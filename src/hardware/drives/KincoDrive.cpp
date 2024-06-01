@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-KincoDrive::KincoDrive(int NodeID, bool alternative_DIO_config) : Drive::Drive(NodeID) {
+KincoDrive::KincoDrive(int NodeID, bool with_DIO_config) : Drive::Drive(NodeID) {
     //Remap torque reading and writting registers
     OD_Addresses[ACTUAL_TOR] = {0x6078, 0x00};
     OD_Addresses[TARGET_TOR] = {0x60F6, 0x08};
@@ -10,20 +10,23 @@ KincoDrive::KincoDrive(int NodeID, bool alternative_DIO_config) : Drive::Drive(N
     OD_Addresses[ERROR_WORD] = {0x2601, 0x00};
 
     //DIOs depend on Kinco Drive version
-    if(alternative_DIO_config) {
+    if(with_DIO_config) {
         OD_Addresses[DIGITAL_IN] = {0x2010, 0x0A};
         OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
     }
-
+    //Remove any DIO configuration
     else {
-        OD_Addresses[DIGITAL_IN] = {0x60FD, 0x00}; //Use default. 0x2010, 0x0B not working (SDO setup error)
-        OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
+	spdlog::debug("Kinco Drive without DIO configuration.");
+        TPDO_MappedObjects.erase (4);
+        RPDO_MappedObjects.erase (1);
+        RPDO_MappedObjects.insert(std::pair<UNSIGNED8, std::vector<OD_Entry_t>>(1,{CONTROL_WORD}) );
+        OD_Addresses.erase(DIGITAL_IN);
+        OD_Addresses.erase(DIGITAL_OUT);
+        OD_MappedObjectAddresses.erase(DIGITAL_IN);
+        OD_MappedObjectAddresses.erase(DIGITAL_OUT);
+        //OD_Addresses[DIGITAL_IN] = {0x60FD, 0x00}; //Use default. 0x2010, 0x0B not working (SDO setup error)
+        //OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
     }
-    // uncomments the following lines to adapt to the M2Pro robot
-    // OD_Addresses[DIGITAL_IN] = {0x2010, 0x0A};
-    // OD_Addresses[DIGITAL_OUT] = {0x2010, 0x0E};
-    // OD_DataSize[DIGITAL_IN] = 2;
-    // OD_DataSize[DIGITAL_OUT] = 2;
 }
 
 KincoDrive::~KincoDrive() {
