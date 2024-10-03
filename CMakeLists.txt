@@ -6,6 +6,9 @@ project(CORC C CXX)
 # For aarch64 (e.g. Jetson):
 # cmake -DCMAKE_TOOLCHAIN_FILE=../aarch64.cmake ..
 
+# To cross-compile for RISC-V (riscv64):
+# cmake -DCMAKE_TOOLCHAIN_FILE=../riscv64.cmake ..
+
 ################################## USER FLAGS ##################################
 
 ### Select the application by setting the state machine app.cmake to use

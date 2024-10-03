@@ -28,6 +28,13 @@
   #define EIGEN_COMP_GNUC 0
 #endif
 
+/// \internal EIGEN_ARCH_RISCV64 set to 1 if the architecture is RISC-V 64-bit
+#if defined(__riscv) && (__riscv_xlen == 64)
+  #define EIGEN_COMP_GNUC (__GNUC__*10+__GNUC_MINOR__)
+#else
+  #define EIGEN_COMP_GNUC 0
+#endif
+
 /// \internal EIGEN_COMP_CLANG set to major+minor version (e.g., 307 for clang 3.7) if the compiler is clang
 #if defined(__clang__)
   #define EIGEN_COMP_CLANG (__clang_major__*100+__clang_minor__)
