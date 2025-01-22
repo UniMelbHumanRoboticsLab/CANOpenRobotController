@@ -57,6 +57,9 @@ CO_NMT_reset_cmd_t reset_local = CO_RESET_NOT;
 struct period_info {
     struct timespec next_period;
     long period_ns;
+    struct timespec next_period_wo_active_wait;
+    long period_wo_active_wait_ns;
+    long active_wait_ns;
 };
 
 /** @brief Struct to hold arguments for ROS thread*/
@@ -345,7 +348,7 @@ static void *rt_thread(void *arg) {
             }
 #endif
             /* Detect timer large overflow */
-            if (OD_performance[ODA_performance_timerCycleMaxTime] > TMR_TASK_OVERFLOW_US && rtPriority > 0 && CO->CANmodule[0]->CANnormal) {
+            if (OD_performance[ODA_performance_timerCycleMaxTime] > TMR_TASK_OVERFLOW_US /*&& rtPriority > 0*/ && CO->CANmodule[0]->CANnormal) {
                 spdlog::error("rt_thread timer overflow ({}s).", OD_performance[ODA_performance_timerCycleMaxTime]/1000000.0);
 
                 OD_performance[ODA_performance_timerCycleMaxTime]  = 0;
@@ -380,25 +383,45 @@ static void *rt_control_thread(void *arg) {
 }
 /* Control thread time functions ********************************/
 static void inc_period(struct period_info *pinfo) {
+    //Overall end period time
     pinfo->next_period.tv_nsec += pinfo->period_ns;
-
-    while (pinfo->next_period.tv_nsec >= 1000000000) {
+    while (pinfo->next_period.tv_nsec >= NSEC_PER_SEC) {
         /* timespec nsec overflow */
         pinfo->next_period.tv_sec++;
-        pinfo->next_period.tv_nsec -= 1000000000;
+        pinfo->next_period.tv_nsec -= NSEC_PER_SEC;
+    }
+
+    //End period time wo active wait time
+    pinfo->next_period_wo_active_wait.tv_nsec += pinfo->period_wo_active_wait_ns;
+    while (pinfo->next_period_wo_active_wait.tv_nsec >= NSEC_PER_SEC) {
+        /* timespec nsec overflow */
+        pinfo->next_period_wo_active_wait.tv_sec++;
+        pinfo->next_period_wo_active_wait.tv_nsec -= NSEC_PER_SEC;
     }
 }
 static void periodic_task_init(struct period_info *pinfo) {
-    /* for simplicity, hardcoding a 1ms period */
-    pinfo->period_ns = controlLoopPeriodInms * 1000000;
+    pinfo->period_ns = controlLoopPeriodInms * NSEC_PER_MSEC;
+    pinfo->period_wo_active_wait_ns = (controlLoopPeriodInms-activeWaitTimeInms) * NSEC_PER_MSEC;
+    pinfo->active_wait_ns = activeWaitTimeInms * NSEC_PER_MSEC;
 
+    clock_gettime(CLOCK_MONOTONIC, &(pinfo->next_period_wo_active_wait));
     clock_gettime(CLOCK_MONOTONIC, &(pinfo->next_period));
+}
+//time1-time0 in s
+double diff_ts(struct timespec *time1, struct timespec *time0) {
+  return (time1->tv_sec - time0->tv_sec) + (time1->tv_nsec - time0->tv_nsec) / (double)NSEC_PER_SEC;
 }
 static void wait_rest_of_period(struct period_info *pinfo) {
     inc_period(pinfo);
 
     /* for simplicity, ignoring possibilities of signal wakes */
-    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &pinfo->next_period, NULL);
+    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &pinfo->next_period_wo_active_wait, NULL);
+    //Wait (busy wait) remaining time of period to account for jitter
+    timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    while(diff_ts(&pinfo->next_period, &now)>0.) {
+        clock_gettime(CLOCK_MONOTONIC, &now);
+    }
 }
 /* CAN messaging helper functions ********************************/
 

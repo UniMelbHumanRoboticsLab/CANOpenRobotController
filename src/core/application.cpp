@@ -57,7 +57,6 @@ void app_programControlLoop(void) {
             std::chrono::steady_clock::now() - _t0).count()) / 1e6;
     if(dt>controlLoopPeriodInms/1000.)
         spdlog::warn("Applicaton thread time overflow: {}ms (>{}ms) !", dt*1000., controlLoopPeriodInms);
-
 }
 
 /******************** Runs at the End of rt_control_thread********************/
