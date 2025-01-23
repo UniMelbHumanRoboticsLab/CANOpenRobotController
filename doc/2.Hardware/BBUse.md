@@ -1,6 +1,4 @@
-# Using Beagle Bones
-
-## Basics
+# Using BeagleBones
 
 If you want to run CORC on a Single Board Controller (SBC), Beagle Bone Black (BBB) are a good efficient choice. CORC has been well tested on a BeagleBone Black running Debian Stretch 9.5 [Firmware](http://beagleboard.org/latest-images). Instructions for setting up the Beaglebone Black can be found on [here](http://beagleboard.org/getting-started) on the Beaglebone Website.
 
@@ -8,9 +6,9 @@ You will need a BBB and a cape providing a CAN interface such as the [Comms cape
 
 The CAN physical connection (RJ45 ports) follows the CiA 303-1 standard, specifically: 
 
-![CAN RJ45 / RJ11 wiring](../img/CCANRJ45.png)
+![CAN RJ45 / RJ11 wiring](../img/CANRJ45.png)
 
-Only CAN-L, CAN-H and Signal GND lines are necessary and are to be connected to the BB cape. You need to connect those from the internal CAN bus of your machine (see also [here](./ModifyingDevice.md)).
+Only CAN-L, CAN-H and CAN GND lines are necessary and are to be connected to the BB cape. You need to connect those from the internal CAN bus of your machine (see also [here](./ModifyingDevice.md)).
 
 ## Setting up a BeagleBone
  
@@ -23,20 +21,20 @@ Only CAN-L, CAN-H and Signal GND lines are necessary and are to be connected to 
 
 CORC should run natively on the default Debian image of the Beagle Bone, simply cross-compile your CORC application by using the appropriate flag in your cmake command:
 ```
-cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
 ```
  then build: 
  ```
- make
+$ make
  ```
 Finally you can use the provided script to copy the resulting app (but also the necessary config files) to the Beagle Bone:
 ```
-../script/uploadBB.sh
+$ ../script/uploadBB.sh
 ```
 
 To test your app, ssh to the Beagle Bone
 ```
-ssh debian@192.168.7.2
+$ ssh debian@192.168.7.2
 ```
 navigate to the CANOpencRobotController folder and run your app as on a local machine. You may need to first initialise either a virtual or real CAN bus using the provided scripts (`script/initVCAN.sh` or `script/initCAN1.sh` for a Beagle Bone Black).
 
@@ -66,6 +64,3 @@ This will expose the CAN port of pins P9_24 and P9_26 as CAN0 device as opposed 
 $ sudo ip link set can0 up type can bitrate 1000000
 $ sudo ifconfig can0 up
 ```
-
-### Source
-See [StackOverflow post](https://stackoverflow.com/questions/62207737/beaglebone-ai-how-to-setup-can-bus).
