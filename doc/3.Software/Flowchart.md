@@ -14,8 +14,9 @@ The application loop speed can be altered by the developper, however, it must ru
 
 These values are set in `core\application.h`:
 ```
-const float controlLoopPeriodInms = 2.;   //!< Define the control loop period (in ms): the period of rt_control_thread loop (and so the app update rate). In ms.
-const float CANUpdateLoopPeriodInms = 1.; //!< Define the CAN PDO processing period. SYNCH messages (and so actual PDO update) is set to twice this period (twice slower). In ms.
+const float controlLoopPeriodInms = 2.;     //!< Define the control loop period (in ms): the period of rt_control_thread loop (and so the app update rate). In [ms].
+const float CANUpdateLoopPeriodInms = 1.0;  //!< Define the CAN PDO processing period. SYNCH messages (and so actual PDO update) is set to twice this period (twice slower). In [ms].
+const float activeWaitTimeInms = 0.5;       //!< Define the active wait time (busy CPU) in the control thread to get more accurate timing. Typically between 10%-50% of controlLoopPeriod, 0 for no effect. In [ms].
 ```
 It is the responsability of the developper to ensure that the execution of its states (`during()`, `entry()` and `exit()` methods) can be executed during that time interval. A warning message is issued when a time overflow occurs.
 
