@@ -13,37 +13,6 @@ As can be seen in the state diagram, the program begins in the initState, requir
 
 This example will produce CAN messages on a virtual CANbus, which you can monitor and view. It will also produce text in a terminal window, with keyboard strokes used to navigate between the states. 
 
-## Setup Instructions
-
-These instructions assume that you have a suitable development machine and a suitable deployment machine --- see [Getting Started](GettingStarted.md). It is suggested that the machines you use for his guide are the platforms you intend to develop on for your own application.
-
-#### Development Machine Setup
-The development machine is the machine on which you write and compile the code. This is generally a machine running a desktop operating system, and can be either a Windows or Linux machine --- setup instructions for each can be found below:
-
-- [Windows Workbench Setup](InstallWindows.md) - Instructions specific to this setup are tagged with **[DEV-WINDOWS]** 
-- [Linux Workbench Setup](InstallLinux.md) - Instructions specific to this setup are tagged with - Instructions specific to this setup are tagged with **[DEV-WINDOWS]** 
-
-#### Deployment Machine Setup
-The deployment machine is the computer which is runs the compiled code. This can be either a desktop computer running Linux (or even your development computer if you are running Linux), or an embedded computer. 
-
-If your deployment machine is your Linux-based development machine, no additional setup is necessary. Please note that from this point, instructions specific to this setup are tagged with **[DEPLOY-LOCAL]**.
-
-On the other hand, if you wish to run an embedded machine, the CORC development team primarily developed and tested on [Beaglebones](https://beagleboard.org/bone), and thus recommend this platform. Specifically, CORC has been most tested on a BeagleBone Black running Debian Stretch 9.5 [Firmware](http://beagleboard.org/latest-images). Instructions for setting up the Beaglebone Black can be found on [here](http://beagleboard.org/getting-started) on the Beaglebone Website. Please note that from this point, instructions specific to this setup are tagged with **[DEPLOY-REMOTE]**.
-
-> Note: if you use a Beaglebone AI see instructions [here](../2.Hardware/BBAISetup.md) to setup the CAN device.
-
-## Getting the Project
-On your development computer, clone the project from git repository. You can do this using the command line by first navigating to an appropriate folder, and typing the command:
-```bash
-$ git clone --recursive -j8 https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController
-```
-
->**[DEV-WINDOWS]** Alternatively, if you are using Github Desktop for Windows, go to `File` -> `Clone Repository...`, enter `UniMelbHumanRoboticsLab/CANOpenRobotController` and select an appropriate folder to place your files. 
-
-This repository includes all the sources files required for this example.
-
-> Note: the `--recursive option` is required as external libraries (Eigen, spdlog...) are installed as git submodule (directly from their own repository).
-
 ## Building ExoTestMachine
 CMake is used to generate an appropriate makefile for CORC framework. By default, the generated makefile is configured to compile an executable `ExoTestMachine_APP_NOROBOT` using the default C/C++ compilers. 
 
@@ -58,7 +27,6 @@ $ cd build
 $ cmake -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..
 $ make
 ```
-> **[DEV-WINDOWS]** If running on Windows, you will also need to add the `-G "Unix Makefiles"` flag to the `cmake` command (i.e. `cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../armhf.cmake ..`). This forces the Unix Makefile format, rather than the default `nmake` behaviour on Windows. 
 
 You can alternatively shorten everything to a single line:
 ```bash
@@ -79,7 +47,7 @@ Using an FTP Client on the Host (if you do not have one - or a preferred client,
 
 On the host, using the FTP client, transfer the build executable in `build/ExoTestMachine_APP_NOROBOT`, along with the contents of the `script` folder, to the Beaglebone.
 
-> **[DEV-LINUX]** Alternatively, you can use the [script/uploadBB.sh](../../script/uploadBB.sh) to automatically upload the content of the script folder and the build/\*APP to the BeagleBone through ssh if you are running Linux as your development machine. 
+> Alternatively, you can use the [script/uploadBB.sh](../../script/uploadBB.sh) to automatically upload the content of the script folder and the build/\*APP to the BeagleBone through ssh if you are running Linux as your development machine. 
 
 <!-- Note: The `script` folder contains scripts for setting up the CAN interfaces that CORC uses for communication. If you are using a PEAK CAN USB device, make sure to either use the `initPCAN` script or to manually setup the CAN queue length to 1000 (`ifconfig can0 txqueuelen 1000`).
 -->
@@ -155,7 +123,7 @@ In the second terminal window, the ExoTestMachine program will provide status an
 ==================================
 ==================================
  PRESS S to start program
-==================================​
+==================================
 ```
 
 The first terminal instance (running candump) should display PDO messages corresponding to changes to the commanded motor positions as follows:
@@ -176,7 +144,7 @@ If these messages are present, this indicates that the workbench and CORC toolbo
 ## Next Steps
 Congratulations! You have just run your first CORC program. At this point, if you are interested in writing more complex code in simulation, we recommend you look at the [Custom Application](../3.Software/CustomApplication.md) page. Otherwise, if you wish to try running some examples on hardware that you already have, head back to the [Getting Started](GettingStarted.md) page for other examples, including testing on the Fourier Intelligence ExoMotus X2 or ArmMotus M2 systems. 
 
-​<!-- ## Run ExoTestMachine on X2
+<!-- ## Run ExoTestMachine on X2
 Running on the X2 Robot is very similar to the virutal CAN set up, with one adjustment and -->
 <!-- ### TODO: Event Driven State machine
 explain me -->

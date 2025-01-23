@@ -1,7 +1,6 @@
 # Advanced Simulation and Hardware Testing using ROS and X2 Exoskeleton
 
-The following instructions detail the building and testing of a ROS application to simulate the X2 exoskeleton in Gazebo
- while allowing to use the same code on the actual X2 robot.
+The following instructions detail the building and testing of a ROS application to simulate the X2 exoskeleton in Gazebo while allowing to use the same code on the actual X2 robot.
 
 ## Program Overview
 

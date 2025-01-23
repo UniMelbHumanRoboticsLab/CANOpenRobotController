@@ -39,6 +39,8 @@ $ sudo apt install gcc-arm-linux-gnueabihf
 $ sudo apt install g++-arm-linux-gnueabihf
 ```
 
+For details on usinf a Beagle Bone see the [dedicated page](../2.Hardware/BBUse.md).
+
 ## Networking Tools
 CORC uses CANOpen, thus some networking tools are required to configure and access the CAN bus. These can be installed using the following commands:
 
