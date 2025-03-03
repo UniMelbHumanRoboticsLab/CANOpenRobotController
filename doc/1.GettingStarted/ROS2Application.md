@@ -2,11 +2,12 @@
 
 Minimal instructions to compile and run a CORC application as a ROS2 node able to publish the robot state.
 
-This page assumes you have an Ubuntu system with ROS2 Humble installed (may work with other ROS2 versions but not tested). See [here](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html) for ROS2 installation instructions.
+These instructons have been tested with ROS2 Humble and ROS2 Jazzy and assumes you have an Ubuntu system with one of those versions installed (it may work with other ROS2 versions but this has not been tested). See [here](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html) for ROS2 installation instructions.
 Testing the application also assumes you have an ExoMotus X2 Exoskeleton.
 
 
 > Note : these instructions are for ROS2. See [here](AdvancedSimulationAndHardwareTesting.md) for a ROS1 example.
+> Note : specific, detailed instructions for running ROS2 with the Armmotus EMU (as well as Python packages) are available [here](https://github.com/UniMelbHumanRoboticsLab/FourierEMU-CORC-ROS2).
 
 ## Compilation
 
