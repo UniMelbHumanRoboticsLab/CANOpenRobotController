@@ -95,7 +95,9 @@ enum OD_Entry_t {
     TARGET_VEL = 12,
     TARGET_TOR = 13,
     DIGITAL_IN = 14,
-    DIGITAL_OUT = 15
+    DIGITAL_OUT = 15,
+    ANALOG_IN1 = 16,
+    ANALOG_IN2 = 17
 };
 
 /**
@@ -295,8 +297,10 @@ class Drive {
         {TARGET_POS, 4},
         {TARGET_VEL, 4},
         {TARGET_TOR, 2},
-        {DIGITAL_IN, 2},
-        {DIGITAL_OUT, 2}};
+        {DIGITAL_IN, 4},
+        {DIGITAL_OUT, 4},
+        {ANALOG_IN1, 2},
+        {ANALOG_IN2, 2}};
 
     /**
      * \brief Map between the Commonly-used OD entries and their addresses and sub-index - used to generate PDO Configurations
@@ -314,7 +318,9 @@ class Drive {
         {TARGET_VEL, {0x60FF, 0x00}},
         {TARGET_TOR, {0x6071, 0x00}},
         {DIGITAL_IN, {0x60FD, 0x00}},
-        {DIGITAL_OUT, {0x60FE, 0x01}}};
+        {DIGITAL_OUT, {0x60FE, 0x01}},
+        {ANALOG_IN1, {0x3160, 0x01}},
+        {ANALOG_IN2, {0x3160, 0x02}}};
 
     std::map<OD_Entry_t, void *> OD_MappedObjectAddresses = {
         {STATUS_WORD, (void *)&statusWord},
@@ -327,7 +333,9 @@ class Drive {
         {TARGET_VEL, (void *)&targetVel},
         {TARGET_TOR, (void *)&targetTor},
         {DIGITAL_IN, (void *)&digitalIn},
-        {DIGITAL_OUT, (void *)&digitalOut}};
+        {DIGITAL_OUT, (void *)&digitalOut},
+        {ANALOG_IN1, (void *)&analogIn[0]},
+        {ANALOG_IN2, (void *)&analogIn[1]}};
 
    private:
     /**
@@ -343,8 +351,9 @@ class Drive {
     INTEGER32 targetPos=0;
     INTEGER32 targetVel=0;
     INTEGER16 targetTor=0;
-    UNSIGNED16 digitalIn=0;
-    UNSIGNED16 digitalOut=0;
+    UNSIGNED32 digitalIn=0;
+    UNSIGNED32 digitalOut=0;
+    INTEGER16 analogIn[2]={0,0};
     /**
      * \brief Current error state of the drive
      *
@@ -438,148 +447,158 @@ class Drive {
     bool configureMasterPDOs();
 
     /**
-           * \brief Initialises velocity and acceleration profiles (used by position and velocity controls) through SDOs write
-           *
-           * \return true if sucessfull
-           * \return false otherwise
-           */
-        virtual bool setMotorProfile(motorProfile profile);
+       * \brief Initialises velocity and acceleration profiles (used by position and velocity controls) through SDOs write
+       *
+       * \return true if sucessfull
+       * \return false otherwise
+       */
+    virtual bool setMotorProfile(motorProfile profile);
 
     /**
-           * Sets the drive to Position control with set parameters (through SDO messages)
-           *
-           * Note: Should be overloaded to allow parameters to be set
-           *
-           * \param motorProfile The position control motor profile to be used
-           *
-           * \return true if successful
-           * \return false if not
-           */
+       * Sets the drive to Position control with set parameters (through SDO messages)
+       *
+       * Note: Should be overloaded to allow parameters to be set
+       *
+       * \param motorProfile The position control motor profile to be used
+       *
+       * \return true if successful
+       * \return false if not
+       */
     virtual bool initPosControl(motorProfile posControlMotorProfile) { return false; };
     virtual bool initPosControl() { return false; };
 
     /**
-           * Sets the drive to Velocity control with default parameters (through SDO messages)
-           *
-           * Note: Should be overloaded to allow parameters to be set
-           *
-           * \return true if successful
-           * \return false if not
-           */
+       * Sets the drive to Velocity control with default parameters (through SDO messages)
+       *
+       * Note: Should be overloaded to allow parameters to be set
+       *
+       * \return true if successful
+       * \return false if not
+       */
     virtual bool initVelControl(motorProfile velControlMotorProfile) { return false; };
     virtual bool initVelControl() { return false; };
 
     /**
-           * Sets the drive to Torque control with default parameters (through SDO messages)
-           *
-           * Note: Should be overloaded to allow parameters to be set
-           *
-           * \return true if successful
-           * \return false if not
-           */
+       * Sets the drive to Torque control with default parameters (through SDO messages)
+       *
+       * Note: Should be overloaded to allow parameters to be set
+       *
+       * \return true if successful
+       * \return false if not
+       */
     virtual bool initTorqueControl() { return false; };
 
     /**
-           * Updates the internal representation of the state of the drive
-           *
-           * \return The current value of the status word (0x6041)
-           */
+       * Updates the internal representation of the state of the drive
+       *
+       * \return The current value of the status word (0x6041)
+       */
     virtual int getStatus();
 
     /**
-           * Writes the desired position to the Target Position of the motor drive (0x607A)
-           *
-           * \return true if successful
-           * \return false if not
-           */
+       * Writes the desired position to the Target Position of the motor drive (0x607A)
+       *
+       * \return true if successful
+       * \return false if not
+       */
     virtual bool setPos(int position);
 
     /**
-           * Writes the desired velocity to the Target Velocity of the motor drive (0x60FF)
-           *
-           * \return true if successful
-           * \return false if not
-           */
+       * Writes the desired velocity to the Target Velocity of the motor drive (0x60FF)
+       *
+       * \return true if successful
+       * \return false if not
+       */
     virtual bool setVel(int velocity);
 
     /**
-           * Writes the desired torque to the Target Torque of the motor drive (0x6071)
-           *
-           * \return true if successful
-           * \return false if not
-           */
+       * Writes the desired torque to the Target Torque of the motor drive (0x6071)
+       *
+       * \return true if successful
+       * \return false if not
+       */
     virtual bool setTorque(int torque);
 
     /**
-           * Returns the current position from the motor drive (0x6064)
-           *
-           * \return Position from the motor drive
-           */
+       * Returns the current position from the motor drive (0x6064)
+       *
+       * \return Position from the motor drive
+       */
     virtual int getPos();
 
     /**
-           * Returns the current velocity from the motor drive (0x606C)
-           * Returns 0 if NODEID is 5 or 6: ankles. They have no OD entry.
-           * \return Velocity from the motor drive
-           */
+       * Returns the current velocity from the motor drive (0x606C)
+       * Returns 0 if NODEID is 5 or 6: ankles. They have no OD entry.
+       * \return Velocity from the motor drive
+       */
     virtual int getVel();
 
     /**
-           * Returns the current torque from the motor drive (0x6077)
-           * Returns 0 if NODEID is 5 or 6: ankles. They have no OD entry.
-           * \return Torque from the motor drive
-           */
+       * Returns the current torque from the motor drive (0x6077)
+       * Returns 0 if NODEID is 5 or 6: ankles. They have no OD entry.
+       * \return Torque from the motor drive
+       */
     virtual int getTorque();
 
     /**
-           * Returns the value of digital IN
-           * \return Digital in state from the motor drive
-           */
+       * Returns the value of digital IN
+       * \return Digital in state from the motor drive
+       */
     virtual int getDigitalIn();
+
+    /**
+       * Returns the value of an Analog In
+       *
+       * \param index number of the AI
+       *
+       * \return Latest AI value read from the drive if on PDO
+       */
+    virtual double getAnalogIn(unsigned int index);
+
 
     // Drive State Modifiers
     /**
-           * \brief Clears errors (and changes the state of the drive to "disabled".
-           *
-           * This is equivalent to setting bits 7 Control Word (0x6064) to 1.
-           * See also the CANopen Programmer's Manual (from Copley Controls)
-           *
-           * \return true if operation successful
-           * \return false if operation unsuccessful
-           */
+       * \brief Clears errors (and changes the state of the drive to "disabled".
+       *
+       * This is equivalent to setting bits 7 Control Word (0x6064) to 1.
+       * See also the CANopen Programmer's Manual (from Copley Controls)
+       *
+       * \return true if operation successful
+       * \return false if operation unsuccessful
+       */
     virtual DriveState resetErrors();
 
     /**
-           * \brief Changes the state of the drive to "ready to switch on".
-           *
-           * This is equivalent to setting bits 2 and 3 of Control Word (0x6064) to 1.
-           * See also the CANopen Programmer's Manual (from Copley Controls)
-           *
-           * \return true if operation successful
-           * \return false if operation unsuccessful
-           */
+       * \brief Changes the state of the drive to "ready to switch on".
+       *
+       * This is equivalent to setting bits 2 and 3 of Control Word (0x6064) to 1.
+       * See also the CANopen Programmer's Manual (from Copley Controls)
+       *
+       * \return true if operation successful
+       * \return false if operation unsuccessful
+       */
     virtual DriveState readyToSwitchOn();
 
     /**
-           * \brief Sets the state of the drive to "enabled"
-           *
-           * This is equivalent to setting bits 0, 1, 2, 3 of the control word (0x06064) to 1
-           * See also the CANopen Programmer's Manual (from Copley Controls)
-           *
-           * \return true if operation successful
-           * \return false if operation unsuccessful
-           */
+       * \brief Sets the state of the drive to "enabled"
+       *
+       * This is equivalent to setting bits 0, 1, 2, 3 of the control word (0x06064) to 1
+       * See also the CANopen Programmer's Manual (from Copley Controls)
+       *
+       * \return true if operation successful
+       * \return false if operation unsuccessful
+       */
     virtual DriveState enable();
 
     /**
-           * \brief sets the state of the drive to "disabled"
-           *
-           * This is equivalent to setting the control word (0x06064) to 0
-           * See also the CANopen Programmer's Manual (from Copley Controls)
-           *
-           * \return true if operation successful
-           * \return false if operation unsuccessful
-           */
+       * \brief sets the state of the drive to "disabled"
+       *
+       * This is equivalent to setting the control word (0x06064) to 0
+       * See also the CANopen Programmer's Manual (from Copley Controls)
+       *
+       * \return true if operation successful
+       * \return false if operation unsuccessful
+       */
     virtual DriveState disable();
 
     /**
@@ -615,10 +634,10 @@ class Drive {
 
     // CANOpen
     /**
-           * \brief Get returns the CanNode ID
-           *
-           * \return int the Node ID
-           */
+       * \brief Get returns the CanNode ID
+       *
+       * \return int the Node ID
+       */
     int getNodeID();
 };
 
