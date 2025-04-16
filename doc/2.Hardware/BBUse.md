@@ -6,7 +6,7 @@ You will need a BBB and a cape providing a CAN interface such as the [Comms cape
 
 The CAN physical connection (RJ45 ports) follows the CiA 303-1 standard, specifically: 
 
-![CAN RJ45 / RJ11 wiring](../img/CANRJ45.png)
+![CAN RJ45 / RJ45 wiring](../img/CANRJ45.png)
 
 Only CAN-L, CAN-H and CAN GND lines are necessary and are to be connected to the BB cape. You need to connect those from the internal CAN bus of your machine (see also [here](./ModifyingDevice.md)).
 
