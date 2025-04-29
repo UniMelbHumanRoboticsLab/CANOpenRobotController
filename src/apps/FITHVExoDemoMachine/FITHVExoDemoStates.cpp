@@ -25,6 +25,7 @@ void CalibState::exit(void) {
 
 
 void StandbyState::entry(void) {
+    robot->initTorqueControl();
 }
 void StandbyState::during(void) {
     //Apply corresponding force
@@ -40,7 +41,7 @@ void StandbyState::during(void) {
     }
 
     //Regular display status
-    if(iterations()%1000==1) {
+    if(iterations()%500==1) {
         robot->printJointStatus();
     }
 }

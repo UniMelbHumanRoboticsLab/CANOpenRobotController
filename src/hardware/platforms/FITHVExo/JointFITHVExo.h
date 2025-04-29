@@ -25,18 +25,16 @@ class JointFITHVExo : public Joint {
    private:
     const short int sign;
     const double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
-    int encoderCounts = 10000;  //Encoder counts per turn
-    double reductionRatio = 166;
+    int encoderCounts = 1024;  //Encoder counts per turn
+    double reductionRatio = 350.0;
+    double torqueRatio = 1.0;         //
 
-    double Ipeak = 45.0;                 //Kinco FD123 peak current
-    double motorTorqueConstant = 0.132;  //SMC60S-0020 motor torque constant
-
-    double driveUnitToJointPosition(int driveValue) { return sign * driveValue * (2. * M_PI) / (double)encoderCounts / reductionRatio; };
+    double driveUnitToJointPosition(int driveValue) { return sign * (double) driveValue * (2. * M_PI) / (double)encoderCounts / reductionRatio; }; // Pos in drive in encoder count
     int jointPositionToDriveUnit(double jointValue) { return sign * jointValue / (2. * M_PI) * (double)encoderCounts * reductionRatio; };
-    double driveUnitToJointVelocity(int driveValue) { return sign * driveValue * (2. * M_PI) / 60. / 512. / (double)encoderCounts * 1875 / reductionRatio; };
-    int jointVelocityToDriveUnit(double jointValue) { return sign * jointValue / (2. * M_PI) * 60. * 512. * (double)encoderCounts / 1875 * reductionRatio; };
-    double driveUnitToJointTorque(int driveValue) { return sign * driveValue / Ipeak / 1.414 * motorTorqueConstant * reductionRatio; };
-    int jointTorqueToDriveUnit(double jointValue) { return sign * jointValue * Ipeak * 1.414 / motorTorqueConstant / reductionRatio; };
+    double driveUnitToJointVelocity(int driveValue) { return sign * (double) driveValue * 10 * (2. * M_PI) / (double)encoderCounts / reductionRatio; }; // Vel in drive in 0.1count/s
+    int jointVelocityToDriveUnit(double jointValue) { return sign * jointValue / 10. / (2. * M_PI) * (double)encoderCounts * reductionRatio; };
+    double driveUnitToJointTorque(int driveValue) { return sign * driveValue / torqueRatio * reductionRatio; };
+    int jointTorqueToDriveUnit(double jointValue) { return sign * jointValue * torqueRatio / reductionRatio; };
 
     /**
      * \brief motor drive position control profile paramaters, user defined.

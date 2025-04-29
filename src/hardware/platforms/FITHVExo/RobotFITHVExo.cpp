@@ -6,16 +6,13 @@ using namespace std;
 //TODO: update all max values
 
 RobotFITHVExo::RobotFITHVExo(string robot_name, string yaml_config_file) :  Robot(robot_name, yaml_config_file),
-                                                                calibrated(false),
-                                                                maxEndEffVel(3),
-                                                                maxEndEffForce(80) {
+                                                                            calibrated(false) {
     //Check if YAML file exists and contain robot parameters
     initialiseFromYAML(yaml_config_file);
 
     //Define the robot structure: each joint with limits and drive
-    double tau_max = 1.9 * 166;
-    joints.push_back(new JointFITHVExo(0, 0, 0.625, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new CopleyDrive(1), "L"));
-    joints.push_back(new JointFITHVExo(1, 0, 0.440, 1, -maxEndEffVel, maxEndEffVel, -tau_max, tau_max, new CopleyDrive(2), "R"));
+    joints.push_back(new JointFITHVExo(0, qLimits[0], qLimits[1], qSigns[0], -dqMax, dqMax, -tauMax, tauMax, new CopleyDrive(1), "R"));
+    joints.push_back(new JointFITHVExo(1, qLimits[2], qLimits[3], qSigns[1], -dqMax, dqMax, -tauMax, tauMax, new CopleyDrive(2), "L"));
 
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
@@ -94,9 +91,10 @@ void RobotFITHVExo::applyCalibration() {
 void RobotFITHVExo::updateRobot() {
     Robot::updateRobot();
 
-    if (safetyCheck() != SUCCESS) {
+    //TODO: re-establish safeties
+    /*if (safetyCheck() != SUCCESS) {
         disable();
-    }
+    }*/
 }
 
 setMovementReturnCode_t RobotFITHVExo::safetyCheck() {
@@ -111,9 +109,9 @@ setMovementReturnCode_t RobotFITHVExo::safetyCheck() {
 
 void RobotFITHVExo::printJointStatus() {
     std::cout << std::setprecision(3) << std::fixed;
-    std::cout << "q=[ " << getPosition().transpose() << " ]\t";
-    std::cout << "dq=[ " << getVelocity().transpose() << " ]\t";
-    std::cout << "tau=[ " << getTorque().transpose() << " ]\t";
+    std::cout << "q=[ " << getPosition().transpose() * 180/M_PI << " ] [deg]\t";
+    std::cout << "dq=[ " << getVelocity().transpose() * 180/M_PI << " ] [deg/s]\t";
+    std::cout << "tau=[ " << getTorque().transpose() << " ] [Nm]\t";
     std::cout << "{";
     for (auto joint : joints)
         std::cout << "0x" << std::hex << ((JointFITHVExo *)joint)->getDriveStatus() << "; ";

@@ -177,6 +177,7 @@ void Joint::setPositionOffset(double qcalib = 0) {
 
 double Joint::updatePosition() {
     if (actuated) {
+        //std:: cout << (double)(drive->getPos()/1000.) << "\n";
         return driveUnitToJointPosition(drive->getPos()) - q0;
     }
     return 0;

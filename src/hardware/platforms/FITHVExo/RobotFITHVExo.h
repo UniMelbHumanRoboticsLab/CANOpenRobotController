@@ -29,11 +29,21 @@ typedef Eigen::VectorXd VX; //!< Generic (dynamic) size version required for com
  */
 class RobotFITHVExo: public Robot {
    private:
-    V2 qCalibration = {0, 0.};  //!< Calibration configuration: posture in which the robot is when using the calibration procedure
+   //TODO: update all max values
+    double dqMax = 360 * M_PI / 180.;                       //!< Max joint speed (rad.s-1)
+    double tauMax = 100;                                    //!< Max joint torque (Nm)
+    //std::vector<double> iPeakDrives = {42.0, 42.0};         //!< Drive max current
+    //std::vector<double> motorCstt = {0.132, 0.132};         //!< Motor constants
+    std::vector<double> qSigns = {-1., 1.};                //!< Joint direction (as compared to built-in drives direction). Set for extension +
+    std::vector<double> linkLengths = {0.27, 0.27};         //!< Link lengths used for kinematic models (in m) and mass compensation (i.e. center of mass pos). Distance from hip center to passive joint center.
+    std::vector<double> massCoeff = {0.0, 0.0};             //!< Mass coefficients (identified) used for gravity compensation (in kg). Equivalent mass at distance linkLengths from hip.
+    std::vector<double> frictionVis = {0.2, 0.2};           //!< Joint viscous friction compensation coefficients
+    std::vector<double> frictionCoul = {0.5, 0.5};          //!< Joint Coulomb (static) friction compensation coefficients
 
+    std::vector<double> qLimits = { /*q1_min*/ -45 * M_PI / 180.,/*q1_max*/ 135 * M_PI / 180.,
+                                    /*q2_min*/ -45 * M_PI / 180., /*q2_max*/135 * M_PI / 180.}; //!< Joints limits (in rad)
+    std::vector<double> qCalibration = {0, 0.};  //!< Calibration configuration: posture in which the robot is when using the calibration procedure
     bool calibrated;
-    double maxEndEffVel; //!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.
-    double maxEndEffForce; //!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated.
 
    public:
     /**
