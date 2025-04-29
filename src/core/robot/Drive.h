@@ -18,7 +18,7 @@
 
 #include <CANopen.h>
 #include <CO_command.h>
-#include <string.h>
+#include <string>
 
 #include <map>
 #include <sstream>
