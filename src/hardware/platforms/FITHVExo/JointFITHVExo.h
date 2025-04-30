@@ -27,7 +27,7 @@ class JointFITHVExo : public Joint {
     const double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
     int encoderCounts = 10240;  //Encoder counts per turn (approximated based on pos and torque measure)
     double reductionRatio = 35.0; //Mechanical reduction (approximated based on pos and torque measure)
-    double ratedTorque = 0.570; // As read from drive (0x3A02 in 0x6076). 0.570 in litt-endian (it would be 14.850 (unlikely) in big-endian)
+    double ratedTorque = 0.570; //As read from drive (0x3A02 in 0x6076). 0.570 in litt-endian (it would be 14.850 (unlikely) in big-endian)
 
     double positionRatio = (2. * M_PI) / (double)encoderCounts / reductionRatio; // Pos in drive is in encoder count
     double driveUnitToJointPosition(int driveValue) { return sign * (double) driveValue * positionRatio; };
@@ -41,13 +41,11 @@ class JointFITHVExo : public Joint {
     double driveUnitToJointTorque(int driveValue) { return sign * driveValue * torqueRatio; }; //
     int jointTorqueToDriveUnit(double jointValue) { return sign * jointValue / torqueRatio; };
 
-
-
    public:
     JointFITHVExo(int jointID, double q_min, double q_max, short int sign_ = 1, double dq_min = 0, double dq_max = 0, double tau_min = 0, double tau_max = 0, CopleyDrive *drive = NULL, const std::string& name="");
     ~JointFITHVExo();
     /**
-     * \brief Cehck if current velocity and torque are within limits.
+     * \brief Check if current velocity and torque are within limits.
      *
      * \return OUTSIDE_LIMITS if outside the limits (!), SUCCESS otherwise
      */

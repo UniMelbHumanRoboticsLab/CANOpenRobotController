@@ -90,11 +90,9 @@ void RobotFITHVExo::applyCalibration() {
 
 void RobotFITHVExo::updateRobot() {
     Robot::updateRobot();
-
-    //TODO: re-establish safeties
-    /*if (safetyCheck() != SUCCESS) {
+    if (safetyCheck() != SUCCESS) {
         disable();
-    }*/
+    }
 }
 
 setMovementReturnCode_t RobotFITHVExo::safetyCheck() {

@@ -37,11 +37,11 @@ void StandbyState::during(void) {
 
     //Keyboard inputs
     if(robot->keyboard->getS()) {
-        cmd[1]-=1.;///180.*M_PI;
+        cmd[1]-=0.1;///180.*M_PI;
         std::cout << cmd.transpose() << "\n";
     }
     if(robot->keyboard->getW()) {
-        cmd[1]+=1.;///180.*M_PI;
+        cmd[1]+=0.1;///180.*M_PI;
         std::cout << cmd.transpose() << "\n";
     }
 
