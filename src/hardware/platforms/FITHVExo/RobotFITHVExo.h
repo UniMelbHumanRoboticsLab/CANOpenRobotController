@@ -35,8 +35,8 @@ private:
     std::vector<double> qSigns = {-1., 1.};               //!< Joint direction (as compared to built-in drives direction). Set for extension +
     std::vector<double> linkLengths = {0.27, 0.27};       //!< Link lengths used for kinematic models (in m) and mass compensation (i.e. center of mass pos). Distance from hip center to passive joint center.
     std::vector<double> massCoeff = {0.0, 0.0};           //!< Mass coefficients (identified) used for gravity compensation (in kg). Equivalent mass at distance linkLengths from hip.
-    std::vector<double> frictionVis = {0., 0.};           //!< Joint viscous friction compensation coefficients
-    std::vector<double> frictionCoul = {0., 0.};          //!< Joint Coulomb (static) friction compensation coefficients
+    std::vector<double> frictionVis = {0.2, 0.2};           //!< Joint viscous friction compensation coefficients
+    std::vector<double> frictionCoul = {0.6, 0.6};          //!< Joint Coulomb (static) friction compensation coefficients
 
     std::vector<double> qLimits = { /*q1_min*/ -30 * M_PI / 180., /*q1_max*/ 150 * M_PI / 180.,
                                     /*q2_min*/ -30 * M_PI / 180., /*q2_max*/ 150 * M_PI / 180. }; //!< Joints limits (in rad)
@@ -44,9 +44,9 @@ private:
     bool calibrated;
 
     /**
-     * \brief motor drive position control profile paramaters, user defined. This should not be her but in JointFITHVExo at some point.
-     *
-     */
+        * \brief motor drive position control profile paramaters, user defined. This should not be her but in JointFITHVExo at some point.
+        *
+        */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
 
 public:
@@ -159,7 +159,13 @@ public:
     setMovementReturnCode_t setJointPosition(V2 q);
     setMovementReturnCode_t setJointVelocity(V2 dq);
     setMovementReturnCode_t setJointTorque(V2 tau);
-    //TODO convenience torque function with friction comp
+
+    /**
+        * \brief Apply torque in addition to a friction compensation torque (Coulomb model)
+        *
+        * \return setMovementReturnCode_t code from applyTorque() method
+        */
+    setMovementReturnCode_t setJointTorqueWithCompensation(V2 tau);
     //TODO: grav compensation based on IMU??
     //setMovementReturnCode_t setEndEffForceWithCompensation(V2 F, bool friction_comp=true);
 };

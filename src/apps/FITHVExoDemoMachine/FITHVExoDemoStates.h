@@ -39,6 +39,7 @@ class StandbyState : public RobotFITHVExoState {
     void exit(void);
 
     V2 cmd;
+    double a=0.6, b=0.2;
 };
 
 
