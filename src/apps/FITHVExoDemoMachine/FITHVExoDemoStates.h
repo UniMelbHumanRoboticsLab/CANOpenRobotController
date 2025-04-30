@@ -32,7 +32,7 @@ class RobotFITHVExoState : public State {
 class StandbyState : public RobotFITHVExoState {
 
    public:
-    StandbyState(RobotFITHVExo * _robot, const char *name = "RobotFITHVExo Standby"):RobotFITHVExoState(_robot, name){};
+    StandbyState(RobotFITHVExo * _robot, const char *name = "Standby"):RobotFITHVExoState(_robot, name){};
 
     void entry(void);
     void during(void);
@@ -43,6 +43,33 @@ class StandbyState : public RobotFITHVExoState {
 };
 
 
+class TestState : public RobotFITHVExoState {
+
+   public:
+    TestState(RobotFITHVExo * _robot, const char *name = "Standby"):RobotFITHVExoState(_robot, name){};
+
+    void entry(void);
+    void during(void);
+    void exit(void);
+
+    V2 cmd;
+    double a=0.6, b=0.2;
+};
+
+
+class WallAssistState : public RobotFITHVExoState {
+
+   public:
+    WallAssistState(RobotFITHVExo * _robot, const char *name = "Wall Assist"):RobotFITHVExoState(_robot, name){};
+
+    void entry(void);
+    void during(void);
+    void exit(void);
+
+    double k=30.;
+    double q0=45*M_PI/180.;
+};
+
 
 /**
  * \brief Position calibration example. Go to stops of robot at constant torque for absolute position calibration.
@@ -51,7 +78,7 @@ class StandbyState : public RobotFITHVExoState {
 class CalibState : public RobotFITHVExoState {
 
    public:
-    CalibState(RobotFITHVExo * _robot, const char *name = "RobotFITHVExo Standby"):RobotFITHVExoState(_robot, name){};
+    CalibState(RobotFITHVExo * _robot, const char *name = "Calib"):RobotFITHVExoState(_robot, name){};
 
     void entry(void);
     void during(void);

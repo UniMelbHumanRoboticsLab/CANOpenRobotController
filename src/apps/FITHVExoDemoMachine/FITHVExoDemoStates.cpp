@@ -4,6 +4,22 @@
 using namespace std;
 
 
+VM2 impedance(Eigen::Matrix2d K, Eigen::Matrix2d D, V2 X0, V2 X, V2 dX, V2 dXd=V2::Zero()) {
+    return K*(X0-X) + D*(dXd-dX);
+}
+
+double JerkIt(V2 X0, V2 Xf, double T, double t, V2 &Xd, V2 &dXd) {
+    t = std::max(std::min(t, T), .0); //Bound time
+    double tn=std::max(std::min(t/T, 1.0), .0);//Normalised time bounded 0-1
+    double tn3=pow(tn,3.);
+    double tn4=tn*tn3;
+    double tn5=tn*tn4;
+    Xd = X0 + ( (X0-Xf) * (15.*tn4-6.*tn5-10.*tn3) );
+    dXd = (X0-Xf) * (4.*15.*tn4-5.*6.*tn5-10.*3*tn3)/t;
+    return tn;
+}
+
+
 void CalibState::entry(void) {
     calibDone=false;
     stop_reached_time = .0;
@@ -24,24 +40,58 @@ void CalibState::exit(void) {
 }
 
 
+
 void StandbyState::entry(void) {
-    //robot->initVelocityControl();
     robot->initTorqueControl();
     cmd=V2::Zero();
 }
 void StandbyState::during(void) {
-    //Apply cmd
-    //robot->setJointTorque(cmd);
+
+    //Apply zero torque
     robot->setJointTorqueWithCompensation(cmd);
-    //robot->setJointVelocity(cmd);
 
     //Keyboard inputs
     if(robot->keyboard->getS()) {
-        cmd[1]-=0.1;///180.*M_PI;
+        cmd[1]-=0.1;
         std::cout << cmd.transpose() << "\n";
     }
     if(robot->keyboard->getW()) {
-        cmd[1]+=0.1;///180.*M_PI;
+        cmd[1]+=0.1;
+        std::cout << cmd.transpose() << "\n";
+    }
+
+    //Regular display status
+    if(iterations()%200==1) {
+        robot->printJointStatus();
+    }
+}
+void StandbyState::exit(void) {
+    //TODO
+    //apply zero force/torque
+    robot->initTorqueControl();
+    robot->setJointTorque(V2::Zero());
+}
+
+
+
+
+void TestState::entry(void) {
+    robot->initVelocityControl();
+    cmd=V2::Zero();
+}
+void TestState::during(void) {
+    //Apply cmd
+    //robot->setJointTorque(cmd);
+    //robot->setJointTorqueWithCompensation(cmd);
+    robot->setJointVelocity(cmd);
+
+    //Keyboard inputs
+    if(robot->keyboard->getS()) {
+        cmd[1]-=1.0*180.*M_PI;
+        std::cout << cmd.transpose() << "\n";
+    }
+    if(robot->keyboard->getW()) {
+        cmd[1]+=1.0*180.*M_PI;
         std::cout << cmd.transpose() << "\n";
     }
 
@@ -59,25 +109,17 @@ void StandbyState::during(void) {
     robot->setJointTorque(tau_f);
 
     //Keyboard inputs
-    if(robot->keyboard->getS()) {
-        //cmd[1]-=0.1;///180.*M_PI;
-        //std::cout << cmd.transpose() << "\n";
+    if(robot->keyboard->getS()) {;
         a-=0.1; std:: cout << "a=" << a << "\n";
     }
     if(robot->keyboard->getW()) {
-        //cmd[1]+=0.1;///180.*M_PI;
-        //std::cout << cmd.transpose() << "\n";
         a+=0.1; std:: cout << "a=" << a << "\n";
     }
 
     if(robot->keyboard->getA()) {
-        //cmd[1]-=0.1;///180.*M_PI;
-        //std::cout << cmd.transpose() << "\n";
         b-=0.1; std:: cout << "b=" << b << "\n";
     }
     if(robot->keyboard->getQ()) {
-        //cmd[1]+=0.1;///180.*M_PI;
-        //std::cout << cmd.transpose() << "\n";
         b+=0.1; std:: cout << "b=" << b << "\n";
     }*/
 
@@ -88,10 +130,55 @@ void StandbyState::during(void) {
         robot->printJointStatus();
     }
 }
-void StandbyState::exit(void) {
-    //TODO
+void TestState::exit(void) {
     //apply zero force/torque
     robot->initTorqueControl();
+    robot->setJointTorque(V2::Zero());
+}
+
+
+
+
+void WallAssistState::entry(void) {
+    robot->initTorqueControl();
+}
+void WallAssistState::during(void) {
+
+    //Keyboard inputs
+    if(robot->keyboard->getS()) {
+        q0-=1.*M_PI/180.; std:: cout << "q0=" << q0/M_PI*180. << "[deg] \n";
+    }
+    if(robot->keyboard->getW()) {
+        q0+=1.*M_PI/180.; std:: cout << "q0=" << q0/M_PI*180. << "[deg] \n";
+    }
+
+    if(robot->keyboard->getA()) {
+        k-=1.; std:: cout << "k=" << k << " [Nm/rad] \n";
+    }
+    if(robot->keyboard->getQ()) {
+        k+=1.; std:: cout << "k=" << k << " [Nm/rad] \n";
+    }
+
+    V2 tau = V2::Zero();
+    V2 q = robot->getPosition();
+    //Apply impedance wall on each axis
+    for(unsigned int i=0; i<2; i++) {
+        if(q[i]>=q0) {
+            tau[i]=-k*(q[i]-q0);
+        }
+        else {
+            tau[i]=0.;
+        }
+    }
+    //TODO: To change and apply compensation here ONLY if not in wall
+    robot->setJointTorqueWithCompensation(tau);
+
+    //Regular display status
+    if(iterations()%200==1) {
+        robot->printJointStatus();
+    }
+}
+void WallAssistState::exit(void) {
     robot->setJointTorque(V2::Zero());
 }
 

@@ -26,7 +26,7 @@ bool goToNextState(StateMachine & SM) {
 bool standby(StateMachine & SM) {
     FITHVExoDemoMachine & sm = (FITHVExoDemoMachine &)SM; //Cast to specific StateMachine type
 
-    if (sm.robot()->keyboard->getQ()==1) {
+    if (sm.robot()->keyboard->getNb()==0) {
         return true;
     }
     return false;
@@ -38,13 +38,16 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     setRobot(std::make_unique<RobotFITHVExo>("RobotFITHVExo"));
 
     //Create state instances and add to the State Machine
-    addState("StandbyState", std::make_shared<StandbyState>(robot()));
-    addState("CalibState", std::make_shared<CalibState>(robot()));
-
+    addState("Standby", std::make_shared<StandbyState>(robot()));
+    addState("WallAssist", std::make_shared<WallAssistState>(robot()));
+    addState("Calib", std::make_shared<CalibState>(robot()));
 
     //Define transitions between states
-    addTransition("CalibState", &endCalib, "StandbyState");
-    addTransitionFromAny(&standby, "StandbyState");
+    addTransition("Calib", &endCalib, "Standby");
+    addTransition("WallAssist", &goToNextState, "Standby");
+    addTransition("Standby", &goToNextState, "WallAssist");
+    addTransition("Calib", &endCalib, "StandbyState");
+    addTransitionFromAny(&standby, "Standby");
 
     //Initialize the state machine with first state of the designed state machine
     //setInitState("CalibState");
