@@ -122,7 +122,7 @@ bool RobotFITHVExo::initPositionControl() {
     spdlog::debug("Initialising Position Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
-        if (((JointFITHVExo *)p)->setMode(CM_POSITION_CONTROL) != CM_POSITION_CONTROL) {
+        if (((JointFITHVExo *)p)->setMode(CM_POSITION_CONTROL, posControlMotorProfile) != CM_POSITION_CONTROL) {
             // Something bad happened if were are here
             spdlog::error("Something bad happened");
             returnValue = false;
@@ -144,7 +144,7 @@ bool RobotFITHVExo::initVelocityControl() {
     spdlog::debug("Initialising Velocity Control on all joints ");
     bool returnValue = true;
     for (auto p : joints) {
-        if (((JointFITHVExo *)p)->setMode(CM_VELOCITY_CONTROL) != CM_VELOCITY_CONTROL) {
+        if (((JointFITHVExo *)p)->setMode(CM_VELOCITY_CONTROL, posControlMotorProfile) != CM_VELOCITY_CONTROL) {
             // Something bad happened if were are here
             spdlog::error("Something bad happened");
             returnValue = false;

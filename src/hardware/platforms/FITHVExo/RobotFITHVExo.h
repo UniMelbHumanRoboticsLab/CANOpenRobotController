@@ -45,6 +45,12 @@ class RobotFITHVExo: public Robot {
     std::vector<double> qCalibration = {0, 0.};  //!< Calibration configuration: posture in which the robot is when using the calibration procedure
     bool calibrated;
 
+    /**
+     * \brief motor drive position control profile paramaters, user defined. This should not be her but in JointFITHVExo at some point.
+     *
+     */
+    motorProfile posControlMotorProfile{4000000, 240000, 240000};
+
    public:
     /**
       * \brief Default <code>RobotFITHVExo</code> constructor.

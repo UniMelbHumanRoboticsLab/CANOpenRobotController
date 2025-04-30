@@ -420,6 +420,29 @@ class Drive {
        */
     int stop();
 
+
+    /**
+       * \brief Quick debugging conveninece method to read a value via SDO
+       *
+       * \return false if unsuccesfull
+       */
+    bool SDORead() {
+        // Define Vector to be returned as part of this method
+        std::vector<std::string> CANCommands;
+        // Define stringstream for ease of constructing hex strings
+        std::stringstream sstream;
+        sstream << "[1] " << NodeID << " read 0x6076 0 i16 " ;
+        CANCommands.push_back(sstream.str());
+        sstream.str(std::string());
+
+        if(sendSDOMessages(CANCommands)<0) {
+            spdlog::error("SDO read failed on node {}", NodeID);
+            return false;
+        }
+        return true;
+    }
+
+
     /**
            * Writes the desired digital out value to the drive
            *

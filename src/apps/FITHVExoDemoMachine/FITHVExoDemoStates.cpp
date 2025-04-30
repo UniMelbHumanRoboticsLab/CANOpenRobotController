@@ -25,12 +25,14 @@ void CalibState::exit(void) {
 
 
 void StandbyState::entry(void) {
+    //robot->initVelocityControl();
     robot->initTorqueControl();
 }
 void StandbyState::during(void) {
     //Apply corresponding force
     //TODO
-    //robot->setJointTorque(tau);
+    robot->setJointTorque(V2::Zero());
+    //robot->setJointVelocity(V2::Zero());
 
     //Keyboard inputs
     if(robot->keyboard->getS()) {
@@ -48,5 +50,7 @@ void StandbyState::during(void) {
 void StandbyState::exit(void) {
     //TODO
     //apply zero force/torque
+    robot->initTorqueControl();
+    robot->setJointTorque(V2::Zero());
 }
 
