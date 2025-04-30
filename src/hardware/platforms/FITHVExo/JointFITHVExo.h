@@ -25,19 +25,19 @@ class JointFITHVExo : public Joint {
    private:
     const short int sign;
     const double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
-    int encoderCounts = 1024;  //Encoder counts per turn
-    double reductionRatio = 350.0;
-    double ratedTorque = 0.570;// 14.850; //As read from drive (0x3A02 in 0x6076). 0.570 in litt-endian, 14.850 (unlikely) in big-endian
+    int encoderCounts = 10240;  //Encoder counts per turn (approximated based on pos and torque measure)
+    double reductionRatio = 35.0; //Mechanical reduction (approximated based on pos and torque measure)
+    double ratedTorque = 0.570; // As read from drive (0x3A02 in 0x6076). 0.570 in litt-endian (it would be 14.850 (unlikely) in big-endian)
 
     double positionRatio = (2. * M_PI) / (double)encoderCounts / reductionRatio; // Pos in drive is in encoder count
     double driveUnitToJointPosition(int driveValue) { return sign * (double) driveValue * positionRatio; };
     int jointPositionToDriveUnit(double jointValue) { return sign * jointValue / positionRatio; };
 
-    double velocityRatio = 10 * (2. * M_PI) / (double)encoderCounts / reductionRatio;  // Vel in drive in 0.1count/s
+    double velocityRatio = (2. * M_PI) / 10. / (double)encoderCounts / reductionRatio;  // Vel in drive in 0.1count/s
     double driveUnitToJointVelocity(int driveValue) { return sign * (double) driveValue * velocityRatio; };
     int jointVelocityToDriveUnit(double jointValue) { return sign * jointValue / velocityRatio; };
 
-    double torqueRatio = ratedTorque / 1000. * reductionRatio;  //Torque in rated torque / 1000 in drive. Rating torque of 14.850Nm as read from drive (3A 02 00 00 in 0x6076)
+    double torqueRatio = ratedTorque / 1000. * reductionRatio;  // Torque in rated torque / 1000 in drive. Rating torque of 0.570 as read from drive (3A 02 00 00 in 0x6076)
     double driveUnitToJointTorque(int driveValue) { return sign * driveValue * torqueRatio; }; //
     int jointTorqueToDriveUnit(double jointValue) { return sign * jointValue / torqueRatio; };
 

@@ -27,23 +27,26 @@ void CalibState::exit(void) {
 void StandbyState::entry(void) {
     //robot->initVelocityControl();
     robot->initTorqueControl();
+    cmd=V2::Zero();
 }
 void StandbyState::during(void) {
     //Apply corresponding force
     //TODO
-    robot->setJointTorque(V2::Zero());
-    //robot->setJointVelocity(V2::Zero());
+    robot->setJointTorque(cmd);
+    //robot->setJointVelocity(cmd);
 
     //Keyboard inputs
     if(robot->keyboard->getS()) {
-    //TODO
+        cmd[1]-=1.;///180.*M_PI;
+        std::cout << cmd.transpose() << "\n";
     }
     if(robot->keyboard->getW()) {
-    //TODO
+        cmd[1]+=1.;///180.*M_PI;
+        std::cout << cmd.transpose() << "\n";
     }
 
     //Regular display status
-    if(iterations()%500==1) {
+    if(iterations()%200==1) {
         robot->printJointStatus();
     }
 }
