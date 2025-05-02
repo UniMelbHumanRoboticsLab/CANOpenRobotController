@@ -25,8 +25,8 @@ class JointFITHVExo : public Joint {
    private:
     const short int sign;
     const double qMin, qMax, dqMin, dqMax, tauMin, tauMax;
-    int encoderCounts = 10240;  //Encoder counts per turn (approximated based on pos and torque measure)
-    double reductionRatio = 35.0; //Mechanical reduction (approximated based on pos and torque measure)
+    int encoderCounts = 8000; //Encoder counts per turn
+    double reductionRatio = 46.368; //Mechanical reduction
     double ratedTorque = 0.570; //As read from drive (0x3A02 in 0x6076). 0.570 in litt-endian (it would be 14.850 (unlikely) in big-endian)
 
     double positionRatio = (2. * M_PI) / (double)encoderCounts / reductionRatio; // Pos in drive is in encoder count

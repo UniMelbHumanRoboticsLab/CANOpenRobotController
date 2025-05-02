@@ -40,6 +40,7 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     //Create state instances and add to the State Machine
     addState("Standby", std::make_shared<StandbyState>(robot()));
     addState("WallAssist", std::make_shared<WallAssistState>(robot()));
+    addState("Test", std::make_shared<TestState>(robot()));
     addState("Calib", std::make_shared<CalibState>(robot()));
 
     //Define transitions between states
@@ -50,7 +51,8 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     addTransitionFromAny(&standby, "Standby");
 
     //Initialize the state machine with first state of the designed state machine
-    //setInitState("CalibState");
+    //setInitState("Calib");
+    setInitState("Test");
 }
 FITHVExoDemoMachine::~FITHVExoDemoMachine() {
 }

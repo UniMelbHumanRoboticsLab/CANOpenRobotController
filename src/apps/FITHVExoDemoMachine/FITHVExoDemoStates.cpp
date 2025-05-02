@@ -43,21 +43,25 @@ void CalibState::exit(void) {
 
 void StandbyState::entry(void) {
     robot->initTorqueControl();
-    cmd=V2::Zero();
+    tau=V2::Zero();
 }
 void StandbyState::during(void) {
 
-    //Apply zero torque
-    robot->setJointTorqueWithCompensation(cmd);
+    //Apply viscous field and friction comp
+    V2 dq=robot->getVelocity();
+    for(unsigned int i=0; i<2; i++) {
+        tau[i] = b * dq[i];
+    }
+    robot->setJointTorqueWithCompensation(tau);
 
     //Keyboard inputs
     if(robot->keyboard->getS()) {
-        cmd[1]-=0.1;
-        std::cout << cmd.transpose() << "\n";
+        b-=0.1;
+        std::cout << "b=" << b << "\n";
     }
     if(robot->keyboard->getW()) {
-        cmd[1]+=0.1;
-        std::cout << cmd.transpose() << "\n";
+        b+=0.1;
+        std::cout << "b=" << b << "\n";
     }
 
     //Regular display status
@@ -66,7 +70,6 @@ void StandbyState::during(void) {
     }
 }
 void StandbyState::exit(void) {
-    //TODO
     //apply zero force/torque
     robot->initTorqueControl();
     robot->setJointTorque(V2::Zero());
@@ -87,12 +90,12 @@ void TestState::during(void) {
 
     //Keyboard inputs
     if(robot->keyboard->getS()) {
-        cmd[1]-=1.0*180.*M_PI;
-        std::cout << cmd.transpose() << "\n";
+        cmd[1]-=1.0*M_PI/180.;
+        std::cout << cmd.transpose()*180.*M_PI << "\n";
     }
     if(robot->keyboard->getW()) {
-        cmd[1]+=1.0*180.*M_PI;
-        std::cout << cmd.transpose() << "\n";
+        cmd[1]+=1.0*M_PI/180.;
+        std::cout << cmd.transpose()*180.*M_PI << "\n";
     }
 
     /*V2 tau_f;

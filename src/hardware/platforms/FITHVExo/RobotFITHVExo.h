@@ -10,12 +10,12 @@
  *
  */
 
-#ifndef RobotFITHV_H
-#define RobotFITHV_H
+#ifndef ROBOTFITHV_H
+#define ROBOTFITHV_H
 
 
 #include "JointFITHVExo.h"
-#include "FourierForceSensor.h"
+#include "FITAbsEncoder.h"
 #include "Keyboard.h"
 #include "Joystick.h"
 #include "Robot.h"
@@ -35,8 +35,8 @@ private:
     std::vector<double> qSigns = {-1., 1.};               //!< Joint direction (as compared to built-in drives direction). Set for extension +
     std::vector<double> linkLengths = {0.27, 0.27};       //!< Link lengths used for kinematic models (in m) and mass compensation (i.e. center of mass pos). Distance from hip center to passive joint center.
     std::vector<double> massCoeff = {0.0, 0.0};           //!< Mass coefficients (identified) used for gravity compensation (in kg). Equivalent mass at distance linkLengths from hip.
-    std::vector<double> frictionVis = {0.2, 0.2};           //!< Joint viscous friction compensation coefficients
-    std::vector<double> frictionCoul = {0.4, 0.4};          //!< Joint Coulomb (static) friction compensation coefficients
+    std::vector<double> frictionVis = {0.25, 0.25};       //!< Joint viscous friction compensation coefficients
+    std::vector<double> frictionCoul = {0.4, 0.4};        //!< Joint Coulomb (static) friction compensation coefficients
 
     std::vector<double> qLimits = { /*q1_min*/ -30 * M_PI / 180., /*q1_max*/ 150 * M_PI / 180.,
                                     /*q2_min*/ -30 * M_PI / 180., /*q2_max*/ 150 * M_PI / 180. }; //!< Joints limits (in rad)
@@ -60,6 +60,8 @@ public:
 
     Keyboard *keyboard;
     Joystick *joystick;
+
+    std::vector<FITAbsEncoder*> absEncoders;
 
     /**
         * \brief Initialises all joints to position control mode.
@@ -110,8 +112,8 @@ public:
     setMovementReturnCode_t applyTorque(std::vector<double> torques);
 
     /**
-        * \brief Apply current configuration as calibration configuration using qcalibration such that:
-        *  q=qcalibration in current configuration; AND request force sensor zeroing.
+        * \brief Apply calibration by reading absolute encoder value and applying it.
+        *
         */
     void applyCalibration();
 

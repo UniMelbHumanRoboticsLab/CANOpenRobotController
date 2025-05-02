@@ -13,6 +13,8 @@ RobotFITHVExo::RobotFITHVExo(string robot_name, string yaml_config_file) :  Robo
     //Define the robot structure: each joint with limits and drive
     joints.push_back(new JointFITHVExo(0, qLimits[0], qLimits[1], qSigns[0], -dqMax, dqMax, -tauMax, tauMax, new CopleyDrive(1), "R"));
     joints.push_back(new JointFITHVExo(1, qLimits[2], qLimits[3], qSigns[1], -dqMax, dqMax, -tauMax, tauMax, new CopleyDrive(2), "L"));
+    absEncoders.push_back(new FITAbsEncoder(3, 2.*M_PI/524288.));
+    absEncoders.push_back(new FITAbsEncoder(4, 2.*M_PI/524288.));
 
     inputs.push_back(keyboard = new Keyboard());
     inputs.push_back(joystick = new Joystick());
@@ -82,7 +84,8 @@ bool RobotFITHVExo::initialiseInputs() {
 }
 
 void RobotFITHVExo::applyCalibration() {
-    for (unsigned int i = 0; i < joints.size(); i++) {
+    for (unsigned int i = 0; i < absEncoders.size(); i++) {
+        std::cout << absEncoders[i]->readValue()*180./M_PI << "[deg]\n";
         ((JointFITHVExo *)joints[i])->setPositionOffset(qCalibration[i]);
     }
     calibrated = true;
@@ -257,7 +260,7 @@ setMovementReturnCode_t RobotFITHVExo::setJointTorqueWithCompensation(V2 tau) {
     std::vector<double> tor{0, 0};
 
     V2 tau_f(0, 0); //Friction compensation torque
-    double threshold = 0.05; //Threshold of velocity under which no compensation (deadzone)
+    double threshold = 0.04; //Threshold of velocity under which no compensation (deadzone)
     for (unsigned int i = 0; i < joints.size(); i++) {
         double dq = ((JointFITHVExo *)joints[i])->getVelocity();
         if (abs(dq) > threshold) {

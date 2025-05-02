@@ -38,8 +38,8 @@ class StandbyState : public RobotFITHVExoState {
     void during(void);
     void exit(void);
 
-    V2 cmd;
-    double a=0.6, b=0.2;
+    V2 tau;     //!< Additional torque command to supply
+    double b=0; //!< Viscosity to provide in addition to friction comp. Can be positive for assistance.
 };
 
 
