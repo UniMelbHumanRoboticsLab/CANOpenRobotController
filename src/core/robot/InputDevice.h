@@ -12,20 +12,18 @@
  * \copyright Copyright (c) 2020
  */
 
-#ifndef InputDevice_H_INCLUDED
-#define InputDevice_H_INCLUDED
+#ifndef InputDevice_H
+#define InputDevice_H
 #include <iostream>
 
-#include "logging.h"
-#include "RPDO.h"
-#include "TPDO.h"
+#include "CANDevice.h"
 
 /**
  * @ingroup Robot
  * @brief Abstract class representing any Input device (sensor, joystick..) to be used in a Robot object
  *
  */
-class InputDevice {
+class InputDevice: public CANDevice {
    private:
    public:
     InputDevice();
