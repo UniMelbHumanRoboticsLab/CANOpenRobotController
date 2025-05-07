@@ -11,17 +11,15 @@
 #ifndef FITABSENCODER_H
 #define FITABSENCODER_H
 
-#include <numeric>
-
 #include "CANDevice.h"
 
 class FITAbsEncoder: public CANDevice {
 
   public:
     /**
-     * Construct a new FITAbsEncoder object
-     *
-     */
+    * Construct a new FITAbsEncoder object
+    *
+    */
     FITAbsEncoder(int sensor_can_node_ID, double pulse_to_rad);
 
     /**
@@ -33,17 +31,17 @@ class FITAbsEncoder: public CANDevice {
   private:
 
     /**
-       * \brief Quick debugging conveninece method to read a value via SDO
-       *
-       * \return false if unsuccesfull
-       */
+    * \brief Quick debugging conveninece method to read a value via SDO
+    *
+    * \return false if unsuccesfull
+    */
     bool SDORead();
 
     /**
-     * \brief Send a list (vector) of properly formatted SDO Messages
-     *
-     * \return string response
-     */
+    * \brief Send a list (vector) of properly formatted SDO Messages
+    *
+    * \return string response
+    */
     int sendSDOMessages(std::vector<std::string> messages, std::string & ret);
 
     double pulseToRadFactor;

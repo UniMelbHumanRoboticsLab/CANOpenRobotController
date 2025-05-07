@@ -90,7 +90,6 @@ class CalibState : public RobotFITHVExoState {
      double stop_reached_time;
      bool at_stop;
      bool calibDone=false;
-
 };
 
 #endif

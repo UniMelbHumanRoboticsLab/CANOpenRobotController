@@ -88,6 +88,8 @@ void TestState::during(void) {
     //robot->setJointTorqueWithCompensation(cmd);
     robot->setJointVelocity(cmd);
 
+    robot->applyCalibration();
+
     //Keyboard inputs
     if(robot->keyboard->getS()) {
         cmd[1]-=1.0*M_PI/180.;
