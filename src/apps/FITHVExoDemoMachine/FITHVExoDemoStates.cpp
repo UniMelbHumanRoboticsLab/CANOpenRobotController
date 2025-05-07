@@ -21,22 +21,21 @@ double JerkIt(V2 X0, V2 Xf, double T, double t, V2 &Xd, V2 &dXd) {
 
 
 void CalibState::entry(void) {
-    calibDone=false;
-    stop_reached_time = .0;
-    at_stop = false;
-
     robot->decalibrate();
+    calibDone=false;
     robot->initTorqueControl();
+    robot->setJointTorque(V2::Zero());
     robot->printJointStatus();
-    std::cout << "Calibrating (keep clear)..." << std::flush;
 }
 //Move slowly on each joint until max force detected
 void CalibState::during(void) {
-    //TODO
+    robot->applyCalibration();
+    calibDone=true;
+    std::cout << "Calibrated.\n";
+    robot->printJointStatus();
 }
 void CalibState::exit(void) {
-    //TODO
-    //apply zero force/torque
+    robot->setJointTorque(V2::Zero());
 }
 
 
@@ -79,14 +78,15 @@ void StandbyState::exit(void) {
 
 
 void TestState::entry(void) {
-    robot->initVelocityControl();
+    //robot->initVelocityControl();
+    robot->initTorqueControl();
     cmd=V2::Zero();
 }
 void TestState::during(void) {
     //Apply cmd
-    //robot->setJointTorque(cmd);
+    robot->setJointTorque(cmd);
     //robot->setJointTorqueWithCompensation(cmd);
-    robot->setJointVelocity(cmd);
+    //robot->setJointVelocity(cmd);
 
     robot->applyCalibration();
 

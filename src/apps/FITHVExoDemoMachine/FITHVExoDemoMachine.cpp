@@ -3,7 +3,7 @@
 using namespace std;
 
 bool endCalib(StateMachine & sm) {
-    return (sm.state<CalibState>("CalibState"))->isCalibDone();
+    return (sm.state<CalibState>("Calib"))->isCalibDone();
 }
 
 bool goToNextState(StateMachine & SM) {
@@ -38,10 +38,10 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     setRobot(std::make_unique<RobotFITHVExo>("RobotFITHVExo"));
 
     //Create state instances and add to the State Machine
+    addState("Calib", std::make_shared<CalibState>(robot()));
     addState("Standby", std::make_shared<StandbyState>(robot()));
     addState("WallAssist", std::make_shared<WallAssistState>(robot()));
     addState("Test", std::make_shared<TestState>(robot()));
-    addState("Calib", std::make_shared<CalibState>(robot()));
 
     //Define transitions between states
     addTransition("Calib", &endCalib, "Standby");
@@ -51,8 +51,7 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     addTransitionFromAny(&standby, "Standby");
 
     //Initialize the state machine with first state of the designed state machine
-    //setInitState("Calib");
-    setInitState("Test");
+    //setInitState("Test");
 }
 FITHVExoDemoMachine::~FITHVExoDemoMachine() {
 }

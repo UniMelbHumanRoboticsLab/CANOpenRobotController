@@ -9,19 +9,20 @@ FITAbsEncoder::FITAbsEncoder(int sensor_can_node_ID, double pulse_to_rad):
 
 
 double FITAbsEncoder::readValue() {
-
   std::string ret;
   int val=0;
   if(SDORead(ret)) {
     //return value is absolute position over 4 bytes. LSB first
-    spdlog::debug("-{}-", ret);
-    val = std::stoul(ret, 0, 16);
-    spdlog::debug("{} {}", ret, val);
+    std::string hex[4];
+    hex[0]=ret.substr(1, 2);
+    hex[1]=ret.substr(4, 2);
+    hex[2]=ret.substr(7, 2);
+    hex[3]=ret.substr(10, 2);
+    val = std::stoul(hex[3]+hex[2]+hex[1]+hex[0], 0, 16);
+    spdlog::trace("FITAbsEncoder reading {} : {} => {} {} {}", NodeID, hex[3]+hex[2]+hex[1]+hex[0], val, pulseToRadFactor*val);
   }
 
   return pulseToRadFactor*val;
-
-  //return pulseToRadFactor*val;
 }
 
 

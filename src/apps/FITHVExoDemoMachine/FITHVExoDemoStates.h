@@ -87,9 +87,7 @@ class CalibState : public RobotFITHVExoState {
     bool isCalibDone() {return calibDone;}
 
    private:
-     double stop_reached_time;
-     bool at_stop;
-     bool calibDone=false;
+    bool calibDone=false;
 };
 
 #endif

@@ -84,8 +84,10 @@ bool RobotFITHVExo::initialiseInputs() {
 }
 
 void RobotFITHVExo::applyCalibration() {
+    qCalibration[0] = 2.*M_PI-absEncoders[0]->readValue();
+    qCalibration[1] = absEncoders[1]->readValue();
+    spdlog::debug("RobotFITHVExo calibrated from abs. enc. at {} {}.", qCalibration[0]*180./M_PI, qCalibration[1]*180./M_PI);
     for (unsigned int i = 0; i < absEncoders.size(); i++) {
-        std::cout << absEncoders[i]->readValue()*180./M_PI << "[deg]\n";
         ((JointFITHVExo *)joints[i])->setPositionOffset(qCalibration[i]);
     }
     calibrated = true;
