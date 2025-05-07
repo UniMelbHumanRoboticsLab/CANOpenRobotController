@@ -11,15 +11,17 @@ To create a custom application with custom state machine, two things must be don
 
 First, the source code itself must be developed, by deriving the StateMachine class can be to a custom one, named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. These must be placed in a dedicated subfolder with a consistent name (e.g. `MyCustomStateMachine` must be used for both the folder and the file names). The folder should contain an `app.cmake` file containing the minimal compilation information, including the used platform (i.e. robot). See `src/apps/ExoTestMachine/app.cmake` for a simple example.
 
-Secondly, CMakeLists.txt must be edited and the entry `include(src/apps/ExoTestMachine/app.cmake)` changed to `include(../MyCustomStateMachine/app.cmake)`, with the actual path to the custom statemachine folder.
+> Note: The `script/createStateMachine.sh` can be used to quickly create a new state machine with all the necessary files and a minimal set of states. Simply provide a base name and platform/robot names when prompted.
 
-Simply use the same build procedure as for the example statemachines.
-
-> Note: It is recommended to use one of the existing application (X2DemoMachine or M3DemoMachine) as a template for your new state machine: simply copy the app folder closest to your application and follow the steps above.
+> Note: Alternatively, it is possible (recommended?) to use one of the existing application (X2DemoMachine or M3DemoMachine) as a template for your new state machine: simply copy the app folder closest to your application and follow the steps above.
 
 > Note: Additional code can be placed in the state machine folder. Every file placed in this folder (and subfolders) named in {.c, .cpp, .h}  will be compiled.
 
 > Note: It is recommended to place custom statemachine outside of the CORC folder to ease update and code versioning.
+
+Once the new state machine folder and files creared, `CMakeLists.txt` must be edited and the entry `include(src/apps/ExoTestMachine/app.cmake)` changed to `include(../MyCustomStateMachine/app.cmake)`, with the actual path to the custom statemachine folder.
+
+Simply use the same build procedure as for the example statemachines.
 
 
 ## Platform access
