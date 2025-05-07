@@ -47,7 +47,7 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     addTransition("Calib", &endCalib, "Standby");
     addTransition("WallAssist", &goToNextState, "Standby");
     addTransition("Standby", &goToNextState, "WallAssist");
-    addTransition("Calib", &endCalib, "StandbyState");
+    addTransition("Calib", &endCalib, "Standby");
     addTransitionFromAny(&standby, "Standby");
 
     //Initialize the state machine with first state of the designed state machine

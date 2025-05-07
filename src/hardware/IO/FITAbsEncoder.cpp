@@ -10,25 +10,32 @@ FITAbsEncoder::FITAbsEncoder(int sensor_can_node_ID, double pulse_to_rad):
 
 double FITAbsEncoder::readValue() {
 
-  SDORead();
+  std::string ret;
+  int val=0;
+  if(SDORead(ret)) {
+    //return value is absolute position over 4 bytes. LSB first
+    spdlog::debug("-{}-", ret);
+    val = std::stoul(ret, 0, 16);
+    spdlog::debug("{} {}", ret, val);
+  }
 
-  return 0;
+  return pulseToRadFactor*val;
 
   //return pulseToRadFactor*val;
 }
 
 
-
-bool FITAbsEncoder::SDORead() {
+//TODO: generalise and move to CANDevice
+bool FITAbsEncoder::SDORead(std::string &ret) {
     // Define Vector to be returned as part of this method
     std::vector<std::string> CANCommands;
     // Define stringstream for ease of constructing hex strings
     std::stringstream sstream;
-    sstream << "[1] " << NodeID << " read 0x6076 0 i16 " ;
+    sstream << "[1] " << NodeID << " read 0x9210 0 i16 " ; //Read a 4 bytes value (i16) from address 0x9210.
     CANCommands.push_back(sstream.str());
     sstream.str(std::string());
 
-    std::string ret = "";
+    ret = "";
 
     if(sendSDOMessages(CANCommands, ret)<0) {
         spdlog::error("SDO read failed on node {}", NodeID);
@@ -53,20 +60,18 @@ int FITAbsEncoder::sendSDOMessages(std::vector<std::string> messages, std::strin
         // Because returnMessage includes sequence it is possible value is "[1] OK".
         // Therefore it is checked if return message includes the string "OK".
         // Another option would be erasing the sequence value before returning in cancomm_socketFree
-        if (retMsg.find("OK") != std::string::npos) {
-            successfulMessages++;
+        if(retMsg.find("0x")!=std::string::npos) {
+            std::string errormsg = "sendSDOMessage: ERROR: " + strCommand;
+            size_t err_code_l = 10;
+            std::string error_code = retMsg.substr(retMsg.find("0x"), err_code_l);
+            errormsg += " => " +  SDO_Standard_Error[error_code] + " (" + error_code + ")";
+            spdlog::error(errormsg);
         }
         else {
-            std::string errormsg = "sendSDOMessage: ERROR: " + strCommand;
-            if(retMsg.find("0x")!=std::string::npos) {
-                size_t err_code_l = 10;
-                std::string error_code = retMsg.substr(retMsg.find("0x"), err_code_l);
-                errormsg += " => " +  SDO_Standard_Error[error_code] + " (" + error_code + ")";
-            }
-            else {
-                errormsg += " => " + retMsg;
-            }
-            spdlog::error(errormsg);
+            //Discard first few characters ("[1]") which is not part of response
+            retMsg=retMsg.substr(3, retMsg.length());
+            //Count
+            successfulMessages++;
         }
         spdlog::trace(retMsg);
 #else

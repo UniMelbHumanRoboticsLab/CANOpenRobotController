@@ -35,7 +35,7 @@ class FITAbsEncoder: public CANDevice {
     *
     * \return false if unsuccesfull
     */
-    bool SDORead();
+    bool SDORead(std::string & ret);
 
     /**
     * \brief Send a list (vector) of properly formatted SDO Messages
