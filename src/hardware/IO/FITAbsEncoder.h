@@ -17,13 +17,13 @@ class FITAbsEncoder: public CANDevice {
 
   public:
     /**
-    * Construct a new FITAbsEncoder object
+    * \brief Construct a new FITAbsEncoder object
     *
     */
     FITAbsEncoder(int sensor_can_node_ID, double pulse_to_rad);
 
     /**
-    * Send SDO request and process return value.
+    * \brief Send SDO request and process return value.
     * \return Value of absolute encoder in [rad]
     */
     double readValue();
@@ -31,16 +31,15 @@ class FITAbsEncoder: public CANDevice {
   private:
 
     /**
-    * \brief Quick debugging conveninece method to read a value via SDO
-    *
+    * \brief Read the absolute encoder value: SDO read of address 0x9210
     * \return false if unsuccesfull
     */
     bool SDORead(std::string & ret);
 
     /**
     * \brief Send a list (vector) of properly formatted SDO Messages
-    *
-    * \return string response
+    * \param messages: vector of string messages, ret: reference of string to store response
+    * \return Nb of success. message -1 (-1 if all failed.)
     */
     int sendSDOMessages(std::vector<std::string> messages, std::string & ret);
 

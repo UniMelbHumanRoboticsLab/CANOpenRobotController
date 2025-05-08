@@ -26,7 +26,7 @@ double FITAbsEncoder::readValue() {
 }
 
 
-//TODO: generalise and move to CANDevice
+//TODO: generalise and move to CANDevice. Bypass sendSDOMessage call
 bool FITAbsEncoder::SDORead(std::string &ret) {
     // Define Vector to be returned as part of this method
     std::vector<std::string> CANCommands;
@@ -45,7 +45,7 @@ bool FITAbsEncoder::SDORead(std::string &ret) {
     return true;
 }
 
-
+//TODO: To clean uo or remove and merge w/ read SDO
 int FITAbsEncoder::sendSDOMessages(std::vector<std::string> messages, std::string &retMsg) {
     int successfulMessages = -1;
     for (auto strCommand : messages) {

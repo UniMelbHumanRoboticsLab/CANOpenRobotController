@@ -68,15 +68,15 @@ static std::map<std::string, std::string> SDO_Standard_Error = {
 class CANDevice {
    protected:
     /**
-        * \brief The CAN Node ID used to address this particular device on the CAN bus
-        *
-        */
+    * \brief The CAN Node ID used to address this particular device on the CAN bus
+    *
+    */
     int NodeID;
 
     /**
-     * \brief Lists of PDOs
-     *
-     */
+    * \brief Lists of PDOs
+    *
+    */
     std::vector<RPDO *> rpdos;
     std::vector<TPDO *> tpdos;
 };
