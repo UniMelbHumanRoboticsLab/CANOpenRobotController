@@ -6,8 +6,8 @@ bool endCalib(StateMachine & sm) {
     return (sm.state<CalibState>("Calib"))->isCalibDone();
 }
 
-bool goToNextState(StateMachine & SM) {
-    FITHVExoDemoMachine & sm = static_cast<FITHVExoDemoMachine &>(SM); //Cast to specific StateMachine type
+bool goToNextState(StateMachine & sm_) {
+    FITHVExoDemoMachine & sm = static_cast<FITHVExoDemoMachine &>(sm_); //Cast to specific StateMachine type
 
     //keyboard
     if ( (sm.robot()->keyboard->getNb()==1) )
@@ -23,14 +23,63 @@ bool goToNextState(StateMachine & SM) {
     return false;
 }
 
-bool standby(StateMachine & SM) {
-    FITHVExoDemoMachine & sm = (FITHVExoDemoMachine &)SM; //Cast to specific StateMachine type
+bool standby(StateMachine & sm_) {
+    FITHVExoDemoMachine & sm = (FITHVExoDemoMachine &)sm_; //Cast to specific StateMachine type
 
-    if (sm.robot()->keyboard->getNb()==0) {
+    //keyboard press
+    if ( (sm.robot()->keyboard->getNb()=='0') ) {
         return true;
     }
+
+    //Check incoming command requesting state change
+    if ( sm.UIserver->isCmd("GOST") ) {
+        sm.UIserver->sendCmd(string("OK"));
+        return true;
+    }
+
     return false;
 }
+
+
+//Go to wall assistance
+bool assist(StateMachine & sm_) {
+    FITHVExoDemoMachine & sm = (FITHVExoDemoMachine &)sm_; //Cast to specific StateMachine type
+
+    //keyboard press
+    if ( (sm.robot()->keyboard->getNb()==1) ) {
+        return true;
+    }
+
+    //Check incoming command requesting new force control state
+    std::vector<double> params;
+    if ( sm.UIserver->isCmd("GOAS", params) ) {
+        if(params.size()==2) {
+            //Assign parameters to state.
+            std::shared_ptr<WallAssistState> s = sm.state<WallAssistState>("WallAssist");
+            if(!s->active()) {
+                if(s->setParameters(params[0], params[1])) {
+                    spdlog::debug("wall assist OK ({}, {})", params[0], params[1]);
+                    sm.UIserver->sendCmd(string("OK"));
+                    return true;
+                }
+                spdlog::warn("wall assist error: wrong parameters.");
+                sm.UIserver->sendCmd(string("ER1"));
+            }
+            else {
+                spdlog::warn("wall assist error: state running.");
+                sm.UIserver->sendCmd(string("ER2"));
+            }
+        }
+        else {
+            spdlog::warn("wall assist error: number of command parameters.");
+            sm.UIserver->sendCmd(string("ER3"));
+        }
+    }
+
+    return false;
+}
+
+
 
 
 FITHVExoDemoMachine::FITHVExoDemoMachine() {
@@ -45,9 +94,8 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
 
     //Define transitions between states
     addTransition("Calib", &endCalib, "Standby");
-    addTransition("WallAssist", &goToNextState, "Standby");
-    addTransition("Standby", &goToNextState, "WallAssist");
-    addTransition("Calib", &endCalib, "Standby");
+    addTransition("WallAssist", &standby, "Standby");
+    addTransition("Standby", &assist, "WallAssist");
     addTransitionFromAny(&standby, "Standby");
 
     //Initialize the state machine with first state of the designed state machine
@@ -74,6 +122,8 @@ void FITHVExoDemoMachine::init() {
         UIserver->registerState(robot()->getPosition());
         UIserver->registerState(robot()->getVelocity());
         UIserver->registerState(robot()->getTorque());
+        UIserver->registerState(state<WallAssistState>("WallAssist")->getk());
+        UIserver->registerState(state<WallAssistState>("WallAssist")->getq0());
     }
     else {
         spdlog::critical("Failed robot initialisation. Exiting...");

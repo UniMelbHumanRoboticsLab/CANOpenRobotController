@@ -60,14 +60,39 @@ class TestState : public RobotFITHVExoState {
 class WallAssistState : public RobotFITHVExoState {
 
    public:
-    WallAssistState(RobotFITHVExo * _robot, const char *name = "Wall Assist"):RobotFITHVExoState(_robot, name){};
+        WallAssistState(RobotFITHVExo * _robot, const char *name = "Wall Assist"):RobotFITHVExoState(_robot, name){};
 
-    void entry(void);
-    void during(void);
-    void exit(void);
+        void entry(void);
+        void during(void);
+        void exit(void);
 
-    double k=30.;
-    double q0=45*M_PI/180.;
+        //! Assign wall parameters. Only when nwot running.
+        bool setParameters(double _k, double _q0t) {
+            if(!active()) {
+                k = _k;
+                q0t = _q0t;
+                spdlog::info("WallAssist:setParameters parameters k={} q0={}.", _k, _q0t*180./M_PI);
+                k = fmin(fmax(k, 0), maxk);
+                q0t = fmin(fmax(q0t, 0), M_PI/2.);
+
+                if(q0t == _q0t && k == _k) {
+                    spdlog::info("WallAssist:setParameters parameters k={} q0={}.", _k, _q0t*180./M_PI);
+                    return true;
+                }
+                else {
+                    spdlog::warn("ForceControl:setParameters parameters saturated: {} {}.", k, q0t*180./M_PI);
+                    return false;
+                }
+            }
+        }
+
+        double & getk(){return k;}
+        double & getq0(){return q0t;}
+
+    private:
+        double k=30., maxk=50.;
+        double q0t=45*M_PI/180.;
+        V2 q0;
 };
 
 

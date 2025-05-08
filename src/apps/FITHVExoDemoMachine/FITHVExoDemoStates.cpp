@@ -146,15 +146,25 @@ void TestState::exit(void) {
 
 void WallAssistState::entry(void) {
     robot->initTorqueControl();
+    //If already within wall at start, setup a smooth transition
+    V2 q = robot->getPosition();
+    for(unsigned int i=0; i<2; i++) {
+        if(q[i]>=q0[i]) {
+            q0[i] = q[i];
+        }
+        else {
+            q0[i] = q0t;
+        }
+    }
 }
 void WallAssistState::during(void) {
 
     //Keyboard inputs
     if(robot->keyboard->getS()) {
-        q0-=1.*M_PI/180.; std:: cout << "q0=" << q0/M_PI*180. << "[deg] \n";
+        q0t-=1.*M_PI/180.; std:: cout << "q0=" << q0t/M_PI*180. << "[deg] \n";
     }
     if(robot->keyboard->getW()) {
-        q0+=1.*M_PI/180.; std:: cout << "q0=" << q0/M_PI*180. << "[deg] \n";
+        q0t+=1.*M_PI/180.; std:: cout << "q0=" << q0t/M_PI*180. << "[deg] \n";
     }
 
     if(robot->keyboard->getA()) {
@@ -168,8 +178,10 @@ void WallAssistState::during(void) {
     V2 q = robot->getPosition();
     //Apply impedance wall on each axis
     for(unsigned int i=0; i<2; i++) {
-        if(q[i]>=q0) {
-            tau[i]=-k*(q[i]-q0);
+        //Calculate effective applied mass based on possible transition (change mass
+        q0[i] += sign(q0t - q0[i])*M_PI/100.*dt();
+        if(q[i]>=q0[i]) {
+            tau[i]=-k*(q[i]-q0[i]);
         }
         else {
             tau[i]=0.;
