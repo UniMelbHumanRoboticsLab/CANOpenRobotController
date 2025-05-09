@@ -19,9 +19,10 @@ setMovementReturnCode_t JointFITHVExo::safetyCheck() {
     if (velocity > dqMax || velocity < dqMin) {
         return OUTSIDE_LIMITS;
     }
+    /* Torque saturation only for torque.
     if (torque > tauMax || torque < tauMin) {
         return OUTSIDE_LIMITS;
-    }
+    }*/
     return SUCCESS;
 }
 

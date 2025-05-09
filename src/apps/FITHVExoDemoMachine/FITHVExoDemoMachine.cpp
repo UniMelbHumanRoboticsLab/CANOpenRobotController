@@ -81,6 +81,28 @@ bool assist(StateMachine & sm_) {
 
 
 
+//Exit CORC cleanly
+bool quit(StateMachine & sm_) {
+    FITHVExoDemoMachine & sm = (FITHVExoDemoMachine &)sm_; //Cast to specific StateMachine type
+
+    //keyboard press
+    if ( sm.robot()->keyboard->getKeyUC()=='Q' ) {
+        std::raise(SIGTERM); //Clean exit
+        return true;
+    }
+
+    //Check incoming command requesting state change
+    if ( sm.UIserver->isCmd("QUIT") ) {
+        sm.UIserver->sendCmd(string("OK"));
+        spdlog::debug("Quit");
+        std::raise(SIGTERM); //Clean exit
+        return true;
+    }
+
+    return false;
+}
+
+
 
 FITHVExoDemoMachine::FITHVExoDemoMachine() {
     //Create a Robot and set it to generic state machine
@@ -97,6 +119,7 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     addTransition("WallAssist", &standby, "Standby");
     addTransition("Standby", &assist, "WallAssist");
     addTransitionFromAny(&standby, "Standby");
+    addTransitionFromAny(&quit, "Standby");
 
     //Initialize the state machine with first state of the designed state machine
     //setInitState("Test");

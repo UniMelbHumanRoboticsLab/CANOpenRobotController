@@ -90,8 +90,8 @@ class WallAssistState : public RobotFITHVExoState {
         double & getq0(){return q0t;}
 
     private:
-        double k=30., maxk=50.;
-        double q0t=45*M_PI/180.;
+        double k=70., maxk=80.; //in [Nm/rad]
+        double q0t=20.*M_PI/180.; //in [rad]
         V2 q0;
 };
 

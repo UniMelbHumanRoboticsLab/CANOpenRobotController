@@ -126,7 +126,7 @@ void TestState::during(void) {
     if(robot->keyboard->getA()) {
         b-=0.1; std:: cout << "b=" << b << "\n";
     }
-    if(robot->keyboard->getQ()) {
+    if(robot->keyboard->getD()) {
         b+=0.1; std:: cout << "b=" << b << "\n";
     }*/
 
@@ -169,19 +169,23 @@ void WallAssistState::during(void) {
         q0t+=1.*M_PI/180.; std:: cout << "q0=" << q0t/M_PI*180. << "[deg] \n";
     }
 
-    if(robot->keyboard->getA()) {
-        k-=1.; std:: cout << "k=" << k << " [Nm/rad] \n";
+    if(robot->keyboard->getA() ) {
+        k-=1.;
+        k = fmin(fmax(k, 0), maxk);
+        std:: cout << "k=" << k << " [Nm/rad] \n";
     }
-    if(robot->keyboard->getQ()) {
-        k+=1.; std:: cout << "k=" << k << " [Nm/rad] \n";
+    if(robot->keyboard->getD()) {
+        k+=1.;
+        k = fmin(fmax(k, 0), maxk);
+        std:: cout << "k=" << k << " [Nm/rad] \n";
     }
 
     V2 tau = V2::Zero();
     V2 q = robot->getPosition();
     //Apply impedance wall on each axis
     for(unsigned int i=0; i<2; i++) {
-        //Calculate effective applied mass based on possible transition (change mass
-        q0[i] += sign(q0t - q0[i])*M_PI/20.*dt();
+        //Calculate effective applied ref of spring based on desired and ahcnge rate to avoid abrupt changes
+        q0[i] += sign(q0t - q0[i])*M_PI/5.*dt();
         if(q[i]>=q0[i]) {
             tau[i]=-k*(q[i]-q0[i]);
         }
