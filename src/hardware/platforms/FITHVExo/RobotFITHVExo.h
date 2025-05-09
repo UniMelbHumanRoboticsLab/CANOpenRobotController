@@ -30,7 +30,7 @@ typedef Eigen::VectorXd VX; //!< Generic (dynamic) size version required for com
 class RobotFITHVExo: public Robot
 {
 private:
-    double dqMax = 350 * M_PI / 180.;                     //!< Max joint speed (rad.s-1). Set to 350deg/s for safety.
+    double dqMax = 400 * M_PI / 180.;                     //!< Max joint speed (rad.s-1). Set to 400deg/s for safety.
     double tauMax = 20;                                   //!< Max joint torque (Nm). Set to 20Nm for safety, hardware support higher torque.
     std::vector<double> qSigns = {-1., 1.};               //!< Joint direction (as compared to built-in drives direction). Set for extension +
     std::vector<double> linkLengths = {0.27, 0.27};       //!< Link lengths used for kinematic models (in m) and mass compensation (i.e. center of mass pos). Distance from hip center to passive joint center.
@@ -40,7 +40,7 @@ private:
 
     std::vector<double> qLimits = { /*q1_min*/ -30 * M_PI / 180., /*q1_max*/ 150 * M_PI / 180.,
                                     /*q2_min*/ -30 * M_PI / 180., /*q2_max*/ 150 * M_PI / 180. }; //!< Joints limits (in rad)
-    std::vector<double> qCalibration = {0, 0.};  //!< Calibration configuration: posture in which the robot is when using the calibration procedure
+    std::vector<double> qCalibration = {-96*M_PI/180., -76*M_PI/180.};  //!< Calibration configuration: difference between abs encoder reading and expected pose
     bool calibrated;
 
     /**

@@ -20,9 +20,11 @@ double FITAbsEncoder::readValue() {
     hex[3]=ret.substr(10, 2);
     val = std::stoul(hex[3]+hex[2]+hex[1]+hex[0], 0, 16);
     spdlog::trace("FITAbsEncoder reading {} : {} => {} {} {}", NodeID, hex[3]+hex[2]+hex[1]+hex[0], val, pulseToRadFactor*val);
+
+    return pulseToRadFactor*val;
   }
 
-  return pulseToRadFactor*val;
+  return std::nan("No value");
 }
 
 

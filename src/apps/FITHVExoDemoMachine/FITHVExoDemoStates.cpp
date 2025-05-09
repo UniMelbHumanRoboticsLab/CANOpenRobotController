@@ -64,7 +64,7 @@ void StandbyState::during(void) {
     }
 
     //Regular display status
-    if(iterations()%200==1) {
+    if(iterations()%500==1) {
         robot->printJointStatus();
     }
 }
@@ -191,7 +191,7 @@ void WallAssistState::during(void) {
     robot->setJointTorqueWithCompensation(tau);
 
     //Regular display status
-    if(iterations()%200==1) {
+    if(iterations()%500==1) {
         robot->printJointStatus();
     }
 }

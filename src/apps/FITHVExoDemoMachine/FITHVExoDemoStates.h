@@ -46,7 +46,7 @@ class StandbyState : public RobotFITHVExoState {
 class TestState : public RobotFITHVExoState {
 
    public:
-    TestState(RobotFITHVExo * _robot, const char *name = "Standby"):RobotFITHVExoState(_robot, name){};
+    TestState(RobotFITHVExo * _robot, const char *name = "Test"):RobotFITHVExoState(_robot, name){};
 
     void entry(void);
     void during(void);
