@@ -88,8 +88,10 @@ void RobotFITHVExo::applyCalibration() {
     abs[0] = absEncoders[0]->readValue();
     abs[1] = absEncoders[1]->readValue();
 
-    if( isnan(abs[0]) || isnan(abs[1]) )
+    if( isnan(abs[0]) || isnan(abs[1]) ) {
+        spdlog::error("RobotFITHVExo calibration error: no abs. encoder reading.");
         return;
+    }
 
     ((JointFITHVExo *)joints[0])->setPositionOffset(2.*M_PI-abs[0]+qCalibration[0]);
     ((JointFITHVExo *)joints[1])->setPositionOffset(abs[1]+qCalibration[1]);

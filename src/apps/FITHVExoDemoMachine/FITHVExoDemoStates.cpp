@@ -30,8 +30,10 @@ void CalibState::entry(void) {
 //Move slowly on each joint until max force detected
 void CalibState::during(void) {
     robot->applyCalibration();
-    calibDone=true;
-    std::cout << "Calibrated.\n";
+    if(robot->isCalibrated()) {
+        calibDone=true;
+        std::cout << "Calibrated.\n";
+    }
     robot->printJointStatus();
 }
 void CalibState::exit(void) {
@@ -179,7 +181,7 @@ void WallAssistState::during(void) {
     //Apply impedance wall on each axis
     for(unsigned int i=0; i<2; i++) {
         //Calculate effective applied mass based on possible transition (change mass
-        q0[i] += sign(q0t - q0[i])*M_PI/100.*dt();
+        q0[i] += sign(q0t - q0[i])*M_PI/20.*dt();
         if(q[i]>=q0[i]) {
             tau[i]=-k*(q[i]-q0[i]);
         }

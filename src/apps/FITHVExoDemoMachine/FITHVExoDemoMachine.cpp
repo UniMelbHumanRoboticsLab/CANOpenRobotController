@@ -27,7 +27,7 @@ bool standby(StateMachine & sm_) {
     FITHVExoDemoMachine & sm = (FITHVExoDemoMachine &)sm_; //Cast to specific StateMachine type
 
     //keyboard press
-    if ( (sm.robot()->keyboard->getNb()=='0') ) {
+    if ( (sm.robot()->keyboard->getNb()==0) ) {
         return true;
     }
 
