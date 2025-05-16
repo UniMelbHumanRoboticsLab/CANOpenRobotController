@@ -50,7 +50,7 @@ bool assist(StateMachine & sm_) {
         return true;
     }
 
-    //Check incoming command requesting new force control state
+    //Check incoming command requesting assist state
     std::vector<double> params;
     if ( sm.UIserver->isCmd("GOAS", params) ) {
         if(params.size()==2) {
@@ -69,6 +69,34 @@ bool assist(StateMachine & sm_) {
                 spdlog::warn("wall assist error: state running.");
                 sm.UIserver->sendCmd(string("ER2"));
             }
+        }
+        else {
+            spdlog::warn("wall assist error: number of command parameters.");
+            sm.UIserver->sendCmd(string("ER3"));
+        }
+    }
+
+    return false;
+}
+
+
+//Fake transition (always return false) updating wall assist parameters
+bool updateAssist(StateMachine & sm_) {
+    FITHVExoDemoMachine & sm = (FITHVExoDemoMachine &)sm_; //Cast to specific StateMachine type
+
+    //Check incoming command requesting new force control state
+    std::vector<double> params;
+    if ( sm.UIserver->isCmd("UPAS", params) ) {
+        if(params.size()==2) {
+            //Assign parameters to state
+            std::shared_ptr<WallAssistState> s = sm.state<WallAssistState>("WallAssist");
+            if(s->setParameters(params[0], params[1])) {
+                spdlog::debug("wall assist OK ({}, {})", params[0], params[1]);
+                sm.UIserver->sendCmd(string("OK"));
+                return false;
+            }
+            spdlog::warn("wall assist error: wrong parameters.");
+            sm.UIserver->sendCmd(string("ER1"));
         }
         else {
             spdlog::warn("wall assist error: number of command parameters.");
@@ -117,6 +145,8 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     //Define transitions between states
     addTransition("Calib", &endCalib, "Standby");
     addTransition("WallAssist", &standby, "Standby");
+    addTransition("Standby", &updateAssist, "WallAssist");
+    addTransition("WallAssist", &updateAssist, "WallAssist");
     addTransition("Standby", &assist, "WallAssist");
     addTransitionFromAny(&standby, "Standby");
     addTransitionFromAny(&quit, "Standby");

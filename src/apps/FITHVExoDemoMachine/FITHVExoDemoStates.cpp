@@ -158,39 +158,51 @@ void WallAssistState::entry(void) {
             q0[i] = q0t;
         }
     }
+    spdlog::debug("----- q0: {},    q0t: {}", q0[1], q0t);
 }
 void WallAssistState::during(void) {
 
     //Keyboard inputs
-    if(robot->keyboard->getS()) {
+    if(robot->keyboard->getKeyUC()=='Z') {
         q0t-=1.*M_PI/180.; std:: cout << "q0=" << q0t/M_PI*180. << "[deg] \n";
     }
-    if(robot->keyboard->getW()) {
+    if(robot->keyboard->getKeyUC()=='A') {
         q0t+=1.*M_PI/180.; std:: cout << "q0=" << q0t/M_PI*180. << "[deg] \n";
     }
 
-    if(robot->keyboard->getA() ) {
+    if(robot->keyboard->getKeyUC()=='X') {
         k-=1.;
         k = fmin(fmax(k, 0), maxk);
         std:: cout << "k=" << k << " [Nm/rad] \n";
     }
-    if(robot->keyboard->getD()) {
+    if(robot->keyboard->getKeyUC()=='S') {
         k+=1.;
         k = fmin(fmax(k, 0), maxk);
         std:: cout << "k=" << k << " [Nm/rad] \n";
     }
 
+    if(robot->keyboard->getKeyUC()=='C') {
+        b-=.1;
+        std:: cout << "b=" << b << " [Nm/rad.s] \n";
+    }
+    if(robot->keyboard->getKeyUC()=='D') {
+        b+=.1;
+        std:: cout << "b=" << b << " [Nm/rad.s] \n";
+    }
+
     V2 tau = V2::Zero();
     V2 q = robot->getPosition();
+    V2 dq=robot->getVelocity();
     //Apply impedance wall on each axis
     for(unsigned int i=0; i<2; i++) {
         //Calculate effective applied ref of spring based on desired and ahcnge rate to avoid abrupt changes
         q0[i] += sign(q0t - q0[i])*M_PI/5.*dt();
         if(q[i]>=q0[i]) {
-            tau[i]=-k*(q[i]-q0[i]);
+            tau[i] = -k*(q[i]-q0[i]);
         }
         else {
-            tau[i]=0.;
+            //Some little damping assistance outside the wall
+            tau[i] = b * dq[i];
         }
     }
     //TODO: To change and apply compensation here ONLY if not in wall

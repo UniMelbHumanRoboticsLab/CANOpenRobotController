@@ -31,7 +31,7 @@ class RobotFITHVExo: public Robot
 {
 private:
     double dqMax = 400 * M_PI / 180.;                     //!< Max joint speed (rad.s-1). Set to 400deg/s for safety.
-    double tauMax = 20;                                   //!< Max joint torque (Nm). Set to 20Nm for safety, hardware support higher torque.
+    double tauMax = 30;                                   //!< Max joint torque (Nm). Set to 30Nm for safety, hardware support higher torque.
     std::vector<double> qSigns = {-1., 1.};               //!< Joint direction (as compared to built-in drives direction). Set for extension +
     std::vector<double> linkLengths = {0.27, 0.27};       //!< Link lengths used for kinematic models (in m) and mass compensation (i.e. center of mass pos). Distance from hip center to passive joint center.
     std::vector<double> massCoeff = {0.0, 0.0};           //!< Mass coefficients (identified) used for gravity compensation (in kg). Equivalent mass at distance linkLengths from hip.

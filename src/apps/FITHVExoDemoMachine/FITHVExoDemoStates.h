@@ -23,7 +23,7 @@ class FITHVExoDemoMachine;
  */
 class RobotFITHVExoState : public State {
    protected:
-    RobotFITHVExo * robot;                               //!< Pointer to state machines robot object
+    RobotFITHVExo * robot;      //!< Pointer to state machines robot object
 
     RobotFITHVExoState(RobotFITHVExo* _robot, const char *name = NULL): State(name), robot(_robot){spdlog::debug("Created RobotFITHVExoState {}", name);};
 };
@@ -66,23 +66,21 @@ class WallAssistState : public RobotFITHVExoState {
         void during(void);
         void exit(void);
 
-        //! Assign wall parameters. Only when nwot running.
+        //! Assign/update wall parameters
         bool setParameters(double _k, double _q0t) {
-            if(!active()) {
-                k = _k;
-                q0t = _q0t;
-                spdlog::info("WallAssist:setParameters parameters k={} q0={}.", _k, _q0t*180./M_PI);
-                k = fmin(fmax(k, 0), maxk);
-                q0t = fmin(fmax(q0t, 0), M_PI/2.);
+            k = _k;
+            q0t = _q0t;
+            spdlog::info("WallAssist:setParameters parameters k={} q0={}.", _k, _q0t*180./M_PI);
+            k = fmin(fmax(k, 0), maxk);
+            q0t = fmin(fmax(q0t, 0), M_PI/2.);
 
-                if(q0t == _q0t && k == _k) {
-                    spdlog::info("WallAssist:setParameters parameters k={} q0={}.", _k, _q0t*180./M_PI);
-                    return true;
-                }
-                else {
-                    spdlog::warn("ForceControl:setParameters parameters saturated: {} {}.", k, q0t*180./M_PI);
-                    return false;
-                }
+            if(q0t == _q0t && k == _k) {
+                spdlog::info("WallAssist:setParameters parameters k={} q0={}.", _k, _q0t*180./M_PI);
+                return true;
+            }
+            else {
+                spdlog::warn("WallAssist:setParameters parameters saturated: {} {}.", k, q0t*180./M_PI);
+                return false;
             }
         }
 
@@ -90,9 +88,11 @@ class WallAssistState : public RobotFITHVExoState {
         double & getq0(){return q0t;}
 
     private:
-        double k=70., maxk=80.; //in [Nm/rad]
+        double k=70., maxk=120.; //in [Nm/rad]
         double q0t=20.*M_PI/180.; //in [rad]
+        double b=.0; //Viscous assistance outside wall [Nm/rad.s]
         V2 q0;
+
 };
 
 
