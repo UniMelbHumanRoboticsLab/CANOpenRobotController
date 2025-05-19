@@ -68,9 +68,9 @@ extern "C" {
 #define INCREMENT_1MS(var) (var++)     /* Increment 1ms variable in taskTmr */
 #define NODEID (80)
 
-const float controlLoopPeriodInms = 1.;     //!< Define the control loop period (in ms): the period of rt_control_thread loop (and so the app update rate). In [ms].
-const float CANUpdateLoopPeriodInms = 0.5;  //!< Define the CAN PDO processing period. SYNCH messages (and so actual PDO update) is set to twice this period (twice slower). In [ms].
-const float activeWaitTimeInms = 0.2;       //!< Define the active wait time (busy CPU) in the control thread to get more accurate timing. Typically between 10%-50% of controlLoopPeriod, 0 for no effect. In [ms].
+const float controlLoopPeriodInms = 2.;     //!< Define the control loop period (in ms): the period of rt_control_thread loop (and so the app update rate). In [ms].
+const float CANUpdateLoopPeriodInms = 1.0;  //!< Define the CAN PDO processing period. SYNCH messages (and so actual PDO update) is set to twice this period (twice slower). In [ms].
+const float activeWaitTimeInms = 0.3;       //!< Define the active wait time (busy CPU) in the control thread to get more accurate timing. Typically between 10%-50% of controlLoopPeriod, 0 for no effect. In [ms].
 
 
 

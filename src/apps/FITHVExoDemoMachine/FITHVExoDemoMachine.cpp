@@ -53,12 +53,12 @@ bool assist(StateMachine & sm_) {
     //Check incoming command requesting assist state
     std::vector<double> params;
     if ( sm.UIserver->isCmd("GOAS", params) ) {
-        if(params.size()==2) {
+        if(params.size()==4) {
             //Assign parameters to state.
             std::shared_ptr<WallAssistState> s = sm.state<WallAssistState>("WallAssist");
             if(!s->active()) {
-                if(s->setParameters(params[0], params[1])) {
-                    spdlog::debug("wall assist OK ({}, {})", params[0], params[1]);
+                if(s->setParameters(params[0], params[1], params[2], params[3])) {
+                    spdlog::debug("wall assist OK ({}, {}, {}, {})", params[0], params[1], params[2], params[3]);
                     sm.UIserver->sendCmd(string("OK"));
                     return true;
                 }
@@ -87,11 +87,11 @@ bool updateAssist(StateMachine & sm_) {
     //Check incoming command requesting new force control state
     std::vector<double> params;
     if ( sm.UIserver->isCmd("UPAS", params) ) {
-        if(params.size()==2) {
+        if(params.size()==4) {
             //Assign parameters to state
             std::shared_ptr<WallAssistState> s = sm.state<WallAssistState>("WallAssist");
-            if(s->setParameters(params[0], params[1])) {
-                spdlog::debug("wall assist OK ({}, {})", params[0], params[1]);
+            if(s->setParameters(params[0], params[1], params[2], params[3])) {
+                spdlog::debug("wall assist OK ({}, {}, {}, {})", params[0], params[1], params[2], params[3]);
                 sm.UIserver->sendCmd(string("OK"));
                 return false;
             }
@@ -177,6 +177,8 @@ void FITHVExoDemoMachine::init() {
         UIserver->registerState(robot()->getTorque());
         UIserver->registerState(state<WallAssistState>("WallAssist")->getk());
         UIserver->registerState(state<WallAssistState>("WallAssist")->getq0());
+        UIserver->registerState(state<WallAssistState>("WallAssist")->getb());
+        UIserver->registerState(state<WallAssistState>("WallAssist")->getmgl());
     }
     else {
         spdlog::critical("Failed robot initialisation. Exiting...");

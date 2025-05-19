@@ -236,7 +236,7 @@ setMovementReturnCode_t RobotFITHVExo::applyTorque(std::vector<double> torques) 
     for (auto p : joints) {
         setMovementReturnCode_t setTorCode = ((JointFITHVExo *)p)->setTorque(torques[i]);
         if (setTorCode == INCORRECT_MODE) {
-            spdlog::error("Joint {} : is not in Torque Control", p->getId());
+            spdlog::error("Joint {} : is not in torque control", p->getId());
             returnValue = INCORRECT_MODE;
         } else if (setTorCode != SUCCESS) {
             // Something bad happened

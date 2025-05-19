@@ -158,7 +158,6 @@ void WallAssistState::entry(void) {
             q0[i] = q0t;
         }
     }
-    spdlog::debug("----- q0: {},    q0t: {}", q0[1], q0t);
 }
 void WallAssistState::during(void) {
 
@@ -195,21 +194,32 @@ void WallAssistState::during(void) {
     V2 dq=robot->getVelocity();
     //Apply impedance wall on each axis
     for(unsigned int i=0; i<2; i++) {
-        //Calculate effective applied ref of spring based on desired and ahcnge rate to avoid abrupt changes
+        //Calculate effective applied ref of spring based on desired and change rate to avoid abrupt changes
         q0[i] += sign(q0t - q0[i])*M_PI/5.*dt();
         if(q[i]>=q0[i]) {
             tau[i] = -k*(q[i]-q0[i]);
         }
         else {
-            //Some little damping assistance outside the wall
-            tau[i] = b * dq[i];
+            //Some little damping assistance outside the wall in up direction
+            if(dq[i]<0) {
+                tau[i] = b * dq[i];
+            }
         }
     }
-    //TODO: To change and apply compensation here ONLY if not in wall
+
+    //Add some gravity compensation. Assumes thighs vertical and angle is average both hips angles
+    double q_mean=(q[0]+q[1])/2.;
+    double tau_g=-mgl*sin(q_mean);
+    for(unsigned int i=0; i<2; i++) {
+        tau[i]+=tau_g;
+    }
+
+    //TODO: To change and apply compensation here ONLY if not in wall? Seem ok with compensation
     robot->setJointTorqueWithCompensation(tau);
 
     //Regular display status
     if(iterations()%500==1) {
+        std::cout << q_mean*180./M_PI << "[deg]\t" << tau_g << "[Nm]\t" << tau[1] << "[Nm]\n";
         robot->printJointStatus();
     }
 }
