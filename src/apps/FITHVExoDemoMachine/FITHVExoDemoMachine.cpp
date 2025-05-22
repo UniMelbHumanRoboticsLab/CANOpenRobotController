@@ -109,6 +109,51 @@ bool updateAssist(StateMachine & sm_) {
 
 
 
+//Go to amplification
+bool amplify(StateMachine & sm_) {
+    FITHVExoDemoMachine & sm = (FITHVExoDemoMachine &)sm_; //Cast to specific StateMachine type
+
+    //keyboard press
+    if ( (sm.robot()->keyboard->getNb()==2) ) {
+        return true;
+    }
+
+    //Check incoming command requesting assist state
+    std::vector<double> params;
+    if ( sm.UIserver->isCmd("GOAP", params) ) {
+        if(params.size()==1) {
+            //Assign parameters to state.
+            std::shared_ptr<AmplificationState> s = sm.state<AmplificationState>("Amplify");
+
+            //Apply received parameters
+            if(s->setParameters(params[0])) {
+                spdlog::debug("Amplification OK ({})", params[0]);
+                sm.UIserver->sendCmd(string("OK"));
+            }
+            else {
+                spdlog::warn("amplification error: wrong parameters.");
+                sm.UIserver->sendCmd(string("ER1"));
+            }
+
+            //Return true to transition only if not already within state, otherwise simply a parameter update
+            if(!s->active()) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            spdlog::warn("amplification error: number of command parameters.");
+            sm.UIserver->sendCmd(string("ER3"));
+        }
+    }
+
+    return false;
+}
+
+
+
 //Exit CORC cleanly
 bool quit(StateMachine & sm_) {
     FITHVExoDemoMachine & sm = (FITHVExoDemoMachine &)sm_; //Cast to specific StateMachine type
@@ -140,14 +185,17 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     addState("Calib", std::make_shared<CalibState>(robot()));
     addState("Standby", std::make_shared<StandbyState>(robot()));
     addState("WallAssist", std::make_shared<WallAssistState>(robot()));
+    addState("Amplify", std::make_shared<AmplificationState>(robot()));
     addState("Test", std::make_shared<TestState>(robot()));
 
     //Define transitions between states
     addTransition("Calib", &endCalib, "Standby");
-    addTransition("WallAssist", &standby, "Standby");
-    addTransition("Standby", &updateAssist, "WallAssist");
     addTransition("WallAssist", &updateAssist, "WallAssist");
     addTransition("Standby", &assist, "WallAssist");
+    addTransition("Standby", &amplify, "Amplify");
+    addTransition("Amplify", &amplify, "Amplify");
+    addTransition("WallAssist", &amplify, "Amplify");
+    addTransition("Amplify", &assist, "WallAssist");
     addTransitionFromAny(&standby, "Standby");
     addTransitionFromAny(&quit, "Standby");
 

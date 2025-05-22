@@ -147,7 +147,6 @@ void TestState::exit(void) {
 
 
 void WallAssistState::entry(void) {
-    robot->initTorqueControl();
     //If already within wall at start, setup a smooth transition
     V2 q = robot->getPosition();
     for(unsigned int i=0; i<2; i++) {
@@ -219,7 +218,7 @@ void WallAssistState::during(void) {
 
     //Regular display status
     if(iterations()%500==1) {
-        std::cout << q_mean*180./M_PI << "[deg]\t" << tau_g << "[Nm]\t" << tau[1] << "[Nm]\n";
+        //std::cout << q_mean*180./M_PI << "[deg]\t" << tau_g << "[Nm]\t" << tau[1] << "[Nm]\n";
         robot->printJointStatus();
     }
 }
@@ -227,3 +226,38 @@ void WallAssistState::exit(void) {
     robot->setJointTorque(V2::Zero());
 }
 
+
+
+
+void AmplificationState::entry(void) {
+}
+void AmplificationState::during(void) {
+
+    //Keyboard inputs
+    if(robot->keyboard->getKeyUC()=='C') {
+        b-=.1;
+        std:: cout << "b=" << b << " [Nm/rad.s] \n";
+    }
+    if(robot->keyboard->getKeyUC()=='D') {
+        b+=.1;
+        std:: cout << "b=" << b << " [Nm/rad.s] \n";
+    }
+
+    V2 tau = V2::Zero();
+    V2 dq=robot->getVelocity();
+    //Apply impedance wall on each axis
+    for(unsigned int i=0; i<2; i++) {
+        //Damping assistance
+        tau[i] = b * dq[i];
+    }
+
+    robot->setJointTorqueWithCompensation(tau);
+
+    //Regular display status
+    if(iterations()%500==1) {
+        robot->printJointStatus();
+    }
+}
+void AmplificationState::exit(void) {
+    robot->setJointTorque(V2::Zero());
+}

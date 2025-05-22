@@ -102,6 +102,38 @@ class WallAssistState : public RobotFITHVExoState {
 };
 
 
+class AmplificationState: public RobotFITHVExoState {
+
+   public:
+        AmplificationState(RobotFITHVExo * _robot, const char *name = "Wall Assist"):RobotFITHVExoState(_robot, name){};
+
+        void entry(void);
+        void during(void);
+        void exit(void);
+
+        //! Assign/update parameters
+        bool setParameters(double _b) {
+            b = _b;
+            spdlog::info("AmplificationState:settingParameters parameters b={}...", _b);
+            b = fmin(fmax(b, 0), b);
+            if(b == _b) {
+                spdlog::info("AmplificationState:setParameters parameters {}. Ok.", _b);
+                return true;
+            }
+            else {
+                spdlog::warn("AmplificationState:setParameters parameters saturated: {}.", b);
+                return false;
+            }
+        }
+
+        double & getb(){return b;}
+
+    private:
+        double b=.2, maxb=10.; //Viscous assistance outside wall [Nm/rad.s]
+};
+
+
+
 /**
  * \brief Position calibration example. Go to stops of robot at constant torque for absolute position calibration.
  *
