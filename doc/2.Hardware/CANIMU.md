@@ -6,7 +6,7 @@ The `CANIMU` module for CORC (CANOpen Robot Controller) allows for the integrati
 
 This module listens for specific CAN messages from the MCU, interprets them, and makes the IMU data (acceleration, linear acceleration, orientation) available to the CORC application/state machine as if it were from standard RPDOs.
 
-**Note:** The `CANIMU` module facilitates communication with MCUs sending IMU data via CAN messages using *non-standard* COB-IDs. It is not a fully compliant CANOpen slave device itself but rather a bridge to make custom IMU data easily accessible within CORC. User can choose to use CAN messages IDs that does not clash with pre-occupied CANOpen COB-IDs.
+> Note: The `CANIMU` module facilitates communication with MCUs sending IMU data via CAN messages using *non-standard* COB-IDs. It is not a fully compliant CANOpen slave device itself but rather a bridge to make custom IMU data easily accessible within CORC. User can choose to use CAN messages IDs that does not clash with pre-occupied CANOpen COB-IDs.
 
 ## 2. Principle of Operation
 

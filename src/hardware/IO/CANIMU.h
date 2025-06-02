@@ -1,4 +1,4 @@
-/*/**
+/**
  * \file CANIMU.h
  * \author Mingrui Sun
  * \brief  Class representing a MCU with a CAN bus module) which converts its connected IMU reading to CANOpen messages. 
