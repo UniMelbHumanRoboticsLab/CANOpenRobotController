@@ -218,7 +218,7 @@ void FITHVExoDemoMachine::init() {
         logHelper.add(robot()->getPosition(), "q");
         logHelper.add(robot()->getVelocity(), "dq");
         logHelper.add(robot()->getTorque(), "tau");
-        UIserver = std::make_shared<FLNLHelper>("192.168.7.2");
+        UIserver = std::make_shared<FLNLHelper>("0.0.0.0");
         UIserver->registerState(runningTime());
         UIserver->registerState(robot()->getPosition());
         UIserver->registerState(robot()->getVelocity());
