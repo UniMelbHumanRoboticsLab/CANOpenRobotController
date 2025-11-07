@@ -89,7 +89,7 @@ class UBORobot : public Robot {
      * @brief prints the forces from the FT sensors
      *
      */
-    void printUBO_readings();
+    void printUBO_readings(Eigen::VectorXd readings);
 
     void setUBOOffsets(Eigen::VectorXd offsets);
     bool startUBO_FTSensors();

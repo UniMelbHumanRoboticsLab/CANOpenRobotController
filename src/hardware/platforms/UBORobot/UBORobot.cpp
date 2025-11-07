@@ -14,8 +14,10 @@ bool UBORobot::initialiseInputs() {
 
     inputs.push_back(keyboard = new Keyboard());
 
-    // Add the UBO FT sensors
     UBO_FTSensors.push_back(new RobotousRFT(0xf0, 0xf1, 0xf2));
+    // UBO_FTSensors.push_back(new RobotousRFT(0xf8, 0xf9, 0xf10));
+    UBO_FTSensors.push_back(new RobotousRFT(0xe6, 0xe7, 0xe8));
+    UBO_FTSensors.push_back(new RobotousRFT(0xec, 0xed, 0xee));
 
     // Add to input stack
     for (uint i = 0; i < UBO_FTSensors.size(); i++) {
@@ -90,17 +92,22 @@ void UBORobot::updateUBO_readings(){
     for (int i = 0; i < (int)UBO_FTSensors.size(); i++) {
         Eigen::VectorXd forces = UBO_FTSensors[i]->getForces();
         Eigen::VectorXd torques = UBO_FTSensors[i]->getTorques();
+        
         for (int j = 0; j < 3; j++) {
             UBO_readings[i * 6 + j] = forces[j];
             UBO_readings[i * 6 + 3 + j] = torques[j];
         }
     }
 }
-void UBORobot::printUBO_readings() {
-    std::cout << std::setprecision(3) << std::fixed << std::showpos;
-    std::cout << "F=[ " << getUBO_readings().transpose() << " ]\t";
-    std::cout <<  std::endl;
-    std::cout <<  std::noshowpos;
+void UBORobot::printUBO_readings(Eigen::VectorXd readings) {
+    for (int i = 0; i < (int)UBO_FTSensors.size(); i++) {
+        std::cout << std::setprecision(3) << std::fixed << std::showpos;
+        std::cout << "F" << i << "=[ " << readings.segment(i * 6, 6).transpose() << " ]\t";
+        std::cout <<  std::endl;
+        std::cout <<  std::noshowpos;
+    }
+
+
 }
 
 void UBORobot::setUBOOffsets(Eigen::VectorXd offsets) {

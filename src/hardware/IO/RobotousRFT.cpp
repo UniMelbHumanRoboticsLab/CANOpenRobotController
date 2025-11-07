@@ -66,9 +66,9 @@ void RobotousRFT::updateInput() {
         forces[1] = static_cast<INTEGER16>(Fy) / 50.0 - forceOffsets[1];
         forces[2] = static_cast<INTEGER16>(Fz) / 50.0 - forceOffsets[2];
 
-        torques[0] = static_cast<INTEGER16> (Tx)/2000.0 - torqueOffsets[0];
-        torques[1] = static_cast<INTEGER16>(Ty) / 2000.0 - torqueOffsets[1];
-        torques[2] = static_cast<INTEGER16>(Tz) / 2000.0 - torqueOffsets[2];
+        torques[0] = static_cast<INTEGER16> (Tx)/1000.0 - torqueOffsets[0];
+        torques[1] = static_cast<INTEGER16>(Ty) / 1000.0 - torqueOffsets[1];
+        torques[2] = static_cast<INTEGER16>(Tz) / 1000.0 - torqueOffsets[2];
     } 
     // Else, don't do anything
 }

@@ -9,7 +9,7 @@ project(CORC C CXX)
 ################################## USER FLAGS ##################################
 
 ### Select the application by setting the state machine app.cmake to use
-include(src/apps/ExoTestMachine/app.cmake)
+# include(src/apps/ExoTestMachine/app.cmake)
 #include(src/apps/M1DemoMachine/app.cmake)
 #include(src/apps/M1DemoMachineROS/app.cmake)
 #include(src/apps/M2DemoMachine/app.cmake)
@@ -19,9 +19,10 @@ include(src/apps/ExoTestMachine/app.cmake)
 #include(src/apps/X2ROS2DemoMachine/app.cmake)
 #include(src/apps/LoggingDevice/app.cmake)
 #include(../myStateMachineApp/app.cmake) ## example only, need to be defined
+include(../UBO_ROS2/app.cmake) ## example only, need to be defined
 
 ## Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT ON)
+set(NO_ROBOT OFF)
 
 ## Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)
 ## INFO is the recommended level in normal operation
