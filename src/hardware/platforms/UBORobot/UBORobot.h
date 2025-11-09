@@ -94,6 +94,7 @@ class UBORobot : public Robot {
     void setUBOOffsets(Eigen::VectorXd offsets);
     bool startUBO_FTSensors();
     bool stopUBO_FTSensors();
+    bool setUBO_FTSensorsFilter();
     bool configureMasterPDOs();
     };
 

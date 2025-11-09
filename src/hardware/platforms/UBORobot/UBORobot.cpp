@@ -139,3 +139,10 @@ bool UBORobot::stopUBO_FTSensors() {
         return false;
     }
 }
+
+bool UBORobot::setUBO_FTSensorsFilter() {
+    for (unsigned int i = 0; i < UBO_FTSensors.size(); i++) {
+        UBO_FTSensors[i]->setFilter();
+    }
+    return true;
+}

@@ -112,6 +112,14 @@ class RobotousRFT : public InputDevice {
         bool stopStream();
 
         /**
+         * @brief sets the filter (sends 0x0F)
+         * 
+         * @return true if the sensor was previously streaming (i.e. the stream is starting)
+         * @return false if the sensor was previously not streaming (i.e. no change in state)
+         */
+        bool setFilter();
+
+        /**
          * @brief Check if the system is streaming
          * 
          * @return true if streaming

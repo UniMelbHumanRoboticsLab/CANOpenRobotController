@@ -90,6 +90,7 @@ bool RobotousRFT::startStream(){
     spdlog::info("RobotousRFT 0x{0:x} Starting", commandID);
     if (!streaming){
         cmdData =0x0B;
+        cmdDataPad = 0x00;
         streaming = true;
         return true; 
     }
@@ -99,11 +100,18 @@ bool RobotousRFT::stopStream() {
     spdlog::info("RobotousRFT 0x{0:x} Stopping", commandID);
     if (streaming){
         cmdData = 0x0C;
+        cmdDataPad = 0x00;
         streaming = false;
         forces = Eigen::VectorXd::Zero(3);
         torques = Eigen::VectorXd::Zero(3);
         return true; 
     }
+    return false;
+}
+bool RobotousRFT::setFilter() {
+    spdlog::info("RobotousRFT 0x{0:x} set filter", commandID);
+    cmdData = 0x08;
+    cmdDataPad = 0x0501;
     return false;
 }
 
