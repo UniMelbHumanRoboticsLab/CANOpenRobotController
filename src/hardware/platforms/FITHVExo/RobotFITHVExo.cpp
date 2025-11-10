@@ -282,29 +282,3 @@ setMovementReturnCode_t RobotFITHVExo::setJointTorqueWithCompensation(V2 tau) {
 
     return applyTorque(tor);
 }
-
-//TODO: see .h TODOs
-/*setMovementReturnCode_t RobotFITHVExo::setEndEffForceWithCompensation(V2 F, bool friction_comp) {
-    if (!calibrated) {
-        return NOT_CALIBRATED;
-    }
-
-    //TODO: add a limit check
-    if (!1) {
-        return OUTSIDE_LIMITS;
-    }
-    V2 tau_f(0, 0);                     //Friction compensation torque
-    if (friction_comp) {
-        double alpha = 8, beta = 1, threshold = 0.05;
-        for (unsigned int i = 0; i < joints.size(); i++) {
-            double dq = ((JointFITHVExo *)joints[i])->getVelocity();
-            if (abs(dq) > threshold) {
-                tau_f(i) = alpha * sign(dq) + beta * dq;
-            } else {
-                tau_f(i) = .0;
-            }
-        }
-    }
-
-    return setJointTorque(J().transpose() * F + tau_f);
-}*/

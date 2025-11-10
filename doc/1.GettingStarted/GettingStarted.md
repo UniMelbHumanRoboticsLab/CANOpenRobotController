@@ -154,3 +154,17 @@ It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, and creates 
 See also the code example in `src/apps/X2ROS2DemoMachine`.
 
 
+
+## Hardware Testing - FIT-HV waist exoskeleton
+This example enables simple control of the FIT-HV waist exoskeleton. 
+
+### Requirements
+1. Development machine running Linux
+2. A modified FIT-HV waist exoskeleton
+
+### Suggested for
+1. Users looking to develop for FIT-HV exoskeletons or simple examples of CORC state machines.
+
+### [FITHVExoDemoMachine - Instructions](GSFITHVDemoMachine.md)
+See also the code example in `src/apps/FITHVExoDemoMachine`.
+

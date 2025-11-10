@@ -4,7 +4,7 @@
  * \author Vincent Crocher
  * \version 0.2
  * \date 2025-04-16
- * \copyright Copyright (c) 2020
+ * \copyright Copyright (c) 2025
  *
  * \brief Class representing an FIT-HV exoskeleton with two dof for hip flex/extension
  *
@@ -44,17 +44,17 @@ private:
     bool calibrated;
 
     /**
-        * \brief motor drive position control profile paramaters, user defined. This should not be her but in JointFITHVExo at some point.
-        *
-        */
+    * \brief motor drive position control profile paramaters, user defined. This should not be her but in JointFITHVExo at some point.
+    *
+    */
     motorProfile posControlMotorProfile{4000000, 240000, 240000};
 
 public:
     /**
-        * \brief Default RobotFITHVExo constructor.
-        * Initialize memory for the Exoskelton <code>Joint</code> + sensors.
-        * Load in exoskeleton paramaters to  <code>TrajectoryGenerator.</code>.
-        */
+    * \brief Default RobotFITHVExo constructor.
+    * Initialize memory for the Exoskelton <code>Joint</code> + sensors.
+    * Load in exoskeleton paramaters to  <code>TrajectoryGenerator.</code>.
+    */
     RobotFITHVExo(std::string robot_name="", std::string yaml_config_file="");
     ~RobotFITHVExo();
 
@@ -64,57 +64,57 @@ public:
     std::vector<FITAbsEncoder*> absEncoders;
 
     /**
-        * \brief Initialises all joints to position control mode.
-        *
-        * \return true If all joints are successfully configured
-        * \return false  If some or all joints fail the configuration
-        */
+    * \brief Initialises all joints to position control mode.
+    *
+    * \return true If all joints are successfully configured
+    * \return false  If some or all joints fail the configuration
+    */
     bool initPositionControl();
 
     /**
-        * \brief Initialises all joints to velocity control mode.
-        *
-        * \return true If all joints are successfully configured
-        * \return false  If some or all joints fail the configuration
-        */
+    * \brief Initialises all joints to velocity control mode.
+    *
+    * \return true If all joints are successfully configured
+    * \return false  If some or all joints fail the configuration
+    */
     bool initVelocityControl();
 
     /**
-        * \brief Initialises all joints to torque control mode.
-        *
-        * \return true If all joints are successfully configured
-        * \return false  If some or all joints fail the configuration
-        */
+    * \brief Initialises all joints to torque control mode.
+    *
+    * \return true If all joints are successfully configured
+    * \return false  If some or all joints fail the configuration
+    */
     bool initTorqueControl();
 
     /**
-        * \brief Set the target positions for each of the joints
-        *
-        * \param positions a vector of target positions - applicable for each of the actauted joints
-        * \return MovementCode representing success or failure of the application
-        */
+    * \brief Set the target positions for each of the joints
+    *
+    * \param positions a vector of target positions - applicable for each of the actauted joints
+    * \return MovementCode representing success or failure of the application
+    */
     setMovementReturnCode_t applyPosition(std::vector<double> positions);
 
     /**
-        * \brief Set the target velocities for each of the joints
-        *
-        * \param velocities a vector of target velocities - applicable for each of the actuated joints
-        * \return MovementCode representing success or failure of the application
-        */
+    * \brief Set the target velocities for each of the joints
+    *
+    * \param velocities a vector of target velocities - applicable for each of the actuated joints
+    * \return MovementCode representing success or failure of the application
+    */
     setMovementReturnCode_t applyVelocity(std::vector<double> velocities);
 
     /**
-        * \brief Set the target torque for each of the joints
-        *
-        * \param torques a vector of target torques - applicable for each of the actuated joints
-        * \return MovementCode representing success or failure of the application
-        */
+    * \brief Set the target torque for each of the joints
+    *
+    * \param torques a vector of target torques - applicable for each of the actuated joints
+    * \return MovementCode representing success or failure of the application
+    */
     setMovementReturnCode_t applyTorque(std::vector<double> torques);
 
     /**
-        * \brief Apply calibration by reading absolute encoder value and applying it.
-        *
-        */
+    * \brief Apply calibration by reading absolute encoder value and applying it.
+    *
+    */
     void applyCalibration();
 
     bool isCalibrated() {
@@ -126,34 +126,33 @@ public:
 
 
     /**
-        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
-        * Create designed <code>Joint</code> and <code>Driver</code> objects and load into
-        * Robot joint vector.
-        */
+    * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
+    * Create designed <code>Joint</code> and <code>Driver</code> objects and load into
+    * Robot joint vector.
+    */
     bool initialiseJoints();
     /**
-        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
-        * Initialize each <code>Drive</code> Objects underlying CANOpen Networking.
-        */
+    * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
+    * Initialize each <code>Drive</code> Objects underlying CANOpen Networking.
+    */
     bool initialiseNetwork();
     /**
-        * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
-        * Initialize each <code>Input</code> Object.
-        */
+    * \brief Implementation of Pure Virtual function from <code>Robot</code> Base class.
+    * Initialize each <code>Input</code> Object.
+    */
     bool initialiseInputs();
     /**
-        * \brief update current state of the robot, including input and output devices.
-        * Overloaded Method from the Robot Class.
-        * Example. for a keyboard input this would poll the keyboard for any button presses at this moment in time.
-        */
+    * \brief update current state of the robot, including input and output devices.
+    * Overloaded Method from the Robot Class.
+    */
     void updateRobot();
 
     /**
-        * \brief Check if current end effector force and velocities are within limits (if calibrated, otherwise
-        *  check that joints velocity and torque are within limits).
-        *
-        * \return OUTSIDE_LIMITS if outside the limits (!), SUCCESS otherwise
-        */
+    * \brief Check if current end effector force and velocities are within limits (if calibrated, otherwise
+    *  check that joints velocity and torque are within limits).
+    *
+    * \return OUTSIDE_LIMITS if outside the limits (!), SUCCESS otherwise
+    */
     setMovementReturnCode_t safetyCheck();
 
     void printJointStatus();
@@ -163,12 +162,10 @@ public:
     setMovementReturnCode_t setJointTorque(V2 tau);
 
     /**
-        * \brief Apply torque in addition to a friction compensation torque (Coulomb model)
-        *
-        * \return setMovementReturnCode_t code from applyTorque() method
-        */
+    * \brief Apply torque in addition to a friction compensation torque (Coulomb model)
+    *
+    * \return setMovementReturnCode_t code from applyTorque() method
+    */
     setMovementReturnCode_t setJointTorqueWithCompensation(V2 tau);
-    //TODO: grav compensation based on IMU??
-    //setMovementReturnCode_t setEndEffForceWithCompensation(V2 F, bool friction_comp=true);
 };
 #endif

@@ -108,7 +108,6 @@ bool updateAssist(StateMachine & sm_) {
 }
 
 
-
 //Go to amplification
 bool amplify(StateMachine & sm_) {
     FITHVExoDemoMachine & sm = (FITHVExoDemoMachine &)sm_; //Cast to specific StateMachine type
@@ -186,7 +185,6 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     addState("Standby", std::make_shared<StandbyState>(robot()));
     addState("WallAssist", std::make_shared<WallAssistState>(robot()));
     addState("Amplify", std::make_shared<AmplificationState>(robot()));
-    addState("Test", std::make_shared<TestState>(robot()));
 
     //Define transitions between states
     addTransition("Calib", &endCalib, "Standby");
@@ -199,9 +197,6 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     addTransition("Amplify", &assist, "WallAssist");
     addTransitionFromAny(&standby, "Standby");
     addTransitionFromAny(&quit, "Standby");
-
-    //Initialize the state machine with first state of the designed state machine
-    //setInitState("Test");
 }
 FITHVExoDemoMachine::~FITHVExoDemoMachine() {
 }

@@ -1,8 +1,8 @@
 /**
  * \file FITHVExoDemo.h
  * \author Vincent Crocher
- * \version 0.1
- * \date 2025-04-14
+ * \version 0.2
+ * \date 2025-11-10
  *
  * \copyright Copyright (c) 2025
  *
@@ -29,6 +29,30 @@ class RobotFITHVExoState : public State {
 };
 
 
+/**
+ * \brief Simple calibration state using internal absolute encoders via RobotFITHVExo dedicated method.
+ *
+ */
+class CalibState : public RobotFITHVExoState {
+
+   public:
+    CalibState(RobotFITHVExo * _robot, const char *name = "Calib"):RobotFITHVExoState(_robot, name){};
+
+    void entry(void);
+    void during(void);
+    void exit(void);
+
+    bool isCalibDone() {return calibDone;}
+
+   private:
+    bool calibDone=false;
+};
+
+
+/**
+ * \brief State providing friction compensation and arbitrary viscous field on both joints
+ *
+ */
 class StandbyState : public RobotFITHVExoState {
 
    public:
@@ -43,20 +67,11 @@ class StandbyState : public RobotFITHVExoState {
 };
 
 
-class TestState : public RobotFITHVExoState {
 
-   public:
-    TestState(RobotFITHVExo * _robot, const char *name = "Test"):RobotFITHVExoState(_robot, name){};
-
-    void entry(void);
-    void during(void);
-    void exit(void);
-
-    V2 cmd;
-    double a=0.6, b=0.2;
-};
-
-
+/**
+ * \brief Demo assistive state providing various levels of gravity, virtual wall or viscous assistance
+ *
+ */
 class WallAssistState : public RobotFITHVExoState {
 
    public:
@@ -101,10 +116,14 @@ class WallAssistState : public RobotFITHVExoState {
 };
 
 
+/**
+ * \brief Demo assistance state providing Pviscous assistance/resistance
+ *
+ */
 class AmplificationState: public RobotFITHVExoState {
 
    public:
-        AmplificationState(RobotFITHVExo * _robot, const char *name = "Wall Assist"):RobotFITHVExoState(_robot, name){};
+        AmplificationState(RobotFITHVExo * _robot, const char *name = "Amplification Assist"):RobotFITHVExoState(_robot, name){};
 
         void entry(void);
         void during(void);
@@ -128,28 +147,7 @@ class AmplificationState: public RobotFITHVExoState {
         double & getb(){return b;}
 
     private:
-        double b=.2, maxb=10.; //Viscous assistance outside wall [Nm/rad.s]
-};
-
-
-
-/**
- * \brief Position calibration example. Go to stops of robot at constant torque for absolute position calibration.
- *
- */
-class CalibState : public RobotFITHVExoState {
-
-   public:
-    CalibState(RobotFITHVExo * _robot, const char *name = "Calib"):RobotFITHVExoState(_robot, name){};
-
-    void entry(void);
-    void during(void);
-    void exit(void);
-
-    bool isCalibDone() {return calibDone;}
-
-   private:
-    bool calibDone=false;
+        double b=.2, maxb=10.; //!< Viscous assistance parameters
 };
 
 #endif
