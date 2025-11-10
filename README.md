@@ -2,7 +2,7 @@
 
 CORC is a free and open source robotic development software stack, written in C++.
 
-The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled robotic platform. More generally the software stacks provides way to build a real-time linux controller for robots based on a CAN bus. The repository currently includes suitable code and examples for the ArmMotus M1, M2, M2 Pro and M3 (EMU) rehabilitation devices and can run on either linux desktop or laptop computers as well as linux based SBCs.
+The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled robotic platform. More generally the software stacks provides way to build a real-time linux controller for robots based on a CAN bus. The repository currently includes suitable code and examples for the ArmMotus M1, M2, M2 Pro and M3 (EMU) rehabilitation devices, as well as the FIT-HV waist exoskeleton from ULS Robotics. It can run on either linux desktop or laptop computers as well as linux based SBCs.
 
 ## The CANOpen Robot Controller project includes:
 
@@ -35,7 +35,7 @@ See the detailed documentation [here](doc/1.GettingStarted/GettingStarted.md) wi
 ## Next steps and specific documentation
 
 ### Hardware changes and CAN-USB adapters
-See [here](doc/2.Hardware/ModifyingDevice.md) for information on required hardware modifications to get CORC controlling your device. See [this page](doc/2.Hardware/USBCANadapters.md) for notes on tested USB-CAN adapters and [this page](doc/2.Hardware/BBUse.md )for some notes and useful information on using BeagleBones. 
+See [here](doc/2.Hardware/ModifyingDevice.md) for information on required hardware modifications to get CORC controlling your device. See [this page](doc/2.Hardware/USBCANadapters.md) for notes on tested USB-CAN adapters and [this page](doc/2.Hardware/BBUse.md) for some notes and useful information on using BeagleBones. 
 
 ### Generating the code documentation
 Before starting to program with CORC it is highly recommended to generate the Doxygen documentation of the code. You can simply run `doxygen Doxyfile` in the root folder. This will generate an HTML documentation in the `doc/html` folder.

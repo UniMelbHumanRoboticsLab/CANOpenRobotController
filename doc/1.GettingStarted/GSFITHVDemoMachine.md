@@ -32,17 +32,14 @@ CAN and power are also accessible within the pad/controller via JST GH connector
 
 The two active joints (hip flexion/extension) of the exoskeleton are controlled by two [Copley Accelnet](https://copleycontrols.com/products/) motor drives with Node IDs 1 and 2. The joints have the following properties:
 
+
+|Joint property		| Value	|
 |-------------------|---------|
 |Motor rated torque | 0.570Nm |
-|-------------------|---------|
 |Joint reduction    | 1:46.368 |
-|-------------------|---------|
 |Continuous output torque| 24Nm |
-|-------------------|---------|
 |Encoders counts    | 8000/rev |
-|-------------------|----------|
 |Joint ROM          | 225degrees|
-|-------------------|-----------|
 
 
 ### Absolute encoders
@@ -52,9 +49,10 @@ Typically using "read 0x9210 0 i16". 0x9210 is a register of integer 16 containi
 Four bytes response with LSB first. Typically decoded with `pulse=std::stoul(hex[3]+hex[2]+hex[1]+hex[0], 0, 16);`
 
 Example of full CAN exange:
+```
 CAN_ID=603, Data: 40 10 92 00 00 00 00 00
 CAN_ID=583, Data: 43 10 92 00 x0 x1 x2 x3
-
+```
 
 
 ## Running the state machine
