@@ -190,7 +190,7 @@ void WallAssistState::during(void) {
 
     V2 tau = V2::Zero();
     V2 q = robot->getPosition();
-    V2 dq=robot->getVelocity();
+    V2 dq = robot->getVelocity();
     //Apply impedance wall on each axis
     for(unsigned int i=0; i<2; i++) {
         //Calculate effective applied ref of spring based on desired and change rate to avoid abrupt changes
@@ -201,6 +201,10 @@ void WallAssistState::during(void) {
         else {
             //Some little damping assistance outside the wall in up direction
             if(dq[i]<0) {
+                tau[i] = -b * dq[i];
+            }
+            //Assistance to go downwards
+            else {
                 tau[i] = b * dq[i];
             }
         }

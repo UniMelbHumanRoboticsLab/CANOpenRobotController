@@ -56,7 +56,7 @@ bool assist(StateMachine & sm_) {
         if(params.size()==4) {
             //Assign parameters to state.
             std::shared_ptr<WallAssistState> s = sm.state<WallAssistState>("WallAssist");
-            if(!s->active()) {
+            //if(!s->active()) {
                 if(s->setParameters(params[0], params[1], params[2], params[3])) {
                     spdlog::debug("wall assist OK ({}, {}, {}, {})", params[0], params[1], params[2], params[3]);
                     sm.UIserver->sendCmd(string("OK"));
@@ -64,11 +64,11 @@ bool assist(StateMachine & sm_) {
                 }
                 spdlog::warn("wall assist error: wrong parameters.");
                 sm.UIserver->sendCmd(string("ER1"));
-            }
+            /*}
             else {
                 spdlog::warn("wall assist error: state running.");
                 sm.UIserver->sendCmd(string("ER2"));
-            }
+            }*/
         }
         else {
             spdlog::warn("wall assist error: number of command parameters.");
@@ -191,6 +191,7 @@ FITHVExoDemoMachine::FITHVExoDemoMachine() {
     //Define transitions between states
     addTransition("Calib", &endCalib, "Standby");
     addTransition("WallAssist", &updateAssist, "WallAssist");
+    addTransition("WallAssist", &assist, "WallAssist");
     addTransition("Standby", &assist, "WallAssist");
     addTransition("Standby", &amplify, "Amplify");
     addTransition("Amplify", &amplify, "Amplify");

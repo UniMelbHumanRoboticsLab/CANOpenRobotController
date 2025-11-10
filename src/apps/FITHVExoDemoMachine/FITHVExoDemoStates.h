@@ -93,12 +93,11 @@ class WallAssistState : public RobotFITHVExoState {
         double & getmgl(){return mgl;}
 
     private:
-        double k=70., maxk=120.; //in [Nm/rad]
+        double k=100., maxk=140.; //in [Nm/rad]
         double q0t=20.*M_PI/180.; //in [rad]
         double b=.2, maxb=1.; //Viscous assistance outside wall [Nm/rad.s]
         double mgl=0, maxmgl=9.8*0.5*50.; //gravity x upper-body mass x center of mass for gravity compensation
         V2 q0;
-
 };
 
 
