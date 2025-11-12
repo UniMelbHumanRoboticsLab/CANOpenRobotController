@@ -9,12 +9,21 @@
 CopleyDrive::CopleyDrive(int NodeID) : Drive::Drive(NodeID) {
     OD_Addresses[DIGITAL_IN] = {0x219A, 0x00}; //Use INPUT PIN STATE instead of standard DI. Not tested.
     OD_Addresses[DIGITAL_OUT] = {0X2194, 0x00}; //Not tested. Need dedicated configuration before use. See Copley doc.
+    RPDO_MappedObjects[1] = {CONTROL_WORD}; //No DO mapping on Copley drive
+
 }
 CopleyDrive::~CopleyDrive() {
     spdlog::debug("CopleyDrive Deleted");
 }
 
 bool CopleyDrive::init() {
+    spdlog::debug("NodeID {} CopleyDrive::init()", NodeID);
+    preop();//Set preop first to disable PDO during initialisation
+    resetErrors();
+    if(initPDOs()) {
+        resetErrors();
+        return true;
+    }
     return false;
 }
 

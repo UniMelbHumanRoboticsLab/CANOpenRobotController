@@ -205,6 +205,7 @@ bool Drive::initPDOs() {
     return true;
 }
 
+
 bool Drive::setMotorProfile(motorProfile profile) {
     spdlog::debug("Drive::initMotorProfile");
 
@@ -484,8 +485,9 @@ int Drive::sendSDOMessages(std::vector<std::string> messages) {
         }
         else {
             std::string errormsg = "sendSDOMessage: ERROR: " + strCommand;
-            if(retMsg.find("0x")!=retMsg.npos) {
-                std::string error_code = retMsg.substr(retMsg.find("0x"), retMsg.npos);
+            if(retMsg.find("0x")!=std::string::npos) {
+                size_t err_code_l = 10;
+                std::string error_code = retMsg.substr(retMsg.find("0x"), err_code_l);
                 errormsg += " => " +  SDO_Standard_Error[error_code] + " (" + error_code + ")";
             }
             else {
