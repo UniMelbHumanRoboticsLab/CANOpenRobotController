@@ -106,8 +106,29 @@ void UBORobot::printUBO_readings(Eigen::VectorXd readings) {
         std::cout <<  std::endl;
         std::cout <<  std::noshowpos;
     }
+}
 
+Eigen::VectorXd&  UBORobot::getCorrectedUBO_readings(){
+    updateUBO_readings();
+    // correct the readings here
+    {
+        Eigen::VectorXd faulty_force = UBO_readings.segment(0, 3);
+        Eigen::VectorXd faulty_torque = UBO_readings.segment(3, 3);
 
+        Eigen::Matrix3d rotation_matrix;
+        rotation_matrix = Eigen::AngleAxisd(-M_PI*50/180, Eigen::Vector3d::UnitZ());  // Rotate 50 degrees around Z-axis
+        Eigen::VectorXd corrected_force = rotation_matrix * faulty_force;
+        Eigen::VectorXd corrected_torque = rotation_matrix * faulty_torque;
+
+        UBO_readings[0] = corrected_force[0];
+        UBO_readings[1] = corrected_force[1];
+        UBO_readings[2] = corrected_force[2];
+
+        UBO_readings[3] = corrected_torque[0];
+        UBO_readings[4] = corrected_torque[1];
+        UBO_readings[5] = corrected_torque[2];
+    }
+    return UBO_readings;
 }
 
 void UBORobot::setUBOOffsets(Eigen::VectorXd offsets) {

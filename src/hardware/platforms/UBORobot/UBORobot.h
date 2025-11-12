@@ -91,6 +91,13 @@ class UBORobot : public Robot {
      */
     void printUBO_readings(Eigen::VectorXd readings);
 
+    /**
+     * @brief Updates and corrects the local copy of forces, and returns them
+     *
+     * @return Eigen::VectorXd& a 6xN (N is number of crutches) of crutch sensor readings
+     */
+    Eigen::VectorXd &getCorrectedUBO_readings();
+
     void setUBOOffsets(Eigen::VectorXd offsets);
     bool startUBO_FTSensors();
     bool stopUBO_FTSensors();
