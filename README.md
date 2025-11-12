@@ -46,13 +46,15 @@ See [this detailed explanation](doc/3.Software/CustomApplication.md) for instruc
 ### Communication with external programs (network communication)
 See [here](doc/3.Software/NetworkCommunication.md) for instructions and examples on using libFLNL for communication with program outside of CORC (such as Unity UI, Python scripts etc...) over a network communication.
 
-
 ### Logging system (spdlog)
 CORC relies on [spdlog](https://github.com/gabime/spdlog) for both general logging (terminal and in file) and for data logging.
 See [here](doc/3.Software/Logging.md) for more info on using the logging system.
 
 ### ROS Support
 See [here](doc/1.GettingStarted/AdvancedSimulationAndHardwareTesting.md) for instructions on how to build and run a CORC app with ROS support.
+
+### List of supported sensors
+A list of available drivers for IO and sensors (IMU, F/T sensors...) is available on [this page](doc/2.Hardware/InputsList.md).
 
 
 ## Developer ressources
@@ -84,6 +86,7 @@ The following individuals have made contributions to CORC:
 - Benjamin von Snarski
 - Hao Yu
 - Zebin Huang
+- Mingrui Sun
 
 
 ## License
