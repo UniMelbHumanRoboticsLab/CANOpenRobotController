@@ -81,11 +81,6 @@ bool KincoDrive::initPosControl() {
 bool KincoDrive::initVelControl(motorProfile velControlMotorProfile) {
     spdlog::debug("NodeID {} Initialising Velocity Control", NodeID);
     resetError();
-    /**
-     * \todo create velControlMOTORPROFILE and test on exo
-     * \todo Tune velocity loop gain index 0x2381 to optimize V control
-     *
-    */
     sendSDOMessages(generateVelControlConfigSDO(velControlMotorProfile));
     return true;
 }
@@ -93,11 +88,6 @@ bool KincoDrive::initVelControl(motorProfile velControlMotorProfile) {
 bool KincoDrive::initVelControl() {
     spdlog::debug("NodeID {} Initialising Velocity Control", NodeID);
     resetError();
-    /**
-     * \todo create velControlMOTORPROFILE and test on exo
-     * \todo Tune velocity loop gain index 0x2381 to optimize V control
-     *
-    */
     sendSDOMessages(Drive::generateVelControlConfigSDO());
     return true;
 }

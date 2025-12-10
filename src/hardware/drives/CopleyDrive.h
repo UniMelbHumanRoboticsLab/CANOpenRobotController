@@ -47,7 +47,6 @@ class CopleyDrive : public Drive {
     /**
          * Sets the drive to Position control with default parameters (through SDO messages)
          *
-         * Note: Should be overloaded to allow parameters to be set
          *
          * \return true if successful
          * \return false if not
@@ -56,7 +55,6 @@ class CopleyDrive : public Drive {
     /**
          * Sets the drive to Velocity control with default parameters (through SDO messages)
          *
-         * Note: Should be overloaded to allow parameters to be set
          *
          * \return true if successful
          * \return false if not
@@ -66,7 +64,6 @@ class CopleyDrive : public Drive {
     /**
          * Sets the drive to Torque control with default parameters (through SDO messages)
          *
-         * Note: Should be overloaded to allow parameters to be set
          *
          * \return true if successful
          * \return false if not
@@ -150,7 +147,7 @@ class CopleyDrive : public Drive {
     bool setTrackingWindow(INTEGER32 window);
 
     /**
-     * \brief Sends SDO value to set the fault mask 
+     * \brief Sends SDO value to set the fault mask
      *
      * /param mask value of the mask (see Copley's CANOpenProgrammer's Manual Index 0x2182, p. 69)
      *
