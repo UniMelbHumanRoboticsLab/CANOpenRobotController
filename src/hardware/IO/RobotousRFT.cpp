@@ -62,7 +62,7 @@ void RobotousRFT::updateInput() {
         UNSIGNED16 Ty = rawData[9] * 256 + rawData[10];
         UNSIGNED16 Tz = rawData[11] * 256 + rawData[12];
 
-        forces[0] = static_cast<INTEGER16> (Fx)/50.0 - forceOffsets[0];
+        forces[0] = static_cast<INTEGER16> (Fx)/ 50.0 - forceOffsets[0];
         forces[1] = static_cast<INTEGER16>(Fy) / 50.0 - forceOffsets[1];
         forces[2] = static_cast<INTEGER16>(Fz) / 50.0 - forceOffsets[2];
 
@@ -82,8 +82,8 @@ Eigen::VectorXd& RobotousRFT::getTorques() {
 }
 
 void RobotousRFT::setOffsets(Eigen::VectorXd forceOffset, Eigen::VectorXd torqueOffset) {
-        forceOffsets = forceOffset; 
-        torqueOffsets = torqueOffset;
+    forceOffsets = forceOffset; 
+    torqueOffsets = torqueOffset;
 }
 
 bool RobotousRFT::startStream(){
@@ -111,10 +111,10 @@ bool RobotousRFT::stopStream() {
 bool RobotousRFT::setFilter() {
     spdlog::info("RobotousRFT 0x{0:x} set filter", commandID);
     cmdData = 0x08;
-    cmdDataPad = 0x0501;
+    cmdDataPad = 0x0100;
     return false;
 }
 
 bool RobotousRFT::getStreaming() {
     return streaming;
-}
+} 
