@@ -1,18 +1,19 @@
-# CANOpen Robot Controller (CORC) Project
+# ![CORC logo](doc/img/Corc-logo.png) CANOpen Robot Controller ![GitHub Release](https://img.shields.io/github/v/release/UniMelbHumanRoboticsLab/CANOpenRobotController) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 CORC is a free and open source robotic development software stack, written in C++.
 
-The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled robotic platform. More generally the software stacks provides way to build a real-time linux controller for robots based on a CAN bus. The repository currently includes suitable code and examples for the ArmMotus M1, M2, M2 Pro and M3 (EMU) rehabilitation devices, as well as the FIT-HV waist exoskeleton from ULS Robotics. It can run on either linux desktop or laptop computers as well as linux based SBCs.
+The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled robotic platform. More generally the software stacks provides way to build a real-time Linux controller for robots designed around a CAN bus. The repository currently includes suitable code and examples for the ArmMotus M1, M2, M2 Pro and M3 (EMU) rehabilitation devices, as well as the FIT-HV waist exoskeleton from ULS Robotics. It can run on either Linux desktop or laptop computers as well as Linux based SBCs.
 
-## The CANOpen Robot Controller project includes:
+## What is CORC?
 
-- An framework to represent multibody rigid robotic systems.
+The project includes:
+
+- A framework to represent multibody rigid robotic systems.
 - An event driven state machine to develop custom applications (see [here](doc/3.Software/CustomApplication.md)).
-- An implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers/sensors.
+- An implementation of [CANopen Socket](https://github.com/CANopenNode/CANopenSocket) to provide an interface between CAN enabled embedded Linux system and CANopen-based motor drivers and common sensors.
 - Documentation (this page and associated ones and code Doxygen).
 - Functional application examples. 
 
-### Project Overview
 
 The code is structured into 3 levels:
 
@@ -22,7 +23,7 @@ The code is structured into 3 levels:
 
 Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The CANopen Communications level should not need to be changed. The Robot level should only change with respect if the robot to be controlled changes. This is loosely enforced by the source code folder structure - the files which should not need modification are placed in the `src/core` folder, and the remainder are placed in the `src/apps` and `src/hardware` folders. Note that in addition to the CANopen Communication code, the `src/core` folder also includes base classes which are derived from in the `src/apps` and `src/hardware` folders. 
 
-### What CORC is not:
+## What CORC is not?
 
  - **Safe on its own:** While there are limits and safeties built-in CORC at various levels, CORC also gives full access to developers to the control of their hadware. As such it is the developer responsibility to ensure their robot is safe to use.
  - **A ready to use robot controller:** Demo machines for each device are provided as examples to get you started but are not final applications in any way. CORC requires some C++ development to get what you want.
@@ -30,7 +31,8 @@ Whilst the code can be modified at any level, this structure is designed to prov
 
 ## Getting started with CORC
 
-See the detailed documentation [here](doc/1.GettingStarted/GettingStarted.md) with all you need to get started and a detailled list of available examples.
+See the detailed documentation [here](doc/1.GettingStarted/GettingStarted.md) with all you need to get started and a detailed list of available examples.
+
 
 ## Next steps and specific documentation
 
@@ -57,10 +59,10 @@ See [here](doc/1.GettingStarted/AdvancedSimulationAndHardwareTesting.md) for ins
 A list of available drivers for IO and sensors (IMU, F/T sensors...) is available on [this page](doc/2.Hardware/InputsList.md).
 
 
-## Developer ressources
+## Developer resources
 
 - CANopen Socket: https://github.com/CANopenNode/CANopenSocket
-- CANopen CiA 402 (motor drive standard) ressources: https://www.can-cia.org/can-knowledge/canopen/cia402/ and https://doc.synapticon.com/software/40/object_dict/all_objects/index.html#all-objects
+- CANopen CiA 402 (motor drive standard) resources: https://www.can-cia.org/can-knowledge/canopen/cia402/ and https://doc.synapticon.com/software/40/object_dict/all_objects/index.html#all-objects
 
 
 ## Questions and contributions

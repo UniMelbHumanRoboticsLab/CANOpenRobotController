@@ -49,7 +49,7 @@ This repository includes all the sources files required for this example.
 
 It is recommended to start by the first example below which runs in simulation only (without the need to be connected to a real robot) before attempting to connect to actual hardware. 
 
-Once ready to use CORC with your actual hardware, you will need to 1) prepare a CAN interface (either via a [USB-CAN interface](doc/2.Hardware/USBCANadapters.md) if running on a laptop/desktop or CAN cape [if using a BeagleBone](../2.Hardware/BBUse.md) 2) get access to your device internal CAN bus and replace its existing controller. See [here](../2.Hardware/ModifyingDevice.md) for some more information.
+Once ready to use CORC with your actual hardware, you will need to 1) prepare a CAN interface (either via a [USB-CAN interface](doc/2.Hardware/USBCANadapters.md) if running on a laptop/desktop or CAN cape [if using a BeagleBone](../2.Hardware/BBUse.md)) and 2) get access to your device internal CAN bus and replace its existing controller (see [here](../2.Hardware/ModifyingDevice.md) for some more information).
 
 
 # First Example: Basic Simulation - Exoskeleton
@@ -59,7 +59,7 @@ This example is the most simple of those offered, requiring access only to a Lin
 
 The functionality of this example is limited to transitioning between sitting and standing with an exoskeleton. 
 
-This example does not include any visualisation of the robot, with feedback to the user only occuring through command line print statements. 
+This example does not include any visualisation of the robot, with feedback to the user only occurring through command line print statements. 
 
 ### Requirements
 1. A development machine running Windows or Linux
@@ -88,7 +88,7 @@ It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, using ROS an
 ### Suggested for
 1. Users looking to develop advanced user interfaces for their applications
 2. Users who want to pre test their development on a physics simulation 
-3. Users who wants to benefit from the advatanges of ROS
+3. Users who wants to benefit from the advantages of ROS
 4. Users with sufficiently powerful computers to generate the 3d visualisations
 
 ### [Advanced Simulation and Hardware Testing using ROS - Instructions](AdvancedSimulationAndHardwareTesting.md) 

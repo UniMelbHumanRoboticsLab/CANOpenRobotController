@@ -11,7 +11,7 @@ Welcome to [CORC Project](https://github.com/UniMelbHumanRoboticsLab/CANOpenRobo
 We are very happy that you consider implementing CORC with a currently supported or new platform! This repository is referred to and used by researchers and developers from a wide range of backgrounds around the globe. Being one of our contributors, you agree and confirm that:
 
 - You did your own work.
-  - No plagiarism allowed. Any plagiarized work will not be merged.
+- No plagiarism allowed. Any plagiarized work will not be merged.
 - Your work will be distributed under [Apache 2](License) once your pull request has been merged.
 - You submitted work fulfils or mostly fulfils our styles and standards.
 
@@ -96,7 +96,7 @@ Common prefixes:
 - Make sure to add examples and test cases in a testfile.
 - If you find any class or document without tests, please feel free to create a pull request or issue describing suggested changes.
 
-- For system chages, please add to your pull request, system test results. - e.g. Fully opperational Robotic motion etc.
+- For system changes, please add to your pull request, system test results. - e.g. Fully operational Robotic motion etc.
 <!-- #### cpplint
 
 To see if [**cpplint**](https://github.com/cpplint/cpplint) is already installed, do:
