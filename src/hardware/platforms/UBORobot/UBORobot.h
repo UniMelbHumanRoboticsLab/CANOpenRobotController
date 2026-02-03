@@ -25,6 +25,7 @@ class UBORobot : public Robot {
     // -- Variables assocaited with standalone sensors -- //
     std::vector<RobotousRFT *> UBO_FTSensors;
     Eigen::VectorXd UBO_readings;  //6xN Vector containing all UBO readings
+    Eigen::VectorXd UBO_olStats;  //6xN Vector containing all UBO status
 
     // -- Variables assoacited with parameters already transmitted from the robot -- //
     std::vector<RPDO *> rpdos;
@@ -97,6 +98,7 @@ class UBORobot : public Robot {
      * @return Eigen::VectorXd& a 6xN (N is number of crutches) of crutch sensor readings
      */
     Eigen::VectorXd &getCorrectedUBO_readings();
+    Eigen::VectorXd &getUBO_OLStatus();
 
     void setUBOOffsets(Eigen::VectorXd offsets);
     bool startUBO_FTSensors();

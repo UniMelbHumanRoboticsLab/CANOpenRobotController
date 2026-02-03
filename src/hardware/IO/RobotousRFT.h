@@ -63,6 +63,7 @@ class RobotousRFT : public InputDevice {
         Eigen::VectorXd torques;
         Eigen::VectorXd forceOffsets;
         Eigen::VectorXd torqueOffsets;
+        INTEGER16 overloadStatus;
 
        public:
         /**
@@ -140,7 +141,14 @@ class RobotousRFT : public InputDevice {
          * \return Eigen::VectorXd 
          */
         Eigen::VectorXd& getTorques();
-
+        
+        /**
+         * \brief Get the Overload status
+         * 
+         * \return int
+         */
+        INTEGER16 getOverload();
+        
         /**
          * \brief Set the offsets for the forces and torques
          *  

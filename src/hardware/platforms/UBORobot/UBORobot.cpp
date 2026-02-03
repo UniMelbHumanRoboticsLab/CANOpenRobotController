@@ -103,6 +103,7 @@ void UBORobot::printUBO_readings(Eigen::VectorXd readings) {
     for (int i = 0; i < (int)UBO_FTSensors.size(); i++) {
         std::cout << std::setprecision(3) << std::fixed << std::showpos;
         std::cout << "F" << i << "=[ " << readings.segment(i * 6, 6).transpose() << " ]\t";
+        std::cout << "Stat" << i << "=[ " << UBO_FTSensors[i]->getOverload() << " ]\t";
         std::cout <<  std::endl;
         std::cout <<  std::noshowpos;
     }
@@ -129,6 +130,17 @@ Eigen::VectorXd&  UBORobot::getCorrectedUBO_readings(){
         UBO_readings[5] = corrected_torque[2];
     }
     return UBO_readings;
+}
+
+Eigen::VectorXd& UBORobot::getUBO_OLStatus(){
+    if ((unsigned int)UBO_olStats.size() != 6 * UBO_FTSensors.size()) {
+        UBO_olStats = Eigen::VectorXd::Zero(UBO_FTSensors.size());  // 6 Forces per sensor
+    }
+    //Update values
+    for (int i = 0; i < (int)UBO_FTSensors.size(); i++) {
+        UBO_olStats[i] = UBO_FTSensors[i]->getOverload();
+    }
+    return UBO_olStats;
 }
 
 void UBORobot::setUBOOffsets(Eigen::VectorXd offsets) {
