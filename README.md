@@ -2,9 +2,9 @@
 
 CORC is a free and open source robotic development software stack, written in C++.
 
-The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an ExoMotus X2 Exoskeleton powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled robotic platform. More generally the software stacks provides way to build a real-time Linux controller for robots designed around a CAN bus. The repository currently includes suitable code and examples for the ArmMotus M1, M2, M2 Pro and M3 (EMU) rehabilitation devices, as well as the FIT-HV waist exoskeleton from ULS Robotics. It can run on either Linux desktop or laptop computers as well as Linux based SBCs.
+The project was initiated at the University of Melbourne in partnership with Fourier Intelligence, however has welcomed (and continues to welcome) collaborators from all institutions. The project was initially developed to run on an [ExoMotus X2 Exoskeleton](doc/1.GettingStarted/AdvancedSimulationAndHardwareTesting.md) powered by a Beaglebone Black, however, the software is designed to be extensible to any embedded Linux and CANopen enabled robotic platform. More generally the software stacks provides way to build a real-time Linux controller for robots designed around a CAN bus. The repository currently includes suitable code and examples for the ArmMotus [M1](doc/1.GettingStarted/GSM1DemoMachine.md), [M2](doc/1.GettingStarted/GSM2DemoMachine.md), [M2 Pro](doc/1.GettingStarted/GSM2DemoMachine.md) and [M3 (EMU)](doc/1.GettingStarted/GSM3DemoMachine.md) rehabilitation devices, as well as the [FIT-HV waist exoskeleton from ULS Robotics](doc/1.GettingStarted/GSFITHVDemoMachine.md). It can run on either Linux desktop or laptop computers as well as Linux based SBCs.
 
-## What is CORC?
+## :heavy_plus_sign: What is CORC?
 
 The project includes:
 
@@ -23,23 +23,23 @@ The code is structured into 3 levels:
 
 Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The CANopen Communications level should not need to be changed. The Robot level should only change with respect if the robot to be controlled changes. This is loosely enforced by the source code folder structure - the files which should not need modification are placed in the `src/core` folder, and the remainder are placed in the `src/apps` and `src/hardware` folders. Note that in addition to the CANopen Communication code, the `src/core` folder also includes base classes which are derived from in the `src/apps` and `src/hardware` folders. 
 
-## What CORC is not?
+## :heavy_minus_sign: What CORC is not?
 
  - **Safe on its own:** While there are limits and safeties built-in CORC at various levels, CORC also gives full access to developers to the control of their hadware. As such it is the developer responsibility to ensure their robot is safe to use.
  - **A ready to use robot controller:** Demo machines for each device are provided as examples to get you started but are not final applications in any way. CORC requires some C++ development to get what you want.
  - **Clean:** The code base is functional and tested on all the hardware supported but it is not the best example of clean code. Syntax and style are not necessarily consistent accross the code base and some code might be redundant or unclear.
 
-## Getting started with CORC
+## :rocket: Getting started with CORC
 
 See the detailed documentation [here](doc/1.GettingStarted/GettingStarted.md) with all you need to get started and a detailed list of available examples.
 
 
-## Next steps and specific documentation
+## :book: Next steps and specific documentation
 
 ### Hardware changes and CAN-USB adapters
 See [here](doc/2.Hardware/ModifyingDevice.md) for information on required hardware modifications to get CORC controlling your device. See [this page](doc/2.Hardware/USBCANadapters.md) for notes on tested USB-CAN adapters and [this page](doc/2.Hardware/BBUse.md) for some notes and useful information on using BeagleBones. 
 
-### Generating the code documentation
+###  Generating the code documentation
 Before starting to program with CORC it is highly recommended to generate the Doxygen documentation of the code. You can simply run `doxygen Doxyfile` in the root folder. This will generate an HTML documentation in the `doc/html` folder.
 
 ### Building a custom application with a custom state machine
@@ -59,13 +59,13 @@ See [here](doc/1.GettingStarted/AdvancedSimulationAndHardwareTesting.md) for ins
 A list of available drivers for IO and sensors (IMU, F/T sensors...) is available on [this page](doc/2.Hardware/InputsList.md).
 
 
-## Developer resources
+### Developer resources
 
 - CANopen Socket: https://github.com/CANopenNode/CANopenSocket
 - CANopen CiA 402 (motor drive standard) resources: https://www.can-cia.org/can-knowledge/canopen/cia402/ and https://doc.synapticon.com/software/40/object_dict/all_objects/index.html#all-objects
 
 
-## Questions and contributions
+## :grey_question: Questions and contributions
 
 For problem or technical questions you can [raise an issue](https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController/issues). Please contact vcrocher[at]unimelb.edu.au with questions or suggestions for continuing development, or if you wish to be more involved in the planning/organisation of CORC.
 
@@ -75,7 +75,7 @@ Fong, J. et al. (2022). CANopen Robot Controller (CORC): An Open Software Stack 
 
 
 
-## Contributors
+## :people_holding_hands: Contributors
 The following individuals have made contributions to CORC:
 
 - William Campbell
@@ -91,7 +91,7 @@ The following individuals have made contributions to CORC:
 - Mingrui Sun
 
 
-## License
+## :balance_scale: License
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
