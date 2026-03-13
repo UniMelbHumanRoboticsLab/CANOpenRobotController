@@ -3,9 +3,9 @@
  *
  * \file Joystick.h
  * \author Vincent Crocher (Mostly stollen from Jason White (https://gist.github.com/jasonwhite/))
- * \version 0.1
- * \date 2020-07-02
- * \copyright Copyright (c) 2020
+ * \version 0.2
+ * \date 2026-03-04
+ * \copyright Copyright (c) 2020 - 2026
  *
  * \brief  Joystick as Input device.
  *
@@ -35,7 +35,8 @@ struct axis_state {
 #define MAX_NB_BUTTONS 20
 
 /**
- * \brief Joystick support class. Mostly stollen from Jason White (https://gist.github.com/jasonwhite/)
+ * \ingroup IO
+ * \brief Joystick support class. Mostly stolen from Jason White (https://gist.github.com/jasonwhite/)
  */
 class Joystick : public InputDevice
 {
@@ -60,13 +61,6 @@ class Joystick : public InputDevice
                 return axes[stick].y/STICK_MAX_VALUE;
         }
 
-        /**
-         * \brief Does nothing as there are none here
-         *
-         */
-        bool configureMasterPDOs(){return true;};
-
-       protected:
        private:
         bool initialised;
         char device[50];

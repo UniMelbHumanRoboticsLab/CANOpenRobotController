@@ -1,11 +1,11 @@
 /**
  * \file CANIMU.h
  * \author Mingrui Sun
- * \brief  Class representing a MCU with a CAN bus module) which converts its connected IMU reading to CANOpen messages. 
+ * \brief  Class representing a MCU with a CAN bus module) which converts its connected IMU reading to CANOpen messages.
  *         The MCU can be Teensy, Arduino, Xiao, etc. but need to have a CAN bus module so that they can send CAN messages to the CAN bus.
- * 
+ *
  *    NOTE: this is not a CANOpen Device, and the PDO-like messages are send on non-standard COB-IDs
- *    
+ *
  *    This class support either one or two IMUs connected to the MCU, which can be initialised in one of the two ways:
  *    - one IMU: CANIMU(IMUParameters IMUParameters1);
  *    - two IMUs: CANIMU(IMUParameters IMUParameters1, IMUParameters IMUParameters2);
@@ -26,30 +26,26 @@
  *      - CAN message 6 (8 bytes): Quaternion-W (2 bytes), Quaternion-X (2 bytes), Quaternion-Y (2 bytes), Quaternion-Z (2 bytes)
  *
  *    The CANIMU class will receive the CAN messages and convert them to RPDOs, which are then used to update the input for the robot.
- * 
+ *
  *    Example MCU firmware code:
  *    - Teensy with 1 IMU (BNO055): https://github.com/MingruiSun2019/open_source_knee_orthosis/blob/master/firmware/Teensy_1x_BNO055_CORC_Example/Teensy_1x_BNO055_CORC_Example.ino
  *    - Teensy with 2 IMUs (BNO055): https://github.com/MingruiSun2019/open_source_knee_orthosis/blob/master/firmware/Teensy_2x_BNO055_CORC_Example/Teensy_2x_BNO055_CORC_Example.ino
- * 
+ *
  *    Note: Make sure the IMUParameters in the MCU firmware and here are the same.
  *
- * \version 0.1
- * \date 2025-05-30
- * \copyright Copyright (c) 2025
+ * \version 0.2
+ * \date 2026-03-04
+ * \copyright Copyright (c) 2026
  */
 
 #ifndef CANIMU_H_INCLUDED
 #define CANIMU_H_INCLUDED
 
-#include <CANopen.h>
-#include <CO_command.h>
 #include <string.h>
 #include <Eigen/Dense>
 
 #include "InputDevice.h"
-#include "logging.h"
-#include "RPDO.h"
-#include "TPDO.h"
+#include "CANDevice.h"
 
 
 struct IMUParameters {
@@ -77,8 +73,12 @@ struct IMUData {
     Eigen::VectorXd linAcc = Eigen::VectorXd::Zero(3);  // 3D vector for x,y,z linear acceleration
     Eigen::VectorXd quat = Eigen::VectorXd::Zero(4);    // 4D vector for w,x,y,z quaternion
 };
-
-class CANIMU : public InputDevice {
+/**
+ * \ingroup IO
+ * \brief Class handling a CAN based IMU. Expected to work with one or two IMUs connected to a dedicated microcontroller.
+ * See https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController/blob/master/doc/2.Hardware/CANIMU.md for details.
+ */
+class CANIMU : public InputDevice, public CANDevice {
     private:
         // Parameters for the IMUs
         IMUParameters IMUParameters1_;
@@ -112,7 +112,7 @@ class CANIMU : public InputDevice {
 
         // Data size for each RPDO
         UNSIGNED16 dataSize[8] = {1,1,1,1,1,1,1,1};
- 
+
         /**
         * \brief Maps the CANOpen data value to the original value in the original unit.
         *
@@ -124,13 +124,13 @@ class CANIMU : public InputDevice {
 
         /**
          * \brief Sets up the receiving PDOs for the one connected IMU
-         * 
+         *
          */
         bool configureMasterPDOForOneIMU(const IMUParameters& IMUParameters, UNSIGNED8 rawCanBusData[]);
 
         /**
          * \brief Updates the input for the one connected IMU
-         * 
+         *
          */
         void updateInputForOneIMU(IMUData& IMUData, const IMUParameters& IMUParameters, UNSIGNED8 rawCanBusData[]);
 
@@ -152,54 +152,54 @@ class CANIMU : public InputDevice {
 
         /**
          * \brief Sets up the receiving PDOs for all connected IMUs
-         * 
+         *
          */
         bool configureMasterPDOs();
 
         /**
          * \brief Updates the input from all connected IMUs
-         * 
+         *
          */
         void updateInput();
 
         /**
          * \brief Get the acceleration readings from the first connected IMU of the MCU
-         * 
+         *
          * \return Eigen::VectorXd x,y,z axis of acceleration
          */
         Eigen::VectorXd& getRawAccFromTheFirstIMU();
 
         /**
          * \brief Get the linear acceleration readings from the first connected IMU of the MCU
-         * 
+         *
          * \return Eigen::VectorXd x,y,z axis of linear acceleration
          */
         Eigen::VectorXd& getLinAccFromTheFirstIMU();
 
         /**
          * \brief Get the quaternion readings from the first connected IMU of the MCU
-         * 
+         *
          * \return Eigen::VectorXd w,x,y,z quaternion
          */
         Eigen::VectorXd& getQuatFromTheFirstIMU();
 
         /**
          * \brief Get the acceleration readings from the second connected IMU of the MCU
-         * 
+         *
          * \return Eigen::VectorXd x,y,z axis of acceleration
          */
         Eigen::VectorXd& getRawAccFromTheSecondIMU();
 
         /**
          * \brief Get the linear acceleration readings from the second connected IMU of the MCU
-         * 
+         *
          * \return Eigen::VectorXd x,y,z axis of linear acceleration
          */
         Eigen::VectorXd& getLinAccFromTheSecondIMU();
 
         /**
          * \brief Get the quaternion readings from the second connected IMU of the MCU
-         * 
+         *
          * \return Eigen::VectorXd w,x,y,z quaternion
          */
         Eigen::VectorXd& getQuatFromTheSecondIMU();

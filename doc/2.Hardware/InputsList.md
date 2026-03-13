@@ -11,8 +11,10 @@ CORC [IO folder](../../src/hardware/IO/) contains a number of "drivers" for vari
 ## IMUs
  - [Techniad IMU](https://www.technaid.com/products/inertial-measurement-unit-tech-imu-biomechanichs/): a driver for the CAN based IMU from Technaid is available [here](../../src/hardware/IO/TechnaidIMU.cpp). See also [X2Robot](../../src/hardware/platforms/X2/X2Robot.h) platform for an example of use.
  - A Generic driver for standalone IMUs on microcontrollers (tested with Xiao and Teensy with BNO055 IMU). See [dedicated documentation page](CANIMU.md) for details including links to microcontroller firmwares.
+ - A driver for a BNO 055 connected over I2C (used on a BeagleBone board) is available [here](../../src/hardware/IO/I2CBNO55IMU.h).
  
 ## Other IOs
  - BeagleBone DIOs: a copy of iobb library by shabaz is available in [IO folder](../../src/hardware/IO/) to handle BB GPIOs.
  - Fourier X2 handle/pendant: see [here](../../src/hardware/IO/FourierHandle.h).
+ - Generic I2C communication driver: see [here](../../src/hardware/IO/I2CDevice.h).
 

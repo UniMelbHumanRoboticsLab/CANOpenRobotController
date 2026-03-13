@@ -13,6 +13,11 @@
 
 #include "CANDevice.h"
 
+/**
+ * \ingroup IO
+ * \brief Absolute encoder used in the FIT-HV exoskeleton
+ *
+ */
 class FITAbsEncoder: public CANDevice {
 
   public:
@@ -27,6 +32,12 @@ class FITAbsEncoder: public CANDevice {
     * \return Value of absolute encoder in [rad]
     */
     double readValue();
+
+    /**
+    * \brief Does nothing as no PDOs used.
+    * \return true
+    */
+    bool configureMasterPDOs() { return true; };
 
   private:
 

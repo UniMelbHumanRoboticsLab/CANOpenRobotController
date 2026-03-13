@@ -18,6 +18,7 @@
 #include "FITAbsEncoder.h"
 #include "Keyboard.h"
 #include "Joystick.h"
+#include "I2CBNO55IMU.h"
 #include "Robot.h"
 
 
@@ -52,14 +53,13 @@ private:
 public:
     /**
     * \brief Default RobotFITHVExo constructor.
-    * Initialize memory for the Exoskelton <code>Joint</code> + sensors.
-    * Load in exoskeleton paramaters to  <code>TrajectoryGenerator.</code>.
     */
     RobotFITHVExo(std::string robot_name="", std::string yaml_config_file="");
     ~RobotFITHVExo();
 
     Keyboard *keyboard;
     Joystick *joystick;
+    I2CBNO55IMU *backIMU;
 
     std::vector<FITAbsEncoder*> absEncoders;
 
@@ -156,6 +156,7 @@ public:
     setMovementReturnCode_t safetyCheck();
 
     void printJointStatus();
+    void printStatus();
 
     setMovementReturnCode_t setJointPosition(V2 q);
     setMovementReturnCode_t setJointVelocity(V2 dq);

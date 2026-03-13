@@ -60,6 +60,8 @@
 // Input Device
 #include "InputDevice.h"
 
+//TODO: Make it a proper InPuDevice (with updateInput) and maybe proper CANDevice
+
 static volatile sig_atomic_t exitSignalReceived = 0;
 
 struct IMUParameters {
@@ -82,8 +84,11 @@ struct IMUOutputModeStruct{
     unsigned char code = 'x';
     int dataSize = 0;
 };
-
-class TechnaidIMU{
+/**
+ * \ingroup IO
+ *
+ */
+class TechnaidIMU {
 public:
     /*!
      * Constructor.

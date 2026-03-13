@@ -21,7 +21,7 @@ bool LoggingRobot::initialiseInputs() {
 
     // Add to input stack
     for (uint i = 0; i < crutchSensors.size(); i++) {
-        inputs.push_back(crutchSensors[i]);
+        addInput(crutchSensors[i]);
     }
 
     motorPositions = Eigen::Matrix<INTEGER32, Eigen::Dynamic, 1>::Zero(numJoints);

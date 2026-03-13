@@ -2,23 +2,28 @@
  * \file FourierForceSensor.h
  * \author Emek Baris Kucuktabak, Vincent Crocher
  * \brief A class for the Fourier force sensors (ASU) on CAN bus (but not CANOpen compatible or standard)
- * \version 0.1
- * \date 2021-02-13
+ * \version 0.2
+ * \date 2026-03-04
  *
- * \copyright Copyright (c) 2021
+ * \copyright Copyright (c) 2021 - 2026
  *
  */
 
 #ifndef FOURIER_FORCE_SENSOR_H
 #define FOURIER_FORCE_SENSOR_H
 
-#include "InputDevice.h"
-#include <CANopen.h>
-#include <CO_command.h>
 #include <sstream>
 #include <numeric>
 
-class FourierForceSensor : public InputDevice {
+#include "InputDevice.h"
+#include "CANDevice.h"
+
+
+/**
+ * \ingroup IO
+ *
+ */
+class FourierForceSensor : public InputDevice, public CANDevice {
 
   public:
     /**

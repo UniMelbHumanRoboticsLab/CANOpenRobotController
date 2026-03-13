@@ -15,13 +15,13 @@ RobotM3::RobotM3(string robot_name, string yaml_config_file) :  Robot(robot_name
     //TODO: to add joint specific parameters (reduction, torque constant) and associated YAML loading
 
     //Define the robot structure: each joint with limits and drive
-    joints.push_back(new JointM3(0, qLimits[0], qLimits[1], qSigns[0], -dqMax, dqMax, -tauMax, tauMax, iPeakDrives[0], motorCstt[0], new KincoDrive(1), "q1"));
-    joints.push_back(new JointM3(1, qLimits[2], qLimits[3], qSigns[1], -dqMax, dqMax, -tauMax, tauMax, iPeakDrives[1], motorCstt[1], new KincoDrive(2), "q2"));
-    joints.push_back(new JointM3(2, qLimits[4], qLimits[5], qSigns[2], -dqMax, dqMax, -tauMax, tauMax, iPeakDrives[2], motorCstt[2], new KincoDrive(3), "q3"));
+    addJoint(new JointM3(0, qLimits[0], qLimits[1], qSigns[0], -dqMax, dqMax, -tauMax, tauMax, iPeakDrives[0], motorCstt[0], new KincoDrive(1), "q1"));
+    addJoint(new JointM3(1, qLimits[2], qLimits[3], qSigns[1], -dqMax, dqMax, -tauMax, tauMax, iPeakDrives[1], motorCstt[1], new KincoDrive(2), "q2"));
+    addJoint(new JointM3(2, qLimits[4], qLimits[5], qSigns[2], -dqMax, dqMax, -tauMax, tauMax, iPeakDrives[2], motorCstt[2], new KincoDrive(3), "q3"));
 
     //Possible inputs: keyboard and joystick
-    inputs.push_back(keyboard = new Keyboard());
-    inputs.push_back(joystick = new Joystick(1));
+    addInput(keyboard = new Keyboard());
+    addInput(joystick = new Joystick(1));
 
     last_update_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() / 1e6;
 }

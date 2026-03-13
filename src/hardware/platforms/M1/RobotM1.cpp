@@ -60,7 +60,7 @@ RobotM1::~RobotM1() {
 }
 
 bool RobotM1::initialiseJoints() {
-    joints.push_back(new JointM1(0, -100, 100, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0), new KincoDrive(1), "q1"));
+    addJoint(new JointM1(0, -100, 100, 1, -max_speed(0), max_speed(0), -tau_max(0), tau_max(0), new KincoDrive(1), "q1"));
     return true;
 }
 
@@ -83,8 +83,8 @@ bool RobotM1::initialiseNetwork() {
 }
 
 bool RobotM1::initialiseInputs() {
-    inputs.push_back(keyboard = new Keyboard());
-    inputs.push_back(m1ForceSensor = new FourierForceSensor(17, 0.1, 1));
+    addInput(keyboard = new Keyboard());
+    addInput(m1ForceSensor = new FourierForceSensor(17, 0.1, 1));
     return true;
 }
 

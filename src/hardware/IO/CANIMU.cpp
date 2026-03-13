@@ -8,7 +8,7 @@ Eigen::VectorXd CANIMU::defaultVector4d_ = Eigen::VectorXd::Zero(4);
 
 CANIMU::CANIMU(IMUParameters IMUParameters1) {
     numIMUs_ = 1;
-    IMUParameters1_ = IMUParameters1;
+    IMUParameters1_= IMUParameters1;
     IMUData1_ = IMUData();
     spdlog::info("CANIMU Object Created with 1 IMU");
 }
@@ -22,7 +22,7 @@ CANIMU::CANIMU(IMUParameters IMUParameters1, IMUParameters IMUParameters2) {
     spdlog::info("CANIMU Object Created with 2 IMUs");
 }
 
-bool CANIMU::configureMasterPDOForOneIMU(const IMUParameters& IMUParameters, UNSIGNED8 rawCanBusData[]) {    
+bool CANIMU::configureMasterPDOForOneIMU(const IMUParameters& IMUParameters, UNSIGNED8 rawCanBusData[]) {
     // Store the 1st can message to the 0-7 index of the temporary storagerawCanBusData
     void *canMessage1[8] = {(void *)&rawCanBusData[0],
                                 (void *)&rawCanBusData[1],
@@ -32,7 +32,7 @@ bool CANIMU::configureMasterPDOForOneIMU(const IMUParameters& IMUParameters, UNS
                                 (void *)&rawCanBusData[5],
                                 (void *)&rawCanBusData[6],
                                 (void *)&rawCanBusData[7]};
-    
+
     // Store the 2nd can message to the 8-15 index of the temporary storage rawCanBusData
     void *canMessage2[8] = {(void *)&rawCanBusData[8],
                                 (void *)&rawCanBusData[9],
@@ -42,7 +42,7 @@ bool CANIMU::configureMasterPDOForOneIMU(const IMUParameters& IMUParameters, UNS
                                 (void *)&rawCanBusData[13],
                                 (void *)&rawCanBusData[14],
                                 (void *)&rawCanBusData[15]};
-    
+
     // Store the 3rd can message to the 16-23 index of the temporary storage rawCanBusData
     void *canMessage3[8] = {(void *)&rawCanBusData[16],
                               (void *)&rawCanBusData[17],
@@ -57,7 +57,7 @@ bool CANIMU::configureMasterPDOForOneIMU(const IMUParameters& IMUParameters, UNS
     rpdo1 = new RPDO(IMUParameters.COBID1, 0xff, canMessage1, dataSize, lengthData);
     rpdo2 = new RPDO(IMUParameters.COBID2, 0xff, canMessage2, dataSize, lengthData);
     rpdo3 = new RPDO(IMUParameters.COBID3, 0xff, canMessage3, dataSize, lengthData);
-    
+
     return true;
 }
 

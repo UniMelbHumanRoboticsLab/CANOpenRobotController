@@ -35,7 +35,6 @@ class HX711 : public InputDevice {
     ~HX711();
 
     void updateInput();
-    bool configureMasterPDOs() { return true; };
 
     // Initialize library with data output pin, clock input pin and gain factor.
     // Channel selection is made by passing the appropriate gain:
@@ -57,10 +56,10 @@ class HX711 : public InputDevice {
     // depending on the parameter, the channel is also set to either A or B
     void set_gain(uint8_t gain = 128);
 
-    // Get the latest Raw Data (INTEGER32) from all sensors
+    // Get the latest Raw Data (int32_t) from all sensors
     Eigen::VectorXi getAllRawData();
 
-    // Get the latest Raw Data (INTEGER32) from a single sensor
+    // Get the latest Raw Data (int32_t) from a single sensor
     double getRawData(int sensorNum);
 
     // Get the latest force measurement from all sensors
@@ -76,10 +75,10 @@ class HX711 : public InputDevice {
     double get_scale(int sensorNum);
 
     // set OFFSET, the value that's subtracted from the actual reading (tare weight)
-    void set_offset(int sensorNum,INTEGER32 offset = 0);
+    void set_offset(int sensorNum,int32_t offset = 0);
 
     // get the current OFFSET
-    INTEGER32 get_offset(int sensorNum);
+    int32_t get_offset(int sensorNum);
 
     // puts the chip into power down mode
     void power_down();
