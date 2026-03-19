@@ -107,7 +107,7 @@ void HX711::updateInput() {
                 spdlog::warn("Possible Error on {0}, {1:x}", j, data[j]);
                 // Do not update values
             } else {
-                rawData(j) = static_cast<INTEGER32>(data[j]);
+                rawData(j) = static_cast<int32_t>(data[j]);
                 force(j) = (rawData(j) - OFFSET(j))*SCALE(j);
             }
         }
@@ -125,7 +125,7 @@ void HX711::clock_digitalWrite(bool value) {
 }
 
 uint8_t HX711::digitalRead(int sensorNum) {
-    
+
     if (is_high(inputPins(sensorNum, 0), inputPins(sensorNum, 1))) {
         //printf("1");
         return true;
@@ -198,13 +198,13 @@ double HX711::get_scale(int sensorNum) {
 }
 
 //go
-void HX711::set_offset(int sensorNum, INTEGER32 offset) {
+void HX711::set_offset(int sensorNum, int32_t offset) {
     OFFSET(sensorNum) = offset;
     spdlog::debug("OffsetSet {}, {}", sensorNum, OFFSET(sensorNum));
 }
 
 //go
-INTEGER32 HX711::get_offset(int sensorNum) {
+int32_t HX711::get_offset(int sensorNum) {
     return OFFSET(sensorNum);
 }
 

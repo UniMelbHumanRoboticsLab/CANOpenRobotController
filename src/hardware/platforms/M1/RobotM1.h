@@ -7,7 +7,7 @@
  * \date 2020-07-08
  * \copyright Copyright (c) 2020
  *
- * \brief  The<code> RobotM1</ code> class represents an M1 Robot.
+ * \brief The RobotM1 class represents an M1 Robot.
  *
  */
 

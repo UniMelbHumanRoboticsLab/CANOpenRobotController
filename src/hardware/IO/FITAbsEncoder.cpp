@@ -7,7 +7,6 @@ FITAbsEncoder::FITAbsEncoder(int sensor_can_node_ID, double pulse_to_rad):
                               NodeID=sensor_can_node_ID;
                             }
 
-
 double FITAbsEncoder::readValue() {
   std::string ret;
   int val=0;

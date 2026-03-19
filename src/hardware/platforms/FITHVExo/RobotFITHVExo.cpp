@@ -3,6 +3,7 @@
 using namespace Eigen;
 using namespace std;
 
+#include "FourierHandle.h"
 //TODO: update all max values
 
 RobotFITHVExo::RobotFITHVExo(string robot_name, string yaml_config_file) :  Robot(robot_name, yaml_config_file),
@@ -11,15 +12,16 @@ RobotFITHVExo::RobotFITHVExo(string robot_name, string yaml_config_file) :  Robo
     initialiseFromYAML(yaml_config_file);
 
     //Define the robot structure: each joint with limits and drive
-    joints.push_back(new JointFITHVExo(0, qLimits[0], qLimits[1], qSigns[0], -dqMax, dqMax, -tauMax, tauMax, new CopleyDrive(1), "R"));
-    joints.push_back(new JointFITHVExo(1, qLimits[2], qLimits[3], qSigns[1], -dqMax, dqMax, -tauMax, tauMax, new CopleyDrive(2), "L"));
-    absEncoders.push_back(new FITAbsEncoder(3, 2.*M_PI/524288.));
-    absEncoders.push_back(new FITAbsEncoder(4, 2.*M_PI/524288.));
+    addJoint(new JointFITHVExo(0, qLimits[0], qLimits[1], qSigns[0], -dqMax, dqMax, -tauMax, tauMax, new CopleyDrive(1), "R"));
+    addJoint(new JointFITHVExo(1, qLimits[2], qLimits[3], qSigns[1], -dqMax, dqMax, -tauMax, tauMax, new CopleyDrive(2), "L"));
+    absEncoders.push_back(new FITAbsEncoder(3, 2.*M_PI/524288.));addOtherCAN(absEncoders[0]);
+    absEncoders.push_back(new FITAbsEncoder(4, 2.*M_PI/524288.));addOtherCAN(absEncoders[1]);
 
-    inputs.push_back(keyboard = new Keyboard());
-    inputs.push_back(joystick = new Joystick());
-
-    //TODO: add IMU(s)??
+    //Classic control inputs and an IMU
+    addInput(keyboard = new Keyboard());
+    addInput(joystick = new Joystick());
+    addInput(backIMU = new I2CBNO55IMU(0x28));
+    backIMU->setFastAccOnly();
 }
 RobotFITHVExo::~RobotFITHVExo() {
     spdlog::debug("Delete RobotFITHVExo object begins");
@@ -28,8 +30,13 @@ RobotFITHVExo::~RobotFITHVExo() {
         delete p;
     }
     joints.clear();
+    for (auto e : absEncoders) {
+        delete e;
+    }
+    absEncoders.clear();
     delete keyboard;
     delete joystick;
+    delete backIMU;
     inputs.clear();
     spdlog::debug("RobotFITHVExo deleted");
 }
@@ -125,6 +132,15 @@ void RobotFITHVExo::printJointStatus() {
     for (auto joint : joints)
         std::cout << "0x" << std::hex << ((JointFITHVExo *)joint)->getDriveStatus() << "; ";
     std::cout << "}" << std::endl;
+}
+
+void RobotFITHVExo::printStatus() {
+    std::cout << std::setprecision(3) << std::fixed;
+    std::cout << "q=[ " << getPosition().transpose() * 180/M_PI << " ] [deg]\t";
+    std::cout << "dq=[ " << getVelocity().transpose() * 180/M_PI << " ] [deg/s]\t";
+    std::cout << "tau=[ " << getTorque().transpose() << " ] [Nm]\t";
+    std::cout << "Acc= " << backIMU->getLinAcc() << "[m/s2]\t";
+    std::cout << "backQuat=[ " << backIMU->getQuat().transpose() << " ]\n";
 }
 
 bool RobotFITHVExo::initPositionControl() {

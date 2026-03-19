@@ -143,11 +143,8 @@ void Robot::printJointStatus(int J_i) {
 }
 
 bool Robot::configureMasterPDOs() {
-    for (auto j : joints) {
-        j->configureMasterPDOs();
-    }
-    for (auto i : inputs) {
-        i->configureMasterPDOs();
+    for (auto c : canDevices) {
+        c->configureMasterPDOs();
     }
     return true;
 }

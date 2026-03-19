@@ -5,8 +5,7 @@
  * with a flexible representation in terms of number of joints, number of sensors and type of I/O
  * the real world or virtual robot has. The class specificall represents a robot with an underlying
  * bus network connecting components to a master node, being the robots computer or processor.
- * Implementations have been designed <code>ExoRobot<code> under CANOpen protocol, however others
- * may be implemented by future developers.
+ *
  *
  * @version 0.3
  * @date 2021-11-06
@@ -53,8 +52,10 @@ class Robot {
     */
     std::string robotName;
 
+    //TODO: make private with accessors to avoid use of push_back/delete directly from derived classes.
     std::vector<Joint *> joints;
     std::vector<InputDevice *> inputs;
+    std::vector<CANDevice *> canDevices;
 
     Eigen::VectorXd jointPositions_;
     Eigen::VectorXd jointVelocities_;
@@ -70,6 +71,63 @@ class Robot {
     */
     Robot(std::string robot_name="", std::string yaml_config_file="");
     virtual ~Robot();
+    //@}
+
+    /** @name Creation Methods */
+    //@{
+    /**
+     * \brief Method to use at robot creation to add a new InputDevice to the robot.
+     * The InputDevice will be added to the Robot list of Inputs to be updated automatically every loop
+     * and added to the canDevices list to be managed as a CAN device if it is one.
+     *
+     * \param i is expected to be of any type derived from InputDevice (wether CAN or not).
+     */
+    template <typename T> void addInput(T *i) {
+        if(InputDevice * ii = dynamic_cast<InputDevice *>(i)) {
+            inputs.push_back(ii);
+        }
+        else {
+            spdlog::error("Robot::Trying to add an object as Input which is not an input device.");
+            return;
+        }
+        if(CANDevice * c = dynamic_cast<CANDevice *>(i)) {
+            canDevices.push_back(c);
+        }
+    };
+    /**
+     * \brief Method to use at robot creation to add a new Joint to the robot.
+     * The Joint will be added to the Robot list of Joints and added to the
+     * canDevices list to be managed as a CAN device if it is one.
+     *
+     * \param j is expected to be of any type derived from Joint (wether CAN or not).
+     */
+    template <typename T> void addJoint(T *j) {
+        if(Joint * jj = dynamic_cast<Joint *>(j)) {
+            joints.push_back(jj);
+        }
+        else {
+            spdlog::error("Robot::Trying to add an object as Joint which is not a Joint.");
+            return;
+        }
+        if(CANDevice * c = dynamic_cast<CANDevice *>(j)) {
+            canDevices.push_back(c);
+        }
+    };
+    /**
+     * \brief Method to use at robot creation to add a new CAN device wich is not a Joint neither an Input.
+     * The object will be added to the canDevices list to be managed as a CAN device.
+     *
+     * \param c is expected to be of any type derived from CANDevice.
+     */
+    template <typename T> void addOtherCAN(T *c) {
+        if(CANDevice * cc = dynamic_cast<CANDevice *>(c)) {
+            canDevices.push_back(cc);
+        }
+        else {
+            spdlog::error("Robot::Trying to add an object as CAN which is not a CANDevice.");
+            return;
+        }
+    };
     //@}
 
     /** @name Initialisation Methods */

@@ -7,7 +7,7 @@
  *
  * \copyright Copyright (c) 2024 - 2025
  *
- * \brief  The<code> RobotM2P</ code> class represents an M2Pro Robot.
+ * \brief  The RobotM2P class represents an M2Pro Robot.
  *
  */
 
@@ -31,8 +31,8 @@ typedef Eigen::VectorXd VX; //!< Generic (dynamic) size version required for com
 class RobotM2P: public Robot {
    private:
     VM2 qCalibration = {0, 0.};  //!< Calibration configuration: posture in which the robot is when using the calibration procedure
-    std::vector<double> iPeakDrives = {42.0, 42.0, 42.0};     
-    
+    std::vector<double> iPeakDrives = {42.0, 42.0, 42.0};
+
     bool calibrated;
     double maxEndEffVel; //!< Maximal end-effector allowable velocity. Used in checkSafety when robot is calibrated.
     double maxEndEffForce; //!< Maximal end-effector allowable force. Used in checkSafety when robot is calibrated.

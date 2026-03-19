@@ -611,9 +611,9 @@ bool X2Robot::initialiseJoints() {
         motorDrives.push_back(new CopleyDrive(id + 1));
         // The X2 has 2 Hips and 2 Knees, by default configured as 2 hips, then 2 legs int jointID, double jointMin, double jointMax, JointDrivePairs jdp, Drive *drive
         if (id == X2_LEFT_HIP || id == X2_RIGHT_HIP) {
-            joints.push_back(new X2Joint(id, x2Parameters.jointPositionLimits.hipMin, x2Parameters.jointPositionLimits.hipMax, hipJDP, motorDrives[id]));
+            addJoint(new X2Joint(id, x2Parameters.jointPositionLimits.hipMin, x2Parameters.jointPositionLimits.hipMax, hipJDP, motorDrives[id]));
         } else if (id == X2_LEFT_KNEE || id == X2_RIGHT_KNEE) {
-            joints.push_back(new X2Joint(id, x2Parameters.jointPositionLimits.kneeMin, x2Parameters.jointPositionLimits.kneeMax, kneeJDP, motorDrives[id]));
+            addJoint(new X2Joint(id, x2Parameters.jointPositionLimits.kneeMin, x2Parameters.jointPositionLimits.kneeMax, kneeJDP, motorDrives[id]));
         }
         spdlog::debug("X2Robot::initialiseJoints() loop");
     }
@@ -639,12 +639,12 @@ bool X2Robot::initialiseInputs() {
 
     for (int id = 0; id < X2_NUM_FORCE_SENSORS; id++) {
         forceSensors.push_back(new FourierForceSensor(id + 17, x2Parameters.forceSensorScaleFactor[id]));
-        inputs.push_back(forceSensors[id]);
+        addInput(forceSensors[id]);
     }
 
     for (int id = 0; id < X2_NUM_GRF_SENSORS; id++) {
         forceSensors.push_back(new FourierForceSensor(id + 33, x2Parameters.grfSensorScaleFactor[id]));
-        inputs.push_back(forceSensors[id + X2_NUM_FORCE_SENSORS]);
+        addInput(forceSensors[id + X2_NUM_FORCE_SENSORS]);
     }
 
     if(x2Parameters.imuParameters.useIMU){
@@ -657,7 +657,7 @@ bool X2Robot::initialiseInputs() {
     }
 
     buttons = new FourierHandle(9);
-    inputs.push_back(buttons);
+    addInput(buttons);
 
     return true;
 }

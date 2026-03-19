@@ -1,6 +1,6 @@
 /**
- * The <code>Joint</code> class is a abstract class which represents a joint in a
- * <code>Robot</code> objec. This class can be used to represent all types of joints,
+ * The Joint class is a abstract class which represents a joint in a
+ * Robot object. This class can be used to represent all types of joints,
  * including actuated, non-actuated, revolute, prismatic, etc.
  *
  *

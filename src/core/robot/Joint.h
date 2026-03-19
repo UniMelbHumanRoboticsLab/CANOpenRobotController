@@ -45,7 +45,7 @@ static std::map<setMovementReturnCode_t, std::string> setMovementReturnCodeStrin
  * \brief Abstract class representing any Joint within a Robot.
  *
  */
-class Joint {
+class Joint: public CANDevice {
    protected:
     /**
      * An identifier for this joint. Note that this identifier is designed to be unique,

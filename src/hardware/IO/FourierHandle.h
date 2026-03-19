@@ -2,22 +2,21 @@
  * \file FourierHandle.h
  * \author Emek Baris Kucuktabak
  * \brief A class for the Fourier button handles
- * \version 0.1
- * \date 2021-04-09
- *
- * \copyright Copyright (c) 2021
+ * \version 0.2
+ * \date 2026-03-04
+ * \copyright Copyright (c) 2020 - 2026
  *
  */
 
 #ifndef SRC_FOURIERHANDLE_H
 #define SRC_FOURIERHANDLE_H
 
-#include "InputDevice.h"
-#include <CANopen.h>
-#include <CO_command.h>
 #include <sstream>
 #include <numeric>
 #include <Eigen/Core>
+
+#include "InputDevice.h"
+#include "CANDevice.h"
 
 enum ButtonColor {
     RED = 0,
@@ -26,7 +25,11 @@ enum ButtonColor {
     GREEN = 3
 };
 
-class FourierHandle : public InputDevice {
+/**
+ * \ingroup IO
+ *
+ */
+class FourierHandle : public InputDevice, public CANDevice {
 
 public:
     /**

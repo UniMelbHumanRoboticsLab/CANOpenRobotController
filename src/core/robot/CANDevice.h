@@ -3,17 +3,13 @@
  * \author Justin Fong
  * \brief  Generic CANDevice Class
  *
- * \version 0.1
- * \date 2021-01-12
- * \version 0.1
+ * \version 0.2
+ * \date 2026-03-04
  *
- * \copyright Copyright (c) 2021
+ * \copyright Copyright (c) 2021 - 2026
  *
  */
 
-
-
-// TODO - THIS IS NOT FINISHED YET
 
 
 #ifndef CANDEVICE_H
@@ -66,19 +62,24 @@ static std::map<std::string, std::string> SDO_Standard_Error = {
  *
  */
 class CANDevice {
-   protected:
-    /**
-    * \brief The CAN Node ID used to address this particular device on the CAN bus
-    *
-    */
-    int NodeID;
+    protected:
+        /**
+        * \brief The CAN Node ID used to address this particular device on the CAN bus
+        *
+        */
+        int NodeID;
 
-    /**
-    * \brief Lists of PDOs
-    *
-    */
-    std::vector<RPDO *> rpdos;
-    std::vector<TPDO *> tpdos;
+        /**
+        * \brief Lists of PDOs
+        *
+        */
+        std::vector<RPDO *> rpdos;
+        std::vector<TPDO *> tpdos;
+
+    public:
+        virtual bool configureMasterPDOs() = 0;
+
+        //TODO: Add standard read and write SDO methods
 };
 
 #endif
