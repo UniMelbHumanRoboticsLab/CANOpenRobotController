@@ -1,4 +1,5 @@
-# ![CORC logo](doc/img/Corc-logo.png) CANOpen Robot Controller ![GitHub Release](https://img.shields.io/github/v/release/UniMelbHumanRoboticsLab/CANOpenRobotController) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+# <img src="doc/img/Corc-logo.png" width="600"> 
+# CANOpen Robot Controller ![GitHub Release](https://img.shields.io/github/v/release/UniMelbHumanRoboticsLab/CANOpenRobotController) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 CORC is a free and open source robotic development software stack, written in C++.
 
