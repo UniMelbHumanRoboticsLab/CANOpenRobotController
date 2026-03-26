@@ -1,151 +1,117 @@
 <svg xmlns='http://www.w3.org/2000/svg' width='360' height='780' viewBox='0 0 360 780' role='img' aria-label='Directory tree'>
-  <style>
-    .label { font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91; }
-    .connector { stroke: #555; stroke-width: 1; fill: none; }
-    .node:hover .label { fill: #000; font-weight: 600; }
-  </style>
-  <path class='connector' d='M26.0,36.0L26.0,54.0 L40.0,54.0' />
-  <path class='connector' d='M26.0,36.0L26.0,78.0 L40.0,78.0' />
-  <path class='connector' d='M26.0,36.0L26.0,102.0 L40.0,102.0' />
-  <path class='connector' d='M26.0,36.0L26.0,126.0 L40.0,126.0' />
-  <path class='connector' d='M26.0,36.0L26.0,150.0 L40.0,150.0' />
-  <path class='connector' d='M26.0,36.0L26.0,174.0 L40.0,174.0' />
-  <path class='connector' d='M26.0,36.0L26.0,198.0 L40.0,198.0' />
-  <path class='connector' d='M46.0,204.0L46.0,222.0 L60.0,222.0' />
-  <path class='connector' d='M66.0,228.0L66.0,246.0 L80.0,246.0' />
-  <path class='connector' d='M66.0,228.0L66.0,270.0 L80.0,270.0' />
-  <path class='connector' d='M66.0,228.0L66.0,294.0 L80.0,294.0' />
-  <path class='connector' d='M66.0,228.0L66.0,318.0 L80.0,318.0' />
-  <path class='connector' d='M46.0,204.0L46.0,342.0 L60.0,342.0' />
-  <path class='connector' d='M66.0,348.0L66.0,366.0 L80.0,366.0' />
-  <path class='connector' d='M66.0,348.0L66.0,390.0 L80.0,390.0' />
-  <path class='connector' d='M66.0,348.0L66.0,414.0 L80.0,414.0' />
-  <path class='connector' d='M66.0,348.0L66.0,438.0 L80.0,438.0' />
-  <path class='connector' d='M46.0,204.0L46.0,462.0 L60.0,462.0' />
-  <path class='connector' d='M66.0,468.0L66.0,486.0 L80.0,486.0' />
-  <path class='connector' d='M66.0,468.0L66.0,510.0 L80.0,510.0' />
-  <path class='connector' d='M66.0,468.0L66.0,534.0 L80.0,534.0' />
-  <path class='connector' d='M86.0,540.0L86.0,558.0 L100.0,558.0' />
-  <path class='connector' d='M86.0,540.0L86.0,582.0 L100.0,582.0' />
-  <path class='connector' d='M86.0,540.0L86.0,606.0 L100.0,606.0' />
-  <path class='connector' d='M86.0,540.0L86.0,630.0 L100.0,630.0' />
-  <path class='connector' d='M86.0,540.0L86.0,654.0 L100.0,654.0' />
-  <path class='connector' d='M86.0,540.0L86.0,678.0 L100.0,678.0' />
-  <path class='connector' d='M86.0,540.0L86.0,702.0 L100.0,702.0' />
-  <g class='node'>
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M26.0,36.0L26.0,54.0 L40.0,54.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M26.0,36.0L26.0,78.0 L40.0,78.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M26.0,36.0L26.0,102.0 L40.0,102.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M26.0,36.0L26.0,126.0 L40.0,126.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M26.0,36.0L26.0,150.0 L40.0,150.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M26.0,36.0L26.0,174.0 L40.0,174.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M26.0,36.0L26.0,198.0 L40.0,198.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M46.0,204.0L46.0,222.0 L60.0,222.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M66.0,228.0L66.0,246.0 L80.0,246.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M66.0,228.0L66.0,270.0 L80.0,270.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M66.0,228.0L66.0,294.0 L80.0,294.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M66.0,228.0L66.0,318.0 L80.0,318.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M46.0,204.0L46.0,342.0 L60.0,342.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M66.0,348.0L66.0,366.0 L80.0,366.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M66.0,348.0L66.0,390.0 L80.0,390.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M66.0,348.0L66.0,414.0 L80.0,414.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M66.0,348.0L66.0,438.0 L80.0,438.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M46.0,204.0L46.0,462.0 L60.0,462.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M66.0,468.0L66.0,486.0 L80.0,486.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M66.0,468.0L66.0,510.0 L80.0,510.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M66.0,468.0L66.0,534.0 L80.0,534.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M86.0,540.0L86.0,558.0 L100.0,558.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M86.0,540.0L86.0,582.0 L100.0,582.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M86.0,540.0L86.0,606.0 L100.0,606.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M86.0,540.0L86.0,630.0 L100.0,630.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M86.0,540.0L86.0,654.0 L100.0,654.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M86.0,540.0L86.0,678.0 L100.0,678.0' />
+  <path style="stroke: #555; stroke-width: 1; fill: none;" d='M86.0,540.0L86.0,702.0 L100.0,702.0' />
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='20.0' y='34.0'>
     <title>CANOpenRobotController</title>
-    <text class='label' x='20.0' y='34.0'>CANOpenRobotController</text>
-  </g>
-  <g class='node'>
+    CANOpenRobotController</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='40.0' y='58.0'>
     <title>YAML configuration files used by the different robot platforms to dynamically load some important parameters.</title>
-    <text class='label' x='40.0' y='58.0'>config</text>
-  </g>
-  <g class='node'>
+    config</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='40.0' y='82.0'>
     <title>Markdown main documentation. After using Doxigen you can also access the Doxygen documentation in html/index.html.</title>
-    <text class='label' x='40.0' y='82.0'>doc</text>
-  </g>
-  <g class='node'>
+    doc</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='40.0' y='106.0'>
     <title>ROS and ROS2 launch files if using a ROS/ROS2 stateMachine.</title>
-    <text class='label' x='40.0' y='106.0'>launch</text>
-  </g>
-  <g class='node'>
+    launch</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='40.0' y='130.0'>
     <title>External libraries used (and compiled) by CORC. Some are installed as git submodules.</title>
-    <text class='label' x='40.0' y='130.0'>lib</text>
-  </g>
-  <g class='node'>
+    lib</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='40.0' y='154.0'>
     <title>ROS and ROS2 msg files if using a ROS stateMachine.</title>
-    <text class='label' x='40.0' y='154.0'>msg</text>
-  </g>
-  <g class='node'>
+    msg</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='40.0' y='178.0'>
     <title>Set of useful scripts to initiate CAN or virtual CAN interfaces, upload files to BeagleBone or create a new state machine (app).</title>
-    <text class='label' x='40.0' y='178.0'>script</text>
-  </g>
-  <g class='node'>
+    script</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='40.0' y='202.0'>
     <title>Source files organised in three levels: 1)apps: contains application code (examples) and is where you can define your main logic; 2) hardware: contains platform (robot) and IO drivers to be modified/added to if you use non-supported hardware or new hardware functionalities; 3)core: with core CORC logic, likely not to be modified.</title>
-    <text class='label' x='40.0' y='202.0'>src</text>
-  </g>
-  <g class='node'>
+    src</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='60.0' y='226.0'>
     <title>All the demo/example apps provided with CORC. Each app is a dedicated StateMachine with its own states. See the Get started pages for details. Your custom apps can also be placed in a different, external folder, for easier maintenance.</title>
-    <text class='label' x='60.0' y='226.0'>apps</text>
-  </g>
-  <g class='node'>
+    apps</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='80.0' y='250.0'>
     <title>The very basic app example to start with to test CORC, the compilation process...</title>
-    <text class='label' x='80.0' y='250.0'>ExoTestMachine</text>
-  </g>
-  <g class='node'>
+    ExoTestMachine</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='80.0' y='274.0'>
     <title>The EMU (M3) state machine example.</title>
-    <text class='label' x='80.0' y='274.0'>M3DemoMachine</text>
-  </g>
-  <g class='node'>
+    M3DemoMachine</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='80.0' y='298.0'>
     <title>A template used by the createStateMachine script to ease the creation of a new custom StateMachine (app).</title>
-    <text class='label' x='80.0' y='298.0'>StateMachineTemplate</text>
-  </g>
-  <g class='node'>
+    StateMachineTemplate</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='80.0' y='322.0'>
     <title>other examples are available, check the Get started pages.</title>
-    <text class='label' x='80.0' y='322.0'>...</text>
-  </g>
-  <g class='node'>
+    ...</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='60.0' y='346.0'>
     <title>Core code defining the main logic and common functionalities used by all CORC. Should very likely not be modified.</title>
-    <text class='label' x='60.0' y='346.0'>core</text>
-  </g>
-  <g class='node'>
+    core</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='80.0' y='370.0'>
     <title>The low-level CANOpen stack. Should very likely not be modified.</title>
-    <text class='label' x='80.0' y='370.0'>CANopen</text>
-  </g>
-  <g class='node'>
+    CANopen</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='80.0' y='394.0'>
     <title>Convenience classes to manage network communication via FLNL. Should very likely not be modified.</title>
-    <text class='label' x='80.0' y='394.0'>network</text>
-  </g>
-  <g class='node'>
+    network</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='80.0' y='418.0'>
     <title>The base robot and joint classes. Should very likely not be modified.</title>
-    <text class='label' x='80.0' y='418.0'>robot</text>
-  </g>
-  <g class='node'>
+    robot</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='80.0' y='442.0'>
     <title>The core/base StateMachine classes. Should very likely not be modified.</title>
-    <text class='label' x='80.0' y='442.0'>stateMachine</text>
-  </g>
-  <g class='node'>
+    stateMachine</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='60.0' y='466.0'>
     <title>All the different hardware drivers and interaction code, including the various supported robots definition, motor drives and other IOs.</title>
-    <text class='label' x='60.0' y='466.0'>hardware</text>
-  </g>
-  <g class='node'>
+    hardware</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='80.0' y='490.0'>
     <title>Motor drives classes. Include dedicated classes for Copley, Kinco and EPOS CANOpen based motor drives.</title>
-    <text class='label' x='80.0' y='490.0'>drives</text>
-  </g>
-  <g class='node'>
+    drives</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='80.0' y='514.0'>
     <title>Drivers for various IOs (IMUs, encoders, keyboard...). See dedicated document page on supported IOs.</title>
-    <text class='label' x='80.0' y='514.0'>IO</text>
-  </g>
-  <g class='node'>
+    IO</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='80.0' y='538.0'>
     <title>Classes for each supported platform (robot) and their respective Joints where appropriate. Add or modify only if you need a new platform or new platform functionality (e.g. new sensor...).</title>
-    <text class='label' x='80.0' y='538.0'>platforms</text>
-  </g>
-  <g class='node'>
+    platforms</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='100.0' y='562.0'>
     <title>Classes for the FIT-HV waist exoskeleton (ULS robotics).</title>
-    <text class='label' x='100.0' y='562.0'>FITHVExo</text>
-  </g>
-  <g class='node'>
+    FITHVExo</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='100.0' y='586.0'>
     <title>Classes for an example logging robot: only logging state.</title>
-    <text class='label' x='100.0' y='586.0'>LoggingRobot</text>
-  </g>
-  <g class='node'>
+    LoggingRobot</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='100.0' y='610.0'>
     <title>Classes for the ArmMotus M1 (Fourier Intelligence).</title>
-    <text class='label' x='100.0' y='610.0'>M1</text>
-  </g>
-  <g class='node'>
+    M1</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='100.0' y='634.0'>
     <title>Classes for the ArmMotus M2 (Fourier Intelligence).</title>
-    <text class='label' x='100.0' y='634.0'>M2</text>
-  </g>
-  <g class='node'>
+    M2</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='100.0' y='658.0'>
     <title>Classes for the ArmMotus M2 Pro (Fourier Intelligence).</title>
-    <text class='label' x='100.0' y='658.0'>M2P</text>
-  </g>
-  <g class='node'>
+    M2P</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='100.0' y='682.0'>
     <title>Classes for the ArmMotus EMU (Fourier Intelligence).</title>
-    <text class='label' x='100.0' y='682.0'>M3</text>
-  </g>
-  <g class='node'>
+    M3</text>
+    <text style="font: 13px 'Segoe UI', Roboto, Arial, sans-serif; fill: #0b3d91;" x='100.0' y='706.0'>
     <title>Classes for the X2 exoskeleton (Fourier Intelligence).</title>
-    <text class='label' x='100.0' y='706.0'>X2</text>
-  </g>
+    X2</text>
 </svg>
