@@ -1,0 +1,32 @@
+## CORC source tree documentation. To be used with ASCIITree2SVG to generate an SVG file.
+.
+├── config{YAML configuration files used by the different robot platforms to dynamically load some important parameters.}
+├── doc{Markdown main documentation. After using Doxigen you can also access the Doxygen documentation in html/index.html.}
+├── launch{ROS and ROS2 launch files if using a ROS/ROS2 stateMachine.}
+├── lib{External libraries used (and compiled) by CORC. Some are installed as git submodules.}
+├── msg{ROS and ROS2 msg files if using a ROS stateMachine.}
+├── script{Set of useful scripts to initiate CAN or virtual CAN interfaces, upload files to BeagleBone or create a new state machine (app).}
+└── src{Source files organised in three levels: 1)apps: contains application code (examples) and is where you can define your main logic; 2) hardware: contains platform (robot) and IO drivers to be modified/added to if you use non-supported hardware or new hardware functionalities; 3)core: with core CORC logic, likely not to be modified.}
+    ├── apps{All the demo/example apps provided with CORC. Each app is a dedicated StateMachine with its own states. See the Get started pages for details. Your custom apps can also be placed in a different, external folder, for easier maintenance.}
+    │   ├── ExoTestMachine{The very basic app example to start with to test CORC, the compilation process...}
+    │   ├── M3DemoMachine{The EMU (M3) state machine example.}
+    │   ├── StateMachineTemplate{A template used by the createStateMachine script to ease the creation of a new custom StateMachine (app).}
+    │   ├──...{other examples are available, check the Get started pages.}
+    ├── core{Core code defining the main logic and common functionalities used by all CORC. Should very likely not be modified.}
+    │   ├── CANopen{The low-level CANOpen stack. Should very likely not be modified.}
+    │   ├── network{Convenience classes to manage network communication via FLNL. Should very likely not be modified.}
+    │   ├── robot{The base robot and joint classes. Should very likely not be modified.}
+    │   └── stateMachine{The core/base StateMachine classes. Should very likely not be modified.}
+    └── hardware{All the different hardware drivers and interaction code, including the various supported robots definition, motor drives and other IOs.}
+        ├── drives{Motor drives classes. Include dedicated classes for Copley, Kinco and EPOS CANOpen based motor drives.}
+        ├── IO{Drivers for various IOs (IMUs, encoders, keyboard...). See dedicated document page on supported IOs.}
+        └── platforms{Classes for each supported platform (robot) and their respective Joints where appropriate. Add or modify only if you need a new platform or new platform functionality (e.g. new sensor...).}
+            ├── FITHVExo{Classes for the FIT-HV waist exoskeleton (ULS robotics).}
+            ├── LoggingRobot{Classes for an example logging robot: only logging state.}
+            ├── M1{Classes for the ArmMotus M1 (Fourier Intelligence).}
+            ├── M2{Classes for the ArmMotus M2 (Fourier Intelligence).}
+            ├── M2P{Classes for the ArmMotus M2 Pro (Fourier Intelligence).}
+            ├── M3{Classes for the ArmMotus EMU (Fourier Intelligence).}
+            └── X2{Classes for the X2 exoskeleton (Fourier Intelligence).}
+
+153 directories
