@@ -1,5 +1,5 @@
 # <img src="doc/img/Corc-logo.png" width="600"> 
-# CANOpen Robot Controller ![GitHub Release](https://img.shields.io/github/v/release/UniMelbHumanRoboticsLab/CANOpenRobotController) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+# CANOpen Robot Controller [![GitHub Release](https://img.shields.io/github/v/release/UniMelbHumanRoboticsLab/CANOpenRobotController)](https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController/releases/) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 CORC is a free and open source robotic development software stack, written in C++.
 
@@ -15,14 +15,25 @@ The project includes:
 - Documentation (this page and associated ones and code Doxygen).
 - Functional application examples. 
 
+<table style="border:0px">
+<tr style="border:0px">
+<td style="border:0px" width="70%">
 
 The code is structured into 3 levels:
 
-1. **The CANopen Communications Level:** Provides the CAN-level communications, providing the mechanisms for the sending and receiving of PDO and SDO messages
-2. **The Robot Level:** Defines the components of the Robot to be controlled, including the joints, associated drives, and input devices
-3. **The Application Layer:** Defines the high level logic for the device, based on the implementation of a State Machine.
+1. **The CANopen Communications Level:** Provides the CAN-level communications, providing the mechanisms for the sending and receiving of PDO and SDO messages<br>
+2. **The Robot Level:** Defines the components of the Robot to be controlled, including the joints, associated drives, and input devices<br>
+3. **The Application Layer:** Defines the high level logic for the device, based on the implementation of a State Machine.<br>
 
-Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The CANopen Communications level should not need to be changed. The Robot level should only change with respect if the robot to be controlled changes. This is loosely enforced by the source code folder structure - the files which should not need modification are placed in the `src/core` folder, and the remainder are placed in the `src/apps` and `src/hardware` folders. Note that in addition to the CANopen Communication code, the `src/core` folder also includes base classes which are derived from in the `src/apps` and `src/hardware` folders. 
+Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The CANopen Communications level should not need to be changed. The Robot level should only change with respect if the robot to be controlled changes. This is loosely enforced by the source code folder structure - the files which should not need modification are placed in the `src/core` folder, and the remainder are placed in the `src/apps` and `src/hardware` folders. Note that in addition to the CANopen Communication code, the `src/core` folder also includes base classes which are derived from in the `src/apps` and `src/hardware` folders.<br>
+</td>
+<td style="border:0px">
+Project direcory structure:
+<img src="doc/img/CORCTree.svg">
+</td>
+</tr>
+</table>
+
 
 ## :heavy_minus_sign: What CORC is not?
 
