@@ -3,7 +3,7 @@
 There are a number of getting started programs and setups, depending on your intended and currently available hardware, and final eventual goal. Key decision points to be made are:
 
 
-## Choice of Deployment Environment
+## Choice of deployment environment
 CORC is flexible in that it can run on any computer with a Controller Area Network (CAN) interface running a Linux Distribution. However, there are two typical deployment scenarios:
 
 1. An a dedicated embedded computer (such as a Beaglebone Black) to run CORC and solely act as the robot controller
@@ -19,7 +19,7 @@ Instructions specific to cross-compiling and deploying on a different target (su
 > Note that it is not recommended to run CORC in a Virtual Machine due to latency and limited performance. While this works well for development, testing and simulation (typically to go through those tutorials), this won't give good performances if controlling an actual robot. If you develop under a VM consider using a Beagle Bone or similar SBC. 
 
 
-## Choice of Development Environment
+## Choice of development environment
 Independent of the deployment environment, a choice may also be made regarding the development environment. While theoretically possible to develop and cross-compile CORC from Windows it is highly recommended and easier to use a Linux system as development environment. 
 
 Your development system may or may not be the same as your deployment computer. If you can consider using a Linux Virtual Machine (VM) as the development environement, it is not recommended to run CORC (except for quick simulations tests) on a VM: the latency and poor performance makes it not suitable to control a real robot.
@@ -34,7 +34,7 @@ As you walk through the examples below, you may want to generate the code docume
 While not necessary to run the examples, it is highly recommended as soon as you start developping yourself (e.g. modifying code, developping your own state machine etc...).
 
 
-## Getting the Project
+## Getting the project
 On your development computer, clone the project from git repository. You can do this using the command line by first navigating to an appropriate folder, and typing the command:
 ```bash
 $ git clone --recursive https://github.com/UniMelbHumanRoboticsLab/CANOpenRobotController
@@ -77,8 +77,10 @@ See also the code example in `src/apps/ExoTestMachine`.
 # Additional Example Programs
 After you have run the Basic Simulation Program, CORC offers a number of additional "Getting Started" programs. It is suggested that you choose one which aligns with your final intended goals. 
 
+<details>
+<summary> 
 
-## Advanced Simulation and Hardware Testing using ROS - Exoskeleton
+## Advanced Simulation and Hardware Testing using ROS - Exoskeleton </summary>
 This example is a more advanced example requiring no hardware but also allow testing the same code both on hardware and simulation.
 It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, using ROS and creating a Gazebo for physics simulation and RViz for visualization purposes.
 
@@ -94,8 +96,14 @@ It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, using ROS an
 ### [Advanced Simulation and Hardware Testing using ROS - Instructions](AdvancedSimulationAndHardwareTesting.md) 
 See also the code example in `src/apps/X2DemoMachine`.
 
+</details>
 
-## Hardware Testing - ArmMotus M2 Planar Manipulandum
+
+
+<details>
+<summary> 
+
+## Hardware Testing - ArmMotus M2 Planar Manipulandum </summary>
 This example enables simple movements with the ArmMotus M2 System. It use of the FLNL communications library to communicate between the CORC robot controller, and a user interface.
 
 ### Requirements
@@ -110,8 +118,14 @@ This example enables simple movements with the ArmMotus M2 System. It use of the
 ### [M2DemoMachine - Instructions](GSM2DemoMachine.md)
 See also the code example in `src/apps/M2DemoMachine`.
 
+</details>
 
-## Hardware Testing - ArmMotus M3 (aka EMU) 3D Manipulandum
+
+
+<details>
+<summary> 
+
+## Hardware Testing - ArmMotus M3 (aka EMU) 3D Manipulandum </summary>
 This example enables simple functionalities of ArmMotus M3/EMU System. It shows basic interfaces of the robot, use of the kinematic models, simple examples of position, velocity and impedance controls.
 
 ### Requirements
@@ -125,8 +139,14 @@ This example enables simple functionalities of ArmMotus M3/EMU System. It shows 
 ### [M3DemoMachine - Instructions](GSM3DemoMachine.md)
 See also the code example in `src/apps/M3DemoMachine`.
 
+</details>
 
-## Hardware Testing - AnkleMotus M1
+
+
+<details>
+<summary> 
+
+## Hardware Testing - AnkleMotus M1 </summary>
 This example enables simple movements with the AnkleMotus M1 System.
 
 ### Requirements
@@ -139,8 +159,14 @@ This example enables simple movements with the AnkleMotus M1 System.
 ### [M1DemoMachine - Instructions](GSM1DemoMachine.md)
 See also the code example in `src/apps/M1DemoMachine`.
 
+</details>
 
-## ROS2 CORC application - Exoskeleton
+
+
+<details>
+<summary> 
+
+## ROS2 CORC application - Exoskeleton </summary>
 This example is a an example of the use of a ROS2 CORC state machine.
 It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, and creates a ROS2 CORC package.
 
@@ -153,9 +179,14 @@ It leverages the ExoMotus X2 Exoskeleton from Fourier Intelligence, and creates 
 ### [ROS2 Application - Instructions](ROS2Application.md)
 See also the code example in `src/apps/X2ROS2DemoMachine`.
 
+</details>
 
 
-## Hardware Testing - FIT-HV waist exoskeleton
+
+<details>
+<summary> 
+
+## Hardware Testing - FIT-HV waist exoskeleton </summary>
 This example enables simple control of the FIT-HV waist exoskeleton. 
 
 ### Requirements
@@ -168,3 +199,4 @@ This example enables simple control of the FIT-HV waist exoskeleton.
 ### [FITHVExoDemoMachine - Instructions](GSFITHVDemoMachine.md)
 See also the code example in `src/apps/FITHVExoDemoMachine`.
 
+</details>
