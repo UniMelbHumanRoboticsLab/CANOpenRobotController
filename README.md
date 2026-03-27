@@ -15,25 +15,29 @@ The project includes:
 - Documentation (this page and associated ones and code Doxygen).
 - Functional application examples. 
 
+
+
 <table style="border:0px">
 <tr style="border:0px">
-<td style="border:0px" width="70%">
+<td style="border:0px;vertical-align: top;" width="70%">
+The code (src folder) is structured into 3 levels:
 
-The code is structured into 3 levels:
+1. **The Core Level:** Provides all common CORC functionalities. This includes CAN-level communications, generic Robot, Joint and Drive classes and generic StateMachine functionalities.
+2. **The Hardware Level:** Provides "drivers" for the supported hardware. This includes definition of the various platforms (robots) supported but also motor drives (Copley, EPOS...) and various IOs.
+3. **The Application Layer:** Defines the high level logic for the device, based on the implementation of a State Machine. 
 
-1. **The CANopen Communications Level:** Provides the CAN-level communications, providing the mechanisms for the sending and receiving of PDO and SDO messages<br>
-2. **The Robot Level:** Defines the components of the Robot to be controlled, including the joints, associated drives, and input devices<br>
-3. **The Application Layer:** Defines the high level logic for the device, based on the implementation of a State Machine.<br>
+Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The Core level should not need to be changed. The Hardware level should only change with respect if the robot to be controlled changes. This is enforced by the source code folder structure - the files which should not need modification are placed in the `src/core` folder, and the remainder are placed in the `src/apps` and `src/hardware` folders.
 
-Whilst the code can be modified at any level, this structure is designed to provide a degree of modularity. The CANopen Communications level should not need to be changed. The Robot level should only change with respect if the robot to be controlled changes. This is loosely enforced by the source code folder structure - the files which should not need modification are placed in the `src/core` folder, and the remainder are placed in the `src/apps` and `src/hardware` folders. Note that in addition to the CANopen Communication code, the `src/core` folder also includes base classes which are derived from in the `src/apps` and `src/hardware` folders.<br>
+Detailled folders description is provided on the diagram on the right.
+<br>
 </td>
-<td style="border:0px">
-Project direcory structure:
-<img src="doc/img/CORCTree.svg">
+<td style="border:0px;vertical-align: top;" width="30%">
+Detailled project folders description (over for tooltips):<br>
+ <br>
+<ul><li><code title="CANOpenRobotController">CANOpenRobotController</code><ul><li><code title="YAML configuration files used by the different robot platforms to dynamically load some important parameters.">config</code></li></ul><ul><li><code title="Markdown main documentation. After using Doxigen you can also access the Doxygen documentation in html/index.html.">doc</code></li></ul><ul><li><code title="ROS and ROS2 launch files if using a ROS/ROS2 stateMachine.">launch</code></li></ul><ul><li><code title="External libraries used (and compiled) by CORC. Some are installed as git submodules.">lib</code></li></ul><ul><li><code title="ROS and ROS2 msg files if using a ROS stateMachine.">msg</code></li></ul><ul><li><code title="Set of useful scripts to initiate CAN or virtual CAN interfaces, upload files to BeagleBone or create a new state machine (app).">script</code></li></ul><ul><li><details open><summary><code title="Source files organised in three levels: 1)apps: contains application code (examples) and is where you can define your main logic; 2) hardware: contains platform (robot) and IO drivers to be modified/added to if you use non-supported hardware or new hardware functionalities; 3)core: with core CORC logic, likely not to be modified.">src</code></summary><ul><li><details><summary><code title="All the demo/example apps provided with CORC. Each app is a dedicated StateMachine with its own states. See the Get started pages for details. Your custom apps can also be placed in a different, external folder, for easier maintenance.">apps</code></summary><ul><li><code title="The very basic app example to start with to test CORC, the compilation process...">ExoTestMachine</code></li></ul><ul><li><code title="The EMU (M3) state machine example.">M3DemoMachine</code></li></ul><ul><li><code title="A template used by the createStateMachine script to ease the creation of a new custom StateMachine (app).">StateMachineTemplate</code></li></ul><ul><li><code title="other examples are available, check the Get started pages.">...</code></li></ul></details></li></ul><ul><li><details><summary><code title="Core code defining the main logic and common functionalities used by all CORC. Should very likely not be modified.">core</code></summary><ul><li><code title="The low-level CANOpen stack. Should very likely not be modified.">CANopen</code></li></ul><ul><li><code title="Convenience classes to manage network communication via FLNL. Should very likely not be modified.">network</code></li></ul><ul><li><code title="The base robot and joint classes. Should very likely not be modified.">robot</code></li></ul><ul><li><code title="The core/base StateMachine classes. Should very likely not be modified.">stateMachine</code></li></ul></details></li></ul><ul><li><details><summary><code title="All the different hardware drivers and interaction code, including the various supported robots definition, motor drives and other IOs.">hardware</code></summary><ul><li><code title="Motor drives classes. Include dedicated classes for Copley, Kinco and EPOS CANOpen based motor drives.">drives</code></li></ul><ul><li><code title="Drivers for various IOs (IMUs, encoders, keyboard...). See dedicated document page on supported IOs.">IO</code></li></ul><ul><li><details><summary><code title="Classes for each supported platform (robot) and their respective Joints where appropriate. Add or modify only if you need a new platform or new platform functionality (e.g. new sensor...).">platforms</code></summary><ul><li><code title="Classes for the FIT-HV waist exoskeleton (ULS robotics).">FITHVExo</code></li></ul><ul><li><code title="Classes for an example logging robot: only logging state.">LoggingRobot</code></li></ul><ul><li><code title="Classes for the ArmMotus M1 (Fourier Intelligence).">M1</code></li></ul><ul><li><code title="Classes for the ArmMotus M2 (Fourier Intelligence).">M2</code></li></ul><ul><li><code title="Classes for the ArmMotus M2 Pro (Fourier Intelligence).">M2P</code></li></ul><ul><li><code title="Classes for the ArmMotus EMU (Fourier Intelligence).">M3</code></li></ul><ul><li><code title="Classes for the X2 exoskeleton (Fourier Intelligence).">X2</code></li></ul></details></li></ul></details></li></ul></details></li></ul></li></ul>
 </td>
 </tr>
 </table>
-
 
 ## :heavy_minus_sign: What CORC is not?
 
