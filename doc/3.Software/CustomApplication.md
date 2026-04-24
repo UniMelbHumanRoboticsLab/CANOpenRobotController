@@ -9,20 +9,22 @@ Each CORC application is a dedicated state machine with its own states which hav
 
 To create a custom application with custom state machine, two things must be done. 
 
-First, the source code itself must be developed, by deriving the StateMachine class can be to a custom one, named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. These must be placed in a dedicated subfolder with a consistent name (e.g. `MyCustomStateMachine` must be used for both the folder and the file names). The folder should contain an `app.cmake` file containing the minimal compilation information, including the used platform (i.e. robot). See `src/apps/ExoTestMachine/app.cmake` for a simple example.
+First, the source code itself must be developed, by deriving the StateMachine class to a custom one, named `MyCustomStateMachine`, in files named `MyCustomStateMachine.h/cpp`. These must be placed in a dedicated subfolder with a consistent name (e.g. `MyCustomStateMachine` must be used for both the folder and the file names). The folder should contain an `app.cmake` file containing the minimal compilation information, including the used platform (i.e. robot). See `src/apps/ExoTestMachine/app.cmake` for a simple example.
 
-> Note: The `script/createStateMachine.sh` can be used to quickly create a new state machine with all the necessary files and a minimal set of states. Simply provide a base name and platform/robot names when prompted.
+In practice, you can use one of two options to create a new state machine:
 
-> Note: Alternatively, it is possible (recommended?) to use one of the existing application (X2DemoMachine or M3DemoMachine) as a template for your new state machine: simply copy the app folder closest to your application and follow the steps above.
+1) Use the `script/createStateMachine.sh` . It will quickly create a new state machine with all the necessary files and a minimal set of states. Simply provide a base name and platform/robot names when prompted (make sure you enter a correct, exisiting platform name as listed in the `platform` folder (e.g. M3 or FITHVExo).
 
-> Note: Additional code can be placed in the state machine folder. Every file placed in this folder (and subfolders) named in {.c, .cpp, .h}  will be compiled.
-
-> Note: It is recommended to place custom statemachine outside of the CORC folder to ease update and code versioning.
+2) Alternatively, it is possible to use one of the existing application (e.g. X2DemoMachine or M3DemoMachine) as a template for your new state machine: simply copy the app folder closest to your application and follow the steps above.
 
 Once the new state machine folder and files creared, `CMakeLists.txt` must be edited and the entry `include(src/apps/ExoTestMachine/app.cmake)` changed to `include(../MyCustomStateMachine/app.cmake)`, with the actual path to the custom statemachine folder.
 
 Simply use the same build procedure as for the example statemachines.
 
+
+> Note: Additional code can be placed in the state machine folder. Every file placed in this folder (and subfolders) named in {.c, .cpp, .h}  will be compiled.
+
+> Note: It is recommended to place custom statemachine outside of the CORC folder to ease update and code versioning.
 
 ## Platform access
 
@@ -39,12 +41,13 @@ class MyCustomStateMachine : public StateMachine {
 }
 
 ```
+This step will be done already if you copied an existing state machine or used the creation script.
 
 ## State machine structure and custom states and transitions
 
-CORC provides a structured way to build event driven Finite State Machines.
+The newly created app is a structured event driven finite state machine.
 
-The execution flow of a typical state machine with two states A and B is shown on this diagram and detailed below.
+The execution flow of a typical CORC state machine with two states A and B is shown on this diagram and detailed below.
    
    ![CORC State Machine Diagram](../img/CORCStateMachineExecutionDiagram.png)
    
@@ -54,7 +57,7 @@ Yellow parts highlights the methods which needs to be overriden with custom appl
 
 Each state is a custom class, derived from the generic `State`. It contains three main methods which should be overidden to include your custom code:
 - `virtual void entry()` which is called once when entering the state
-- `virtual void during()` which is called repeatedly by the main control loop and which manage the normal control execution. The code within this state should be executable within less time than the sampling period.
+- `virtual void during()` which is called repeatedly by the main control loop and which manage the normal control execution. **The code within this state should be executable within less time than the sampling period.**
 - `virtual void exit()` which is called once when exiting the state (either by transition or when program ends).
 
 For example the SittingDown class in the ExoTestmachine:
@@ -94,6 +97,12 @@ MyCustomStateMachine::MyCustomStateMachine() {
 > States are refered to by their name (e.g. "standing") which must be unique and not empty.
 > The order in which states are created does not matter (except to define the initial state if setInitState is not used).
 
+Whithin every state, you have access to a number of useful information:
+ - `running()` will return the time the current state has been running for in seconds
+ - `dt()` will return the latest samping time (how many seconds did the last iteration took). It should be very close to the app sampling time.
+ - `iterations()` will return the current state iteration number
+ - You will generally pass a pointer to your platform/robot to every state and be able to access it.
+
 ### Events and transitions
 
 Events are used to trigger transitions from one state to another. They could be based on a sensor trigger, timer, internale state...
@@ -111,6 +120,13 @@ bool startExo(StateMachine & SM) {
     return false;
 }
 ```
+
+In these transition functions you have access to:
+ - Your state machine object (once casted, see example above)
+ - The state machine running time in seconds: `sm.runningTime()`
+ - Your robot/platform: `sm.robot()` (and so its inputs and mehods: e.g. `sm.robot()->keyboard`)
+ - The different states, providing you know their type. e.g. `(sm.state<M3CalibState>("CalibState"))->isCalibDone();`
+
 
 Once events have been declared, they can be used to trigger transitions between states. This is done by adding a transition between state in the StateMachine constructor:
 ```C++
