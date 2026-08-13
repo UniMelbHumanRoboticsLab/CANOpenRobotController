@@ -19,10 +19,12 @@ project(CORC C CXX)
 #include(src/apps/X2ROS2DemoMachine/app.cmake)
 #include(src/apps/LoggingDevice/app.cmake)
 #include(../myStateMachineApp/app.cmake) ## example only, need to be defined
-include(../UBO_ROS2/app.cmake) ## example only, need to be defined
+#include(../UBO_ROS2/app.cmake) 
+#include(../EMU_ROS2/app.cmake) 
+include(../FT_EMU_ROS2/app.cmake) 
 
 ## Comment to use actual hardware, uncomment for a nor robot (virtual) app
-set(NO_ROBOT OFF)
+set(NO_ROBOT ON)
 
 ## Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)
 ## INFO is the recommended level in normal operation

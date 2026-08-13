@@ -21,7 +21,8 @@ RobotM3::RobotM3(string robot_name, string yaml_config_file) :  Robot(robot_name
 
     //Possible inputs: keyboard and joystick
     inputs.push_back(keyboard = new Keyboard());
-    inputs.push_back(joystick = new Joystick(1));
+    inputs.push_back(joystick = new Joystick(0));
+    
 
     last_update_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() / 1e6;
 }
@@ -86,7 +87,7 @@ bool RobotM3::loadParametersFromYAML(YAML::Node params) {
         }
     }
 
-    spdlog::info("Using YAML M3 parameters of {} (Tool: {}).", robotName, endEffTool->name);
+    spdlog::info("Using YAML M3 parameters of {} (Tool: {},Length: {},Mass: {}).", robotName, endEffTool->name,endEffTool->length,endEffTool->mass);
     return true;
 }
 

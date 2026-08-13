@@ -16,8 +16,8 @@ bool UBORobot::initialiseInputs() {
 
     UBO_FTSensors.push_back(new RobotousRFT(0xf0, 0xf1, 0xf2));
     // UBO_FTSensors.push_back(new RobotousRFT(0xf8, 0xf9, 0xf10));
-    UBO_FTSensors.push_back(new RobotousRFT(0xe6, 0xe7, 0xe8));
-    UBO_FTSensors.push_back(new RobotousRFT(0xec, 0xed, 0xee));
+//     UBO_FTSensors.push_back(new RobotousRFT(0xe6, 0xe7, 0xe8));
+//     UBO_FTSensors.push_back(new RobotousRFT(0xec, 0xed, 0xee));
 
     // Add to input stack
     for (uint i = 0; i < UBO_FTSensors.size(); i++) {
@@ -101,9 +101,14 @@ void UBORobot::updateUBO_readings(){
 }
 void UBORobot::printUBO_readings(Eigen::VectorXd readings) {
     for (int i = 0; i < (int)UBO_FTSensors.size(); i++) {
+    
+        Eigen::VectorXd cur_sensor_readings = readings.segment(i * 6, 6);
         std::cout << std::setprecision(3) << std::fixed << std::showpos;
-        std::cout << "F" << i << "=[ " << readings.segment(i * 6, 6).transpose() << " ]\t";
+        std::cout << "F" << i << "=[ " << cur_sensor_readings.transpose() << " ]\t";
         std::cout << "Stat" << i << "=[ " << UBO_FTSensors[i]->getOverload() << " ]\t";
+        std::cout <<  std::endl;
+        std::cout << "|F|" << i << "=[ " << cur_sensor_readings.segment(0, 3).norm() << " ]\t";
+        std::cout << "|M|" << i << "=[ " << cur_sensor_readings.segment(3, 3).norm() << " ]\t";
         std::cout <<  std::endl;
         std::cout <<  std::noshowpos;
     }

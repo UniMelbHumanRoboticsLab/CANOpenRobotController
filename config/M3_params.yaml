@@ -63,8 +63,8 @@ EMU_FOURIER:
   frictionVis: [0.33, 0.76, 0.69]  # Joint viscous friction compensation coefficients
   frictionCoul: [0.35, 0.19, 0.24] # Joint Coulomb (static) friction compensation coefficients
 
-  #End-effector description
+  # End-effector description
   tool:
     name: "Fourier Handle"
-    length: 0.0 #Tool length from attachment
-    mass:   0.1  #Tool mass in kg
+    length: 0.14 #Tool length from attachment
+    mass:   0.25  #Tool mass in kg
