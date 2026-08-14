@@ -24,9 +24,11 @@ class FT_RobotM3 : public RobotM3 {
     int num_FT = 1;
     // -- Variables assocaited with standalone sensors -- //
     std::vector<RobotousRFT *> FT_Sensors;
-    Eigen::VectorXd FT_readings;  //6xN Vector containing all FT readings
-    Eigen::VectorXd FT_olStats;  //6xN Vector containing all FT status
+    Eigen::VectorXd wrenches;  //6xN Vector containing raw FT readings
+    Eigen::VectorXd correctedWrenches;  //6xN Vector containing corrected FT readings
+    Eigen::VectorXd olStatWrenches;  //6xN Vector containing all FT status
     bool sensorsOn = false;
+    bool print_states = false;
     
    public:
     /**
@@ -36,37 +38,37 @@ class FT_RobotM3 : public RobotM3 {
       */
     FT_RobotM3(std::string robot_name="", std::string yaml_config_file="");
     ~FT_RobotM3();
-    
+    /**
+       * \brief update current state of the robot, including input and output devices.
+       * Overloaded Method from the RobotM3 Class.
+       */
+    void updateRobot();
+    /**
+     * @brief Corrects local copy of forces
+     */
+    void correctWrenches();
+
+    /**
+     * @brief Corrects local copy of forces, and returns them
+     * @brief get the overload status of the sensors
+     * @return Eigen::VectorXd& a 6xN (N is number of crutches) of crutch sensor readings
+     * @return Eigen::VectorXd& a N (N is number of crutches) of overload readings
+     */
+    Eigen::VectorXd &getWrenches();
+    Eigen::VectorXd &getOlStatWrenches();
+
+    /**
+     * @brief prints the states of the robot
+     *
+     */
     void printStatus();
-    
-    /**
-     * @brief Updates local copy of forces, and returns them
-     *
-     * @return Eigen::VectorXd& a 6xN (N is number of crutches) of crutch sensor readings
-     */
-    Eigen::VectorXd &getFT_readings();
+    void printWrenches();
 
     /**
-     * @brief Takes the forces from the FT sensors and updates a local copy
+     * @Configure FT sensors
      *
      */
-    void updateFT_readings();
-
-    /**
-     * @brief prints the forces from the FT sensors
-     *
-     */
-    void printFT_readings(Eigen::VectorXd readings);
-
-    /**
-     * @brief Updates and corrects the local copy of forces, and returns them
-     *
-     * @return Eigen::VectorXd& a 6xN (N is number of crutches) of crutch sensor readings
-     */
-    Eigen::VectorXd &getCorrectedFT_readings();
-    Eigen::VectorXd &getFT_OLStatus();
-
-    void setFTOffsets(Eigen::VectorXd offsets);
+    void setWrenchesOffset(Eigen::VectorXd offsets);
     bool startFT_Sensors();
     bool stopFT_Sensors();
     bool setFT_SensorsFilter();
