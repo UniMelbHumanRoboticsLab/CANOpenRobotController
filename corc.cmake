@@ -177,7 +177,7 @@ elseif(ROS EQUAL 2)
     find_package(std_msgs REQUIRED)
     find_package(sensor_msgs REQUIRED)
     ### add new interfaces here
-    find_package(corc_lfd_interfaces REQUIRED)
+    find_package(corc_interfaces REQUIRED)
     ###
     
 endif()
@@ -224,7 +224,7 @@ elseif(ROS EQUAL 2)
     include_directories(${INCLUDE_DIRS})
     
     # add new interfaces or required dependencies here
-    ament_target_dependencies(${APP_NAME} rclcpp std_msgs sensor_msgs corc_lfd_interfaces)
+    ament_target_dependencies(${APP_NAME} rclcpp std_msgs sensor_msgs corc_interfaces)
     ###
     ament_export_dependencies(rclcpp std_msgs sensor_msgs)
 
