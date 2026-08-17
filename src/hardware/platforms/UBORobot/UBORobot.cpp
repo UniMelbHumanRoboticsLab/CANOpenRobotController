@@ -16,8 +16,8 @@ bool UBORobot::initialiseInputs() {
 
     UBO_FTSensors.push_back(new RobotousRFT(0xf0, 0xf1, 0xf2));
     // UBO_FTSensors.push_back(new RobotousRFT(0xf8, 0xf9, 0xf10));
-//     UBO_FTSensors.push_back(new RobotousRFT(0xe6, 0xe7, 0xe8));
-//     UBO_FTSensors.push_back(new RobotousRFT(0xec, 0xed, 0xee));
+    UBO_FTSensors.push_back(new RobotousRFT(0xe6, 0xe7, 0xe8));
+    UBO_FTSensors.push_back(new RobotousRFT(0xec, 0xed, 0xee));
 
     // Add to input stack
     for (uint i = 0; i < UBO_FTSensors.size(); i++) {
