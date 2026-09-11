@@ -441,7 +441,8 @@ VM3 RobotM3::calculateEndEffAcceleration() {
     //Filter
     if(!velFilt.isInitialised()) {
         //Initialise filter at 10Hz w/ current sampling freq (Butterworth order 2)
-        if(dt<1.) { //dt not reliable at startup
+        if(dt<0.002) { //dt not reliable at startup
+            spdlog::warn("sampling: {}",dt);
             velFilt.initButter2low(10.*dt);
         }
         endEffVelocitiesFiltered = VM3::Zero();

@@ -55,8 +55,8 @@ void app_programControlLoop(void) {
     //Warn if time overflow (this is the effective used time, normally lower than the allocated time period)
     double dt = (std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now() - _t0).count()) / 1e6;
-    if(dt>controlLoopPeriodInms/1000.)
-        spdlog::warn("Applicaton thread time overflow: {}ms (>{}ms) !", dt*1000., controlLoopPeriodInms);
+//     if(dt>controlLoopPeriodInms/1000.)
+//         spdlog::warn("Applicaton thread time overflow: {}ms (>{}ms) !", dt*1000., controlLoopPeriodInms);
 }
 
 /******************** Runs at the End of rt_control_thread********************/
