@@ -1,0 +1,34 @@
+# Affected-test selection for the `affected-tests` merge request label.
+# SPDX-FileCopyrightText: The Eigen Authors
+# SPDX-License-Identifier: MPL-2.0
+#
+# Emits the set of tests reachable from the merge request diff, which the
+# affected-tier build and test jobs consume.  See scripts/affected_tests.py for
+# the selection rules and .agents/ci.md for how the tier fits the CI matrix.
+
+select:tests:
+  stage: select
+  image: ubuntu:24.04
+  needs: []
+  rules: !reference [.rules:libeigen:affected-tests, rules]
+  variables:
+    # The selector diffs against the merge-base, which a shallow clone may not
+    # contain.
+    GIT_DEPTH: 0
+  before_script:
+    - apt-get update -y
+    - apt-get install -y --no-install-recommends python3 git
+  script:
+    - python3 scripts/test_affected_tests.py
+    - python3 scripts/affected_tests.py
+        --base-sha "${CI_MERGE_REQUEST_DIFF_BASE_SHA}"
+        --output-dir affected
+    - echo "Build target selection:" && cat affected/targets.txt
+  artifacts:
+    when: always
+    name: "$CI_JOB_NAME_SLUG-$CI_COMMIT_REF_SLUG"
+    paths:
+      - affected/
+    expire_in: 2 days
+  tags:
+    - saas-linux-medium-amd64

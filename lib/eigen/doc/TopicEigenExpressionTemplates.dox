@@ -1,0 +1,75 @@
+namespace Eigen {
+
+/** \page TopicEigenExpressionTemplates Expression templates in Eigen
+
+Arithmetic operators and most methods in %Eigen do not compute anything by themselves. Instead they
+return a small \em expression \em object that merely describes the computation to be performed and
+stores references to the operands. The actual computation happens later, typically when the whole
+expression is assigned to a destination. This technique is known as <i>expression templates</i>,
+and understanding its user-visible consequences helps to write both correct and fast %Eigen code.
+
+\eigenAutoToc
+
+\section TopicETHow How it works
+
+Consider:
+\code
+VectorXf a(50), b(50), c(50), d(50);
+a = 3*b + 4*c + 5*d;
+\endcode
+
+The right-hand side does not create any temporary vector. The subexpression \c 3*b is an object of
+type <tt>CwiseBinaryOp<scalar_product_op, ..., ...></tt> that just stores the scalar and a reference
+to \c b; the additions nest similar objects around it. The complete type of the right-hand side
+encodes the whole expression tree at compile time. Only when this expression is assigned to \c a
+does %Eigen generate a single evaluation loop, morally equivalent to:
+\code
+for (int i = 0; i < 50; ++i)
+  a[i] = 3*b[i] + 4*c[i] + 5*d[i];
+\endcode
+
+The benefits are that the arrays are traversed only once, no temporary objects are created, and the
+single fused loop can be unrolled and vectorized (see \ref TopicVectorization). Consequently, you
+should not be afraid of writing large expressions: doing so gives %Eigen more opportunities for
+optimization. A step-by-step tour of the machinery behind this example is given in
+\ref TopicInsideEigenExample, and the involved class hierarchy is described in
+\ref TopicClassHierarchy.
+
+Not every subexpression is evaluated lazily: matrix products, for instance, are evaluated into
+temporaries in most contexts, both for performance and for correctness in the face of aliasing.
+The rules governing which subexpressions are evaluated where are documented in
+\ref TopicLazyEvaluation.
+
+\section TopicETConsequences What it means in practice
+
+Because an "expression" is not a matrix, a few things deserve attention:
+
+  - <b>Do not use \c auto to capture an expression</b> unless you know exactly what you are doing:
+    the deduced type is the expression type, not a plain matrix, so the computation re-runs every
+    time the variable is used, and the expression may hold dangling references to destroyed
+    temporaries. See \ref TopicPitfalls_auto_keyword.
+  - <b>Assignment evaluates coefficient-wise into the destination</b>, so if the destination also
+    appears on the right-hand side, coefficients may be read after they have been overwritten. This
+    is the aliasing problem, explained in \ref TopicAliasing. Use .eval(), an xxxInPlace() method,
+    or \link MatrixBase::noalias() noalias()\endlink as appropriate.
+  - <b>Functions should accept expressions, not just matrices.</b> Take parameters of type
+    <tt>const MatrixBase<Derived>&</tt> (or ArrayBase, DenseBase, EigenBase, or Ref) so that
+    arbitrary expressions can be passed without evaluating them into a temporary; see
+    \ref TopicFunctionTakingEigenTypes.
+  - <b>Materializing an expression</b> is done with \link DenseBase::eval() .eval()\endlink, which
+    returns a plain matrix or array (and is a no-op when the expression already is one), or by
+    assigning the expression to a plain object.
+  - <b>The two branches of the ternary operator <tt>?:</tt></b> must have a common type, which two
+    different expression types usually do not; use \c if/\c else or evaluate the branches. See
+    \ref TopicPitfalls_ternary_operator.
+
+\section TopicETExtending Extending the expression system
+
+Coefficient-wise custom operations rarely need a new expression type: a functor passed to
+unaryExpr(), binaryExpr(), or NullaryExpr() is usually enough (see \ref TopicCustomizing_Functors
+and \ref TopicCustomizing_NullaryExpr). When a genuinely new expression type is required,
+\ref TopicNewExpressionType walks through a complete example.
+
+*/
+
+}

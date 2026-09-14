@@ -1,0 +1,178 @@
+namespace Eigen {
+
+/** \page TopicNewExpressionType Adding a new expression type
+
+<!--<span style="font-size:130%; color:red; font-weight: 900;"></span>-->
+\warning
+Disclaimer: this page is tailored to very advanced users who are not afraid of dealing with some %Eigen's internal aspects.
+In most cases, a custom expression can be avoided by either using custom \ref MatrixBase::unaryExpr "unary" or \ref MatrixBase::binaryExpr "binary" functors,
+while extremely complex matrix manipulations can be achieved by nullary functors as described in the \ref TopicCustomizing_NullaryExpr "previous page".
+
+This page describes with the help of an example how to implement a new
+light-weight expression type in %Eigen. This consists of three parts:
+the expression type itself, a traits class containing compile-time
+information about the expression, and the evaluator class which is
+used to evaluate the expression to a matrix.
+
+\section TopicNewExpressionChecklist Checklist before adding a new matrix or expression type
+
+Adding a new dense expression type is an internal extension point. Before doing so, check whether a smaller extension
+point is enough:
+
+- If you only need coefficient-wise custom work, prefer custom \ref TopicCustomizing_Functors "functors" with
+  unaryExpr(), binaryExpr(), NullaryExpr(), or redux().
+- If you need a procedural matrix or a read-only indexed view, prefer \ref TopicCustomizing_NullaryExpr
+  "nullary expressions".
+- If you only need convenience methods on Matrix or Array, prefer the \ref TopicCustomizing_Plugins "plugin"
+  mechanism.
+- If you need an owning matrix with conventional dense storage, prefer composing or inheriting from Matrix, as described
+  in \ref TopicCustomizing_InheritingMatrix.
+
+When a new expression type is still needed, the implementation usually has to provide:
+
+- an expression class deriving from MatrixBase, ArrayBase, or EigenBase, depending on the public API it should expose;
+- an \c internal::traits specialization describing scalar type, storage kind, compile-time sizes, flags, and related
+  expression properties;
+- storage for operands or parameters, with careful lifetime handling for nested expressions;
+- rows(), cols(), and any other dimension accessors required by the chosen base class;
+- an \c internal::evaluator specialization implementing coefficient access, and packet access only when the expression
+  can really be vectorized;
+- an entry-point function that constructs the expression and returns it by value;
+- focused tests for fixed and dynamic sizes, constness, aliasing/evaluation behavior, and any supported storage orders.
+
+Owning storage types are much more invasive than lightweight expressions because they interact with PlainObjectBase,
+resizing, alignment, assignment, and evaluator assumptions. New code should avoid introducing such a type unless the
+existing Matrix, Array, Map, Ref, view, or expression mechanisms cannot represent the use case.
+
+For background on the design that a new expression type plugs into, see \ref TopicEigenExpressionTemplates,
+\ref TopicClassHierarchy, \ref TopicLazyEvaluation, and \ref TopicInsideEigenExample.
+
+
+\eigenAutoToc
+
+\section TopicSetting The setting
+
+A circulant matrix is a matrix where each column is the same as the
+column to the left, except that it is cyclically shifted downwards.
+For example, here is a 4-by-4 circulant matrix:
+\f[ \begin{bmatrix} 
+    1 & 8 & 4 & 2 \\ 
+    2 & 1 & 8 & 4 \\
+    4 & 2 & 1 & 8 \\
+    8 & 4 & 2 & 1
+\end{bmatrix} \f]
+A circulant matrix is uniquely determined by its first column. We wish
+to write a function \c makeCirculant which, given the first column,
+returns an expression representing the circulant matrix.
+
+For simplicity, we restrict the \c makeCirculant function to dense
+matrices. It may make sense to also allow arrays, or sparse matrices,
+but we will not do so here. We also do not want to support
+vectorization.
+
+
+\section TopicPreamble Getting started
+
+We will present the file implementing the \c makeCirculant function
+part by part. We start by including the appropriate header files and
+forward declaring the expression class, which we will call
+\c Circulant. The \c makeCirculant function will return an object of
+this type. The class \c Circulant is in fact a class template; the
+template argument \c ArgType refers to the type of the vector passed
+to the \c makeCirculant function.
+
+\include make_circulant.cpp.preamble
+
+
+\section TopicTraits The traits class
+
+For every expression class \c X, there should be a traits class
+\c internal::traits<X> in the \c Eigen namespace containing
+information about \c X known at compile time.
+
+As explained in \ref TopicSetting, we designed the \c Circulant
+expression class to refer to dense matrices. The entries of the
+circulant matrix have the same type as the entries of the vector
+passed to the \c makeCirculant function. The type used to index the
+entries is also the same. Again for simplicity, we will only return
+column-major matrices. Finally, the circulant matrix is a square
+matrix (number of rows equals number of columns), and the number of
+rows equals the number of rows of the column vector passed to the
+\c makeCirculant function. If this is a dynamic-size vector, then the
+size of the circulant matrix is not known at compile-time.
+
+This leads to the following code:
+
+\include make_circulant.cpp.traits
+
+
+\section TopicExpression The expression class
+
+The next step is to define the expression class itself. In our case,
+we want to inherit from \c MatrixBase in order to expose the interface
+for dense matrices. In the constructor, we check that we are passed a
+column vector (see \ref TopicAssertions) and we store the vector from
+which we are going to build the circulant matrix in the member
+variable \c m_arg. Finally, the expression class should compute the
+size of the corresponding circulant matrix. As explained above, this
+is a square matrix with as many columns as the vector used to
+construct the matrix.
+
+The \c Nested typedef is what an enclosing expression stores this one
+as: \c CwiseUnaryOp, \c CwiseBinaryOp and their kin declare their
+operand members as \c ArgType::Nested. Define it from
+\c internal::ref_selector, as above, which selects a reference or a
+value from the expression's own \c NestByRefBit. Whether a
+sub-expression is instead evaluated into a temporary is a separate
+decision, taken by \c internal::nested_eval from the evaluator's flags
+and costs rather than from this typedef.
+
+\include make_circulant.cpp.expression
+
+
+\section TopicEvaluator The evaluator
+
+The last big fragment implements the evaluator for the \c Circulant
+expression. The evaluator computes the entries of the circulant
+matrix; this is done in the \c .coeff() member function. The entries
+are computed by finding the corresponding entry of the vector from
+which the circulant matrix is constructed. Getting this entry may
+actually be non-trivial when the circulant matrix is constructed from
+a vector which is given by a complicated expression, so we use the
+evaluator which corresponds to the vector.
+
+The \c CoeffReadCost constant records the cost of computing an entry
+of the circulant matrix; we ignore the index computation and say that
+this is the same as the cost of computing an entry of the vector from
+which the circulant matrix is constructed.
+
+In the constructor, we save the evaluator for the column vector which
+defined the circulant matrix. We also save the size of that vector;
+remember that we can query an expression object to find the size but
+not the evaluator. 
+
+\include make_circulant.cpp.evaluator
+
+
+\section TopicEntry The entry point
+
+After all this, the \c makeCirculant function is very simple. It
+simply creates an expression object and returns it.
+
+\include make_circulant.cpp.entry
+
+
+\section TopicMain A simple main function for testing
+
+Finally, a short \c main function that shows how the \c makeCirculant
+function can be called.
+
+\include make_circulant.cpp.main
+
+If all the fragments are combined, the following output is produced,
+showing that the program works as expected:
+
+\include make_circulant.out
+
+*/
+}

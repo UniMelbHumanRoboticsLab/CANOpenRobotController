@@ -1,0 +1,115 @@
+namespace Eigen {
+
+/** \eigenManualPage LeastSquares Solving linear least squares systems
+
+This page describes how to solve linear least squares systems using %Eigen. An overdetermined system
+of equations, say \a Ax = \a b, has no solutions. In this case, it makes sense to search for the
+vector \a x which is closest to being a solution, in the sense that the difference \a Ax - \a b is
+as small as possible. This \a x is called the least square solution (if the Euclidean norm is used).
+
+The methods discussed on this page are the complete orthogonal decomposition (COD), the SVD
+decomposition, other QR decompositions, and normal equations. For most problems, we recommend
+CompleteOrthogonalDecomposition: it robustly computes the minimum-norm least squares solution
+(like the SVD) for both over- and under-determined systems, including rank-deficient ones, but at
+QR-like speed. For large problems, RandCompleteOrthogonalDecomposition computes the same kind of
+factorization with a randomized blocked rank-revealing QR. The SVD is the most robust but also the
+slowest; use it when you also need singular values or vectors. Normal equations are the fastest but
+least robust.
+
+\eigenAutoToc
+
+
+\section LeastSquaresCOD Using the complete orthogonal decomposition (recommended)
+
+CompleteOrthogonalDecomposition is the recommended method for least squares problems. It handles the
+widest class of problems — overdetermined, underdetermined, and rank-deficient systems — and computes
+the minimum-norm solution when the system is rank-deficient or underdetermined, just like the SVD.
+It is based on a rank-revealing QR factorization (ColPivHouseholderQR) followed by a post-processing
+step, so it is significantly faster than SVD while providing comparable robustness.
+
+<table class="example">
+<tr><th>Example:</th><th>Output:</th></tr>
+<tr>
+  <td>\include LeastSquaresCOD.cpp </td>
+  <td>\verbinclude LeastSquaresCOD.out </td>
+</tr>
+</table>
+
+For large problems, RandCompleteOrthogonalDecomposition computes the same kind of factorization
+through a randomized blocked rank-revealing QR (RandColPivHouseholderQR) instead. It selects each
+block of pivots from a small Gaussian sketch of the matrix, which keeps nearly all of the work in
+level-3 BLAS kernels rather than in the memory-bound column scan that classical column pivoting
+requires. The pivots therefore differ from the ones classical column pivoting would choose, and so
+do the resulting factors, but the pivot-quality difference is empirically minor. It has the same interface, so it is a drop-in
+replacement in the example above, and additionally exposes setBlockSize() and setSeed() to control
+the underlying QR. For small matrices the cost of forming the sketch dominates, so prefer
+CompleteOrthogonalDecomposition there.
+
+Both classes also provide pseudoInverse(); they are the only decompositions in %Eigen that do. Note
+that solve() is more efficient and more accurate than multiplying by an explicitly formed
+pseudo-inverse.
+
+
+\section LeastSquaresSVD Using the SVD decomposition
+
+The \link BDCSVD::solve() solve() \endlink method in the BDCSVD class can be directly used to
+solve linear squares systems. It is not enough to compute only the singular values (the default for
+this class); you also need the singular vectors but the thin SVD decomposition suffices for
+computing least squares solutions:
+
+<table class="example">
+<tr><th>Example:</th><th>Output:</th></tr>
+<tr>
+  <td>\include TutorialLinAlgSVDSolve.cpp </td>
+  <td>\verbinclude TutorialLinAlgSVDSolve.out </td>
+</tr>
+</table>
+
+This is example from the page \link TutorialLinearAlgebra Linear algebra and decompositions \endlink.
+The SVD gives you singular values and vectors in addition to the least squares solution, but if you
+only need the solution, CompleteOrthogonalDecomposition (above) is faster.
+
+
+\section LeastSquaresQR Using other QR decompositions
+
+The solve() method in QR decomposition classes also computes the least squares solution. Besides the
+two complete orthogonal decompositions (above), there are four other QR decomposition classes:
+HouseholderQR (no pivoting, so fast but unreliable if your matrix is not full rank),
+ColPivHouseholderQR (column pivoting, a bit slower but rank-revealing), RandColPivHouseholderQR
+(randomized blocked column pivoting, rank-revealing and intended for large matrices), and
+FullPivHouseholderQR (full pivoting, significantly slower and rarely needed in practice).
+Note that only the complete orthogonal decompositions and the SVD-based solvers compute minimum-norm
+solutions for rank-deficient or underdetermined problems; the plain QR variants do not.
+Here is an example with column pivoting:
+
+<table class="example">
+<tr><th>Example:</th><th>Output:</th></tr>
+<tr>
+  <td>\include LeastSquaresQR.cpp </td>
+  <td>\verbinclude LeastSquaresQR.out </td>
+</tr>
+</table>
+
+
+\section LeastSquaresNormalEquations Using normal equations
+
+Finding the least squares solution of \a Ax = \a b is equivalent to solving the normal equation
+<i>A</i><sup>T</sup><i>Ax</i> = <i>A</i><sup>T</sup><i>b</i>. This leads to the following code
+
+<table class="example">
+<tr><th>Example:</th><th>Output:</th></tr>
+<tr>
+  <td>\include LeastSquaresNormalEquations.cpp </td>
+  <td>\verbinclude LeastSquaresNormalEquations.out </td>
+</tr>
+</table>
+
+This method is usually the fastest, especially when \a A is "tall and skinny". However, if the
+matrix \a A is even mildly ill-conditioned, this is not a good method, because the condition number
+of <i>A</i><sup>T</sup><i>A</i> is the square of the condition number of \a A. This means that you
+lose roughly twice as many digits of accuracy using the normal equation, compared to the more stable
+methods mentioned above.
+
+*/
+
+}

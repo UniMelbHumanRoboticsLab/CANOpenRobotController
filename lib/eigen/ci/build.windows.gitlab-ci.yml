@@ -1,0 +1,143 @@
+# Base configuration for windows builds.
+# SPDX-FileCopyrightText: The Eigen Authors
+# SPDX-License-Identifier: MPL-2.0
+.build:windows:
+  needs: []
+  extends: [ .common:windows, .artifacts:windows:builddir ]
+  stage: build
+  variables:
+    EIGEN_CI_BUILD_TARGET: buildtests
+    # Reduce overall build size and compile time.
+    # Note: /d2ReducedOptimizeHugeFunctions is only available in VS 2019.
+    EIGEN_CI_TEST_CUSTOM_CXX_FLAGS: "/d2ReducedOptimizeHugeFunctions;/DEIGEN_STRONG_INLINE=inline;/Os"
+    # "off" disables the ccache compiler launchers (see
+    # build.windows.script.ps1). The script downloads a pinned,
+    # SHA-256-verified ccache when the runner has none; if that also fails,
+    # the job builds exactly as before.
+    EIGEN_CI_CCACHE: "on"
+    CCACHE_DIR: ${CI_PROJECT_DIR}/.ccache
+    # Runner-local cache, so no archive-size limit applies; 4G holds a full
+    # MSVC buildtests run with headroom and only bounds runner disk use.
+    CCACHE_MAXSIZE: 4G
+    # Hash compile paths relative to the project directory: absolute paths are
+    # part of ccache's hash, so without this a checkout-path change (runner
+    # layout, concurrent build slots) turns every compile into a miss.
+    CCACHE_BASEDIR: ${CI_PROJECT_DIR}
+    # Don't re-compress the already-zstd-compressed ccache payload when
+    # archiving; see the Linux build template for the measured rationale.
+    FF_USE_FASTZIP: "true"
+    CACHE_COMPRESSION_LEVEL: "fastest"
+    # ccache pool name; see the Linux build template.
+    EIGEN_CI_CCACHE_POOL: $CI_JOB_NAME_SLUG
+  script:
+     - ./ci/scripts/build.windows.script.ps1
+  tags:
+    - eigen-runner
+    - windows
+    - x86-64
+  rules: !reference [.rules:libeigen:all-tests, rules]
+  # Cache the ccache directory, not ${EIGEN_CI_BUILDDIR}, mirroring
+  # build.linux.gitlab-ci.yml: ccache keys on file content and compiler, so
+  # hits survive a re-checkout that re-stamps every source mtime (which made
+  # the old build-directory cache rebuild everything anyway). Deliberately not
+  # scoped by EIGEN_CI_CCACHE_SCOPE the way the Linux template is: the Windows
+  # runner has no shared cache server, so every archive is runner-local and
+  # nothing ever evicts one. Shared pools are bounded at one archive per job;
+  # per-merge-request pools would grow without bound, by four MSVC pools per
+  # `all-tests` merge request (22 of them in the 60 days to 2026-09-03), for
+  # little gain -- Windows builds run only under a label, so a merge request
+  # seldom builds here twice. Keys stay split by GitLab's protection suffix as
+  # described in the Linux template. Both entries push even when the build fails
+  # (when: always): the retry pipeline after a compile error is exactly where
+  # hits matter most.
+  cache:
+    # The pinned ccache binary the build script downloads when the runner has
+    # none; one shared key so a runner downloads it once for all build jobs.
+    # Cache content is writable job output, not a trusted source: the script
+    # re-verifies the binary's SHA-256 on every use before executing it.
+    - key: "windows-ccache-bin"
+      paths:
+        - .ccache-bin/
+      when: always
+    - key: "$EIGEN_CI_CCACHE_POOL-ccache"
+      paths:
+        - .ccache/
+      when: always
+
+######### MSVC #################################################################
+
+# MSVC 14.29 (VS 2019) 32 bit
+
+build:windows:x86:msvc-14.29:default:
+  extends: .build:windows
+  variables:
+    EIGEN_CI_MSVC_ARCH: "x64_x86"
+
+# MSVC 14.29 (VS 2019) 64 bit
+
+build:windows:x86-64:msvc-14.29:default:
+  extends: .build:windows
+
+build:windows:x86-64:msvc-14.29:avx2:
+  extends: .build:windows
+  variables:
+    EIGEN_CI_ADDITIONAL_ARGS: "-DEIGEN_TEST_AVX2=on"
+
+build:windows:x86-64:msvc-14.29:avx512dq:
+  extends: .build:windows
+  variables:
+    EIGEN_CI_ADDITIONAL_ARGS: "-DEIGEN_TEST_AVX512DQ=on"
+
+
+# MSVC 14.29 (VS 2019) + CUDA
+
+.build:windows:cuda:
+  extends: .build:windows
+  # The .cu compiles reach the launcher through the .bat wrapper that
+  # ei_cuda_use_compiler_launcher() puts in front of nvcc; see the Linux CUDA
+  # template for the rationale.
+  variables:
+    # The GPU in the Windows CUDA runner (eigen-windows-testing-001.gcloud) is
+    # a Tesla L4, sm_89.  Eigen has no architecture-dependent device code
+    # between sm_75 and sm_89, so a second architecture would only double the
+    # device compile time on a single self-hosted runner.  CUDA 13 dropped
+    # offline compilation for Volta and older; nothing below sm_75 can be
+    # listed here any more.
+    EIGEN_CI_CUDA_COMPUTE_ARCH: "89"
+    EIGEN_CI_BUILD_TARGET: buildtests_gpu
+    EIGEN_CI_ADDITIONAL_ARGS:
+      -DEIGEN_TEST_CUDA=on
+      -DEIGEN_CUDA_COMPUTE_ARCH=${EIGEN_CI_CUDA_COMPUTE_ARCH}
+  # Name the GPU and driver on this runner first; the arch list above has to
+  # match it.
+  before_script:
+    - nvidia-smi
+    - . ci/scripts/common.windows.before_script.ps1
+  rules: !reference [.rules:libeigen:gpu, rules]
+  tags:
+    - eigen-runner
+    - windows
+    - x86-64
+    - cuda
+
+# MSVC 14.29 + CUDA 13.0
+build:windows:x86-64:cuda-13.0:msvc-14.29:
+  extends: .build:windows:cuda
+  variables:
+    # Pin the toolkit and fail when it is absent.  With CUDA_PATH empty,
+    # FindCUDA falls through to whichever nvcc is first on PATH and the job
+    # silently builds with a toolkit other than the one in its name.
+    EIGEN_CI_BEFORE_SCRIPT: >-
+      if (-not $$env:CUDA_PATH_V13_0) { throw 'CUDA 13.0 is not installed on this runner' };
+      $$env:CUDA_PATH=$$env:CUDA_PATH_V13_0
+
+######### MR Affected Tests ####################################################
+# Opt-in via `affected-tests` plus `windows-tests` or `all-platforms`; see
+# .rules:libeigen:affected-tests:windows in ci/common.gitlab-ci.yml.  Only MSVC
+# x64 at baseline ISA; the wider Windows matrix stays in `all-tests`.
+
+build:windows:x86-64:msvc-14.29:default:affected:
+  extends: [ build:windows:x86-64:msvc-14.29:default, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-windows-x86-64-msvc-14-29-default
+  rules: !reference [.rules:libeigen:affected-tests:windows, rules]

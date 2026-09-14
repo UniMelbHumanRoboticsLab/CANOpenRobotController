@@ -1,0 +1,96 @@
+# SPDX-FileCopyrightText: The Eigen Authors
+# SPDX-License-Identifier: MPL-2.0
+
+checkformat:clangformat:
+  stage: checkformat
+  image: alpine:3.20
+  only:
+    - merge_requests
+  allow_failure: true
+  before_script:
+    - apk add --no-cache git clang17-extra-tools python3
+  script:
+    - git clang-format --diff --commit ${CI_MERGE_REQUEST_DIFF_BASE_SHA}
+
+checkformat:codespell:
+  stage: checkformat
+  image: alpine:3.20
+  only:
+    - merge_requests
+  allow_failure: true
+  before_script:
+    - apk add --no-cache py3-codespell
+  script:
+    - codespell --config setup.cfg
+
+checkformat:reuse:
+  stage: checkformat
+  image: alpine:3.20
+  only:
+    - merge_requests
+  before_script:
+    - apk add --no-cache py3-pip
+    # reuse >= 6.x needs an encoding-detection backend at import time; the Alpine image
+    # ships neither libmagic nor charset-normalizer, so pull in the latter explicitly.
+    - pip install --break-system-packages 'reuse[charset-normalizer]'
+  script:
+    - reuse lint
+
+# The unit tests for the Python helpers that decide what the rest of the
+# pipeline does: scripts/affected_tests.py chooses which tests an MR builds,
+# ci/scripts/test_cache.py chooses which of them can be skipped as already
+# passed, and scripts/clang_tidy_hook.py decides which edit-time diagnostics
+# interrupt an agent.  They fail closed, but a wrong answer is silent -- a job
+# that skips too much or drops a hook diagnostic still reports success -- so
+# these are blocking, and they run on every merge request rather than under the
+# affected-tests label that gates select:tests (which is where the selector's
+# tests used to run alone).
+checkformat:scripts:
+  stage: checkformat
+  image: alpine:3.20
+  only:
+    - merge_requests
+  before_script:
+    - apk add --no-cache python3 git
+  script:
+    - python3 scripts/test_affected_tests.py
+    - python3 ci/scripts/test_test_cache.py
+    - python3 ci/scripts/test_prune_runner_cache.py
+    - python3 scripts/test_check_style.py
+    - python3 scripts/test_clang_tidy_hook.py
+
+checkformat:clangtidy:
+  stage: checkformat
+  image: ubuntu:24.04
+  only:
+    - merge_requests
+  allow_failure: true
+  # Each selected compilation-database entry is a separate one-to-two-minute
+  # parse after ~2 minutes of setup; an MR touching several split tests
+  # (!2940: eleven test files, nine parts) needs ~20 minutes, and the 15m cap
+  # left its last files unchecked. The job is advisory, so the cap only costs
+  # runner minutes when there is that much to check.
+  timeout: 1h
+  tags:
+    - saas-linux-medium-amd64
+  variables:
+    DEBIAN_FRONTEND: noninteractive
+  before_script:
+    - apt-get update -y > /dev/null
+    - apt-get install -y --no-install-recommends
+        git cmake ninja-build clang-tidy clang python3 ca-certificates > /dev/null
+  script:
+    - mkdir -p .tidy-build
+    - cmake -G Ninja -B .tidy-build
+        -DCMAKE_CXX_COMPILER=clang++
+        -DCMAKE_C_COMPILER=clang
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        -DEIGEN_BUILD_TESTING=ON
+    - chmod +x ci/scripts/run-clang-tidy.sh
+    - ci/scripts/run-clang-tidy.sh ${CI_MERGE_REQUEST_DIFF_BASE_SHA} .tidy-build
+  cache:
+    key: clang-tidy-config
+    paths:
+      - .tidy-build/compile_commands.json
+      - .tidy-build/CMakeCache.txt
+      - .tidy-build/CMakeFiles/

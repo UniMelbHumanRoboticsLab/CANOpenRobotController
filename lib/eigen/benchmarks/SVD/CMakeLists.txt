@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: The Eigen Authors
+# SPDX-License-Identifier: MPL-2.0
+
+eigen_add_benchmark(bench_svd bench_svd.cpp)
+eigen_add_benchmark(bench_bidiag bench_bidiag.cpp)
+eigen_add_benchmark(bench_make_jacobi bench_make_jacobi.cpp)
+eigen_add_benchmark(bench_jacobisvd_rotations bench_jacobisvd_rotations.cpp)
+eigen_add_benchmark(bench_jacobisvd_scaling_float bench_svd_scaling.cpp DEFINITIONS SCALAR=float)
+eigen_add_benchmark(bench_jacobisvd_scaling_double bench_svd_scaling.cpp)
+eigen_add_benchmark(bench_bdcsvd_scaling_float bench_svd_scaling.cpp DEFINITIONS SCALAR=float EIGEN_BENCH_BDCSVD)
+eigen_add_benchmark(bench_bdcsvd_scaling_double bench_svd_scaling.cpp DEFINITIONS EIGEN_BENCH_BDCSVD)

@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: The Eigen Authors
+# SPDX-License-Identifier: MPL-2.0
+
+eigen_add_benchmark(bench_eigensolver bench_eigensolver.cpp)
+eigen_add_benchmark(bench_eigensolver_double bench_eigensolver.cpp DEFINITIONS SCALAR=double)
+eigen_add_benchmark(bench_eigensolver_stride bench_eigensolver_stride.cpp)
+eigen_add_benchmark(bench_tridiagonal_bisection bench_tridiagonal_bisection.cpp)
+eigen_add_benchmark(bench_tridiagonal_inverse_iteration bench_tridiagonal_inverse_iteration.cpp)

@@ -1,0 +1,1004 @@
+# Base configuration for linux cross-compilation.
+# SPDX-FileCopyrightText: The Eigen Authors
+# SPDX-License-Identifier: MPL-2.0
+.build:linux:cross:
+  needs: []
+  extends: [ .common:linux:cross, .artifacts:linux:builddir ]
+  stage: build
+  variables:
+    EIGEN_CI_BUILD_TARGET: buildtests
+    EIGEN_CI_SKIP_APT: "false"
+    # "off" disables the ccache compiler launchers (see build.linux.script.sh);
+    # the jobs that set it explain why. Images without ccache build exactly as
+    # before regardless of this setting.
+    EIGEN_CI_CCACHE: "on"
+    CCACHE_DIR: ${CI_PROJECT_DIR}/.ccache
+    # A full buildtests job stores ~4-6 GB of compressed objects; at 2G every
+    # nightly build filled the cache (149 LRU cleanups, 0.4% hits) and evicted
+    # what the previous run had stored, so nothing was ever reused. 4G is the
+    # largest safe cap: hosted runners reject cache archives over 5 GB, and
+    # the archive is about the size of the (already zstd-compressed) ccache
+    # directory. The raised compression level packs more of the working set
+    # under that cap; 5 is the ccache manual's recommended ceiling for live
+    # (compile-time) compression, and captures most of the density gain.
+    CCACHE_MAXSIZE: 4G
+    CCACHE_COMPRESSLEVEL: 5
+    # Hash compile paths relative to the project directory: absolute -I/source
+    # paths are part of ccache's hash, so without this a checkout-path change
+    # (runner layout, concurrent build slots) turns every compile into a miss.
+    CCACHE_BASEDIR: ${CI_PROJECT_DIR}
+    # The ccache payload is already zstd-compressed, so re-compressing it into
+    # cache.zip at the default level burns CPU for no size gain: a fully warm
+    # build spent 87s archiving+uploading a 2 GB cache it compiled in 71s.
+    # Fastzip at "fastest" effectively stores the archive instead, and also
+    # speeds up cache extraction on restore.
+    FF_USE_FASTZIP: "true"
+    CACHE_COMPRESSION_LEVEL: "fastest"
+    # ccache pool name, minus the `-ccache` suffix the cache stanza appends:
+    # the job's own slug by default. A job that compiles a subset of another
+    # job's targets with the same flags names that job's slug instead (see the
+    # affected-tests section), so it draws on a pool the full builds fill.
+    EIGEN_CI_CCACHE_POOL: $CI_JOB_NAME_SLUG
+  script:
+    - . ci/scripts/build.linux.script.sh
+  tags:
+    - saas-linux-2xlarge-amd64
+  rules: !reference [.rules:libeigen:all-tests, rules]
+  # Cache the ccache directory, not ${EIGEN_CI_BUILDDIR}: each job starts from
+  # a fresh clone whose checkout mtimes are newer than any restored build
+  # output, so ninja rebuilt every target despite a successfully restored
+  # cache. ccache keys on file content and compiler, which survives the
+  # re-clone.
+  #
+  # Restoring a cache replaces .ccache/ rather than merging into it, so an
+  # unscoped pool is last-writer-wins: merge requests on different bases
+  # overwrite each other's objects. Job 16273375875 restored a full 4 GB pool
+  # and still missed 1431 of 1436 compiles, with no direct-mode hits at all.
+  # EIGEN_CI_CCACHE_SCOPE gives each merge request its own pool; the fallback
+  # key is the shared pool the default-branch builds fill, which is what a
+  # first build draws on.
+  #
+  # GitLab splits every pool by a suffix -- `-protected` for a pipeline on a
+  # protected ref or started by a Maintainer or Owner, `-non_protected`
+  # otherwise -- and appends the same suffix to the fallback key. A
+  # Developer-started merge request pipeline therefore cannot read the pool the
+  # scheduled builds fill; a maintainer starting that pipeline can.
+  cache:
+    key: "$EIGEN_CI_CCACHE_POOL$EIGEN_CI_CCACHE_SCOPE-ccache"
+    fallback_keys:
+      - "$EIGEN_CI_CCACHE_POOL-ccache"
+    paths:
+      - .ccache/
+    # Push the cache even when the build fails: the retry pipeline after a
+    # compile error is exactly where cache hits matter most.
+    when: always
+
+######## x86-64 ################################################################
+
+.build:linux:cross:x86-64:
+  extends: .build:linux:cross
+  variables:
+    EIGEN_CI_TARGET_ARCH: x86_64
+    EIGEN_CI_CROSS_TARGET_TRIPLE: x86_64-linux-gnu
+
+# GCC-10 (stable recent version)
+build:linux:cross:x86-64:gcc-10:default:
+  extends: .build:linux:cross:x86-64
+  variables:
+    EIGEN_CI_C_COMPILER: gcc-10
+    EIGEN_CI_CXX_COMPILER: g++-10
+    EIGEN_CI_CROSS_INSTALL: g++-10-x86-64-linux-gnu
+    EIGEN_CI_CROSS_C_COMPILER: x86_64-linux-gnu-gcc-10
+    EIGEN_CI_CROSS_CXX_COMPILER: x86_64-linux-gnu-g++-10
+
+# GCC-13 for AVX512-FP16 (_Float16 support).
+build:linux:cross:x86-64:gcc-13:default:
+  extends: .build:linux:cross:x86-64
+  variables:
+    EIGEN_CI_C_COMPILER: gcc-13
+    EIGEN_CI_CXX_COMPILER: g++-13
+    EIGEN_CI_CROSS_INSTALL: g++-13-x86-64-linux-gnu
+    EIGEN_CI_CROSS_C_COMPILER: x86_64-linux-gnu-gcc-13
+    EIGEN_CI_CROSS_CXX_COMPILER: x86_64-linux-gnu-g++-13
+
+build:linux:cross:x86-64:gcc-10:avx:
+  extends: build:linux:cross:x86-64:gcc-10:default
+  variables:
+    EIGEN_CI_ADDITIONAL_ARGS: "-DEIGEN_TEST_AVX=on"
+
+build:linux:cross:x86-64:gcc-10:avx2:
+  extends: build:linux:cross:x86-64:gcc-10:default
+  variables:
+    EIGEN_CI_ADDITIONAL_ARGS: "-DEIGEN_TEST_AVX2=on"
+
+build:linux:cross:x86-64:gcc-10:avx512dq:
+  extends: build:linux:cross:x86-64:gcc-10:default
+  variables:
+    EIGEN_CI_ADDITIONAL_ARGS: "-DEIGEN_TEST_AVX512DQ=on"
+
+# AVX512-FP16 builds are split into official/contrib because building all
+# tests exceeds the 3-hour GitLab SaaS shared-runner timeout.
+.build:linux:cross:x86-64:gcc-13:avx512fp16:
+  extends: build:linux:cross:x86-64:gcc-13:default
+  variables:
+    # Force -O2 via EIGEN_TEST_CUSTOM_CXX_FLAGS (appended after the default
+    # Release -O3 -DNDEBUG; last -O wins). GCC bug at -O3 generates invalid
+    # masked vmovsh with {z} on memory stores for _Float16 operations
+    # (zero-masking on memory destinations is architecturally illegal in
+    # AVX-512).
+    EIGEN_CI_ADDITIONAL_ARGS: "-DEIGEN_TEST_AVX512FP16=on -DEIGEN_TEST_AVX512DQ=on -DEIGEN_TEST_F16C=on -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-O2"
+
+build:linux:cross:x86-64:gcc-13:avx512fp16:official:
+  extends: .build:linux:cross:x86-64:gcc-13:avx512fp16
+  variables:
+    EIGEN_CI_BUILD_TARGET: BuildOfficial
+
+build:linux:cross:x86-64:gcc-13:avx512fp16:contrib:
+  extends: .build:linux:cross:x86-64:gcc-13:avx512fp16
+  variables:
+    EIGEN_CI_BUILD_TARGET: BuildContrib
+
+# Clang-14 (stable recent version)
+build:linux:cross:x86-64:clang-14:default:
+  extends: .build:linux:cross:x86-64
+  variables:
+    EIGEN_CI_INSTALL: clang-14
+    EIGEN_CI_C_COMPILER: clang-14
+    EIGEN_CI_CXX_COMPILER: clang++-14
+    EIGEN_CI_CROSS_INSTALL: g++-10-x86-64-linux-gnu clang-14
+
+build:linux:cross:x86-64:clang-14:avx2:
+  extends: build:linux:cross:x86-64:clang-14:default
+  variables:
+    EIGEN_CI_ADDITIONAL_ARGS: "-DEIGEN_TEST_AVX2=on"
+
+build:linux:cross:x86-64:clang-14:avx512dq:
+  extends: build:linux:cross:x86-64:clang-14:default
+  variables:
+    EIGEN_CI_ADDITIONAL_ARGS: "-DEIGEN_TEST_AVX512DQ=on"
+
+# Generic vector extension backend.
+build:linux:cross:x86-64:clang-19:generic:avx512dq:
+  extends: build:linux:cross:x86-64:clang-14:default
+  variables:
+    EIGEN_CI_INSTALL: clang-19
+    EIGEN_CI_C_COMPILER: clang-19
+    EIGEN_CI_CXX_COMPILER: clang++-19
+    EIGEN_CI_CROSS_INSTALL: g++-14-x86-64-linux-gnu clang-19
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-mfma;-mavx512dq;-DEIGEN_VECTORIZE_GENERIC=1
+
+# Nightly and all-tests full test suite in C++20 mode.
+build:linux:cross:x86-64:clang-19:cxx20:nightly:
+  extends: .build:linux:cross:x86-64
+  variables:
+    EIGEN_CI_INSTALL: clang-19
+    EIGEN_CI_C_COMPILER: clang-19
+    EIGEN_CI_CXX_COMPILER: clang++-19
+    EIGEN_CI_CROSS_INSTALL: g++-14-x86-64-linux-gnu clang-19
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DCMAKE_CXX_STANDARD=20
+  # Nightly job restricted to the default branch on schedule.
+  rules:
+    - !reference [.rules:libeigen:gpu-schedule-guard, rules]
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_PROJECT_NAMESPACE == "libeigen"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/all-tests/"
+
+build:linux:docs:
+  extends: .build:linux:cross
+  variables:
+    EIGEN_CI_TARGET_ARCH: any
+    EIGEN_CI_BUILD_TARGET: doc
+    EIGEN_CI_INSTALL: ca-certificates clang flex python3 bison graphviz
+    EIGEN_CI_C_COMPILER: clang
+    EIGEN_CI_CXX_COMPILER: clang++
+    EIGEN_CI_BEFORE_SCRIPT: ". ci/scripts/build_and_install_doxygen.sh Release_1_13_2"
+  tags:
+    - saas-linux-medium-amd64
+  rules:
+    - !reference [.rules:libeigen:gpu-schedule-guard, rules]
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_NAMESPACE == "libeigen"
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_PROJECT_NAMESPACE == "libeigen"
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/all-tests/"
+
+
+######## Sanitizers ############################################################
+
+# ASAN/UBSAN builds are split into official/contrib because the
+# instrumented executables are too large to upload as a single artifact.
+.build:linux:cross:x86-64:clang-19:default:asan-ubsan:
+  extends: .build:linux:cross:x86-64
+  # Disable caching for ASAN builds: instrumented .o files are so large that
+  # moving them through the cache can take longer than a clean build from
+  # scratch.  Both settings below are needed and do different things:
+  # cache: [] drops the archive round trip, and without it a pool populated
+  # before ccache was turned off here would keep being restored under the same
+  # $CI_JOB_NAME_SLUG-ccache key; EIGEN_CI_CCACHE: "off" drops the compiler
+  # launchers, so nothing is written to the runner's disk either.
+  cache: []
+  timeout: 2h
+  variables:
+    EIGEN_CI_CCACHE: "off"
+    EIGEN_CI_INSTALL: clang-19 libclang-rt-19-dev
+    EIGEN_CI_C_COMPILER: clang-19
+    EIGEN_CI_CXX_COMPILER: clang++-19
+    EIGEN_CI_CROSS_INSTALL: g++-14-x86-64-linux-gnu clang-19 libclang-rt-19-dev
+    # Statically linked sanitizer runtimes make the test artifacts exceed GitLab's 1 GB upload limit.
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-fsanitize=address,undefined;-fno-omit-frame-pointer;-fno-sanitize-recover=undefined
+      -DEIGEN_TEST_CUSTOM_LINKER_FLAGS=-fsanitize=address,undefined;-shared-libsan
+
+build:linux:cross:x86-64:clang-19:default:asan-ubsan:official:
+  extends: .build:linux:cross:x86-64:clang-19:default:asan-ubsan
+  variables:
+    EIGEN_CI_BUILD_TARGET: BuildOfficial
+
+build:linux:cross:x86-64:clang-19:default:asan-ubsan:contrib:
+  extends: .build:linux:cross:x86-64:clang-19:default:asan-ubsan
+  variables:
+    EIGEN_CI_BUILD_TARGET: BuildContrib
+
+######## NVHPC #################################################################
+
+# NVHPC (nvc++) uses NVIDIA's HPC SDK container image with the compilers
+# pre-installed. We override EIGEN_CI_INSTALL to avoid trying to apt-get
+# install the compiler.
+# Split into official/contrib because nvc++ is so slow that the full
+# build exceeds the 3-hour GitLab SaaS shared-runner timeout.
+.build:linux:x86-64:nvhpc-26.1:
+  extends: .build:linux:cross:x86-64
+  image: nvcr.io/nvidia/nvhpc:26.1-devel-cuda13.1-ubuntu24.04
+  # ccache has no dedicated nvc++ support -- the name falls through its
+  # compiler-type guess to "other" -- but that is a generic handling path, not a
+  # refusal: the calls are cacheable and hit. Which matters most here, given the
+  # frontend cost the section comment above describes.
+  variables:
+    EIGEN_CI_C_COMPILER: nvc
+    EIGEN_CI_CXX_COMPILER: nvc++
+    EIGEN_CI_INSTALL: ""
+    EIGEN_CI_CROSS_INSTALL: ""
+    # Override CMake's NVHPC -fast default at both compilation and linking.
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-Kieee
+      -DEIGEN_TEST_CUSTOM_LINKER_FLAGS=-Kieee
+    # NVHPC's compiler frontend is very memory-hungry with template-heavy code.
+    # The 2xlarge runner has 128 GB, so 16 jobs gives ~8 GB per process.
+    # The shuffled-batch build strategy spreads memory-hungry targets across
+    # batches, preventing simultaneous OOM-prone compilations.
+    EIGEN_CI_BUILD_JOBS: "16"
+    EIGEN_CI_FALLBACK_JOBS: "4"
+  # Schedules and web pipelines only, not the `all-tests` label the rest of the
+  # matrix inherits from .build:linux:cross. That slow frontend makes this the
+  # single most expensive pair of jobs in the tree -- together about a quarter
+  # of the project's hosted-runner minutes -- while covering one compiler that
+  # no merge request is likely to break in isolation. Start a web pipeline on a
+  # merge request that touches something nvc++ is known to be fussy about
+  # rather than waiting for the scheduled run to find it.
+  rules: !reference [.rules:libeigen:scheduled-or-web, rules]
+
+build:linux:x86-64:nvhpc-26.1:default:official:
+  extends: .build:linux:x86-64:nvhpc-26.1
+  variables:
+    EIGEN_CI_BUILD_TARGET: BuildOfficial
+
+build:linux:x86-64:nvhpc-26.1:default:contrib:
+  extends: .build:linux:x86-64:nvhpc-26.1
+  variables:
+    EIGEN_CI_BUILD_TARGET: BuildContrib
+
+######## CUDA ##################################################################
+
+.build:linux:cuda:
+  extends: .build:linux:cross:x86-64
+  # ccache and the inherited cache stanza apply here: the .cu compiles that
+  # dominate these builds now reach the launcher through the wrapper that
+  # ei_cuda_use_compiler_launcher() puts in front of nvcc. A new image costs
+  # one cold build rather than serving stale objects, since ccache hashes the
+  # nvcc it runs and the preprocessed source. nvcc's -M dependency and -dlink
+  # passes are not cacheable and appear as misses in the statistics.
+  variables:
+    # Additional flags passed to the cuda compiler.
+    EIGEN_CI_CUDA_CXX_FLAGS: ""
+    # Default architecture coverage spans the minimum supported architecture
+    # (sm_60) and the GPUs used by CI: GitLab's SaaS runners are Tesla T4
+    # (sm_75), and eigen-gpu-testing-001.gcloud is an L4 (sm_89). Jobs tied to
+    # one runner pool may override this set below.
+    EIGEN_CI_CUDA_COMPUTE_ARCH: "60;75;89"
+    EIGEN_CI_BUILD_TARGET: buildtests_gpu
+    EIGEN_CI_TEST_CUDA_CLANG: "off"
+    EIGEN_CI_TEST_CUDA_NVC: "off"
+    EIGEN_CI_ADDITIONAL_ARGS:
+      -DEIGEN_TEST_CUDA=on
+      -DEIGEN_CUDA_CXX_FLAGS=${EIGEN_CI_CUDA_CXX_FLAGS}
+      -DEIGEN_CUDA_COMPUTE_ARCH=${EIGEN_CI_CUDA_COMPUTE_ARCH}
+      -DEIGEN_TEST_CUDA_CLANG=${EIGEN_CI_TEST_CUDA_CLANG}
+      -DEIGEN_TEST_CUDA_NVC=${EIGEN_CI_TEST_CUDA_NVC}
+  rules: !reference [.rules:libeigen:gpu, rules]
+  tags:
+    # Build on regular linux to limit GPU cost.
+    - saas-linux-2xlarge-amd64
+
+# ---- CUDA 11.8 + oldest supported compilers ---------------------------------
+# 11.8 is the oldest toolkit that knows sm_89, so gcc can cover the default
+# T4/L4 architecture set. CUDA 11.x images are Ubuntu 20.04 only, which lacks
+# clang-14 and cmake >= 3.17; the before_scripts add the Kitware and LLVM apt
+# repos.
+
+build:linux:cuda-11.8:gcc-10:
+  extends: .build:linux:cuda
+  image: nvidia/cuda:11.8.0-devel-ubuntu20.04
+  before_script:
+    # Ubuntu 20.04 has cmake 3.16; Eigen requires 3.17+. Pull a newer
+    # cmake from Kitware's official apt repo for focal.
+    - apt-get update -y > /dev/null
+    - apt-get install -y --no-install-recommends wget gnupg ca-certificates > /dev/null
+    - wget -qO - https://apt.kitware.com/keys/kitware-archive-latest.asc
+        | gpg --dearmor -o /usr/share/keyrings/kitware-archive-keyring.gpg
+    - echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main'
+        > /etc/apt/sources.list.d/kitware.list
+    - apt-get update -y > /dev/null
+    - . ci/scripts/common.linux.before_script.sh
+  variables:
+    EIGEN_CI_INSTALL: gcc-10 g++-10
+    EIGEN_CI_C_COMPILER: gcc-10
+    EIGEN_CI_CXX_COMPILER: g++-10
+
+build:linux:cuda-11.8:clang-14:
+  extends: build:linux:cuda-11.8:gcc-10
+  before_script:
+    # Ubuntu 20.04 lacks clang-14 and has cmake 3.16. Add both the LLVM
+    # apt repo (for clang-14) and Kitware's apt repo (for cmake >= 3.17)
+    # before running common.linux.before_script.sh, which apt-installs
+    # cmake + the requested compiler.
+    - apt-get update -y > /dev/null
+    - apt-get install -y --no-install-recommends wget gnupg ca-certificates > /dev/null
+    - wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key
+        | gpg --dearmor -o /usr/share/keyrings/llvm-archive-keyring.gpg
+    - echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main'
+        > /etc/apt/sources.list.d/llvm-14.list
+    - wget -qO - https://apt.kitware.com/keys/kitware-archive-latest.asc
+        | gpg --dearmor -o /usr/share/keyrings/kitware-archive-keyring.gpg
+    - echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main'
+        > /etc/apt/sources.list.d/kitware.list
+    - apt-get update -y > /dev/null
+    - . ci/scripts/common.linux.before_script.sh
+  variables:
+    EIGEN_CI_INSTALL: clang-14
+    EIGEN_CI_C_COMPILER: clang-14
+    EIGEN_CI_CXX_COMPILER: clang++-14
+    EIGEN_CI_TEST_CUDA_CLANG: "on"
+    # clang-14 predates sm_89 (LLVM 16 added it), so this pair targets sm_75.
+    # The 11.8 toolkit is newer than clang-14 knows; it treats it as 11.5,
+    # which is what the suppressed warning says.
+    EIGEN_CI_CUDA_COMPUTE_ARCH: "75"
+    EIGEN_CI_CUDA_CXX_FLAGS: "-Wno-unknown-cuda-version"
+
+# ---- Latest CUDA + newest compilers, sm_89;sm_90 ---------------------------
+# These jobs run natively on the L4 at sm_89 and retain compile-only coverage
+# for sm_90.
+
+# GCC-13, CUDA-12.6 (nvcc)
+# CUDA 12.6 nvcc only supports gcc up to 13.
+build:linux:cuda-12.6:gcc-13:
+  extends: .build:linux:cuda
+  image: nvidia/cuda:12.6.3-devel-ubuntu24.04
+  variables:
+    EIGEN_CI_C_COMPILER: gcc-13
+    EIGEN_CI_CXX_COMPILER: g++-13
+    EIGEN_CI_CUDA_COMPUTE_ARCH: "89;90"
+
+# Clang-19, CUDA-12.6 (clang as CUDA compiler)
+# Clang CUDA support lags behind nvcc; clang-19 supports up to CUDA 12.x.
+build:linux:cuda-12.6:clang-19:
+  extends: .build:linux:cuda
+  image: nvidia/cuda:12.6.3-devel-ubuntu24.04
+  variables:
+    EIGEN_CI_INSTALL: clang-19
+    EIGEN_CI_C_COMPILER: clang-19
+    EIGEN_CI_CXX_COMPILER: clang++-19
+    EIGEN_CI_TEST_CUDA_CLANG: "on"
+    EIGEN_CI_CUDA_COMPUTE_ARCH: "89;90"
+
+# ---- CUDA 13 ----------------------------------------------------------------
+# CUDA 13 dropped offline compilation for sm_70, relocated the CCCL headers and
+# ships an nvcc that rejects code every 12.x toolkit accepted (issue #3139 was
+# found on a laptop because no job here compiled with it).  This pair runs on
+# the L4 at sm_89.  It builds on the FindCUDA path like the others; the
+# Windows CUDA 13.0 job already proves that works.
+
+# GCC-13, CUDA-13.3 (nvcc)
+build:linux:cuda-13.3:gcc-13:
+  extends: .build:linux:cuda
+  image: nvidia/cuda:13.3.1-devel-ubuntu24.04
+  variables:
+    EIGEN_CI_C_COMPILER: gcc-13
+    EIGEN_CI_CXX_COMPILER: g++-13
+    EIGEN_CI_CUDA_COMPUTE_ARCH: "89"
+
+
+######### HIP ##################################################################
+# Note: these are currently build-only, until we get an AMD-supported runner.
+
+# ROCm HIP
+build:linux:rocm-latest:gcc-11:
+  extends: .build:linux:cross
+  image: rocm/dev-ubuntu-24.04:6.3.1
+  variables:
+    EIGEN_CI_CCACHE: "off"
+    EIGEN_CI_C_COMPILER: gcc-11
+    EIGEN_CI_CXX_COMPILER: g++-11
+    EIGEN_CI_BUILD_TARGET: buildtests_gpu
+    EIGEN_CI_ADDITIONAL_ARGS: -DEIGEN_TEST_HIP=on
+  rules: !reference [.rules:libeigen:gpu, rules]
+  # Disable cache for ROCm, since it fails whenever the image updates.  As with
+  # the ASAN build above, this and EIGEN_CI_CCACHE: "off" are both needed: one
+  # drops the archive round trip, the other the compiler launchers.
+  cache: []
+
+
+######## Arm ###################################################################
+
+.build:linux:cross:arm:
+  extends: .build:linux:cross
+  variables:
+    EIGEN_CI_TARGET_ARCH: arm
+    EIGEN_CI_CROSS_TARGET_TRIPLE: arm-linux-gnueabihf
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-march=armv7-a;-mfpu=neon-vfpv4
+      -DCMAKE_SYSTEM_NAME=Linux
+      -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-arm-static;-L;/usr/arm-linux-gnueabihf
+
+build:linux:cross:arm:gcc-10:default:
+  extends: .build:linux:cross:arm
+  variables:
+    EIGEN_CI_CROSS_INSTALL: g++-10-arm-linux-gnueabihf qemu-user-static
+    EIGEN_CI_CROSS_C_COMPILER: arm-linux-gnueabihf-gcc-10
+    EIGEN_CI_CROSS_CXX_COMPILER: arm-linux-gnueabihf-g++-10
+
+build:linux:cross:arm:clang-14:default:
+  extends: .build:linux:cross:arm
+  variables:
+    EIGEN_CI_INSTALL: clang-14
+    EIGEN_CI_C_COMPILER: clang-14
+    EIGEN_CI_CXX_COMPILER: clang++-14
+    EIGEN_CI_CROSS_INSTALL: g++-10-arm-linux-gnueabihf clang-14 qemu-user-static
+
+######## aarch64 ###############################################################
+
+.build:linux:cross:aarch64:
+  extends: .build:linux:cross
+  variables:
+    EIGEN_CI_TARGET_ARCH: aarch64
+    EIGEN_CI_CROSS_TARGET_TRIPLE: aarch64-linux-gnu
+    EIGEN_CI_ADDITIONAL_ARGS: -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-march=armv8.2-a+fp16
+  tags:
+    - saas-linux-large-arm64
+
+######## SME ###################################################################
+
+# Emulation via QEMU for SME (Streaming Matrix Extension)
+.build:linux:cross:sme:
+  extends: .build:linux:cross
+  variables:
+    EIGEN_CI_TARGET_ARCH: aarch64-sme
+    EIGEN_CI_CROSS_TARGET_TRIPLE: aarch64-linux-gnu
+    # The emulator baked in here deliberately has no -cpu argument: each test job
+    # selects its streaming SVL via qemu-user's QEMU_CPU environment variable
+    # instead (a command-line -cpu would silently override it).
+    #
+    # EIGEN_CI_ADDITIONAL_ARGS is expanded *unquoted* into the cmake command
+    # line (ci/scripts/build.linux.script.sh), so each -D value must be a single
+    # shell word: multi-token flags use CMake's ';' list separator, with no
+    # spaces or embedded quotes (cf. the arm / generic-vector jobs).
+    # +sme-f64f64 (FEAT_SME_F64F64) enables the double-precision GEMM kernel:
+    # GCC refuses to compile its fp64 FMOPA without it, and qemu's `max` CPU
+    # implements the extension, so the test jobs below exercise that kernel.
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_SME=ON
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-march=armv9.2-a+sme2+sme-f64f64
+      -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64;-L;/usr/aarch64-linux-gnu
+    # SME ACLE (arm_sme.h, __arm_streaming, +sme2) requires GCC >= 14.
+    # The build stage only cross-compiles and never invokes the emulator, so
+    # no qemu here -- the test stage installs qemu-user.
+    EIGEN_CI_CROSS_INSTALL: g++-14-aarch64-linux-gnu
+    # product_symm/product_trsolve/product_trmm/product_syrk/product_mmtr/
+    # mixingtypes exercise the SME packers through their non-dense-GEMM consumers
+    # (selfadjoint, triangular-solve, triangular-product, rank-update,
+    # triangular-result product, mixed-scalar) that product_sme can't reach; each
+    # has double and complex subtests, so they cover all four SME scalar types.
+    # product_mmtr additionally covers tribb_kernel's lcm(mr, nr) block, which is
+    # only larger than mr for complex<float>. Explicit list, not `buildtests`:
+    # cross-building every test under the SME flags overruns the runner timeout.
+    EIGEN_CI_BUILD_TARGET: product_sme product_symm product_trsolve product_trmm product_syrk product_mmtr mixingtypes
+  # Inherit the 2xlarge runner from .build:linux:cross: GitLab's open-source
+  # program bills small and large runners the same, so don't downsize.
+
+build:linux:cross:sme:gcc-14:default:
+  extends: .build:linux:cross:sme
+  variables:
+    EIGEN_CI_C_COMPILER: gcc-14
+    EIGEN_CI_CXX_COMPILER: g++-14
+    EIGEN_CI_CROSS_C_COMPILER: aarch64-linux-gnu-gcc-14
+    EIGEN_CI_CROSS_CXX_COMPILER: aarch64-linux-gnu-g++-14
+
+# Full nightly SME coverage: compile the *entire* test suite (buildtests, both
+# Official and Contrib) under +sme2, not just the SME-relevant targets. This
+# is what treats SME "as any other platform": it catches any compile breakage
+# under the streaming-mode flags across the whole codebase -- e.g. the tensor-
+# contraction packer path that only surfaces once TensorContraction is built
+# with the SME backend active. Runs on the nightly schedule and on all-tests
+# MRs via the inherited .rules:libeigen:all-tests; the per-SVL subset build
+# above stays as the fast, cheap signal. Cross-building every test under the SME
+# flags is slow -- the raised timeout is a starting estimate; tune it once a
+# real run establishes the wall-clock (drop to BuildOfficial/BuildContrib
+# split builds if a single job overruns).
+build:linux:cross:sme:gcc-14:full:
+  extends: .build:linux:cross:sme
+  variables:
+    EIGEN_CI_C_COMPILER: gcc-14
+    EIGEN_CI_CXX_COMPILER: g++-14
+    EIGEN_CI_CROSS_C_COMPILER: aarch64-linux-gnu-gcc-14
+    EIGEN_CI_CROSS_CXX_COMPILER: aarch64-linux-gnu-g++-14
+    EIGEN_CI_BUILD_TARGET: buildtests
+  timeout: 2h
+
+# FEAT_SME_F64F64 is optional, and every job above builds with it, so nothing
+# else compiles the configuration where it is absent: the #else static_asserts
+# that keep double and complex<double> off the GEMM driver, and both on the
+# generic kernel inside an SME build. GCC hard-errors on the fp64 FMOPA without
+# the feature, so this is also what catches an fp64 SME intrinsic escaping the
+# EIGEN_VECTORIZE_SME_F64F64 gate. The EIGEN_ARM64_NO_SME_F64F64 opt-out reaches
+# the same branch, so one job covers both ways in. product_sme alone: its double
+# and complex<double> subtests are written to run in either configuration, and
+# one target keeps the job cheap.
+build:linux:cross:sme:gcc-14:no-f64f64:
+  extends: .build:linux:cross:sme
+  variables:
+    EIGEN_CI_C_COMPILER: gcc-14
+    EIGEN_CI_CXX_COMPILER: g++-14
+    EIGEN_CI_CROSS_C_COMPILER: aarch64-linux-gnu-gcc-14
+    EIGEN_CI_CROSS_CXX_COMPILER: aarch64-linux-gnu-g++-14
+    # The anchor's arguments, less +sme-f64f64.
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_SME=ON
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-march=armv9.2-a+sme2
+      -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64;-L;/usr/aarch64-linux-gnu
+    EIGEN_CI_BUILD_TARGET: product_sme
+
+
+build:linux:cross:aarch64:gcc-10:default:
+  extends: .build:linux:cross:aarch64
+  variables:
+    EIGEN_CI_C_COMPILER: gcc-10
+    EIGEN_CI_CXX_COMPILER: g++-10
+    EIGEN_CI_CROSS_INSTALL: g++-10-aarch64-linux-gnu
+    EIGEN_CI_CROSS_C_COMPILER: aarch64-linux-gnu-gcc-10
+    EIGEN_CI_CROSS_CXX_COMPILER: aarch64-linux-gnu-g++-10
+
+build:linux:cross:aarch64:clang-14:default:
+  extends: .build:linux:cross:aarch64
+  variables:
+    EIGEN_CI_INSTALL: clang-14
+    EIGEN_CI_C_COMPILER: clang-14
+    EIGEN_CI_CXX_COMPILER: clang++-14
+    EIGEN_CI_CROSS_INSTALL: g++-10-aarch64-linux-gnu clang-14
+
+######## SVE ###################################################################
+
+# The SVE backend is selected only by -DEIGEN_ARM64_USE_SVE, so none of the
+# aarch64 or SME jobs above compile a line of Eigen/src/Core/arch/SVE: the SME
+# jobs deliberately take the NEON headers (Eigen/Core). These jobs are the only
+# coverage it has.
+#
+# Eigen needs a compile-time vector length (EIGEN_ARM64_SVE_VL comes from
+# __ARM_FEATURE_SVE_BITS, which only -msve-vector-bits sets), so each length is
+# a separate build. That is also what makes the sweep worth having: the packet
+# code has VL-dependent fold counts and transpose networks that a single length
+# cannot exercise.
+#
+# No compiler here: common.linux.before_script.sh overwrites
+# EIGEN_CI_CXX_COMPILER with EIGEN_CI_CROSS_CXX_COMPILER whenever host and
+# target differ, so a cross compiler named in this anchor would override the one
+# a job sets for itself. Left unset it defaults to the job's own choice
+# (.common:linux:cross), which is what the clang job below needs.
+.build:linux:cross:sve:
+  extends: .build:linux:cross
+  variables:
+    EIGEN_CI_TARGET_ARCH: aarch64-sve
+    EIGEN_CI_CROSS_TARGET_TRIPLE: aarch64-linux-gnu
+    # As for SME, the emulator here carries no -cpu: the test jobs select their
+    # vector length through qemu-user's QEMU_CPU instead.
+    #
+    # EIGEN_CI_ADDITIONAL_ARGS is expanded *unquoted* into the cmake command
+    # line (ci/scripts/build.linux.script.sh), so each -D value must be a single
+    # shell word: multi-token flags use CMake's ';' list separator.
+    #
+    # EIGEN_TEST_SVE_VL is spelled out per job rather than interpolated from a
+    # variable: a mis-expansion would silently fall back to the CMake default of
+    # 128 and every job in the sweep would build the same length while still
+    # passing.
+    #
+    # Keep the -march at armv8.2-a+sve, which is what the backend actually
+    # needs -- it uses only base SVE intrinsics. Do NOT "upgrade" it to +sve2:
+    # with SVE2 enabled, GCC 13 through 15 emit `whilewr p0.b, wzr, wzr` for the
+    # autovectorizer's alias checks, using 32-bit W registers where the
+    # instruction takes X registers, and the assembler rejects it. It reproduces
+    # at every vector length from 256 up (contrib/test/tensor_block_eval.cpp
+    # is one trigger) and is a GCC bug, not an Eigen one; clang is unaffected.
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_SVE=ON
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-march=armv8.2-a+sve
+      -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64;-L;/usr/aarch64-linux-gnu
+
+# One compiler for all three widths. gcc-14 is not usable above 128 bits: at -O3
+# with -msve-vector-bits=256 or above, gcc-14.2 miscompiles
+# redux_commutative<double> in test/redux.cpp, summing a 16x16 block of a 17x17
+# matrix to 660 instead of 1022, deterministically. That is a compiler bug and
+# not an Eigen one -- it reproduces with EIGEN_ARM64_USE_SVE unset, with GCC
+# autovectorizing to fixed-length SVE while Eigen is on NEON -- and not an
+# emulation artifact, since QEMU 8.2 and 10.0 produce the same wrong value. It
+# goes away at -O2, with -fno-tree-slp-vectorize, and at 128 bits.
+#
+# gcc-13.3 is clean at 128, 256 and 512, and SVE ACLE needs only gcc-10, so
+# nothing here depends on 14 the way SME's ACLE does. Naming one compiler is
+# what lets the test jobs install the compiler their artifacts were built with,
+# which the failtest and buildsystem tests require -- see .test:linux:sve.
+.build:linux:cross:sve:gcc-13:
+  extends: .build:linux:cross:sve
+  variables:
+    EIGEN_CI_CROSS_INSTALL: g++-13-aarch64-linux-gnu
+    EIGEN_CI_C_COMPILER: gcc-13
+    EIGEN_CI_CXX_COMPILER: g++-13
+    EIGEN_CI_CROSS_C_COMPILER: aarch64-linux-gnu-gcc-13
+    EIGEN_CI_CROSS_CXX_COMPILER: aarch64-linux-gnu-g++-13
+
+# One build per vector length that SVE hardware actually implements: 128 for
+# Neoverse V2 and Grace, 256 for Neoverse V1 and Graviton3, 512 for A64FX. Each
+# feeds a test job, so each builds the full suite. Lengths above 512 are
+# architecturally legal but unimplemented, and compile-only coverage of them
+# bought two latent compile fixes at the cost of running nothing -- if a wider
+# part ships, add it here with a test job rather than as a build on its own.
+build:linux:cross:sve:gcc-13:vl128:
+  extends: .build:linux:cross:sve:gcc-13
+  variables:
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_SVE=ON
+      -DEIGEN_TEST_SVE_VL=128
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-march=armv8.2-a+sve
+      -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64;-L;/usr/aarch64-linux-gnu
+
+build:linux:cross:sve:gcc-13:vl512:
+  extends: .build:linux:cross:sve:gcc-13
+  variables:
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_SVE=ON
+      -DEIGEN_TEST_SVE_VL=512
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-march=armv8.2-a+sve
+      -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64;-L;/usr/aarch64-linux-gnu
+
+build:linux:cross:sve:gcc-13:vl256:
+  extends: .build:linux:cross:sve:gcc-13
+  variables:
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_SVE=ON
+      -DEIGEN_TEST_SVE_VL=256
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-march=armv8.2-a+sve
+      -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64;-L;/usr/aarch64-linux-gnu
+
+# clang diagnoses different things here than GCC -- MR 2928 shipped three
+# -Wsign-compare warnings that no job caught, and clang is stricter about
+# fixed-length SVE vector types. It extends the compiler-free anchor so that
+# EIGEN_CI_CROSS_CXX_COMPILER defaults to clang++-14 rather than a cross GCC;
+# the cross g++ is still installed, for the aarch64 headers and libraries clang
+# links against.
+build:linux:cross:sve:clang-14:vl128:
+  extends: .build:linux:cross:sve
+  variables:
+    EIGEN_CI_INSTALL: clang-14
+    EIGEN_CI_C_COMPILER: clang-14
+    EIGEN_CI_CXX_COMPILER: clang++-14
+    EIGEN_CI_CROSS_INSTALL: g++-13-aarch64-linux-gnu clang-14
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_SVE=ON
+      -DEIGEN_TEST_SVE_VL=128
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-march=armv8.2-a+sve
+      -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64;-L;/usr/aarch64-linux-gnu
+    EIGEN_CI_BUILD_TARGET: sve_vector_length packetmath vectorization_logic
+
+######## ppc64le ###############################################################
+
+.build:linux:cross:ppc64le:
+  extends: .build:linux:cross
+  variables:
+    EIGEN_CI_TARGET_ARCH: ppc64le
+    EIGEN_CI_CROSS_TARGET_TRIPLE: powerpc64le-linux-gnu
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DCMAKE_SYSTEM_NAME=Linux
+      -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-ppc64le-static;-L;/usr/powerpc64le-linux-gnu
+
+build:linux:cross:ppc64le:gcc-14:default:
+  extends: .build:linux:cross:ppc64le
+  variables:
+    EIGEN_CI_CROSS_INSTALL: g++-14-powerpc64le-linux-gnu qemu-user-static
+    EIGEN_CI_CROSS_C_COMPILER: powerpc64le-linux-gnu-gcc-14
+    EIGEN_CI_CROSS_CXX_COMPILER: powerpc64le-linux-gnu-g++-14
+
+build:linux:cross:ppc64le:clang-16:default:
+  extends: .build:linux:cross:ppc64le
+  variables:
+    EIGEN_CI_C_COMPILER: clang-16
+    EIGEN_CI_CXX_COMPILER: clang++-16
+    EIGEN_CI_CROSS_INSTALL: g++-14-powerpc64le-linux-gnu clang-16 qemu-user-static
+
+######## loongarch64 #################################################
+
+.build:linux:cross:loongarch64:
+  extends: .build:linux:cross
+  variables:
+    EIGEN_CI_TARGET_ARCH: loongarch64
+    EIGEN_CI_CROSS_TARGET_TRIPLE: loongarch64-linux-gnu
+
+# GCC-14 (minimum on Ubuntu 24)
+build:linux:cross:loongarch64:gcc-14:default:
+  extends: .build:linux:cross:loongarch64
+  variables:
+    EIGEN_CI_CROSS_INSTALL: g++-14-loongarch64-linux-gnu qemu-user-static
+    EIGEN_CI_CROSS_C_COMPILER: loongarch64-linux-gnu-gcc-14
+    EIGEN_CI_CROSS_CXX_COMPILER: loongarch64-linux-gnu-g++-14
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DCMAKE_SYSTEM_NAME=Linux
+      -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-loongarch64-static;-L;/usr/loongarch64-linux-gnu
+      -DEIGEN_TEST_LSX=on
+
+######## riscv64 ###############################################################
+# Builds cross-compile on amd64; tests run natively on the riscv runner
+# (SpacemiT K3, RVA23, RVV 1.0, VLEN=256).  Jobs are allowed to fail while
+# the runner is being brought up.
+
+# Eigen's RVV backend requires a compile-time-fixed vector length, so pin it to
+# the runner's 256-bit VLEN with zvl256b and -mrvv-vector-bits=zvl (gcc-15 rejects
+# a numeric -mrvv-vector-bits=256, accepting only "zvl"/"scalable"; "zvl" takes the
+# length from the Zvl*b march extension).  Zvfh enables half-precision
+# vectorization.  Set here so every riscv64 build below -- full builds and smoke
+# tests, gcc and clang -- is actually vectorized.
+.build:linux:riscv64:
+  extends: .build:linux:cross
+  # Cross-compiles to riscv64 on an amd64 runner using the prebuilt image, which
+  # carries the riscv64 cross toolchain (g++-15-riscv64-linux-gnu / clang-21)
+  # plus cmake/ninja/git -- so apt is skipped entirely.
+  image: ${EIGEN_CI_IMAGE_LINUX_RISCV64_SMOKETEST_BUILD}
+  variables:
+    EIGEN_CI_TARGET_ARCH: riscv64
+    EIGEN_CI_SKIP_APT: "true"
+    EIGEN_CI_CROSS_TARGET_TRIPLE: riscv64-linux-gnu
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-march=rv64gc_v_zvl256b_zfh_zvfh;-mrvv-vector-bits=zvl;-DEIGEN_RISCV64_USE_RVV10
+  allow_failure: true
+
+build:linux:riscv64:gcc-15:default:
+  extends: .build:linux:riscv64
+  variables:
+    EIGEN_CI_C_COMPILER: gcc-15
+    EIGEN_CI_CXX_COMPILER: g++-15
+    EIGEN_CI_CROSS_INSTALL: g++-15-riscv64-linux-gnu
+    EIGEN_CI_CROSS_C_COMPILER: riscv64-linux-gnu-gcc-15
+    EIGEN_CI_CROSS_CXX_COMPILER: riscv64-linux-gnu-g++-15
+    # Zvfbfmin+Zvfbfwma additionally enable the bfloat16 packets
+    # (PacketMathBF16.h), which are otherwise never compiled by CI.  gcc-only:
+    # clang 21 crashes mangling any function signature containing a
+    # fixed-length (riscv_rvv_vector_bits) RVV bfloat16 vector type; fixed in
+    # clang 22.
+    EIGEN_CI_ADDITIONAL_ARGS: >-
+      -DEIGEN_TEST_CUSTOM_CXX_FLAGS=-march=rv64gc_v_zvl256b_zfh_zvfh_zvfbfmin_zvfbfwma;-mrvv-vector-bits=zvl;-DEIGEN_RISCV64_USE_RVV10
+
+build:linux:riscv64:clang-21:default:
+  extends: .build:linux:riscv64
+  variables:
+    EIGEN_CI_INSTALL: clang-21
+    EIGEN_CI_C_COMPILER: clang-21
+    EIGEN_CI_CXX_COMPILER: clang++-21
+    EIGEN_CI_CROSS_INSTALL: g++-15-riscv64-linux-gnu clang-21
+
+# Namespace-guarded, unlike the other smoke builds: their consumers are the
+# riscv64 smoke tests, which need a self-hosted runner no fork has.  See
+# test.linux.gitlab-ci.yml.
+build:linux:riscv64:gcc-15:default:smoketest:
+  extends: [ build:linux:riscv64:gcc-15:default, .smoketest:build ]
+  variables:
+    EIGEN_CI_BUILD_TARGET: buildsmoketests
+  rules: !reference [.rules:libeigen:smoketest:upstream-runner, rules]
+  tags:
+    - saas-linux-large-amd64
+
+build:linux:riscv64:clang-21:default:smoketest:
+  extends: [ build:linux:riscv64:clang-21:default, .smoketest:build ]
+  variables:
+    EIGEN_CI_BUILD_TARGET: buildsmoketests
+  rules: !reference [.rules:libeigen:smoketest:upstream-runner, rules]
+  tags:
+    - saas-linux-large-amd64
+
+######## MR Smoke Tests ########################################################
+# aarch64 targets are cross-compiled via g++-10-aarch64-linux-gnu / clang-14.
+# Tests run on their respective native runners (see test.linux.gitlab-ci.yml).
+
+build:linux:cross:x86-64:gcc-10:default:smoketest:
+  extends: [ build:linux:cross:x86-64:gcc-10:default, .smoketest:build ]
+  image: ${EIGEN_CI_IMAGE_LINUX_AMD64_SMOKETEST_BUILD}
+  variables:
+    EIGEN_CI_SKIP_APT: "true"
+    EIGEN_CI_BUILD_TARGET: buildsmoketests
+  rules: !reference [.rules:libeigen:smoketest, rules]
+  tags:
+    - saas-linux-large-amd64
+
+build:linux:cross:x86-64:clang-14:default:smoketest:
+  extends: [ build:linux:cross:x86-64:clang-14:default, .smoketest:build ]
+  image: ${EIGEN_CI_IMAGE_LINUX_AMD64_SMOKETEST_BUILD}
+  variables:
+    EIGEN_CI_SKIP_APT: "true"
+    EIGEN_CI_BUILD_TARGET: buildsmoketests
+  rules: !reference [.rules:libeigen:smoketest, rules]
+  tags:
+    - saas-linux-large-amd64
+
+build:linux:aarch64:gcc-10:default:smoketest:
+  extends: [ build:linux:cross:aarch64:gcc-10:default, .smoketest:build ]
+  image: ${EIGEN_CI_IMAGE_LINUX_AMD64_SMOKETEST_BUILD}
+  variables:
+    EIGEN_CI_SKIP_APT: "true"
+    EIGEN_CI_BUILD_TARGET: buildsmoketests
+  rules: !reference [.rules:libeigen:smoketest, rules]
+  tags:
+    - saas-linux-large-amd64
+
+build:linux:aarch64:clang-14:default:smoketest:
+  extends: [ build:linux:cross:aarch64:clang-14:default, .smoketest:build ]
+  image: ${EIGEN_CI_IMAGE_LINUX_AMD64_SMOKETEST_BUILD}
+  variables:
+    EIGEN_CI_SKIP_APT: "true"
+    EIGEN_CI_BUILD_TARGET: buildsmoketests
+  rules: !reference [.rules:libeigen:smoketest, rules]
+  tags:
+    - saas-linux-large-amd64
+
+######## MR Affected Tests #####################################################
+# Opt-in via the `affected-tests` label: build every test the merge request diff
+# can reach.  The target list comes from the select:tests job; see
+# scripts/affected_tests.py.
+#
+# The four jobs below always run under the label; the rest are gated on the
+# platform they target.  Trigger rules are shared with the paired test jobs; see
+# .rules:libeigen:affected-tests:* in ci/common.gitlab-ci.yml, and .agents/ci.md
+# for which label selects what and how this tier relates to the smoke matrix it
+# suppresses.
+#
+# Every job here names its parent's ccache pool (EIGEN_CI_CCACHE_POOL): the
+# selection is a subset of the parent's targets compiled with the same flags,
+# so it hits in, and feeds, the pool the parent's full builds fill. Under the
+# default `$CI_JOB_NAME_SLUG` pool it would have an `-affected` pool of its own
+# that no full build ever warms.
+
+##### Always, under the label ##################################################
+
+build:linux:cross:x86-64:gcc-10:avx2:affected:
+  extends: [ build:linux:cross:x86-64:gcc-10:avx2, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-x86-64-gcc-10-avx2
+  rules: !reference [.rules:libeigen:affected-tests, rules]
+
+build:linux:cross:x86-64:clang-14:default:affected:
+  extends: [ build:linux:cross:x86-64:clang-14:default, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-x86-64-clang-14-default
+  rules: !reference [.rules:libeigen:affected-tests, rules]
+
+build:linux:cross:aarch64:gcc-10:default:affected:
+  extends: [ build:linux:cross:aarch64:gcc-10:default, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-aarch64-gcc-10-default
+  rules: !reference [.rules:libeigen:affected-tests, rules]
+
+build:linux:cross:aarch64:clang-14:default:affected:
+  extends: [ build:linux:cross:aarch64:clang-14:default, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-aarch64-clang-14-default
+  rules: !reference [.rules:libeigen:affected-tests, rules]
+
+##### Platform-triggered #######################################################
+
+build:linux:cross:x86-64:gcc-10:default:affected:
+  extends: [ build:linux:cross:x86-64:gcc-10:default, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-x86-64-gcc-10-default
+  rules: !reference [.rules:libeigen:affected-tests:sse, rules]
+
+build:linux:cross:x86-64:gcc-10:avx:affected:
+  extends: [ build:linux:cross:x86-64:gcc-10:avx, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-x86-64-gcc-10-avx
+  rules: !reference [.rules:libeigen:affected-tests:avx, rules]
+
+build:linux:cross:x86-64:gcc-10:avx512dq:affected:
+  extends: [ build:linux:cross:x86-64:gcc-10:avx512dq, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-x86-64-gcc-10-avx512dq
+  rules: !reference [.rules:libeigen:affected-tests:avx512, rules]
+
+# The FP16 builds reuse the existing split compile-only jobs; there is no runner
+# with AVX512-FP16 hardware for a paired test job.
+build:linux:cross:x86-64:gcc-13:avx512fp16:official:affected:
+  extends: build:linux:cross:x86-64:gcc-13:avx512fp16:official
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-x86-64-gcc-13-avx512fp16-official
+  rules: !reference [.rules:libeigen:affected-tests:avx512fp16, rules]
+
+build:linux:cross:x86-64:gcc-13:avx512fp16:contrib:affected:
+  extends: build:linux:cross:x86-64:gcc-13:avx512fp16:contrib
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-x86-64-gcc-13-avx512fp16-contrib
+  rules: !reference [.rules:libeigen:affected-tests:avx512fp16, rules]
+
+# 32-bit arm: a distinct NEON code path from the aarch64 job above.
+build:linux:cross:arm:gcc-10:default:affected:
+  extends: [ build:linux:cross:arm:gcc-10:default, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-arm-gcc-10-default
+  rules: !reference [.rules:libeigen:affected-tests:neon, rules]
+
+build:linux:cross:ppc64le:gcc-14:default:affected:
+  extends: [ build:linux:cross:ppc64le:gcc-14:default, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-ppc64le-gcc-14-default
+  rules: !reference [.rules:libeigen:affected-tests:altivec, rules]
+
+build:linux:cross:loongarch64:gcc-14:default:affected:
+  extends: [ build:linux:cross:loongarch64:gcc-14:default, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-loongarch64-gcc-14-default
+  rules: !reference [.rules:libeigen:affected-tests:lsx, rules]
+
+build:linux:riscv64:gcc-15:default:affected:
+  extends: [ build:linux:riscv64:gcc-15:default, .affected:build ]
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-riscv64-gcc-15-default
+  rules: !reference [.rules:libeigen:affected-tests:rvv10, rules]
+
+# SME gets compile coverage of the whole suite under the streaming-mode flags
+# rather than a selection: the per-SVL test jobs run a curated target subset
+# through EIGEN_CI_CTEST_REGEX, which a selection would conflict with.
+build:linux:cross:sme:gcc-14:full:affected:
+  extends: build:linux:cross:sme:gcc-14:full
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-sme-gcc-14-full
+  rules: !reference [.rules:libeigen:affected-tests:sme, rules]
+
+# One product_sme build, so a change to the gate is caught by the affected tier
+# rather than only by the nightly run.
+build:linux:cross:sme:gcc-14:no-f64f64:affected:
+  extends: build:linux:cross:sme:gcc-14:no-f64f64
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-sme-gcc-14-no-f64f64
+  rules: !reference [.rules:libeigen:affected-tests:sme, rules]
+
+# The VL sweep is the point of the affected tier for SVE: a change to the packet
+# code is exactly what breaks at one vector length and not another.
+build:linux:cross:sve:gcc-13:vl128:affected:
+  extends: build:linux:cross:sve:gcc-13:vl128
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-sve-gcc-13-vl128
+  rules: !reference [.rules:libeigen:affected-tests:sve, rules]
+
+build:linux:cross:sve:gcc-13:vl512:affected:
+  extends: build:linux:cross:sve:gcc-13:vl512
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-sve-gcc-13-vl512
+  rules: !reference [.rules:libeigen:affected-tests:sve, rules]
+
+build:linux:cross:sve:gcc-13:vl256:affected:
+  extends: build:linux:cross:sve:gcc-13:vl256
+  variables:
+    EIGEN_CI_CCACHE_POOL: build-linux-cross-sve-gcc-13-vl256
+  rules: !reference [.rules:libeigen:affected-tests:sve, rules]

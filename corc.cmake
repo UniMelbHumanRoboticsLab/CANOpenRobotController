@@ -81,7 +81,7 @@ endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
 ## Add libraries' headers
 ###list (APPEND INCLUDE_DIRS lib/)
-list (APPEND INCLUDE_DIRS lib/Eigen/)
+list (APPEND INCLUDE_DIRS lib/eigen/)
 list (APPEND INCLUDE_DIRS lib/spdlog/include/)
 if(USE_FLNL)
     list (APPEND INCLUDE_DIRS lib/FLNL/include/)

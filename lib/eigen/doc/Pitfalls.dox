@@ -1,0 +1,158 @@
+namespace Eigen {
+
+/** \page TopicPitfalls Common pitfalls
+
+
+\section TopicPitfalls_template_keyword Compilation error with template methods
+
+See this \link TopicTemplateKeyword page \endlink.
+
+
+\section TopicPitfalls_aliasing Aliasing
+
+Don't miss this \link TopicAliasing page \endlink on aliasing,
+especially if you got wrong results in statements where the destination appears on the right hand side of the expression.
+
+
+\section TopicPitfalls_alignment_issue Alignment Issues (runtime assertion)
+
+%Eigen does explicit vectorization, and while that is appreciated by many users, that also leads to some issues in special situations where data alignment is compromised.
+Indeed, prior to C++17,  C++ does not have quite good enough support for explicit data alignment.
+In that case your program hits an assertion failure (that is, a "controlled crash") with a message that tells you to consult this page:
+\code
+http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html
+\endcode
+Have a look at \link TopicUnalignedArrayAssert it \endlink and see for yourself if that's something that you can cope with.
+It contains detailed information about how to deal with each known cause for that issue.
+
+Now what if you don't care about vectorization and so don't want to be annoyed with these alignment issues? Then read \link getrid how to get rid of them \endlink.
+
+
+\section TopicPitfalls_auto_keyword The auto keyword
+
+In short: do not use the auto keywords with %Eigen's expressions, unless you are 100% sure about what you are doing. In particular, do not use the auto keyword as a replacement for a \c Matrix<> type. Here is an example:
+
+\code
+MatrixXd A, B;
+auto C = A*B;
+for(...) { ... w = C * v;  ...}
+\endcode
+
+In this example, the type of C is not a \c MatrixXd but an abstract expression representing a matrix product and storing references to \c A and \c B.
+Therefore, the product of \c A*B will be carried out multiple times, once per iteration of the for loop.
+Moreover, if the coefficients of `A` or `B` change during the iteration, then `C` will evaluate to different values as in the following example:
+
+\code
+MatrixXd A = ..., B = ...;
+auto C = A*B;
+MatrixXd R1 = C;
+A = ...;
+MatrixXd R2 = C;
+\endcode
+for which we end up with `R1` &ne; `R2`.
+
+
+Here is another example leading to a segfault:
+\code
+auto C = ((A+B).eval()).transpose();
+// do something with C
+\endcode
+The problem is that \c eval() returns a temporary object (in this case a \c MatrixXd) which is then referenced by the \c Transpose<> expression.
+However, this temporary is deleted right after the first line, and then the \c C expression references a dead object.
+One possible fix consists in applying \c eval() on the whole expression:
+\code
+auto C = (A+B).transpose().eval();
+\endcode
+
+The same issue might occur when sub expressions are automatically evaluated by %Eigen as in the following example:
+\code
+VectorXd u, v;
+auto C = u + (A*v).normalized();
+// do something with C
+\endcode
+Here the \c normalized() method has to evaluate the expensive product \c A*v to avoid evaluating it twice.
+Again, one possible fix is to call \c .eval() on the whole expression:
+\code
+auto C = (u + (A*v).normalized()).eval();
+\endcode
+In this case, \c C will be a regular \c VectorXd object.
+Note that DenseBase::eval() is smart enough to avoid copies when the underlying expression is already a plain \c Matrix<>.
+
+
+\section TopicPitfalls_header_issues Header Issues (failure to compile)
+
+With all libraries, one must check the documentation for which header to include.
+The same is true with %Eigen, but slightly worse: with %Eigen, a method in a class may require an additional \c \#include over what the class itself requires!
+For example, if you want to use the \c cross() method on a vector (it computes a cross-product) then you need to:
+\code
+#include<Eigen/Geometry>
+\endcode
+We try to always document this, but do tell us if we forgot an occurrence.
+
+
+\section TopicPitfalls_ternary_operator Ternary operator
+
+In short: avoid the use of the ternary operator <code>(COND ? THEN : ELSE)</code> with %Eigen's expressions for the \c THEN and \c ELSE statements.
+To see why, let's consider the following example:
+\code
+Vector3f A;
+A << 1, 2, 3;
+Vector3f B = ((1 < 0) ? (A.reverse()) : A);
+\endcode
+This example will return <code>B = 1, 2, 3</code>. Do you see why?
+The reason is that in c++ both statements of the ternary operator must be converted to a common type.
+The constructor of <code>Reverse<Vector3f></code> from a \c Vector3f is \c explicit, so the \c ELSE statement A cannot be converted to a <code>Reverse<Vector3f></code>; the common type is \c Vector3f instead, and the compiler thus generates:
+\code
+Vector3f B = ((1 < 0) ? Vector3f(A.reverse()) : Vector3f(A));
+\endcode
+The value is the expected one here, but the selected statement is silently evaluated into a temporary plain object, and two different %Eigen expression types often have no common type at all, in which case the ternary operator does not even compile. The safest and fastest is really to avoid this ternary operator with %Eigen's expressions and use a if/else construct.
+
+
+\section TopicPitfalls_pass_by_value Pass-by-value
+
+If you don't know why passing-by-value is wrong with %Eigen, read this \link TopicPassingByValue page \endlink first.
+
+\note If you are compiling in C++17 mode with a sufficiently recent compiler (GCC >= 7, Clang >= 5, MSVC >= 19.12),
+the alignment issues described below are handled automatically by the compiler via over-aligned operator new,
+and pass-by-value is safe.
+
+For pre-C++17 code, you have to watch out for templates which define argument types at compile time.
+If a template has a function that takes arguments pass-by-value, and the relevant template parameter ends up being an %Eigen type, then you will have the same alignment problems that you would in an explicitly defined function passing %Eigen types by value.
+
+Using %Eigen types with other third party libraries or even the STL can present the same problem.
+\c std::bind for example uses pass-by-value to store arguments in the returned functor.
+
+There are at least two ways around this:
+  - If the value you are passing is guaranteed to be around for the life of the functor, you can use \c std::ref() to wrap the value as you pass it to \c std::bind. Generally this is not a solution for values on the stack as if the functor ever gets passed to a lower or independent scope, the object may be gone by the time it's attempted to be used.
+  - The other option is to make your functions take a reference counted pointer like \c std::shared_ptr as the argument. This avoids needing to worry about managing the lifetime of the object being passed.
+
+
+\section TopicPitfalls_matrix_bool Matrices with boolean coefficients
+
+For \c bool coefficients, %Eigen interprets the arithmetic operators in the Boolean semiring: \c + is the
+logical OR and \c * is the logical AND. In particular, the product of two \c bool matrices is a Boolean
+matrix product: coefficient \c (i,j) of <tt>A * B</tt> tells whether row \c i of \c A and column \c j of
+\c B share a \c true entry. This holds for every matrix size and every product implementation.
+
+Operators without a natural Boolean meaning, such as subtraction and negation, fall back to the C++
+integer promotion rules and then convert the result back to \c bool. For instance, both
+<tt>true - false</tt> and <tt>false - true</tt> yield \c true. If you need genuine integer arithmetic on
+0/1 data, use an integer scalar type (and \c cast<int>() where needed) instead of \c bool.
+
+\warning Subtracting a matrix \em product is currently inconsistent with that rule, and the result
+depends on the size of the operands. %Eigen rewrites <tt>dst = X - A * B</tt> into
+<tt>dst = X; dst -= A * B;</tt>, and the compound form scales the product by <tt>Scalar(-1)</tt>, which
+for \c bool is \c true. The subtraction therefore becomes another logical OR whenever the product is
+not evaluated into a temporary first:
+\code
+Matrix<bool, Dynamic, Dynamic> A(n, n), B(n, n);
+A.setOnes();
+B.setOnes();
+Matrix<bool, Dynamic, Dynamic> C = A * B - A * B;   // all true, not zero
+\endcode
+Fixed-size operands give the zero matrix instead, as do sufficiently small dynamic sizes, which take
+a different product implementation. Evaluating the product first, as in <tt>T = A * B; C = T - T;</tt>,
+always gives the zero matrix. Prefer an integer scalar type when you need to subtract products.
+
+*/
+}

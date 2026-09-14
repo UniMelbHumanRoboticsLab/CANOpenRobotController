@@ -1,0 +1,117 @@
+# SPDX-FileCopyrightText: The Eigen Authors
+# SPDX-License-Identifier: MPL-2.0
+
+.test:windows:
+  extends: [ .common:windows, .artifacts:test:results ]
+  stage: test
+  script:
+    - ./ci/scripts/test.windows.script.ps1
+  after_script:
+    - ./ci/scripts/test.windows.after_script.ps1
+  rules: !reference [.rules:libeigen:all-tests, rules]
+  tags:
+    - eigen-runner
+    - windows
+    - x86-64
+  allow_failure:
+    exit_codes: 42
+
+##### MSVC #####################################################################
+
+# MSVC 14.29 (VS 2019) 64 bit
+
+.test:windows:x86-64:msvc-14.29:default:
+  extends: .test:windows
+  needs: [ build:windows:x86-64:msvc-14.29:default ]
+
+test:windows:x86-64:msvc-14.29:default:official:
+  extends: .test:windows:x86-64:msvc-14.29:default
+  variables:
+    EIGEN_CI_CTEST_LABEL: Official
+
+test:windows:x86-64:msvc-14.29:default:contrib:
+  extends: .test:windows:x86-64:msvc-14.29:default
+  variables:
+    EIGEN_CI_CTEST_LABEL: Contrib
+
+.test:windows:x86-64:msvc-14.29:avx2:
+  extends: .test:windows
+  needs: [ build:windows:x86-64:msvc-14.29:avx2 ]
+
+test:windows:x86-64:msvc-14.29:avx2:official:
+  extends: .test:windows:x86-64:msvc-14.29:avx2
+  variables:
+    EIGEN_CI_CTEST_LABEL: Official
+
+test:windows:x86-64:msvc-14.29:avx2:contrib:
+  extends: .test:windows:x86-64:msvc-14.29:avx2
+  variables:
+    EIGEN_CI_CTEST_LABEL: Contrib
+
+.test:windows:x86-64:msvc-14.29:avx512dq:
+  extends: .test:windows
+  needs: [ build:windows:x86-64:msvc-14.29:avx512dq ]
+  tags:
+    - eigen-runner
+    - windows
+    - x86-64
+    - avx512
+
+test:windows:x86-64:msvc-14.29:avx512dq:official:
+  extends: .test:windows:x86-64:msvc-14.29:avx512dq
+  variables:
+    EIGEN_CI_CTEST_LABEL: Official
+
+test:windows:x86-64:msvc-14.29:avx512dq:contrib:
+  extends: .test:windows:x86-64:msvc-14.29:avx512dq
+  variables:
+    EIGEN_CI_CTEST_LABEL: Contrib
+
+# MSVC 14.29 (VS 2019) + CUDA
+
+.test:windows:cuda:
+  extends: .test:windows
+  allow_failure: true
+  variables:
+    EIGEN_CI_CTEST_LABEL: gpu
+  # Name the GPU and driver the tests run on.
+  before_script:
+    - nvidia-smi
+    - . ci/scripts/common.windows.before_script.ps1
+  rules: !reference [.rules:libeigen:gpu, rules]
+  tags:
+    - eigen-runner
+    - windows
+    - x86-64
+    - cuda
+
+# MSVC 14.29 + CUDA 13.0
+test:windows:x86-64:cuda-13.0:msvc-14.29:
+  extends: .test:windows:cuda
+  needs: [ build:windows:x86-64:cuda-13.0:msvc-14.29 ]
+
+##### MR Affected Tests ########################################################
+# Paired with the affected Windows build job.  No CTest label is set: the regex
+# from select:tests is the only filter, so a selection spanning Official and
+# Contrib tests runs in one job rather than the two the labelled jobs above
+# need.
+#
+# Dropping the label filter is what makes the exclusion below necessary.  The
+# failtest suite and the buildsystem tests carry no CTest label, so every other
+# Windows job skips them by construction, and their test action is a compile
+# rather than the running of a prebuilt binary.  Only the build script runs
+# vcvarsall, so cl.exe is not invocable here: each one fails with "CreateProcess
+# failed: The system cannot find the file specified", while its WILL_FAIL `_ko`
+# twin passes on that same unrelated error.  Excluding them keeps this job's
+# coverage equal to what Windows has always run.  Giving the Windows test runner
+# a compiler environment would be a separate change with its own fallout.
+
+test:windows:x86-64:msvc-14.29:default:affected:
+  extends: [ .test:windows, .affected:test ]
+  needs: [ build:windows:x86-64:msvc-14.29:default:affected, select:tests ]
+  variables:
+    # `$` last: GitLab expands $NAME inside a variable value, and a trailing `$`
+    # cannot begin an expansion. Verified against the registered test names --
+    # `_(ok|ko)$` matches the 124 failtest entries and nothing else.
+    EIGEN_CI_CTEST_EXCLUDE: "^buildsystem_|_(ok|ko)$"
+  rules: !reference [.rules:libeigen:affected-tests:windows, rules]

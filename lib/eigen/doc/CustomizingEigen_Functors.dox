@@ -1,0 +1,94 @@
+namespace Eigen {
+
+/** \page TopicCustomizing_Functors Writing custom functors
+
+Several Eigen extension points accept a user-provided function object, or functor. This is often the lightest way to
+customize an expression without defining a new expression type.
+
+\section CustomFunctors_Where Where functors are used
+
+Common entry points include:
+
+- \link MatrixBase::unaryExpr unaryExpr()\endlink for coefficient-wise unary operations.
+- \link MatrixBase::binaryExpr binaryExpr()\endlink for coefficient-wise binary operations.
+- \link DenseBase::NullaryExpr NullaryExpr()\endlink for procedural matrices whose coefficients are generated on
+  demand. See \ref TopicCustomizing_NullaryExpr for larger examples.
+- \link DenseBase::redux redux()\endlink and \link VectorwiseOp::redux colwise()/rowwise().redux()\endlink for custom
+  reductions. See \ref TutorialReductionsVisitorsBroadcastingReductionsUserdefined for a tutorial example.
+
+\section CustomFunctors_ScalarInterface Scalar interface
+
+At minimum, a functor provides an \c operator() matching the expression kind:
+
+\code
+struct clamp {
+  double lo, hi;
+  double operator()(double x) const { return x < lo ? lo : (hi < x ? hi : x); }
+};
+
+struct add_scaled {
+  double scale;
+  double operator()(double a, double b) const { return a + scale * b; }
+};
+
+struct checkerboard {
+  double operator()(Eigen::Index i, Eigen::Index j) const { return ((i + j) % 2) ? -1.0 : 1.0; }
+};
+\endcode
+
+The result type is deduced from \c operator() and may differ from the input scalar type.
+Binary functors can rely on Eigen's scalar binary-op traits when the return type follows the usual scalar rules; custom
+mixed-scalar operations may need a ScalarBinaryOpTraits specialization.
+
+Functors used with \c redux() must implement an associative binary operation and return the same scalar type as the
+expression, because Eigen may combine coefficients in an order chosen by the evaluator.
+
+\section CustomFunctors_Traits Cost and vectorization traits
+
+Eigen assigns conservative defaults to unknown functors:
+
+\code
+template <typename T>
+struct functor_traits {
+  enum { Cost = 10, PacketAccess = false, IsRepeatable = false };
+};
+\endcode
+
+For performance-sensitive functors, specialize \c Eigen::internal::functor_traits for your functor:
+
+\code
+namespace Eigen {
+namespace internal {
+template <>
+struct functor_traits<clamp> {
+  enum { Cost = 3 * NumTraits<double>::AddCost, PacketAccess = false };
+};
+}  // namespace internal
+}  // namespace Eigen
+\endcode
+
+\c Cost is an approximate scalar cost used by Eigen's expression evaluators. \c PacketAccess may be set to \c true only
+when the functor also provides packet overloads compatible with the packet types used by the relevant scalar type.
+Unary and binary packetized functors usually provide a \c packetOp() member; reduction functors that support packet
+reductions also provide \c predux().
+
+Most user functors should start with scalar-only code and leave \c PacketAccess set to \c false. That keeps the functor
+portable and lets Eigen use the scalar path for that operation while preserving vectorization opportunities elsewhere in
+the expression.
+
+\section CustomFunctors_State Capturing state
+
+Functor objects are copied into expression objects and may be evaluated later. Store any captured data so that it
+outlives the expression evaluation. For example, a nullary functor producing a view into another matrix should either
+store a safe reference to an object owned by the caller or require the caller to evaluate the expression before the
+referenced object goes out of scope.
+
+\section CustomFunctors_WhenNot When a functor is not enough
+
+If the expression needs a new shape, a custom nested expression type, or evaluator-specific behavior that cannot be
+expressed coefficient by coefficient, see \ref TopicNewExpressionType. For many procedural matrices and indexed views,
+\ref TopicCustomizing_NullaryExpr is simpler than a new expression type.
+
+*/
+
+}

@@ -1,0 +1,127 @@
+# SPDX-FileCopyrightText: The Eigen Authors
+# SPDX-License-Identifier: MPL-2.0
+#
+# Builds and pushes CI container images to the GitLab registry.
+#
+# Automatic: triggered on push to the default branch when a Dockerfile changes.
+# Manual:    available as a manual job in any pipeline for routine rebuilds
+#            (e.g. to pick up upstream package updates without touching the file).
+
+.build:docker:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  # needs: [] lets these jobs run without waiting for build/test stages,
+  # since the new image is only consumed by future pipelines anyway.
+  needs: []
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+.build:docker:linux:amd64:
+  extends: .build:docker
+  tags:
+    - saas-linux-small-amd64
+
+.build:docker:linux:arm64:
+  extends: .build:docker
+  tags:
+    - saas-linux-small-arm64
+
+.build:docker:linux:riscv64:
+  extends: .build:docker
+  tags:
+    - saas-linux-small-amd64
+
+build:docker:ubuntu-24.04-amd64-smoketest-build:
+  extends: .build:docker:linux:amd64
+  script:
+    - docker buildx build --platform linux/amd64
+        -t $EIGEN_CI_IMAGE_LINUX_AMD64_SMOKETEST_BUILD
+        --push
+        ci/docker/ubuntu-24.04-amd64-smoketest-build/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - ci/docker/ubuntu-24.04-amd64-smoketest-build/Dockerfile
+    - if: $CI_PROJECT_NAMESPACE == "libeigen"
+      when: manual
+      allow_failure: true
+
+build:docker:ubuntu-24.04-amd64-smoketest-run:
+  extends: .build:docker:linux:amd64
+  script:
+    - docker buildx build --platform linux/amd64
+        -t $EIGEN_CI_IMAGE_LINUX_AMD64_SMOKETEST_RUN
+        --push
+        ci/docker/ubuntu-24.04-amd64-smoketest-run/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - ci/docker/ubuntu-24.04-amd64-smoketest-run/Dockerfile
+    - if: $CI_PROJECT_NAMESPACE == "libeigen"
+      when: manual
+      allow_failure: true
+
+build:docker:ubuntu-24.04-arm64-smoketest-build:
+  extends: .build:docker:linux:arm64
+  script:
+    - docker buildx build --platform linux/arm64
+        -t $EIGEN_CI_IMAGE_LINUX_ARM64_SMOKETEST_BUILD
+        --push
+        ci/docker/ubuntu-24.04-arm64-smoketest-build/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - ci/docker/ubuntu-24.04-arm64-smoketest-build/Dockerfile
+    - if: $CI_PROJECT_NAMESPACE == "libeigen"
+      when: manual
+      allow_failure: true
+
+build:docker:ubuntu-24.04-arm64-smoketest-run:
+  extends: .build:docker:linux:arm64
+  script:
+    - docker buildx build --platform linux/arm64
+        -t $EIGEN_CI_IMAGE_LINUX_ARM64_SMOKETEST_RUN
+        --push
+        ci/docker/ubuntu-24.04-arm64-smoketest-run/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - ci/docker/ubuntu-24.04-arm64-smoketest-run/Dockerfile
+    - if: $CI_PROJECT_NAMESPACE == "libeigen"
+      when: manual
+      allow_failure: true
+
+build:docker:ubuntu-26.04-riscv64-smoketest-build:
+  # amd64 image: the riscv64 builds cross-compile on an amd64 runner.
+  extends: .build:docker:linux:amd64
+  script:
+    - docker buildx build --platform linux/amd64
+        -t $EIGEN_CI_IMAGE_LINUX_RISCV64_SMOKETEST_BUILD
+        --push
+        ci/docker/ubuntu-26.04-riscv64-smoketest-build/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - ci/docker/ubuntu-26.04-riscv64-smoketest-build/Dockerfile
+    - if: $CI_PROJECT_NAMESPACE == "libeigen"
+      when: manual
+      allow_failure: true
+
+build:docker:ubuntu-26.04-riscv64-smoketest-run:
+  extends: .build:docker:linux:riscv64
+  script:
+    - docker buildx build --platform linux/riscv64
+        -t $EIGEN_CI_IMAGE_LINUX_RISCV64_SMOKETEST_RUN
+        --push
+        ci/docker/ubuntu-26.04-riscv64-smoketest-run/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - ci/docker/ubuntu-26.04-riscv64-smoketest-run/Dockerfile
+    - if: $CI_PROJECT_NAMESPACE == "libeigen"
+      when: manual
+      allow_failure: true

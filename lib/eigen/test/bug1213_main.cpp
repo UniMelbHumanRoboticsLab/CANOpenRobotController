@@ -1,0 +1,15 @@
+// SPDX-FileCopyrightText: The Eigen Authors
+// SPDX-License-Identifier: MPL-2.0
+
+// This is a regression unit regarding an unusual linking issue with GCC.
+
+#include "bug1213.h"
+
+int main() { return 0; }
+
+template <typename T, int dim>
+bool bug1213_2(const Eigen::Matrix<T, dim, 1>&) {
+  return true;
+}
+
+template bool bug1213_2<float, 3>(const Eigen::Vector3f&);

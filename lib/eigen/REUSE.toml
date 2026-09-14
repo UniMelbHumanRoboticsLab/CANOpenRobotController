@@ -1,0 +1,156 @@
+version = 1
+
+# REUSE 3.3 bulk-mapping for files that do not carry per-file SPDX headers.
+#
+# Source files (*.h / *.cpp / *.cc / *.cu / *.c / *.inc / *.f / *.cmake /
+# CMakeLists.txt / *.gitlab-ci.yml / scripts / etc.) carry inline
+# `SPDX-License-Identifier: <id>` lines. This file covers the remainder:
+# documentation, templates, READMEs, binary assets, top-level dotfiles, and
+# trivial test stubs, where adding a comment would be ugly, impossible
+# (binary files), or would leak into generated output (.in templates).
+
+[[annotations]]
+path = [
+    ".agents/*.md",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "INSTALL",
+    "README.md",
+    "RELEASING.md",
+    "signature_of_eigen3_matrix_library",
+]
+SPDX-FileCopyrightText = "The Eigen Authors"
+SPDX-License-Identifier = "MPL-2.0"
+
+[[annotations]]
+path = [
+    ".claude/settings.json",
+    ".clang-format",
+    ".clang-tidy",
+    ".coderabbit.yaml",
+    ".git-blame-ignore-revs",
+    ".gitattributes",
+    ".gitignore",
+    ".gitlab/**",
+]
+SPDX-FileCopyrightText = "The Eigen Authors"
+SPDX-License-Identifier = "MPL-2.0"
+
+# Doxygen-source documentation: kept clean of SPDX headers because they
+# would render in the generated HTML.
+[[annotations]]
+path = [
+    "**.dox",
+    "doc/eigendoxy.css",
+    "doc/eigendoxy_tabs.css",
+    "doc/examples/.krazy",
+    "doc/examples/make_circulant.cpp.preamble",
+    "doc/examples/make_circulant.cpp.traits",
+    "doc/examples/make_circulant.cpp.entry",
+    "doc/examples/make_circulant.cpp.evaluator",
+    "doc/examples/make_circulant.cpp.expression",
+    "doc/examples/make_circulant.cpp.main",
+    "doc/AsciiQuickReference.txt",
+    "doc/snippets/.krazy",
+    "ci/CTest2JUnit.xsl",
+]
+SPDX-FileCopyrightText = "The Eigen Authors"
+SPDX-License-Identifier = "MPL-2.0"
+
+# Top-level licensing information files that point at LICENSES/ entries; these
+# are referenced by COPYING.README. They are not source.
+[[annotations]]
+path = "cmake/MORSE-Copyright.txt"
+SPDX-FileCopyrightText = [
+    "2009-2014 The University of Tennessee and The University of Tennessee Research Foundation",
+    "2012-2017 Inria",
+    "2012-2014 Bordeaux INP, CNRS (LaBRI UMR 5800), Inria, Univ. Bordeaux",
+]
+SPDX-License-Identifier = "BSD-3-Clause"
+
+[[annotations]]
+path = "contrib/Eigen/src/LevenbergMarquardt/CopyrightMINPACK.txt"
+SPDX-FileCopyrightText = [
+    "Jorge More - Argonne National Laboratory",
+    "Burt Garbow - Argonne National Laboratory",
+    "Ken Hillstrom - Argonne National Laboratory",
+]
+SPDX-License-Identifier = "LicenseRef-MINPACK"
+
+# Generated/templated files: SPDX in *.in would leak into outputs.
+[[annotations]]
+path = [
+    "**.in",
+]
+SPDX-FileCopyrightText = "The Eigen Authors"
+SPDX-License-Identifier = "MPL-2.0"
+
+# Other module/folder READMEs that don't carry per-file headers.
+[[annotations]]
+path = [
+    "**/README",
+    "**/README.md",
+    "**/README.txt",
+]
+SPDX-FileCopyrightText = "The Eigen Authors"
+SPDX-License-Identifier = "MPL-2.0"
+
+# BLAS/LAPACK shim ABI-export definition files (mechanical lists of symbols).
+[[annotations]]
+path = [
+    "blas/eigen_blas.def",
+    "lapack/eigen_lapack.def",
+    "lapack/eigen_lapack_cpp.def",
+]
+SPDX-FileCopyrightText = "The Eigen Authors"
+SPDX-License-Identifier = "MPL-2.0"
+
+# MSVC debug visualizer (XML, no comment-friendly header location).
+[[annotations]]
+path = "debug/msvc/eigen.natvis"
+SPDX-FileCopyrightText = "The Eigen Authors"
+SPDX-License-Identifier = "MPL-2.0"
+
+# Eigen logo / mascot — created for the project.
+[[annotations]]
+path = "doc/Eigen_Silly_Professor_64x64.png"
+SPDX-FileCopyrightText = "The Eigen Authors"
+SPDX-License-Identifier = "MPL-2.0"
+
+# Doxygen-shipped navigation icons (functional UI assets, redistributed
+# unmodified with the documentation). Declared MPL-2.0 to match the rest of
+# the doc tree; if a reviewer prefers stricter attribution to upstream
+# Doxygen (Dimitri van Heesch, GPL-2.0-or-later) we can split them out and
+# add LICENSES/GPL-2.0-or-later.txt.
+[[annotations]]
+path = [
+    "doc/ftv2node.png",
+    "doc/ftv2pnode.png",
+]
+SPDX-FileCopyrightText = "The Eigen Authors"
+SPDX-License-Identifier = "MPL-2.0"
+
+# failtest/ contains minimal compile-failure stubs (a few `#include`s plus a
+# trivial main); no novel IP, but they are MPL-2.0 by virtue of being part of
+# the Eigen test suite.
+[[annotations]]
+path = "failtest/*.cpp"
+SPDX-FileCopyrightText = "The Eigen Authors"
+SPDX-License-Identifier = "MPL-2.0"
+
+# Reference BLAS test data files (netlib reference distribution: Univ. of
+# Tennessee / Berkeley / Colorado Denver — modified BSD-3-Clause).
+[[annotations]]
+path = "blas/testing/*.dat"
+SPDX-FileCopyrightText = [
+    "1992-2013 The University of Tennessee and The University of Tennessee Research Foundation",
+    "2000-2013 The University of California Berkeley",
+    "2006-2013 The University of Colorado Denver",
+]
+SPDX-License-Identifier = "BSD-3-Clause"
+
+# MSVC autoexp data — mechanical pretty-print description, MPL-2.0.
+[[annotations]]
+path = "debug/msvc/eigen_autoexp_part.dat"
+SPDX-FileCopyrightText = "The Eigen Authors"
+SPDX-License-Identifier = "MPL-2.0"

@@ -1,0 +1,109 @@
+namespace Eigen {
+
+/** \page TopicVectorization Vectorization
+
+%Eigen performs \em explicit vectorization: instead of relying on the compiler to auto-vectorize scalar
+loops, %Eigen's evaluators generate SIMD instructions directly through a portable wrapper layer (the
+"packet math" layer). This page gives an overview of which instruction sets are supported, how
+vectorization is enabled, what gets vectorized, and how to control it.
+
+\eigenAutoToc
+
+\section TopicVectorizationArch Supported instruction sets
+
+On CPUs, %Eigen provides vectorized kernels for the following instruction sets:
+
+<table class="manual">
+<tr><th>Architecture</th><th>Instruction sets</th><th>Notes</th></tr>
+<tr><td>x86 / x86-64</td><td>SSE2, SSE3, SSSE3, SSE4.1, SSE4.2, AVX, AVX2+FMA, AVX512 (incl. the DQ, VL, FP16, and BF16 extensions)</td>
+    <td>Selected from the compiler's target flags (e.g. \c -mavx2 \c -mfma, \c /arch:AVX2)</td></tr>
+<tr class="alt"><td>ARM / AArch64</td><td>NEON, SME; SVE as an opt-in backend</td>
+    <td>SVE requires \c EIGEN_ARM64_USE_SVE and a fixed vector length
+        (<tt>-msve-vector-bits=N</tt>). The SME backend accelerates real and complex matrix
+        products and is selected automatically when the compiler targets SME2
+        (<tt>-march=armv9.2-a+sme2</tt>, or a <tt>-mcpu</tt> that implies it) \em without
+        <tt>-msve-vector-bits</tt>, since a fixed length would pin the kernels to one runtime
+        streaming vector length; everything else keeps the NEON path. Define
+        \c EIGEN_ARM64_NO_SME to opt out, or \c EIGEN_ARM64_USE_SME to turn a toolchain that
+        cannot provide it into a build error instead of a NEON fallback. Double precision
+        additionally needs the optional FEAT_SME_F64F64 extension (<tt>+sme-f64f64</tt>, or a
+        <tt>-mcpu</tt> that implies it); without it \c double and \c std::complex<double> keep
+        the generic kernel</td></tr>
+<tr><td>PowerPC</td><td>AltiVec, VSX, MMA</td><td></td></tr>
+<tr class="alt"><td>IBM Z (s390x)</td><td>ZVector</td><td></td></tr>
+<tr><td>MIPS</td><td>MSA</td><td></td></tr>
+<tr class="alt"><td>LoongArch</td><td>LSX</td><td></td></tr>
+<tr><td>RISC-V</td><td>RVV 1.0</td>
+    <td>Requires \c EIGEN_RISCV64_USE_RVV10 and a fixed vector length
+        (<tt>-mrvv-vector-bits=zvl</tt>)</td></tr>
+<tr class="alt"><td>Qualcomm Hexagon</td><td>HVX</td><td></td></tr>
+</table>
+
+In addition, the same packet abstraction is used to generate efficient device code for CUDA and HIP
+GPUs (see \ref TopicCUDA) and for SYCL devices.
+
+Vectorization is enabled automatically whenever the compiler's target flags advertise one of the
+supported instruction sets. You can check what a given translation unit ended up using by printing
+Eigen::SimdInstructionSetsInUse():
+\code
+std::cout << Eigen::SimdInstructionSetsInUse() << std::endl;
+\endcode
+
+\section TopicVectorizationWhat What gets vectorized
+
+Vectorization applies across %Eigen, most notably to:
+  - assignment of coefficient-wise expressions (e.g. <tt>a = 2*b + c.cwiseProduct(d)</tt>),
+    including the fused evaluation loops described in \ref TopicEigenExpressionTemplates;
+  - reductions such as sum(), minCoeff(), squaredNorm(), and their partial (colwise/rowwise)
+    variants;
+  - matrix-matrix and matrix-vector products, and through them most decompositions;
+  - many coefficient-wise math functions; the \ref CoeffwiseMathFunctions "math function catalogue"
+    lists, for every function, the instruction sets and scalar types with a vectorized
+    implementation.
+
+The scalar types with SIMD support depend on the instruction set; \c float, \c double, 32- and
+64-bit integers, and <tt>std::complex<float></tt>/<tt>std::complex<double></tt> are covered on the
+main backends, with \c Eigen::half and \c Eigen::bfloat16 vectorized where hardware support exists
+(e.g. AVX512FP16, NEON). Types without SIMD support, such as <tt>long double</tt> or custom scalar
+types, simply use scalar code.
+
+Fixed-size objects are vectorized when their size is a multiple of the packet size; this is where
+the alignment rules for \ref TopicFixedSizeVectorizable "fixed-size vectorizable types" come from.
+Dynamic-size objects use aligned heap allocation plus vectorized loops with scalar prologues and
+epilogues where needed. Unaligned loads and stores are used where alignment cannot be established;
+this is enabled by default and controlled by \c EIGEN_UNALIGNED_VECTORIZE.
+
+\section TopicVectorizationCtrl Controlling vectorization
+
+Vectorization is meant to be transparent, but the following macros, all documented in
+\ref TopicPreprocessorDirectives, let you control it:
+
+  - \c EIGEN_DONT_VECTORIZE disables explicit vectorization entirely.
+  - \c EIGEN_MAX_ALIGN_BYTES and \c EIGEN_MAX_STATIC_ALIGN_BYTES bound the alignment %Eigen
+    requests for heap and static data respectively; note that changing them affects the ABI.
+  - \c EIGEN_UNALIGNED_VECTORIZE=0 restricts vectorization to expressions whose destination is
+    aligned.
+  - \c EIGEN_FAST_MATH selects between faster and more accurate vectorized math functions.
+
+Disabling vectorization also drops %Eigen's alignment: outside GPU compilation,
+\c EIGEN_DONT_VECTORIZE sets the ideal alignment to zero, and the defaults for
+\c EIGEN_MAX_STATIC_ALIGN_BYTES and \c EIGEN_MAX_ALIGN_BYTES follow it. Fixed-size vectorizable
+types then lose their over-alignment — \c alignof(Vector4f) drops from 16 to 4 on a typical x86-64
+build — so translation units that disagree about \c EIGEN_DONT_VECTORIZE disagree about the ABI.
+Define the alignment macros explicitly and identically everywhere if you need the boundary to stay
+fixed. See \ref TopicUnalignedArrayAssert for what the alignment is there for.
+
+When compiling CUDA sources, host-side SIMD must be disabled; see \ref TopicCUDA.
+
+\section TopicVectorizationInternals Under the hood
+
+Vectorized kernels are written in terms of generic packet primitives — pload(), pstore(), padd(),
+pmul(), predux(), and friends — declared in Eigen/src/Core/GenericPacketMath.h and specialized for
+each instruction set under <tt>Eigen/src/Core/arch/</tt>. Expression evaluators query each
+expression's packet support and alignment at compile time to choose between scalar, linear,
+sliced, and unrolled vectorized evaluation loops. Custom functors can participate in vectorization
+by providing a \c packetOp() and advertising \c PacketAccess in their traits; see
+\ref TopicCustomizing_Functors.
+
+*/
+}

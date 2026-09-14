@@ -1,0 +1,105 @@
+// This file is part of Eigen, a lightweight C++ template library
+// for linear algebra.
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+// SPDX-FileCopyrightText: The Eigen Authors
+// SPDX-License-Identifier: MPL-2.0
+
+#ifndef EIGEN_STRUCTURED_MATRICES_MODULE_H
+#define EIGEN_STRUCTURED_MATRICES_MODULE_H
+
+#include "../../Eigen/Core"
+#include "../../Eigen/Eigenvalues"
+#include "../../Eigen/LU"
+#include "../../Eigen/SVD"
+#include "../../Eigen/IterativeLinearSolvers"
+#include "FFT"
+
+namespace Eigen {
+
+/**
+ * \defgroup StructuredMatrices_Module StructuredMatrices module
+ *
+ * This module provides lightweight operator types for displacement-structured
+ * matrices together with fast matrix-vector products and direct solvers:
+ *   - \c Circulant : a circulant matrix, diagonalized by the DFT;
+ *   - \c Toeplitz  : a (possibly rectangular) Toeplitz matrix, multiplied in
+ *     O(n log n) via circulant embedding;
+ *   - \c Hankel    : a (possibly rectangular) Hankel matrix -- a column-reversed
+ *     Toeplitz matrix -- with the same O(n log n) products, and square solves
+ *     through the Toeplitz equivalent;
+ *   - \c KroneckerOperator : the Kronecker product of two dense or diagonal
+ *     matrices as an implicit operator; products, solves, least squares,
+ *     eigendecomposition, SVD, inverse and determinant all factor through the
+ *     operands, and diagonal (in particular identity) factors are stored and
+ *     applied in diagonal form;
+ *   - \c DiagonalPlusLowRank : a diagonal matrix plus a rank-k correction, with
+ *     O(nk) products and O(nk^2) Woodbury solves, closed under inversion;
+ *   - \c Vandermonde : a Vandermonde matrix stored as its nodes, with Horner
+ *     products and O(n^2) Björck-Pereyra primal/dual solves
+ *     (\c BjorckPereyra);
+ *   - \c Cauchy    : a Cauchy matrix stored as its node vectors, solved in
+ *     O(n^2) with genuine partial pivoting through the displacement structure
+ *     (\c CauchyLU, Gohberg-Kailath-Olshevsky);
+ *   - \c DPR1EigenSolver : the direct O(n^2) secular-equation eigensolver for
+ *     real symmetric diagonal-plus-rank-one matrices D + rho*z*z^T, with
+ *     LAPACK-style deflation and Gu-Eisenstat orthogonal eigenvectors;
+ *   - \c Bccb      : a block circulant matrix with circulant blocks (the matrix
+ *     of a 2-D circular convolution), diagonalized by the 2-D DFT, with
+ *     closed-form solves, eigendecomposition and SVD.
+ *
+ * The operator types derive from \c EigenBase and store only compact generators
+ * or factors. The FFT-backed operators (\c Circulant, \c Toeplitz, \c Hankel and
+ * \c Bccb) also keep a precomputed DFT symbol that every product reuses.
+ * Because they expose \c operator* returning an Eigen product expression, they
+ * also plug directly into the matrix-free iterative solvers
+ * (\c ConjugateGradient, \c GMRES, \c MINRES, ...) without forming the dense
+ * matrix; and since they hook into the evaluator system, they can be assigned
+ * to a dense matrix when an explicit representation is needed. Like every
+ * matrix-free operator, they carry no coefficient storage the default
+ * preconditioners could read, so the iterative solvers must be instantiated
+ * with \c IdentityPreconditioner.
+ *
+ * All operator types are closed under transposition (\c transpose(),
+ * \c conjugate(), \c adjoint() return operators of the same kind, the FFT-based
+ * ones reusing the cached symbol), which in particular feeds the least-squares
+ * solvers \c LSMR and \c LeastSquaresConjugateGradient (again with
+ * \c IdentityPreconditioner).
+ * The \c Circulant, \c Toeplitz and \c Hankel operators are closed under
+ * transposition (\c transpose(),
+ * \c conjugate(), \c adjoint() return operators of the same kind, reusing the
+ * cached symbol), which in particular feeds the least-squares solvers \c LSMR
+ * and \c LeastSquaresConjugateGradient (again with \c IdentityPreconditioner).
+ * \c Circulant and \c Bccb additionally expose their closed-form
+ * eigendecomposition and SVD in the Fourier basis, a pseudo-inverse
+ * (minimum-norm least-squares) solve, \c rank(), \c inverse() and
+ * \c determinant().
+ *
+ * \code
+ * #include <contrib/Eigen/StructuredMatrices>
+ * \endcode
+ */
+
+}  // namespace Eigen
+
+#include "../../Eigen/src/Core/util/DisableStupidWarnings.h"
+
+// IWYU pragma: begin_exports
+#include "src/StructuredMatrices/StructuredMatrixUtils.h"
+#include "src/StructuredMatrices/Circulant.h"
+#include "src/StructuredMatrices/Toeplitz.h"
+#include "src/StructuredMatrices/LookAheadLevinson.h"
+#include "src/StructuredMatrices/Hankel.h"
+#include "src/StructuredMatrices/KroneckerOperator.h"
+#include "src/StructuredMatrices/DiagonalPlusLowRank.h"
+#include "src/StructuredMatrices/Vandermonde.h"
+#include "src/StructuredMatrices/Cauchy.h"
+#include "src/StructuredMatrices/DPR1EigenSolver.h"
+#include "src/StructuredMatrices/Bccb.h"
+// IWYU pragma: end_exports
+
+#include "../../Eigen/src/Core/util/ReenableStupidWarnings.h"
+
+#endif  // EIGEN_STRUCTURED_MATRICES_MODULE_H

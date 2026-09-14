@@ -1,0 +1,37 @@
+namespace Eigen {
+
+/** \page AutoDiffExamples AutoDiff examples
+
+This page shows basic uses of the \ref AutoDiff_Module.
+
+\section AutoDiffScalarExample Tracking first derivatives
+
+AutoDiffScalar stores a scalar value together with its derivatives. The derivative vector size is the number of
+independent variables. A common pattern is to seed each independent variable with one unit vector:
+
+<table class="example">
+<tr><th>Example:</th><th>Output:</th></tr>
+<tr><td>
+\include AutoDiffScalarExample.cpp
+</td>
+<td>
+\verbinclude AutoDiffScalarExample.out
+</td></tr></table>
+
+\section AutoDiffJacobianExample Computing a Jacobian
+
+AutoDiffJacobian wraps a functor whose operator() is templated on the scalar type. Calling it with a Jacobian pointer
+evaluates the functor with active AutoDiffScalar inputs and fills both the value and Jacobian:
+
+<table class="example">
+<tr><th>Example:</th><th>Output:</th></tr>
+<tr><td>
+\include AutoDiffJacobianExample.cpp
+</td>
+<td>
+\verbinclude AutoDiffJacobianExample.out
+</td></tr></table>
+
+*/
+
+}

@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: The Eigen Authors
+# SPDX-License-Identifier: MPL-2.0
+
+if(BLAS_FOUND)
+  # HAVE_BLAS adds BM_BlasGemm, the reference sgemm_/dgemm_ on the same grid.
+  eigen_add_benchmark(bench_gemm bench_gemm.cpp
+      LIBRARIES ${BLAS_LIBRARIES} DEFINITIONS HAVE_BLAS)
+  eigen_add_benchmark(bench_gemm_double bench_gemm.cpp
+      LIBRARIES ${BLAS_LIBRARIES} DEFINITIONS HAVE_BLAS SCALAR=double)
+else()
+  eigen_add_benchmark(bench_gemm bench_gemm.cpp)
+  eigen_add_benchmark(bench_gemm_double bench_gemm.cpp DEFINITIONS SCALAR=double)
+endif()
+eigen_add_benchmark(bench_gemm_complex bench_gemm.cpp
+    DEFINITIONS "SCALAR=std::complex<float>" EIGEN_BENCH_COMPLEX_SCALAR)
+eigen_add_benchmark(bench_gemm_complex_double bench_gemm.cpp
+    DEFINITIONS "SCALAR=std::complex<double>" EIGEN_BENCH_COMPLEX_SCALAR)
+eigen_add_benchmark(bench_gemv bench_gemv.cpp)
+eigen_add_benchmark(bench_vecadd bench_vecadd.cpp)
+eigen_add_benchmark(bench_trsm bench_trsm.cpp)
+eigen_add_benchmark(bench_reverse bench_reverse.cpp)
+eigen_add_benchmark(bench_move_semantics bench_move_semantics.cpp)
+eigen_add_benchmark(bench_reductions bench_reductions.cpp)
+eigen_add_benchmark(bench_boolean_reductions bench_boolean_reductions.cpp)
+eigen_add_benchmark(bench_dot bench_dot.cpp)
+eigen_add_benchmark(bench_stable_norm bench_stable_norm.cpp)
+eigen_add_benchmark(bench_cwise_math bench_cwise_math.cpp)
+eigen_add_benchmark(bench_int64_ops bench_int64_ops.cpp)
+eigen_add_benchmark(bench_packet_ops bench_packet_ops.cpp)
+eigen_add_benchmark(bench_broadcasting bench_broadcasting.cpp)
+eigen_add_benchmark(bench_block_ops bench_block_ops.cpp)
+eigen_add_benchmark(bench_map bench_map.cpp)
+eigen_add_benchmark(bench_reshaped bench_reshaped.cpp)
+eigen_add_benchmark(bench_diagonal bench_diagonal.cpp)
+eigen_add_benchmark(bench_triangular_product bench_triangular_product.cpp)
+eigen_add_benchmark(bench_selfadjoint_product bench_selfadjoint_product.cpp)
+eigen_add_benchmark(bench_symv bench_symv.cpp)
+eigen_add_benchmark(bench_trmv bench_trmv.cpp)
+eigen_add_benchmark(bench_syr bench_syr.cpp)
+eigen_add_benchmark(bench_syr2 bench_syr2.cpp)
+eigen_add_benchmark(bench_construction bench_construction.cpp)
+eigen_add_benchmark(bench_fixed_size bench_fixed_size.cpp)
+eigen_add_benchmark(bench_fixed_size_double bench_fixed_size.cpp DEFINITIONS SCALAR=double)
+eigen_add_benchmark(bench_small_matrix bench_small_matrix.cpp)
+eigen_add_benchmark(bench_segment_tail bench_segment_tail.cpp)
+eigen_add_benchmark(bench_boolean_ops bench_boolean_ops.cpp)
+eigen_add_benchmark(bench_boolean_ops_novec bench_boolean_ops.cpp DEFINITIONS EIGEN_DONT_VECTORIZE)

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.3...3.5)
 project(CORC C CXX)
 
 #To cross-compile for Arm (BeagleBone) use the armhf toolchain:

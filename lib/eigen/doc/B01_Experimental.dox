@@ -1,0 +1,38 @@
+namespace Eigen {
+
+/** \page Experimental Experimental parts of Eigen
+
+\eigenAutoToc
+
+\section Experimental_summary Summary
+
+Most of %Eigen's public API is stable: since %Eigen 5.0 releases follow
+<a href="https://semver.org">semantic versioning</a>, so API-breaking changes to supported,
+documented features only happen in major releases. However, some parts of %Eigen are explicitly
+\em experimental, meaning that they are not covered by this stability guarantee.
+
+Experimental features may, in any release:
+\li be removed;
+\li be subject to an API incompatible change;
+\li introduce API or ABI incompatible changes in your own code if you let them affect your API or ABI.
+
+\section Experimental_what What is experimental?
+
+\li Features whose documentation carries the explicit warning "This is not considered to be part of
+    the stable public API yet", which links to this page.
+\li Everything in the \c Eigen::internal namespace, and the private implementation headers under
+    <tt>Eigen/src/</tt> and <tt>contrib/Eigen/src/</tt>. Include the public module headers such
+    as <tt><Eigen/Core></tt> instead; names not reachable through them are implementation details,
+    even where a header does not mechanically enforce this.
+\li The modules under <a href="contrib/index.html"><tt>contrib/Eigen/</tt></a>. These are
+    contributed modules maintained with looser API-stability guarantees than the main library.
+    "Contrib" does not mean low quality or low usage — the Tensor module, for instance, is a
+    foundational dependency of TensorFlow — but their APIs may evolve between minor releases.
+
+Undocumented behavior of otherwise stable classes (for example, the exact layout of a
+decomposition's internal storage as exposed by low-level accessors) should likewise not be relied
+upon.
+
+*/
+
+}

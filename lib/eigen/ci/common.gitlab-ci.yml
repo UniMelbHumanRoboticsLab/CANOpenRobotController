@@ -1,0 +1,324 @@
+# Base configuration for linux builds and tests.
+# SPDX-FileCopyrightText: The Eigen Authors
+# SPDX-License-Identifier: MPL-2.0
+
+# Shared rule sets, referenced from concrete jobs via
+#   rules: !reference [.rules:<name>, rules]
+# Centralizing them keeps the "what triggers this job?" decision in one place.
+.rules:libeigen:smoketest:
+  # Every merge request, except one that opted into a wider tier; see
+  # .agents/ci.md.  The namespace guard is load-bearing: neither wider tier has
+  # any job outside libeigen, so a fork keeps its smoke coverage whatever it is
+  # labelled.  The set below restates these two entries behind a namespace
+  # guard rather than nesting a !reference into them; keep the two in step.
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/(affected|all)-tests/"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+.rules:libeigen:smoketest:upstream-runner:
+  # The smoke tier, for jobs pinned to a runner only this project has: the
+  # riscv64 tests inherit `tags: [riscv]`, a single self-hosted machine.  A fork
+  # that schedules them leaves them pending until the stuck-job timeout drops
+  # them: measured at 5563 s, 6475 s and 6786 s queued across two fork merge
+  # request pipelines, so its pipeline is neither green nor finished for the
+  # better part of two hours.  allow_failure hides the eventual failure but not
+  # the wait.  A tag the plan does not offer at all fails fast instead
+  # (no_matching_runner, zero queue), which is why only this one needs guarding.
+  # Past the first entry the namespace is known, so the rest is
+  # .rules:libeigen:smoketest.
+  rules:
+    - if: $CI_PROJECT_NAMESPACE != "libeigen"
+      when: never
+    - if: $CI_MERGE_REQUEST_LABELS =~ "/(affected|all)-tests/"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# Keeps a GPU-scoped schedule (EIGEN_CI_SCHEDULE_SCOPE=gpu, see .gitlab-ci.yml)
+# from running anything but the GPU jobs.  Every rule set that fires on
+# "schedule" except .rules:libeigen:gpu opens with it: the job-level lists in
+# the build, test and deploy files splice it in as their first entry with
+# `- !reference [.rules:libeigen:gpu-schedule-guard, rules]`, while the three
+# .rules:libeigen:* sets below restate the two lines, since a !reference inside
+# a set that is itself !reference'd would nest.
+.rules:libeigen:gpu-schedule-guard:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $EIGEN_CI_SCHEDULE_SCOPE == "gpu"
+      when: never
+
+.rules:libeigen:all-tests:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $EIGEN_CI_SCHEDULE_SCOPE == "gpu"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_NAMESPACE == "libeigen"
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_PROJECT_NAMESPACE == "libeigen"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/all-tests/"
+
+.rules:libeigen:gpu:
+  # Spelled out (rather than referencing .rules:libeigen:all-tests) to avoid
+  # a nested !reference, which GitLab CI has had inconsistent support for.
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_NAMESPACE == "libeigen"
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_PROJECT_NAMESPACE == "libeigen"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/all-tests/"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/gpu-tests/"
+    # No affected-tier configuration enables CUDA, HIP or SYCL, so the GPU test
+    # targets exist in none of them: a diff confined to these paths selects
+    # targets every affected build reports as unconfigured and a -R regex that
+    # matches nothing, and the tier goes green having compiled and run nothing.
+    # These jobs close that gap the way ppc64le closes it for AltiVec.  They
+    # ignore the selection and build buildtests_gpu, which covers every GPU
+    # test rather than the affected subset.
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+      changes:
+        - Eigen/src/Core/arch/GPU/**/*
+        # The two scalar headers carry their own device code paths, the .inc
+        # files are the CUDA/HIP alias layer, EigenTesting.cmake holds the
+        # nvcc/hipcc dispatch, and the harness headers decide what a GPU test
+        # can express; a change to any of them is invisible to a host build.
+        - Eigen/src/Core/arch/Default/Half.h
+        - Eigen/src/Core/arch/Default/BFloat16.h
+        - Eigen/src/Core/util/GpuHipCuda*.inc
+        - Eigen/src/Core/util/GpuRuntime.h
+        - cmake/EigenTesting.cmake
+        - test/*.cu
+        - test/gpu_common.h
+        - test/gpu_test_helper.h
+        - test/main.h
+        - contrib/Eigen/src/Tensor/*Gpu*.h
+        - contrib/test/*.cu
+        - contrib/test/GPU/**/*
+    # `gpu-tests` is the platform label for GPU and already stands alone above,
+    # so it composes with `affected-tests` without another entry.  It is also
+    # why `all-platforms` covers no GPU job, and none of the compile-only sets
+    # below: that label means "every platform that runs the affected selection",
+    # and these jobs ignore the selection to build the whole GPU suite.
+
+.rules:libeigen:affected-tests:
+  # Opt-in middle tier between the fixed smoke list and the full `all-tests`
+  # matrix: every test the diff can reach, on a small set of platforms.
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+
+# The rest of the affected tier is gated on the platform a job targets, by the
+# diff or by a label.  Two entries per set rather than one, because GitLab ANDs
+# `if:` with `changes:` within an entry and this has to be an OR.  A build job
+# and its paired test job share a set: a test job whose build did not run has
+# nothing to execute.  See .agents/ci.md for the platform table.
+#
+# The `*-tests` labels are deliberately unscoped.  GitLab makes scoped labels
+# (`backend::NEON`) mutually exclusive, so a scoped axis could never express
+# `neon-tests` plus `altivec-tests` -- the union is the point.
+.rules:libeigen:affected-tests:sse:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+      changes:
+        - Eigen/src/Core/arch/SSE/**/*
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/" && $CI_MERGE_REQUEST_LABELS =~ "/all-platforms|sse-tests/"
+
+# A wider x86 configuration compiles the narrower backends' headers, so SSE fans
+# out to all three x86 sets.  Each set still names its own label, so no set
+# depends on another's pattern matching a substring of it.
+.rules:libeigen:affected-tests:avx:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+      changes:
+        - Eigen/src/Core/arch/SSE/**/*
+        - Eigen/src/Core/arch/AVX/**/*
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/" && $CI_MERGE_REQUEST_LABELS =~ "/all-platforms|sse-tests|avx-tests/"
+
+.rules:libeigen:affected-tests:avx512:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+      changes:
+        - Eigen/src/Core/arch/SSE/**/*
+        - Eigen/src/Core/arch/AVX/**/*
+        - Eigen/src/Core/arch/AVX512/**/*
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/" && $CI_MERGE_REQUEST_LABELS =~ "/all-platforms|sse-tests|avx-tests|avx512-tests/"
+
+# The AVX512-FP16 headers are excluded unless -mavx512fp16 is active, so the
+# AVX512DQ build does not parse them.  No `all-platforms`: these jobs and the
+# SME one below compile the whole suite rather than the affected selection, and
+# have no paired test job.
+.rules:libeigen:affected-tests:avx512fp16:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+      changes:
+        - Eigen/src/Core/arch/AVX512/*FP16*
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/" && $CI_MERGE_REQUEST_LABELS =~ "/avx512-tests/"
+
+.rules:libeigen:affected-tests:neon:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+      changes:
+        - Eigen/src/Core/arch/NEON/**/*
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/" && $CI_MERGE_REQUEST_LABELS =~ "/all-platforms|neon-tests/"
+
+.rules:libeigen:affected-tests:altivec:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+      changes:
+        - Eigen/src/Core/arch/AltiVec/**/*
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/" && $CI_MERGE_REQUEST_LABELS =~ "/all-platforms|altivec-tests/"
+
+.rules:libeigen:affected-tests:lsx:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+      changes:
+        - Eigen/src/Core/arch/LSX/**/*
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/" && $CI_MERGE_REQUEST_LABELS =~ "/all-platforms|lsx-tests/"
+
+.rules:libeigen:affected-tests:rvv10:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+      changes:
+        - Eigen/src/Core/arch/RVV10/**/*
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/" && $CI_MERGE_REQUEST_LABELS =~ "/all-platforms|rvv-tests/"
+
+# SME builds take the NEON headers, so an SVE-only change must trigger the SVE
+# jobs, not these: keep the two backends on separate rules.
+.rules:libeigen:affected-tests:sme:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+      changes:
+        - Eigen/src/Core/arch/SME/**/*
+        # Backend selection, and the SME-specific product thresholds, live
+        # outside arch/ but decide whether either backend is used at all.
+        - Eigen/src/Core/util/ConfigureVectorization.h
+        - Eigen/src/Core/GeneralProduct.h
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/" && $CI_MERGE_REQUEST_LABELS =~ "/sme-tests/"
+
+.rules:libeigen:affected-tests:sve:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/"
+      changes:
+        - Eigen/src/Core/arch/SVE/**/*
+        # As for SME: the backend is only reachable through this header.
+        - Eigen/src/Core/util/ConfigureVectorization.h
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/" && $CI_MERGE_REQUEST_LABELS =~ "/all-platforms|sve-tests/"
+
+# No `changes:` entry: what MSVC catches is whole-library (instantiation limits,
+# `EIGEN_STRONG_INLINE`, optimizer heap exhaustion), not confined to any subtree
+# a diff could name, so there is nothing to key an automatic trigger on.
+.rules:libeigen:affected-tests:windows:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_MERGE_REQUEST_LABELS =~ "/affected-tests/" && $CI_MERGE_REQUEST_LABELS =~ "/all-platforms|windows-tests/"
+
+# Consumers of the select:tests artifacts, on either platform.  Kept here rather
+# than beside the jobs so the artifact contract is spelled once; ci/select.gitlab-ci.yml
+# produces these paths.
+.affected:build:
+  needs: [ select:tests ]
+  variables:
+    EIGEN_CI_BUILD_TARGET_FILE: affected/targets.txt
+
+.affected:test:
+  variables:
+    EIGEN_CI_CTEST_REGEX_FILE: affected/ctest_regex.txt
+
+# The smoke tier keeps the shared ccache pool that every other tier scopes per
+# merge request (EIGEN_CI_CCACHE_SCOPE, set in the workflow rules; a job
+# variable outranks one from a workflow rule, which is what makes this opt-out
+# work).  These jobs run on merge request events only, so scoping them would
+# leave `<slug>-ccache` with no writer at all: the pool a first build falls
+# back to would freeze at whatever wrote it last and rot from there.  Sharing
+# it costs little here -- a smoke build is minutes, and its objects are the
+# ones most likely to match another merge request's.
+.smoketest:build:
+  variables:
+    EIGEN_CI_CCACHE_SCOPE: ""
+
+.rules:libeigen:scheduled-or-web:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $EIGEN_CI_SCHEDULE_SCOPE == "gpu"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_NAMESPACE == "libeigen"
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_PROJECT_NAMESPACE == "libeigen"
+
+.rules:libeigen:scheduled-or-web:default-branch:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $EIGEN_CI_SCHEDULE_SCOPE == "gpu"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_PROJECT_NAMESPACE == "libeigen" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+.common:linux:cross:
+  image: ubuntu:24.04
+  variables:
+    EIGEN_CI_TARGET_ARCH: ""
+    EIGEN_CI_ADDITIONAL_ARGS: ""
+    # If host matches target, use the following:
+    EIGEN_CI_C_COMPILER: ""
+    EIGEN_CI_CXX_COMPILER: ""
+    EIGEN_CI_INSTALL: "${EIGEN_CI_C_COMPILER} ${EIGEN_CI_CXX_COMPILER}"
+    # If host does not match the target, use the following:
+    EIGEN_CI_CROSS_TARGET_TRIPLE: ""
+    EIGEN_CI_CROSS_C_COMPILER: ${EIGEN_CI_C_COMPILER}
+    EIGEN_CI_CROSS_CXX_COMPILER: ${EIGEN_CI_CXX_COMPILER}
+    EIGEN_CI_CROSS_INSTALL: "${EIGEN_CI_CROSS_C_COMPILER} ${EIGEN_CI_CROSS_CXX_COMPILER}"
+  before_script:
+    # Call script in current shell - it sets up some environment variables.
+    - . ci/scripts/common.linux.before_script.sh
+
+# Base configuration for Windows builds and tests.
+.common:windows:
+  variables:
+    EIGEN_CI_MSVC_ARCH: x64
+    EIGEN_CI_MSVC_VER: "14.29"
+    EIGEN_CI_ADDITIONAL_ARGS: ""
+    EIGEN_CI_BEFORE_SCRIPT: ""
+  before_script:
+     - . ci/scripts/common.windows.before_script.ps1
+
+######## Artifacts #############################################################
+# Kept out of the .common:* bases so that publishing is a choice a job makes
+# rather than something it inherits.
+
+.artifacts:linux:builddir:
+  artifacts:
+    when: always
+    name: "$CI_JOB_NAME_SLUG-$CI_COMMIT_REF_SLUG"
+    paths:
+      - ${EIGEN_CI_BUILDDIR}/
+    exclude:
+      - ${EIGEN_CI_BUILDDIR}/**/*.o
+      - ${EIGEN_CI_BUILDDIR}/**/*.a
+      - ${EIGEN_CI_BUILDDIR}/**/.ninja_log
+      - ${EIGEN_CI_BUILDDIR}/**/.ninja_deps
+      - ${EIGEN_CI_BUILDDIR}/**/CMakeFiles/*.dir/**
+      - ${EIGEN_CI_BUILDDIR}/.cmake/**
+      - ${EIGEN_CI_BUILDDIR}/**/Testing/Temporary/**
+    expire_in: 2 days
+
+.artifacts:windows:builddir:
+  artifacts:
+    when: always
+    name: "$CI_JOB_NAME_SLUG-$CI_COMMIT_REF_NAME"
+    paths:
+      - ${EIGEN_CI_BUILDDIR}/
+    exclude:
+      - ${EIGEN_CI_BUILDDIR}/**/*.obj
+      - ${EIGEN_CI_BUILDDIR}/**/*.lib
+      - ${EIGEN_CI_BUILDDIR}/**/.ninja_log
+      - ${EIGEN_CI_BUILDDIR}/**/.ninja_deps
+      - ${EIGEN_CI_BUILDDIR}/**/CMakeFiles/*.dir/**
+      - ${EIGEN_CI_BUILDDIR}/.cmake/**
+      - ${EIGEN_CI_BUILDDIR}/**/Testing/Temporary/**
+    expire_in: 2 days
+
+# A test job links nothing, and nothing takes its artifact as needs:, so
+# re-publishing the build directory it downloaded is pure duplication.
+# Testing/ is dropped too: Test.xml embeds every test's stdout under
+# --no-compress-output, and the <failure> bodies below carry what matters.
+# A week, not two days, because the merge request widget reads this.  Listed
+# under both keys on purpose: reports: is what the widget parses, paths: is
+# what the job's artifact panel offers for download.
+.artifacts:test:results:
+  artifacts:
+    when: always
+    name: "$CI_JOB_NAME_SLUG-$CI_COMMIT_REF_SLUG"
+    paths:
+      - ${EIGEN_CI_BUILDDIR}/JUnitTestResults_*.xml
+    reports:
+      junit: ${EIGEN_CI_BUILDDIR}/JUnitTestResults_*.xml
+    expire_in: 1 week

@@ -1,0 +1,174 @@
+namespace Eigen {
+
+/**
+
+\page TopicCMakeGuide Using %Eigen in CMake Projects
+
+%Eigen provides native CMake support which allows the library to be easily
+used in CMake projects.
+
+\note Configuring and installing %Eigen requires %CMake 3.17 (or later). The generated `Eigen3Config.cmake`
+imposes no version floor of its own, so a project consuming an already-installed %Eigen may use an older %CMake;
+the \ref title_fetchcontent route below adds %Eigen's own build to your project and so requires 3.17 as well.
+
+%Eigen exports a CMake target called `Eigen3::Eigen` which can be imported
+using the `find_package` CMake command and used by calling
+`target_link_libraries` as in the following example:
+\code{.cmake}
+cmake_minimum_required (VERSION 3.5)
+project (myproject)
+
+find_package (Eigen3 REQUIRED NO_MODULE)
+
+add_executable (example example.cpp)
+target_link_libraries (example Eigen3::Eigen)
+\endcode
+
+The above code snippet must be placed in a file called `CMakeLists.txt` alongside
+`example.cpp`. After running
+\code{.sh}
+$ cmake path-to-example-directory
+\endcode
+CMake will produce project files that generate an executable called `example`.
+Here, `path-to-example-directory` is the path to the directory that contains
+both `CMakeLists.txt` and `example.cpp`.  Note that if you have multiple
+instances of %Eigen installed, `find_package` will use the first one
+encountered.  To request a specific version of %Eigen, use the `<version>`
+option in `find_package`:
+```
+find_package(Eigen3 3.4 REQUIRED NO_MODULE)  # Any version >=3.4 but <4.0.0.
+```
+Starting with Eigen 3.4.1, we also support a range spanning major versions:
+```
+find_package(Eigen3 3.4...5 REQUIRED NO_MODULE)  # Any version >=3.4.1 but <6.0.0.
+```
+\note Version ranges are `find_package` syntax introduced in %CMake 3.19. Older %CMake
+passes `3.4...5` through as a single version string, which `Eigen3ConfigVersion.cmake`
+cannot parse and therefore rejects.
+
+Do not forget to set the <a href="https://cmake.org/cmake/help/v3.7/variable/CMAKE_PREFIX_PATH.html">\c CMAKE_PREFIX_PATH </a> variable if Eigen is not installed in a default location or if you want to pick a specific version. For instance:
+\code{.sh}
+$ cmake path-to-example-directory -DCMAKE_PREFIX_PATH=$HOME/mypackages
+\endcode
+An alternative is to set the \c Eigen3_DIR cmake's variable to the respective path containing the \c Eigen3*.cmake files. For instance:
+\code{.sh}
+$ cmake path-to-example-directory -DEigen3_DIR=$HOME/mypackages/share/eigen3/cmake/
+\endcode
+
+If the `REQUIRED` option is omitted when locating %Eigen using
+`find_package`, one can check whether the package was found as follows:
+\code{.cmake}
+find_package (Eigen3 NO_MODULE)
+
+if (TARGET Eigen3::Eigen)
+  # Use the imported target
+endif (TARGET Eigen3::Eigen)
+\endcode
+
+\section title_fetchcontent Using FetchContent
+
+You can use the
+<a href="https://cmake.org/cmake/help/latest/module/FetchContent.html">FetchContent</a>
+module to download and include %Eigen directly in your project without
+installing it first. This adds %Eigen's own build to your project, so it requires
+%CMake 3.17 rather than the 3.11 that introduced FetchContent.
+
+A basic example:
+\code{.cmake}
+cmake_minimum_required(VERSION 3.17)
+project(myproject)
+
+include(FetchContent)
+FetchContent_Declare(
+  Eigen
+  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+  GIT_TAG        master
+  GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(Eigen)
+
+add_executable(example example.cpp)
+target_link_libraries(example Eigen3::Eigen)
+\endcode
+
+\subsection title_fetchcontent_options Disabling Eigen build options
+
+When %Eigen is added as a sub-project, its documentation, testing, and
+pkg-config targets may collide with your project's own targets. Disable
+them before calling \c FetchContent_MakeAvailable:
+\code{.cmake}
+set(EIGEN_BUILD_DOC OFF CACHE BOOL "" FORCE)
+set(EIGEN_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(EIGEN_BUILD_PKGCONFIG OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(Eigen)
+\endcode
+
+\subsection title_fetchcontent_install Disabling Eigen's install rules
+
+%Eigen's install rules are enabled even when it is built as a sub-project, so
+that a project embedding %Eigen can ship it as part of its own package. If your
+project does not want %Eigen's headers to land in \c CMAKE_INSTALL_PREFIX (or in
+a \c CPack package), set \c EIGEN_INSTALL to \c OFF:
+\code{.cmake}
+set(EIGEN_INSTALL OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(Eigen)
+\endcode
+
+%Eigen then places no file at all under \c CMAKE_INSTALL_PREFIX, the generated
+documentation included.
+
+\note %CMake refuses to generate an \c install(EXPORT ...) whose targets link a
+target that no installed export set provides. So if you export your own targets
+and their public interface links \c Eigen3::Eigen, you must either leave
+\c EIGEN_INSTALL on and install %Eigen's CMake package alongside them, or consume
+%Eigen through \c find_package instead of embedding it.
+
+\subsection title_fetchcontent_exclude Using EXCLUDE_FROM_ALL
+
+Projects that depend on %Eigen should typically exclude installing %Eigen by
+default to avoid overwriting a previous installation. Passing
+\c EXCLUDE_FROM_ALL to \c add_subdirectory drops %Eigen's install rules, and in
+addition keeps %Eigen's targets out of the default build. That form works on
+every %CMake version %Eigen supports:
+\code{.cmake}
+add_subdirectory(path/to/eigen eigen-build EXCLUDE_FROM_ALL)
+\endcode
+
+\c FetchContent_Declare accepts the same keyword, but only from %CMake 3.28
+onwards, so a project using it has to say so:
+\code{.cmake}
+cmake_minimum_required(VERSION 3.28)
+
+include(FetchContent)
+FetchContent_Declare(
+  Eigen
+  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+  GIT_TAG        master
+  GIT_SHALLOW    TRUE
+  EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(Eigen)
+\endcode
+
+\warning %CMake 3.17 through 3.27 accept \c EXCLUDE_FROM_ALL in
+\c FetchContent_Declare without complaint and ignore it, so %Eigen is installed
+anyway. Below 3.28, use \c EIGEN_INSTALL or the \c add_subdirectory form.
+
+\subsection title_fetchcontent_cmake330 Note for CMake 3.30 and later
+
+CMake 3.30 changed the default value of the
+<a href="https://cmake.org/cmake/help/latest/policy/CMP0168.html">CMP0168</a>
+policy so that \c FetchContent_Declare uses
+\c FetchContent_Populate internally with a different sub-build strategy.
+If you encounter issues with sub-builds you can either upgrade to a
+compatible %Eigen version or set the policy explicitly:
+\code{.cmake}
+cmake_policy(SET CMP0168 OLD)
+\endcode
+
+*/
+
+}

@@ -1,0 +1,15 @@
+// This file is part of Eigen, a lightweight C++ template library
+// for linear algebra.
+//
+// SPDX-FileCopyrightText: The Eigen Authors
+// SPDX-License-Identifier: MPL-2.0
+//
+// Forwarding header: the top-level unsupported/ directory was renamed
+// to contrib/ in Eigen 5.x, and the CXX11/ subdirectory no longer
+// exists at the new location. New code should use
+//   #include <contrib/Eigen/Tensor>
+// directly. This shim preserves the legacy include path.
+
+// Forward every inclusion so the Tensor module can detect a newly enabled
+// backend and complete its device type.
+#include "../../../contrib/Eigen/Tensor"  // IWYU pragma: export

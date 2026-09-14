@@ -1,0 +1,17 @@
+// This file is part of Eigen, a lightweight C++ template library
+// for linear algebra.
+//
+// SPDX-FileCopyrightText: The Eigen Authors
+// SPDX-License-Identifier: MPL-2.0
+//
+// Forwarding header: the top-level unsupported/ directory was renamed
+// to contrib/ in Eigen 5.x. New code should use
+//   #include <contrib/Eigen/Splines>
+// directly. This shim preserves the legacy include path.
+
+#ifndef EIGEN_UNSUPPORTED_SPLINES_FORWARD_H
+#define EIGEN_UNSUPPORTED_SPLINES_FORWARD_H
+
+#include "../../contrib/Eigen/Splines"  // IWYU pragma: export
+
+#endif  // EIGEN_UNSUPPORTED_SPLINES_FORWARD_H
