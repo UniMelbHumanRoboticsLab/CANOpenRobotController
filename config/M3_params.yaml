@@ -66,5 +66,5 @@ EMU_FOURIER:
   # End-effector description
   tool:
     name: "Fourier Handle"
-    length: 0.14 #Tool length from attachment
-    mass:   0.25  #Tool mass in kg
+    length: 0.0 #Tool length from attachment
+    mass:   0.35  #Tool mass in kg

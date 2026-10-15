@@ -24,9 +24,9 @@ class FT_RobotM3 : public RobotM3 {
     int num_FT = 1;
     // -- Variables assocaited with standalone sensors -- //
     std::vector<RobotousRFT *> FT_Sensors;
-    Eigen::VectorXd wrenches;  //6xN Vector containing raw FT readings
-    Eigen::VectorXd correctedWrenches;  //6xN Vector containing corrected FT readings
-    Eigen::VectorXd olStatWrenches;  //6xN Vector containing all FT status
+    VX wrenches;  //6xN Vector containing raw FT readings
+    VX correctedWrenches;  //6xN Vector containing corrected FT readings
+    VX olStatWrenches;  //6xN Vector containing all FT status
     bool sensorsOn = false;
     bool print_states = false;
     
@@ -54,8 +54,9 @@ class FT_RobotM3 : public RobotM3 {
      * @return Eigen::VectorXd& a 6xN (N is number of crutches) of crutch sensor readings
      * @return Eigen::VectorXd& a N (N is number of crutches) of overload readings
      */
-    Eigen::VectorXd &getWrenches();
-    Eigen::VectorXd &getOlStatWrenches();
+    VX &getWrenches();
+    VX &getUncorrectedWrenches();
+    VX &getOlStatWrenches();
 
     /**
      * @brief prints the states of the robot
@@ -68,7 +69,7 @@ class FT_RobotM3 : public RobotM3 {
      * @Configure FT sensors
      *
      */
-    void setWrenchesOffset(Eigen::VectorXd offsets);
+    void setWrenchesOffset(VX offsets);
     bool startFT_Sensors();
     bool stopFT_Sensors();
     bool setFT_SensorsFilter();

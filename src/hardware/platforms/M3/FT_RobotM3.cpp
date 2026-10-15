@@ -3,10 +3,10 @@ using namespace Eigen;
 using namespace std;
 
 FT_RobotM3::FT_RobotM3(string robot_name, string yaml_config_file) :  RobotM3(robot_name, yaml_config_file) {
-    FT_Sensors.push_back(new RobotousRFT(0xf0, 0xf1, 0xf2));
+//     FT_Sensors.push_back(new RobotousRFT(0xf0, 0xf1, 0xf2));
 //     FT_Sensors.push_back(new RobotousRFT(0xf8, 0xf9, 0xf10));
 //     FT_Sensors.push_back(new RobotousRFT(0xe6, 0xe7, 0xe8));
-//     FT_Sensors.push_back(new RobotousRFT(0xec, 0xed, 0xee));
+    FT_Sensors.push_back(new RobotousRFT(0xec, 0xed, 0xee));
 
     // Add to input stack
     for (uint i = 0; i < FT_Sensors.size(); i++) {
@@ -14,9 +14,9 @@ FT_RobotM3::FT_RobotM3(string robot_name, string yaml_config_file) :  RobotM3(ro
     }
     
     // initialise all the wrench readings first depending on number of sensors
-    wrenches = Eigen::VectorXd::Zero(6 * FT_Sensors.size());  // 6 Forces per sensor
-    correctedWrenches = Eigen::VectorXd::Zero(6 * FT_Sensors.size());  // 6 Forces per sensor
-    olStatWrenches = Eigen::VectorXd::Zero(FT_Sensors.size());  // 1 per sensor
+    wrenches = VX::Zero(6 * FT_Sensors.size());  // 6 Forces per sensor
+    correctedWrenches = VX::Zero(6 * FT_Sensors.size());  // 6 Forces per sensor
+    olStatWrenches = VX::Zero(FT_Sensors.size());  // 1 per sensor
 }
 
 FT_RobotM3::~FT_RobotM3() {
@@ -32,8 +32,8 @@ void FT_RobotM3::updateRobot(){
     RobotM3::updateRobot();
     spdlog::trace("FT_RobotM3::updateRobot()");
     for (int i = 0; i < (int)FT_Sensors.size(); i++) {
-        Eigen::VectorXd forces = FT_Sensors[i]->getForces();
-        Eigen::VectorXd torques = FT_Sensors[i]->getTorques();
+        VX forces = FT_Sensors[i]->getForces();
+        VX torques = FT_Sensors[i]->getTorques();
         
         for (int j = 0; j < 3; j++) {
             wrenches[i * 6 + j] = forces[j];
@@ -44,14 +44,15 @@ void FT_RobotM3::updateRobot(){
     correctWrenches();
 }
 void  FT_RobotM3::correctWrenches(){
+
     // correct the readings here
-    Eigen::VectorXd faulty_force = wrenches.segment(0, 3);
-    Eigen::VectorXd faulty_torque = wrenches.segment(3, 3);
+    VX faulty_force = VX(wrenches.segment(0, 3));;
+    VX faulty_torque = VX(wrenches.segment(3, 3));;
 
     Eigen::Matrix3d rotation_matrix;
-    rotation_matrix = Eigen::AngleAxisd(-M_PI*50/180, Eigen::Vector3d::UnitZ());  // Rotate 50 degrees around Z-axis
-    Eigen::VectorXd corrected_force = rotation_matrix * faulty_force;
-    Eigen::VectorXd corrected_torque = rotation_matrix * faulty_torque;
+    rotation_matrix = Eigen::AngleAxisd(-M_PI*0/180, Eigen::Vector3d::UnitZ());  // Rotate 50 degrees around Z-axis
+    VX corrected_force = rotation_matrix * faulty_force;
+    VX corrected_torque = rotation_matrix * faulty_torque;
     
     correctedWrenches[0] = corrected_force[0];
     correctedWrenches[1] = corrected_force[1];
@@ -59,12 +60,17 @@ void  FT_RobotM3::correctWrenches(){
     correctedWrenches[3] = corrected_torque[0];
     correctedWrenches[4] = corrected_torque[1];
     correctedWrenches[5] = corrected_torque[2];
+
 }
 
-Eigen::VectorXd& FT_RobotM3::getWrenches() {
+VX& FT_RobotM3::getUncorrectedWrenches() {
+    return wrenches;
+}
+
+VX& FT_RobotM3::getWrenches() {
     return correctedWrenches;
 }
-Eigen::VectorXd& FT_RobotM3::getOlStatWrenches(){
+VX& FT_RobotM3::getOlStatWrenches(){
     return olStatWrenches;
 }
 void FT_RobotM3::printStatus() {
@@ -78,9 +84,9 @@ void FT_RobotM3::printStatus() {
     std::cout <<  std::noshowpos;
 }
 void FT_RobotM3::printWrenches() {
-    Eigen::VectorXd curSensorWrenches = getWrenches();
+    VX curSensorWrenches = getWrenches();
     for (int i = 0; i < (int)FT_Sensors.size(); i++) {
-        Eigen::VectorXd curSensorWrench = curSensorWrenches.segment(i * 6, 6);
+        VX curSensorWrench = curSensorWrenches.segment(i * 6, 6);
         std::cout << std::setprecision(3) << std::fixed << std::showpos;
         std::cout << "F" << i << "=[ " << curSensorWrench.transpose() << " ]\t";
         std::cout << "|F" << i << "|=[ " << curSensorWrench.segment(0, 3).norm() << " ]\t";
@@ -95,8 +101,9 @@ void FT_RobotM3::printWrenches() {
  * @ Configure FT sensors
  *
  */
-void FT_RobotM3::setWrenchesOffset(Eigen::VectorXd offsets) {
+void FT_RobotM3::setWrenchesOffset(VX offsets) {
     for (unsigned int i = 0; i < FT_Sensors.size(); i++) {
+
         FT_Sensors[i]->setOffsets(offsets.segment(i * 6, 3), offsets.segment(i * 6+3, 3));
     }
 }
@@ -117,8 +124,8 @@ bool FT_RobotM3::stopFT_Sensors() {
         for (unsigned int i = 0; i < FT_Sensors.size(); i++) {
             FT_Sensors[i]->stopStream();
         }
-        wrenches = Eigen::VectorXd::Zero(6 * FT_Sensors.size());
-        correctedWrenches = Eigen::VectorXd::Zero(6 * FT_Sensors.size());
+        wrenches = VX::Zero(6 * FT_Sensors.size());
+        correctedWrenches = VX::Zero(6 * FT_Sensors.size());
         sensorsOn = false;
         return true;
     } else {
