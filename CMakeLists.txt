@@ -24,7 +24,7 @@ project(CORC C CXX)
 include(../corc_ros2_sm/FT_EMU_ROS2/app.cmake)
 
 ## Comment to use actual hardware, uncomment for a nor robot (virtual) app
-#set(NO_ROBOT ON)
+set(NO_ROBOT ON)
 
 ## Select desired logging level (Options: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)
 ## INFO is the recommended level in normal operation
